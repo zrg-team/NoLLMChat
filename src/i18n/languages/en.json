@@ -1,0 +1,7 @@
+{
+  "chat": {
+    "assistant_welcome_message": "All set! How can I help you today?",
+    "assistant_loading_message": "I'm thinking...",
+    "assistant_loading": "Initializing..."
+  }
+}
