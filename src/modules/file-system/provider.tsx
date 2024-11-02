@@ -25,7 +25,7 @@ export const FileSystemProvider = ({ children }: PropsWithChildren) => {
       }
     }
     window.addEventListener('load', init)
-    return ()  => {
+    return () => {
       window.removeEventListener('load', init)
     }
   }, [])

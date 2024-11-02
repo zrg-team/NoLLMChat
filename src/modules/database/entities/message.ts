@@ -8,10 +8,8 @@ import {
   JoinColumn,
 } from 'typeorm'
 import { Thread } from './entry'
-import {
-  MessageFromEnum,
-  MessageStatusEnum,
-} from '../types/message'
+import { MessageFromEnum, MessageStatusEnum } from '../types/message'
+import { LLM } from './llm'
 
 @Entity({ name: 'messages' })
 export class Message {
@@ -37,14 +35,26 @@ export class Message {
   hidden?: boolean
 
   @CreateDateColumn()
-  createdAt: Date
+  created_at?: Date
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updated_at?: Date
+
+  @Column('uuid')
+  parent_message_id?: string
+  @ManyToOne(() => Message, (thread) => thread.message)
+  @JoinColumn({ name: 'parent_message_id' })
+  message?: Message
 
   @Column('uuid')
   thread_id: string
   @ManyToOne(() => Thread, (thread) => thread.messages)
   @JoinColumn({ name: 'task_id' })
   thread?: Thread
+
+  @Column('uuid')
+  llm_id: string
+  @ManyToOne(() => LLM, (llm) => llm.messages)
+  @JoinColumn({ name: 'llm_id' })
+  llm?: LLM
 }

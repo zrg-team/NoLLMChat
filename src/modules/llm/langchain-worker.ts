@@ -98,7 +98,6 @@ async function handlePayload(data: MessagePayload) {
     case 'stream': {
       let content = ''
       const [input, ...rest] = data.payload
-      console.log('input', input)
       const stream = await model.stream(parseInvokeData(input), ...rest)
 
       for await (const chunk of stream) {

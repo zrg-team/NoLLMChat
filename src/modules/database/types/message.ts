@@ -12,4 +12,3 @@ export enum MessageFromEnum {
   System = 'system',
   Assistant = 'assistant',
 }
-

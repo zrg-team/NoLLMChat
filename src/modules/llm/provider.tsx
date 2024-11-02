@@ -1,6 +1,7 @@
 import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
 import { BaseMessageChunk } from '@langchain/core/messages'
 import { InitProgressReport } from '@mlc-ai/web-llm'
+import { nanoid } from 'nanoid'
 import {
   createContext,
   PropsWithChildren,
@@ -13,17 +14,20 @@ import {
 import { WOKER_INIT_MESSAGE_ID } from 'src/utils/worker-base'
 
 export const LocalLLMContext = createContext<{
+  selectedModel?: string
   initializing?: { worker: boolean; init: boolean; loading: boolean }
   invoke?: (...args: Parameters<ChatWebLLM['invoke']>) => ReturnType<ChatWebLLM['invoke']>
   stream?: (
     ...args: Parameters<ChatWebLLM['stream']>
   ) => AsyncGenerator<unknown, BaseMessageChunk, unknown>
   setInitProgressCallback?: (callback: (initProgress: InitProgressReport) => void) => () => void
+  loadModel?: (modelId: string) => Promise<void>
 }>({})
 export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
-  const [initializing, setInitializing] = useState({ worker: true, init: true, loading: true })
-  const [selectedModel] = useState<string>('Phi-3.5-mini-instruct-q4f16_1-MLC')
-  const initProgressCallbacks = useRef<((initProgress: InitProgressReport) => void)[]>([])
+  const [initializing, setInitializing] = useState({ worker: true, init: true, loading: false })
+  const [selectedModel, setSelectedModel] = useState<string>()
+  const initProgressCallbacksRef = useRef<((initProgress: InitProgressReport) => void)[]>([])
+  const currentLoadModelMessageIdRef = useRef<string>()
   const refProcesses = useRef<
     Map<
       string,
@@ -39,14 +43,14 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
   const worker = useRef<Worker>()
 
   const initProgressCallback = useCallback((initProgress: InitProgressReport) => {
-    initProgressCallbacks.current.forEach((callback) => callback(initProgress))
+    initProgressCallbacksRef.current.forEach((callback) => callback(initProgress))
   }, [])
 
   const setInitProgressCallback = useCallback(
     (callback: (initProgress: InitProgressReport) => void) => {
-      initProgressCallbacks.current.push(callback)
+      initProgressCallbacksRef.current.push(callback)
       return () => {
-        initProgressCallbacks.current = initProgressCallbacks.current.filter(
+        initProgressCallbacksRef.current = initProgressCallbacksRef.current.filter(
           (cb) => cb !== callback,
         )
       }
@@ -179,6 +183,40 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
     return promise
   }, [])
 
+  const loadModel = useCallback(async (modelName: string) => {
+    if (currentLoadModelMessageIdRef.current) {
+      const process = refProcesses.current.get(currentLoadModelMessageIdRef.current)
+      if (process) {
+        const [, reject] = process
+        reject?.('stop')
+        refProcesses.current.delete(currentLoadModelMessageIdRef.current)
+      }
+    }
+    currentLoadModelMessageIdRef.current = nanoid()
+    setSelectedModel(modelName)
+    setInitializing((initializing) => ({ ...initializing, loading: true }))
+    const generator = load(currentLoadModelMessageIdRef.current, {
+      model: modelName,
+    })
+    for await (const data of generator) {
+      if (data) {
+        initProgressCallback(data as InitProgressReport)
+      }
+    }
+    setInitializing((initializing) => ({ ...initializing, loading: false }))
+    setTimeout(
+      () => {
+        initProgressCallback({
+          progress: 100,
+          timeElapsed: 1,
+          text: `Model ${selectedModel} loaded.`,
+        })
+        setInitializing((initializing) => ({ ...initializing, loading: false }))
+      },
+      100,
+    )
+  }, [initProgressCallback, load, selectedModel])
+
   useLayoutEffect(() => {
     worker.current = new Worker(new URL('./langchain-worker.ts', import.meta.url), {
       type: 'module',
@@ -186,47 +224,23 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
     worker.current.addEventListener('message', handleMessages)
     setInitializing((initializing) => ({ ...initializing, worker: false }))
 
-    const loadMessageId = Math.random().toString(36).slice(2)
-    const initModel = async () => {
-      const generator = load(loadMessageId, {
-        model: selectedModel,
-        temperature: 0.5,
-      })
-      for await (const data of generator) {
-        if (data) {
-          initProgressCallback(data as InitProgressReport)
-        }
-      }
-      setInitializing((initializing) => ({ ...initializing, loading: false }))
-      setTimeout(
-        () =>
-          initProgressCallback({
-            progress: 100,
-            timeElapsed: 1,
-            text: `Model ${selectedModel} loaded.`,
-          }),
-        100,
-      )
-    }
-
-    initModel()
     return () => {
       worker.current?.removeEventListener('message', handleMessages)
       worker.current?.terminate()
-      const process = refProcesses.current.get(loadMessageId)
-      if (process) {
-        const [, reject] = process
-        reject?.('stop')
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        refProcesses.current.delete(loadMessageId)
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleMessages, load, refProcesses.current, selectedModel])
+  }, [handleMessages, load, refProcesses.current])
 
   const context = useMemo(
-    () => ({ stream, invoke, initializing, setInitProgressCallback }),
-    [stream, invoke, initializing, setInitProgressCallback],
+    () => ({
+      stream,
+      invoke,
+      initializing,
+      setInitProgressCallback,
+      loadModel,
+      selectedModel,
+    }),
+    [stream, invoke, initializing, setInitProgressCallback, loadModel, selectedModel],
   )
 
   return <LocalLLMContext.Provider value={context}>{children}</LocalLLMContext.Provider>
