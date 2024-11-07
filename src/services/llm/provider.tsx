@@ -9,10 +9,10 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react'
 import { WOKER_INIT_MESSAGE_ID } from 'src/utils/worker-base'
 import { parseLLMInputToBridgeJSON } from './utils/serialize'
+import { useLLMState } from 'src/states/llm'
 
 export const LocalLLMContext = createContext<{
   selectedModel?: string
@@ -25,8 +25,11 @@ export const LocalLLMContext = createContext<{
   loadModel?: (modelId: string) => Promise<void>
 }>({})
 export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
-  const [initializing, setInitializing] = useState({ worker: true, init: true, loading: false })
-  const [selectedModel, setSelectedModel] = useState<string>()
+  const init = useLLMState((state) => state.init)
+  const initializing = useLLMState((state) => state.initializing)
+  const selectedModel = useLLMState((state) => state.selectedModel)
+  const setInitializing = useLLMState((state) => state.setInitializing)
+  const setSelectedModel = useLLMState((state) => state.setSelectedModel)
   const initProgressCallbacksRef = useRef<((initProgress: InitProgressReport) => void)[]>([])
   const currentLoadModelMessageIdRef = useRef<string>()
   const refProcesses = useRef<
@@ -65,7 +68,7 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
       }
       const [resolve, reject, processInfo] = refProcesses.current.get(messageId) || []
       if (messageId === WOKER_INIT_MESSAGE_ID) {
-        setInitializing((initializing) => ({ ...initializing, init: false }))
+        setInitializing({ init: false })
       } else if (['complete', 'error'].includes(event.data.type)) {
         if (event.data.type === 'complete') {
           resolve?.(event.data.payload as BaseMessageChunk | PromiseLike<BaseMessageChunk>)
@@ -83,7 +86,7 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
         console.warn('Unknown message type', event.data)
       }
     },
-    [],
+    [setInitializing],
   )
 
   const load = useCallback(async function* (
@@ -195,7 +198,7 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
       }
       currentLoadModelMessageIdRef.current = nanoid()
       setSelectedModel(modelName)
-      setInitializing((initializing) => ({ ...initializing, loading: true }))
+      setInitializing({ loading: true })
       const generator = load(currentLoadModelMessageIdRef.current, {
         model: modelName,
       })
@@ -204,32 +207,32 @@ export const LocalLLMProvider = ({ children }: PropsWithChildren) => {
           initProgressCallback(data as InitProgressReport)
         }
       }
-      setInitializing((initializing) => ({ ...initializing, loading: false }))
       setTimeout(() => {
         initProgressCallback({
           progress: 100,
           timeElapsed: 1,
           text: `Model ${modelName} loaded.`,
         })
-        setInitializing((initializing) => ({ ...initializing, loading: false }))
+        setInitializing({ loading: false })
       }, 100)
     },
-    [initProgressCallback, load],
+    [initProgressCallback, load, setInitializing, setSelectedModel],
   )
 
   useLayoutEffect(() => {
     worker.current = new Worker(new URL('./langchain-worker.ts', import.meta.url), {
       type: 'module',
     })
+    init()
     worker.current.addEventListener('message', handleMessages)
-    setInitializing((initializing) => ({ ...initializing, worker: false }))
+
+    setInitializing({ worker: false })
 
     return () => {
       worker.current?.removeEventListener('message', handleMessages)
       worker.current?.terminate()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleMessages, load, refProcesses.current])
+  }, [handleMessages, init, load, setInitializing])
 
   const context = useMemo(
     () => ({

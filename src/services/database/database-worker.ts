@@ -25,7 +25,7 @@ const init = async () => {
     autoSave: true,
     entities: Object.values(entitiesMap),
     location: injectedData ? undefined : 'db',
-    logging: ['query', 'schema'],
+    logging: ['query', 'error'],
     useLocalForage: true,
     autoSaveCallback: injectedData
       ? (data: unknown) => {

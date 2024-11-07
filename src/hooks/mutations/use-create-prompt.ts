@@ -15,7 +15,6 @@ export const useCreatePrompt = () => {
   const sessionId = useSessionState((state) => state.currentSession?.id)
 
   const [loading, setLoading] = useState(false)
-  const pushSyncNodeQueue = useFlowState((state) => state.pushSyncNodeQueue)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
 
   const createPrompt = useCallback(
@@ -59,17 +58,11 @@ export const useCreatePrompt = () => {
         if (!promptNode) {
           throw new Error('Failed to save prompt node')
         }
-        pushSyncNodeQueue('Prompt', {
-          where: {
-            source_type: 'Prompt',
-            source_id: prompt.id,
-          },
-        })
       } finally {
         setLoading(false)
       }
     },
-    [sessionId, createOrUpdateFlowNode, pushSyncNodeQueue],
+    [sessionId, createOrUpdateFlowNode],
   )
 
   return {

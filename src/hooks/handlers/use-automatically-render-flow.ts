@@ -25,7 +25,6 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
   }, [initialFlow, prepareFlowInfo, loadingState.loading, isReadyRef, flowStateReady])
 
   useEffect(() => {
-    console.log('HANDLER')
     const unsubNodeHandler = useFlowState.subscribe(
       (state) => state.syncNodeQueue,
       async (syncNodeQueue, previousSyncNodeQueue) => {
@@ -35,15 +34,18 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
         )
         if (handlingQueueItems.length) {
           removeSyncNodeQueue(handlingQueueItems.map((item) => item.timestamp))
-          console.log('syncNodeQueue', handlingQueueItems)
           for (const item of handlingQueueItems) {
             const response = await prepareFlowInfo(item.query)
             switch (item.syncType) {
               case 'Thread':
                 {
-                  const threadIds = response?.flowNodeDatas?.['Thread']?.map(
-                    (nodeData) => nodeData.id,
-                  )
+                  const threadIds = response?.flowNodes
+                    ?.map((node) => {
+                      if (node.source_id && node.source_type === 'Thread') {
+                        return node.source_id
+                      }
+                    })
+                    .filter(Boolean)
                   if (threadIds?.length) {
                     const messages = await getRepository('Message').find({
                       where: { thread_id: In(threadIds) },
@@ -70,7 +72,6 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
           (item) => !lastTimestamps.includes(item.timestamp),
         )
         if (handlingQueueItems.length) {
-          console.log('syncEdgeQueue', handlingQueueItems)
           removeSyncEdgeQueue(handlingQueueItems.map((item) => item.timestamp))
           syncEdges()
         }

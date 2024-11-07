@@ -61,9 +61,8 @@ export const useCreateNewMessage = () => {
       thread: Thread,
       input: string,
       options: {
-        onMessageUpdate: (aiMessageNodeId: string, content: string, finish?: boolean) => void
+        onMessageUpdate: (info: { id?: string; content: string; finish?: boolean }) => void
         connectedNodes?: Node[]
-        threadPrompt?: Node
       },
     ) => {
       if (!source || !thread) {
@@ -144,18 +143,25 @@ export const useCreateNewMessage = () => {
                 chunks.push(...chunk.map((c) => c.content))
                 if (chunks?.length) {
                   response = chunks.join('')
-                  if (aiMessageNodeId) {
-                    options?.onMessageUpdate(aiMessageNodeId, response)
-                  }
+                  options.onMessageUpdate?.({
+                    id: aiMessageNodeId,
+                    content: response,
+                  })
                 }
                 content = chunks.join('')
               } else if (typeof chunk === 'string') {
+                options.onMessageUpdate?.({
+                  id: aiMessageNodeId,
+                  content: response,
+                })
                 content = chunk
               }
             }
-            if (aiMessageNodeId) {
-              options?.onMessageUpdate(aiMessageNodeId, content, true)
-            }
+            options.onMessageUpdate?.({
+              id: aiMessageNodeId,
+              content,
+              finish: true,
+            })
             if (aiMessageId) {
               await getRepository('Message').update(aiMessageId, {
                 content: content,

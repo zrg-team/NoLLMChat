@@ -70,6 +70,7 @@
       "search_placeholder": "Search model...",
       "no_model": "No model found",
       "function_calling": "Function Calling",
+      "cached": "Cached",
       "model_types": {
         "llm": "LLM",
         "embedding": "Embedding",

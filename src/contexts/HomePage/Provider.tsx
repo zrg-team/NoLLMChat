@@ -14,15 +14,8 @@ export interface JNScreenDocumentProviderProps {
 const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children }) => {
   const [initializing, setInitializing] = useState(true)
   const flowManager = useFlowManager()
-  const {
-    nodes,
-    nodesRef,
-    edges,
-    updateOrCreateNode,
-    updateNodeChanges,
-    updateEdgeChanges,
-    updateEdgeConnection,
-  } = flowManager
+  const { updateOrCreateNode, updateNodeChanges, updateEdgeChanges, updateEdgeConnection } =
+    flowManager
   useAutomaticallyRenderFlows(flowManager)
 
   const localLLm = useContext(LocalLLMContext)
@@ -37,51 +30,44 @@ const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children })
     }
     const modelName = `${localLLm.selectedModel}`
     const callbackRemoval = localLLm.setInitProgressCallback?.((input) => {
-      const flowNode = nodesRef.current?.find((node) => {
-        if (
-          node.data?.entity &&
-          typeof node.data.entity === 'object' &&
-          'name' in node.data.entity
-        ) {
-          return node.data.entity.name === modelName
-        }
-        return false
-      })
-      if (!flowNode) return
+      updateOrCreateNode((nodeRefs) => {
+        const flowNode = nodeRefs?.find((node) => {
+          if (
+            node.data?.entity &&
+            typeof node.data.entity === 'object' &&
+            'name' in node.data.entity
+          ) {
+            return node.data.entity.name === modelName
+          }
+          return false
+        })
+        if (!flowNode) return
 
-      flowNode.data.label = input.text
-      flowNode.data.status = LLMStatusEnum.Loading
-      if (input.progress === 100) {
-        flowNode.data.label = ``
-        flowNode.data.status = LLMStatusEnum.Loaded
-      }
-      updateOrCreateNode(flowNode)
+        flowNode.data.label = input.text
+        flowNode.data.status = LLMStatusEnum.Loading
+        if (input.progress === 100) {
+          flowNode.data.label = ``
+          flowNode.data.status = LLMStatusEnum.Loaded
+        }
+
+        return flowNode
+      })
     })
 
     return () => {
       callbackRemoval?.()
     }
-  }, [localLLm, localLLm.initializing, localLLm.selectedModel, nodesRef, updateOrCreateNode])
+  }, [localLLm, localLLm.initializing, localLLm.selectedModel, updateOrCreateNode])
 
   const contextValue = useMemo<HomePageContextType>(
     () => ({
-      edges,
-      nodes,
       updateNodeChanges,
       updateEdgeChanges,
       initializing,
       setInitializing,
       updateEdgeConnection,
     }),
-    [
-      edges,
-      updateNodeChanges,
-      nodes,
-      updateEdgeChanges,
-      initializing,
-      setInitializing,
-      updateEdgeConnection,
-    ],
+    [updateNodeChanges, updateEdgeChanges, initializing, setInitializing, updateEdgeConnection],
   )
 
   return <HomePageContextProvider value={contextValue}>{children}</HomePageContextProvider>

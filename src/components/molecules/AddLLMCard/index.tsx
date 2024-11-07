@@ -18,24 +18,52 @@ import {
 } from 'src/lib/shadcn/ui/command'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { LLMModelTypeEnum } from 'src/services/database/types'
+import { useLLMState } from 'src/states/llm'
 
 function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
   const { t } = useTranslation('components')
   const node = useInternalNode(id)
-  const { loading: creatingLLM, createDatabaseLLM } = useCreateDatabaseLLM()
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [hasCache, setHasCache] = useState(false)
 
-  const modelList = useMemo(() => {
-    if (!search) return prebuiltAppConfig.model_list
+  const cachedLLMURLs = useLLMState((state) => state.cachedLLMURLs)
+  const { loading: creatingLLM, createDatabaseLLM } = useCreateDatabaseLLM()
 
-    return prebuiltAppConfig.model_list.filter((model) =>
-      model.model_id.toLowerCase().includes(search.toLowerCase()),
-    )
-  }, [search])
+  const modelList = useMemo(() => {
+    const data = !search
+      ? prebuiltAppConfig.model_list
+      : prebuiltAppConfig.model_list.filter((model) =>
+          model.model_id.toLowerCase().includes(search.toLowerCase()),
+        )
+
+    return data.sort((pre, next) => {
+      let countPre = 0
+      let countNext = 0
+
+      if (functionCallingModelIds.includes(pre.model_id)) {
+        countPre += 1
+      }
+      if (cachedLLMURLs.some((item) => item.includes(pre.model_id))) {
+        countPre += 1
+      }
+
+      if (functionCallingModelIds.includes(next.model_id)) {
+        countNext += 1
+      }
+      if (cachedLLMURLs.some((item) => item.includes(next.model_id))) {
+        countNext += 1
+      }
+
+      if (countNext !== countPre) {
+        return countNext - countPre
+      }
+      return pre.model_id.localeCompare(next.model_id)
+    })
+  }, [cachedLLMURLs, search])
+
   const selectedModel = useMemo(() => {
     if (!input) return
     return prebuiltAppConfig.model_list.find((model) => model.model_id === input)
@@ -138,6 +166,11 @@ function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void })
                             {t(modelTypeToString(model.model_type))}
                           </Badge>
                           {model.model_id}
+                          {cachedLLMURLs.some((item) => item.includes(model.model_id)) ? (
+                            <Badge className="tw-ml-1 tw-mb-1" variant="outline">
+                              {t('add_llm_card.cached')}
+                            </Badge>
+                          ) : null}
                           {functionCallingModelIds.includes(model.model_id) ? (
                             <Badge className="tw-ml-1 tw-mb-1" variant="outline">
                               {t('add_llm_card.function_calling')}

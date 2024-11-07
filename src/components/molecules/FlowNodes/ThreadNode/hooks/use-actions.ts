@@ -5,12 +5,31 @@ import { FlowNodeTypeEnum } from 'src/services/database/types'
 import { toast } from 'src/lib/hooks/use-toast'
 
 import { ThreadNodeData } from '../type'
+import { useFlowState } from 'src/states/flow'
 
 export const useActions = (id: string, data: ThreadNodeData) => {
   const node = useInternalNode(id)
-  const { getNode, updateNodeData, getHandleConnections } = useReactFlow()
+  const { getNode, getHandleConnections } = useReactFlow()
+  const updateNodes = useFlowState((state) => state.updateNodes)
   const { createMessage: createMessageFunction, loading } = useCreateNewMessage()
 
+  const onMessageUpdate = useCallback(
+    (info: { id?: string; content: string; finish?: boolean }) => {
+      if (!info.content || !info.id) {
+        return
+      }
+      const item = getNode(info.id)
+      if (!item) {
+        return
+      }
+      updateNodes([{
+        id: info.id,
+        type: 'replace',
+        item: { ...item, data: { ...item.data, content: info.content, loading: !info.finish } }
+      }])
+    },
+    [getNode, updateNodes],
+  )
   const createMessage = useCallback(
     async (input: string) => {
       if (node && data.entity) {
@@ -23,10 +42,8 @@ export const useActions = (id: string, data: ThreadNodeData) => {
             .map((connection) => getNode(connection.source))
             .find((node) => node?.type === FlowNodeTypeEnum.Prompt)
           await createMessageFunction(node, data.entity, input, {
-            connections: promptConnection ? [promptConnection] : undefined,
-            onMessageUpdate: (id: string, content: string, finish?: boolean) => {
-              updateNodeData(id, { content, loading: !finish })
-            },
+            onMessageUpdate,
+            connectedNodes: promptConnection ? [promptConnection] : undefined,
           })
         } catch (error) {
           toast({
@@ -35,7 +52,7 @@ export const useActions = (id: string, data: ThreadNodeData) => {
         }
       }
     },
-    [getNode, createMessageFunction, data.entity, getHandleConnections, node, updateNodeData],
+    [node, data.entity, getHandleConnections, createMessageFunction, onMessageUpdate, getNode],
   )
 
   return { loading, createMessage }

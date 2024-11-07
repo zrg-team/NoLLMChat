@@ -57,12 +57,6 @@ export const useCreateDatabaseLLM = () => {
               x: source.position?.x,
               y: source.position?.y + (source.measured?.height || 0) + 30,
             })
-            pushSyncNodeQueue('LLM', {
-              where: {
-                source_type: 'LLM',
-                source_id: llm.id,
-              },
-            })
             return llm
           })
       } finally {

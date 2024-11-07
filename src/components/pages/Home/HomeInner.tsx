@@ -14,10 +14,12 @@ import {
 import { nodeTypes } from 'src/components/molecules/FlowNodes'
 
 import { HomePageContext } from 'src/contexts/HomePage/context'
+import { useFlowState } from 'src/states/flow'
 
 export default function HomeInner() {
-  const { nodes, edges, updateNodeChanges, updateEdgeChanges, updateEdgeConnection } =
-    useContext(HomePageContext)
+  const nodes = useFlowState((state) => state.nodes)
+  const edges = useFlowState((state) => state.edges)
+  const { updateNodeChanges, updateEdgeChanges, updateEdgeConnection } = useContext(HomePageContext)
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node>[]) => {

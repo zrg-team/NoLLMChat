@@ -1,36 +1,70 @@
 import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
-import { AppEntityNames, FlowEdge, FlowNode } from 'src/services/database/types'
-import type { FindManyOptions } from 'src/services/database/typeorm-wrapper'
+import {
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+  Connection,
+  EdgeChange,
+  NodeChange,
+  type Edge,
+  type Node,
+} from '@xyflow/react'
+import deepmerge from 'deepmerge'
+import {
+  AppEntityNames,
+  EntityArrayTypes,
+  EntityTypes,
+  FlowEdge,
+  FlowNode,
+} from 'src/services/database/types'
+import { In, type FindManyOptions } from 'src/services/database/typeorm-wrapper'
 import type { GetState, SetState } from 'src/utils/zustand'
 import { getRepository } from 'src/services/database'
+import {
+  flowEdgesToEdgeChanges,
+  flowEdgeToEdge,
+  flowNodesToNodeChanges,
+  flowNodeToNode,
+} from 'src/utils/flow'
 
 import { FlowState } from './state'
-import deepmerge from 'deepmerge'
 import { useSessionState } from '../session'
+import { nanoid } from 'nanoid'
 
 export interface FlowStateActions {
-  getFlowNodesBySource: (type: `${AppEntityNames}`) => FlowNode[]
-  getFlowEdgesByNode: (node: FlowNode) => FlowEdge[]
-  getFlowNodeBySource: (type: `${AppEntityNames}`, id: string) => FlowNode | undefined
-  findFlowNodes: (query?: {
-    where?: FindManyOptions<FlowNode>['where'] | undefined
-  }) => Promise<FlowNode[]>
-  findFlowEdges: (query?: {
-    where: FindManyOptions<FlowEdge>['where'] | undefined
-  }) => Promise<FlowEdge[]>
+  // Database node
+  findFlowNodesWithSource: (
+    query: FindManyOptions<FlowNode>,
+    option?: { clean?: boolean },
+  ) => Promise<FlowNode[]>
+  findFlowEdges: (
+    query?: FindManyOptions<FlowEdge>,
+    option?: { clean?: boolean },
+  ) => Promise<FlowEdge[]>
   deleteFlowNode: (node: Partial<FlowNode>) => Promise<void>
   deleteFlowEdge: (edge: Partial<FlowEdge>) => Promise<void>
-  createOrUpdateFlowNode: (node: Partial<FlowNode>) => Promise<FlowNode | undefined>
-  createOrUpdateFlowEdge: (edge: Partial<FlowEdge>) => Promise<FlowEdge | undefined>
-  updateSyncedNodes: (nodeIds: string[]) => void
-  updateSyncedEdges: (edgeIds: string[]) => void
-  getFlowNodeById: (id: string) => FlowNode | undefined
-  getFlowEdgeById: (id: string) => FlowEdge | undefined
+  createOrUpdateFlowNode: (
+    node: Partial<FlowNode>,
+    options?: { lazy?: boolean },
+  ) => Promise<FlowNode | undefined>
+  createOrUpdateFlowEdge: (
+    edge: Partial<FlowEdge>,
+    options?: { lazy?: boolean },
+  ) => Promise<FlowEdge | undefined>
+  // Handle change queue
   pushSyncNodeQueue: (syncType: `${AppEntityNames}`, query: FindManyOptions<FlowNode>) => void
   pushSyncEdgeQueue: () => void
   removeSyncNodeQueue: (timestamps: number[]) => void
   removeSyncEdgeQueue: (timestamps: number[]) => void
+  // Real flow node
+  setNodes: (newNodes: Node[] | ((old: Node[]) => Node[])) => void
+  setEdges: (newEdges: Edge[] | ((old: Edge[]) => Edge[])) => void
+  updateNodes: (changes: NodeChange<Node>[]) => void
+  updateEdges: (changes: EdgeChange<Edge>[]) => void
+  flowNodesToNodes: (newNodes: FlowNode[]) => void
+  flowEdgesToEdges: (newEdges: FlowEdge[]) => void
+  addConnectionToEdges: (connection: Connection) => void
 }
 
 export const getFlowStateActions = (
@@ -38,9 +72,56 @@ export const getFlowStateActions = (
   get: GetState<FlowState & FlowStateActions>,
 ): FlowStateActions => {
   return {
+    setNodes: (newNodes) => {
+      if (typeof newNodes === 'function') {
+        set({ nodes: newNodes(get().nodes) })
+        return
+      }
+      set({ nodes: newNodes })
+    },
+    setEdges: (newEdges) => {
+      if (typeof newEdges === 'function') {
+        set({ edges: newEdges(get().edges) })
+        return
+      }
+      set({ edges: newEdges })
+    },
+    updateNodes: (changes) => {
+      const nodes = get().nodes
+      set({ nodes: applyNodeChanges(changes, nodes) })
+    },
+    updateEdges: (changes) => {
+      const edges = get().edges
+      set({ edges: applyEdgeChanges(changes, edges) })
+    },
+    addConnectionToEdges: (connection: Connection) => {
+      const edges = get().edges
+      set({ edges: addEdge(connection, edges) })
+    },
+    flowNodesToNodes: (
+      flowNodes,
+      flowNodeDatas: Partial<Record<`${AppEntityNames}`, EntityArrayTypes>> = {},
+    ) => {
+      const currentNodes = get().nodes
+      const { changes } = flowNodesToNodeChanges(flowNodes, currentNodes, flowNodeDatas)
+      set({ nodes: applyNodeChanges(changes, currentNodes) })
+    },
+    flowEdgesToEdges: (flowEdges) => {
+      const currentEdges = get().edges
+      const { changes, updatedIds, deletedIds } = flowEdgesToEdgeChanges(flowEdges, currentEdges)
+      // Remove unused edges
+      currentEdges.forEach((edge) => {
+        if (!updatedIds.includes(edge.id)) {
+          deletedIds.push(edge.id)
+        }
+      })
+      deletedIds.forEach((id) => {
+        changes.push({ type: 'remove' as const, id: id })
+      })
+      set({ edges: applyEdgeChanges(changes, currentEdges) })
+    },
     removeSyncNodeQueue: (timestamps) => {
       const { syncNodeQueue } = get()
-      // Immutable remove. Reference to the same array reference not create new instance. Filter will return new array instance.
       for (const timestamp of timestamps) {
         const index = syncNodeQueue.findIndex((item) => item.timestamp === timestamp)
         if (index > -1) {
@@ -51,7 +132,6 @@ export const getFlowStateActions = (
     },
     removeSyncEdgeQueue: (timestamps) => {
       const { syncEdgeQueue } = get()
-      // Immutable remove. Reference to the same array reference not create new instance. Filter will return new array instance.
       for (const timestamp of timestamps) {
         const index = syncEdgeQueue.findIndex((item) => item.timestamp === timestamp)
         if (index > -1) {
@@ -72,73 +152,78 @@ export const getFlowStateActions = (
         syncEdgeQueue: [...syncEdgeQueue, { timestamp: Date.now() }],
       })
     },
-    getFlowNodeById: (id) => get().flowNodeMap[id],
-    getFlowEdgeById: (id) => get().flowEdgeMap[id],
-    updateSyncedNodes: (nodeIds) => {
-      const handleNodes = get().handleNodes
-      handleNodes.forEach((item, index) => {
-        if (nodeIds.includes(item)) {
-          handleNodes.splice(index, 1)
-        }
-      })
-      set({ syncedNodes: nodeIds, handleNodes })
-    },
-    updateSyncedEdges: (edgeIds) => {
-      const handleEdges = get().handleEdges
-      handleEdges.forEach((item, index) => {
-        if (edgeIds.includes(item)) {
-          handleEdges.splice(index, 1)
-        }
-      })
-      set({ syncedEdges: edgeIds, handleEdges })
-    },
-    getFlowNodesBySource: (type) => {
-      return get().flowNodes.filter((node) => node.source_type === type)
-    },
-    getFlowEdgesByNode: (node) => {
-      return get().flowEdges.filter((edge) => edge.source === node.id || edge.target === node.id)
-    },
-    findFlowNodes: async (query) => {
+    findFlowNodesWithSource: async (query, option) => {
       try {
         set({ flowNodeLoading: true })
-        const nodes = await getRepository('FlowNode').find(query)
-        console.log('findFlowNodes nodes', query, nodes)
-        const currentFlowNodeMap = get().flowNodeMap
-        const newFlowNodeMap = nodes.reduce((map: Record<string, FlowNode>, node) => {
-          const key = `${node.source_id}`
-          if (currentFlowNodeMap[key]) {
-            delete currentFlowNodeMap[key]
-          }
-          map[key] = node
-          return map
-        }, {})
-        set({
-          flowNodes: [...Object.values(currentFlowNodeMap), ...nodes],
-          flowNodeMap: { ...currentFlowNodeMap, ...newFlowNodeMap },
-        })
-        return nodes
+        const flowNodes = await getRepository('FlowNode').find(query)
+        const entityGroups = flowNodes.reduce(
+          (all: Partial<Record<`${AppEntityNames}`, FlowNode[]>>, node) => {
+            if (!all[node.source_type]) {
+              all[node.source_type] = []
+            }
+            all[node.source_type]?.push(node)
+            return all
+          },
+          {},
+        )
+        const flowNodeDatas: Partial<Record<`${AppEntityNames}`, EntityArrayTypes>> = {}
+        await Promise.all(
+          Object.entries(entityGroups).map(async ([key, groupNodes]) => {
+            const entityName = key as AppEntityNames
+            flowNodeDatas[entityName] = (await getRepository(entityName).find({
+              where: {
+                id: In(groupNodes.map((node) => node.source_id)),
+              },
+            })) as EntityArrayTypes
+          }),
+        )
+
+        if (option?.clean) {
+          set({
+            flowNodes: flowNodes,
+            nodes: flowNodes.map((item) => {
+              const source = flowNodeDatas?.[item.source_type]?.find(
+                (data) => data.id === item.source_id,
+              )
+              return flowNodeToNode(item, { data: source })
+            }),
+          })
+        } else {
+          const currentFlowNodes = get().flowNodes
+          const ids = flowNodes.map((node) => node.id)
+          const currentNodes = get().nodes
+          const { changes } = flowNodesToNodeChanges(flowNodes, currentNodes, flowNodeDatas)
+          set({
+            flowNodes: [...currentFlowNodes.filter((item) => !ids.includes(item.id)), ...flowNodes],
+            nodes: applyNodeChanges(changes, currentNodes),
+          })
+        }
+        return flowNodes
       } finally {
         set({ flowNodeLoading: false })
       }
     },
-    findFlowEdges: async (query) => {
+    findFlowEdges: async (query, option) => {
       try {
         set({ flowEdgeLoading: true })
-        const edges = await getRepository('FlowEdge').find(query)
-        const currentFlowEdgeMap = get().flowEdgeMap
-        const newFlowNodeMap = edges.reduce((map: Record<string, FlowEdge>, edge) => {
-          const key = `${edge.source}:${edge.target}`
-          if (currentFlowEdgeMap[key]) {
-            delete currentFlowEdgeMap[key]
-          }
-          map[key] = edge
-          return map
-        }, {})
-        set({
-          flowEdges: [...Object.values(currentFlowEdgeMap), ...edges],
-          flowEdgeMap: { ...currentFlowEdgeMap, ...newFlowNodeMap },
-        })
-        return edges
+        const flowEdges = await getRepository('FlowEdge').find(query)
+        const currentflowEdges = get().flowEdges
+        const ids = flowEdges.map((edge) => edge.id)
+
+        if (option?.clean) {
+          set({
+            flowEdges,
+            edges: flowEdges.map((item) => flowEdgeToEdge(item)),
+          })
+        } else {
+          const currentEdges = get().edges
+          const { changes } = flowEdgesToEdgeChanges(flowEdges, currentEdges)
+          set({
+            flowEdges: [...currentflowEdges.filter((item) => !ids.includes(item.id)), ...flowEdges],
+            edges: applyEdgeChanges(changes, currentEdges),
+          })
+        }
+        return flowEdges
       } finally {
         set({ flowEdgeLoading: false })
       }
@@ -158,8 +243,6 @@ export const getFlowStateActions = (
         })
         if (currentNode) {
           await getRepository('FlowNode').delete(currentNode.id)
-          const flowNodeMap = get().flowNodeMap
-          const handleNodes = get().handleNodes
           const flowNodes = get().flowNodes
           if (currentNode.source_type && currentNode.source_id) {
             await getRepository(currentNode.source_type)
@@ -174,11 +257,10 @@ export const getFlowStateActions = (
               })
           }
 
-          delete flowNodeMap[currentNode.id]
+          const nodes = get().nodes
           set({
-            flowNodeMap,
             flowNodes: flowNodes.filter((item) => item.id !== currentNode.id),
-            handleNodes: handleNodes.filter((item) => item !== currentNode.id),
+            nodes: applyNodeChanges([{ type: 'remove', id: currentNode.id }], nodes),
           })
         }
       } catch (error) {
@@ -200,22 +282,17 @@ export const getFlowStateActions = (
         })
         if (currentEdge) {
           await getRepository('FlowEdge').delete(currentEdge.id)
-          const flowEdgeMap = get().flowEdgeMap
           const flowEdges = get().flowEdges
-          const handleEdges = get().handleEdges
 
-          delete flowEdgeMap[currentEdge.id]
           set({
-            flowEdgeMap,
             flowEdges: flowEdges.filter((item) => item.id !== currentEdge.id),
-            handleEdges: handleEdges.filter((item) => item !== currentEdge.id),
           })
         }
       } catch (error) {
         console.warn('Failed to delete flow edge', error)
       }
     },
-    createOrUpdateFlowNode: async (inputNode) => {
+    createOrUpdateFlowNode: async (inputNode, options) => {
       try {
         const currentSession = useSessionState.getState().currentSession
         if (!currentSession?.id) {
@@ -224,49 +301,78 @@ export const getFlowStateActions = (
         if (!inputNode.id && (!inputNode.source_type || !inputNode.source_id)) {
           throw new Error('Missing flow node indentify')
         }
-        let isNew: boolean = false
-        let node: FlowNode
 
-        const currentNode = await getRepository('FlowNode').findOne({
-          where: inputNode.id
-            ? { id: inputNode.id }
-            : {
-                source_type: inputNode.source_type,
-                source_id: inputNode.source_id,
-              },
-        })
+        let flowNode: FlowNode
+        let currentNode = inputNode?.id
+          ? get().flowNodes.find((item) => item.id === inputNode.id)
+          : undefined
+
+        // TODO: find in database if not found in current state
+        if (!currentNode && (inputNode.id || (inputNode.source_type && inputNode.source_id))) {
+          currentNode = await getRepository('FlowNode').findOne({
+            where: inputNode.id
+              ? { id: inputNode.id }
+              : {
+                  source_type: inputNode.source_type,
+                  source_id: inputNode.source_id,
+                },
+          })
+        }
 
         if (currentNode) {
-          node = deepmerge(currentNode, omitBy(inputNode, isUndefined))
-          await getRepository('FlowNode').update(currentNode.id, node)
+          flowNode = deepmerge(currentNode, omitBy(inputNode, isUndefined))
+
+          if (options?.lazy) {
+            getRepository('FlowNode').update(currentNode.id, flowNode)
+          } else {
+            await getRepository('FlowNode').update(currentNode.id, flowNode)
+          }
         } else if (inputNode.source_id && inputNode.source_type) {
-          node = await getRepository('FlowNode').save({
+          flowNode = {
             ...inputNode,
             source_id: `${inputNode.source_id}`,
             source_type: `${inputNode.source_type}` as AppEntityNames,
             node_type: inputNode.node_type || 'NEW_MESSAGE',
             session_id: inputNode.session_id || currentSession?.id,
-          })
-          isNew = true
+          } as FlowNode
+          if (options?.lazy) {
+            flowNode.id = nanoid()
+            getRepository('FlowNode').save(flowNode)
+          } else {
+            flowNode = await getRepository('FlowNode').save(flowNode)
+          }
         } else {
           throw new Error('Missing source id and type')
         }
-        const flowNodeMap = get().flowNodeMap
-        const handleNodes = get().handleNodes
-        const flowNodes = get().flowNodes
 
-        flowNodeMap[node.id] = node
-        set({
-          flowNodeMap,
-          flowNodes: [...flowNodes.filter((item) => item.id !== node.id), node],
-          handleNodes: isNew ? [...handleNodes, node.id] : handleNodes,
+        let source: EntityTypes | undefined
+
+        const currentNodeData = get().nodes.find((item) => item.id === flowNode.id)
+        if (flowNode.source_type && !currentNodeData) {
+          source = await getRepository(flowNode.source_type).findOne({
+            where: { id: inputNode.source_id },
+          })
+        } else if (flowNode.source_type && currentNodeData) {
+          source = currentNodeData?.data?.entity as EntityTypes
+        }
+
+        const flowNodes = get().flowNodes
+        const nodes = get().nodes
+
+        const { changes } = flowNodesToNodeChanges([flowNode], nodes, {
+          [flowNode.source_type]: [source],
         })
-        return node
+
+        set({
+          flowNodes: [...flowNodes.filter((item) => item.id !== flowNode.id), flowNode],
+          nodes: applyNodeChanges(changes, nodes),
+        })
+        return flowNode
       } catch (error) {
-        console.warn('Failed to create or update flow node', error)
+        console.warn('Failed to create or update flow node', error, inputNode)
       }
     },
-    createOrUpdateFlowEdge: async (inputEdge) => {
+    createOrUpdateFlowEdge: async (inputEdge, options) => {
       try {
         const currentSession = useSessionState.getState().currentSession
         if (!currentSession?.id) {
@@ -275,50 +381,57 @@ export const getFlowStateActions = (
         if (!inputEdge.id && (!inputEdge.source || !inputEdge.target)) {
           throw new Error('Missing flow node indentify')
         }
-        let isNew: boolean = false
         let edge: FlowEdge
 
-        const currentNode = await getRepository('FlowEdge').findOne({
-          where: inputEdge.id
-            ? { id: inputEdge.id }
-            : {
-                source: inputEdge.source,
-                target: inputEdge.target,
-              },
-        })
+        let currentEdge = inputEdge?.id
+          ? get().flowEdges.find((item) => item.id === inputEdge.id)
+          : undefined
 
-        if (currentNode) {
-          edge = deepmerge(currentNode, omitBy(inputEdge, isUndefined))
-          await getRepository('FlowEdge').update(currentNode.id, edge)
+        if (currentEdge && (inputEdge.id || (inputEdge.source && inputEdge.target))) {
+          currentEdge = await getRepository('FlowEdge').findOne({
+            where: inputEdge.id
+              ? { id: inputEdge.id }
+              : {
+                  source: inputEdge.source,
+                  target: inputEdge.target,
+                },
+          })
+        }
+        if (currentEdge) {
+          edge = deepmerge(currentEdge, omitBy(inputEdge, isUndefined))
+          if (options?.lazy) {
+            getRepository('FlowEdge').update(currentEdge.id, edge)
+          } else {
+            await getRepository('FlowEdge').update(currentEdge.id, edge)
+          }
         } else if (inputEdge.source && inputEdge.target) {
-          edge = await getRepository('FlowEdge').save({
+          edge = {
             ...inputEdge,
             source: `${inputEdge.source}`,
             target: `${inputEdge.target}`,
             session_id: inputEdge.session_id || currentSession?.id,
-          })
-          isNew = true
+          } as FlowEdge
+          if (options?.lazy) {
+            edge.id = nanoid()
+            getRepository('FlowEdge').save(edge)
+          } else {
+            edge = await getRepository('FlowEdge').save(edge)
+          }
         } else {
           throw new Error('Missing source and target')
         }
 
-        const flowEdgeMap = get().flowEdgeMap
         const flowEdges = get().flowEdges
-        const handleEdges = get().handleEdges
+        const edges = get().edges
 
-        flowEdgeMap[edge.id] = edge
         set({
           flowEdges: [...flowEdges.filter((item) => item.id !== edge.id), edge],
-          flowEdgeMap,
-          handleEdges: isNew ? [...handleEdges, edge.id] : handleEdges,
+          edges: applyEdgeChanges(flowEdgesToEdgeChanges([edge], edges).changes, edges),
         })
         return edge
       } catch (error) {
         console.warn('Failed to create or update flow node', error)
       }
-    },
-    getFlowNodeBySource: (type, id) => {
-      return get().flowNodeMap[`${type}:${id}`]
     },
   }
 }

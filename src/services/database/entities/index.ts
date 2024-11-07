@@ -9,7 +9,7 @@ import { Session } from './session'
 
 export { Thread, Message, LLM, FlowNode, FlowEdge, Prompt, PromptVariable, Session }
 
-type AppEntity =
+export type AppEntites =
   | typeof Thread
   | typeof Message
   | typeof LLM
@@ -19,7 +19,7 @@ type AppEntity =
   | typeof PromptVariable
   | typeof Session
 
-export const entitiesMap: Record<string, AppEntity> = {
+export const entitiesMap: Record<string, AppEntites> = {
   LLM,
   Thread,
   Message,

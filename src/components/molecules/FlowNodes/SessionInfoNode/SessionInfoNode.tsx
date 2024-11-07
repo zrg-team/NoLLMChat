@@ -25,12 +25,13 @@ import { useSessionState } from 'src/states/session'
 import { formatBytes } from 'src/utils/bytes-format'
 import { Button } from 'src/lib/shadcn/ui/button'
 import LazyIcon from 'src/components/atoms/LazyIcon'
+import { useLLMState } from 'src/states/llm'
 
 export const SessionInfoNode = memo(() => {
   const { t } = useTranslation('flows')
+  const cachedLLMURLs = useLLMState((state) => state.cachedLLMURLs)
   const currentSession = useSessionState((state) => state.currentSession)
   const [usedBytes, setUsedBytes] = useState('')
-  const [cachedURL, setCachedURL] = useState<string[]>()
   const [countInfo, setCountInfo] = useState<
     [
       {
@@ -70,10 +71,10 @@ export const SessionInfoNode = memo(() => {
   }, [t])
 
   const cachedModdels = useMemo(() => {
-    return cachedURL?.map((url) =>
+    return cachedLLMURLs?.map((url) =>
       prebuiltAppConfig.model_list.find((model) => url.includes(model.model)),
     )
-  }, [cachedURL])
+  }, [cachedLLMURLs])
 
   const fetchSessionInfo = useCallback(async () => {
     navigator.storage.estimate().then((estimate) => {
@@ -89,16 +90,6 @@ export const SessionInfoNode = memo(() => {
     if (!currentSession?.id) {
       return
     }
-
-    // Get all the requests in the cache
-    caches
-      .open('webllm/config')
-      .then(async (cache) => {
-        return cache.keys()
-      })
-      .then((requests) => {
-        setCachedURL(requests.map((request) => request.url))
-      })
 
     Promise.all([
       getRepository('FlowNode').count({ where: { session_id: currentSession?.id } }),

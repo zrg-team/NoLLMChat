@@ -1,19 +1,18 @@
 import React from 'react'
 
 import type { HomePageContextType } from './type'
-import { NodeChange, Node, EdgeChange, Edge } from '@xyflow/react'
+import { NodeChange, Node, EdgeChange, Edge, Connection } from '@xyflow/react'
 
 const defaultHomePageContext: HomePageContextType = {
   initializing: true,
-  nodes: [],
-  edges: [],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  updateNodeChanges: function (_changes: NodeChange<Node>[]): void {
-    throw new Error('Function not implemented.')
+  updateNodeChanges: function (changes: NodeChange<Node>[]): void {
+    throw new Error(JSON.stringify(changes))
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  updateEdgeChanges: function (_changes: EdgeChange<Edge>[]): void {
-    throw new Error('Function not implemented.')
+  updateEdgeChanges: function (changes: EdgeChange<Edge>[]): void {
+    throw new Error(JSON.stringify(changes))
+  },
+  updateEdgeConnection: function (connection: Connection): void {
+    throw new Error(JSON.stringify(connection))
   },
 }
 

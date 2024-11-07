@@ -55,14 +55,13 @@ export const useActions = (id: string, data: LLMNodeData) => {
     } finally {
       setLoadingModel(false)
     }
-  }, [data.entity.name, getNodes, id, loadModel, queryThreadsFromModel, updateNodeData])
+  }, [data.entity?.name, getNodes, id, loadModel, queryThreadsFromModel, updateNodeData])
 
   const handleCreateThread = useCallback(async () => {
     if (data.entity?.name && node) {
       await createThread?.(node, `${data.entity.name}`)
-      return queryThreadsFromModel()
     }
-  }, [createThread, data.entity?.name, node, queryThreadsFromModel])
+  }, [createThread, data.entity.name, node])
 
   return {
     loadingModel,
