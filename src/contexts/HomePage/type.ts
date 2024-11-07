@@ -1,10 +1,10 @@
-import { Edge, Node } from '@xyflow/react'
-import { Dispatch, SetStateAction } from 'react'
+import type { Connection, Edge, EdgeChange, Node, NodeChange } from '@xyflow/react'
 
 export type HomePageContextType = {
   initializing?: boolean
   nodes: Node[]
-  setNodes?: Dispatch<SetStateAction<Node[]>>
   edges: Edge[]
-  setEdges?: Dispatch<SetStateAction<Edge[]>>
+  updateNodeChanges: (changes: NodeChange<Node>[]) => void
+  updateEdgeChanges: (changes: EdgeChange<Edge>[]) => void
+  updateEdgeConnection: (connection: Connection) => void
 }

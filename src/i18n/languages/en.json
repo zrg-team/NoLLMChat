@@ -1,7 +1,103 @@
 {
-  "chat": {
-    "assistant_welcome_message": "All set! How can I help you today?",
-    "assistant_loading_message": "I'm thinking...",
-    "assistant_loading": "Initializing..."
+  "common": {
+    "loading": "Loading...",
+    "something_went_wrong": "Something went wrong"
+  },
+  "create-new-message": {
+    "initial-ai-message": "I'm thinking..."
+  },
+  "flows": {
+    "supported_nodes": {
+      "add_llm": "Add LLM",
+      "add_prompt": "Add Prompt",
+      "add_tool_definition": "Add Tool"
+    },
+    "toolbar_node": {
+      "title": "Toolbar",
+      "add_node": ""
+    },
+    "llm_node": {
+      "create_thread_button": "Create Thread",
+      "load_model_button": "Load Model",
+      "download_model_button": "Download and Load Model"
+    },
+    "message_node": {
+      "message_roles": {
+        "ai": "AI",
+        "human": "Human",
+        "system": "System",
+        "assistant": "Assistant"
+      },
+      "errors": {
+        "llm_not_found": "LLM not found.",
+        "llm_not_loaded": "Model '{{name}}' not loaded yet."
+      }
+    },
+    "session_info_node": {
+      "entities": {
+        "nodes": "Nodes",
+        "edges": "Edges",
+        "threads": "Threads",
+        "llms": "LLMs",
+        "message": "Message",
+        "prompts": "Prompts"
+      },
+      "title": "Session",
+      "disk_size": "Disk Size",
+      "reload": "Reload",
+      "cached_llms": "Cached LLM",
+      "cached": "Cached",
+      "used_bytes": "Used {{used}} out of {{total}}.",
+      "function_calling": "Function Calling",
+      "low_resource_required": "Low resource required",
+      "count_info": {
+        "nodes": "Number of Nodes: {{count}}",
+        "threads": "Number of Threads: {{count}}",
+        "messages": "Number of Messages: {{count}}",
+        "llms": "Number of LLMs: {{count}}",
+        "edges": "Number of Edges: {{count}}",
+        "prompts": "Number of Prompts: {{count}}",
+        "title": "Current Session Count"
+      }
+    }
+  },
+  "components": {
+    "add_llm_card": {
+      "title": "LLM",
+      "button_add": "Add",
+      "button_download_and_add": "Add",
+      "select_placeholder": "Select a model",
+      "search_placeholder": "Search model...",
+      "no_model": "No model found",
+      "function_calling": "Function Calling",
+      "model_types": {
+        "llm": "LLM",
+        "embedding": "Embedding",
+        "vlm": "VLM"
+      },
+      "has_model_cache": "Has Model Cache",
+      "model_type": "Type:",
+      "low_resource_required": "Low resource required",
+      "model_url": "URL:",
+      "model_vram": "Required VRAM: ",
+      "model_context_window_size": "Context window size:",
+      "model_function_calling": "Function Calling:"
+    },
+    "add_message_card": {
+      "title": "Send Message",
+      "button": "Send",
+      "placeholder": "Type your message here..."
+    },
+    "add_prompt_card": {
+      "select_placeholder":"Select prompt type",
+      "prompt_types": {
+        "system": "System",
+        "human": "Human",
+        "ai": "AI"
+      },
+      "title": "Add Prompt",
+      "placeholder":"Type your prompt here...",
+      "button": "Add"
+    }
   }
 }

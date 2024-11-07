@@ -1,4 +1,4 @@
-import { HomePageProvider } from 'src/contexts/HomePage/HomePageProvider'
+import { HomePageProvider } from 'src/contexts/HomePage/Provider'
 import HomeComponent from 'src/components/pages/Home'
 
 export default function HomePage() {

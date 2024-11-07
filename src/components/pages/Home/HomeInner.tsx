@@ -9,38 +9,46 @@ import {
   NodeChange,
   Edge,
   EdgeChange,
-  applyNodeChanges,
-  applyEdgeChanges,
+  Connection,
 } from '@xyflow/react'
-import { nodeTypes } from 'src/components/molecules/FlowNode'
+import { nodeTypes } from 'src/components/molecules/FlowNodes'
 
 import { HomePageContext } from 'src/contexts/HomePage/context'
 
 export default function HomeInner() {
-  const { nodes, edges, setNodes, setEdges } = useContext(HomePageContext)
+  const { nodes, edges, updateNodeChanges, updateEdgeChanges, updateEdgeConnection } =
+    useContext(HomePageContext)
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node>[]) => {
-      setNodes?.((nds) => applyNodeChanges(changes, nds))
+      updateNodeChanges(changes)
     },
-    [setNodes],
+    [updateNodeChanges],
   )
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange<Edge>[]) => {
-      setEdges?.((eds) => applyEdgeChanges(changes, eds))
+      updateEdgeChanges(changes)
     },
-    [setEdges],
+    [updateEdgeChanges],
+  )
+
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      updateEdgeConnection(connection)
+    },
+    [updateEdgeConnection],
   )
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div className="tw-w-full tw-h-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
       >
         <Controls />
         <MiniMap />
