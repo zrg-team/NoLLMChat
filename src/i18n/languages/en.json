@@ -84,6 +84,15 @@
       "model_context_window_size": "Context window size:",
       "model_function_calling": "Function Calling:"
     },
+    "add_tool_card": {
+      "title":"Add Tool",
+      "tool_name": "Name",
+      "name_placeholder": "Input tool name...",
+      "button": "Create",
+      "tool_description": "Description",
+      "description_placeholder": "Input tool description...",
+      "tool_schema": "Schema"
+    },
     "add_message_card": {
       "title": "Send Message",
       "button": "Send",

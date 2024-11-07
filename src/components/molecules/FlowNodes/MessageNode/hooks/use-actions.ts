@@ -10,7 +10,7 @@ export const useActions = (id: string) => {
   const { t } = useTranslation('flows')
   const node = useInternalNode(id)
 
-  const updateNodes = useFlowState(state => state.updateNodes)
+  const updateNodes = useFlowState((state) => state.updateNodes)
   const { getNode, getHandleConnections, getNodes } = useReactFlow()
   const { createMessage, loading } = useCreateNewMessage()
 
@@ -73,11 +73,13 @@ export const useActions = (id: string) => {
       if (!item) {
         return
       }
-      updateNodes([{
-        id: info.id,
-        type: 'replace',
-        item: { ...item, data: { ...item.data, content: info.content, loading: !info.finish } }
-      }])
+      updateNodes([
+        {
+          id: info.id,
+          type: 'replace',
+          item: { ...item, data: { ...item.data, content: info.content, loading: !info.finish } },
+        },
+      ])
     },
     [id, node?.data?.entity, updateNodes],
   )

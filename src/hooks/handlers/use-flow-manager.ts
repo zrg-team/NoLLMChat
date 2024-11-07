@@ -4,10 +4,12 @@ import { applyNodeChanges, Connection, Edge, EdgeChange, Node, NodeChange } from
 import { FlowNode } from 'src/services/database/types'
 import { In, type FindManyOptions } from 'src/services/database/typeorm-wrapper'
 import { useFlowState } from 'src/states/flow'
+import { SYSTEM_NODE_IDS } from 'src/constants/nodes'
 
 export const useFlowManager = () => {
   const flowEdges = useFlowState((state) => state.flowEdges)
   const setNodes = useFlowState((state) => state.setNodes)
+  const updateNodes = useFlowState((state) => state.updateNodes)
   const updateEdges = useFlowState((state) => state.updateEdges)
   const addConnectionToEdges = useFlowState((state) => state.addConnectionToEdges)
 
@@ -60,7 +62,9 @@ export const useFlowManager = () => {
   const updateNodeChanges = useCallback(
     async (changes: NodeChange<Node>[]) => {
       for (const change of changes) {
-        if (
+        if ('id' in change && Object.values(SYSTEM_NODE_IDS).includes(change.id)) {
+          updateNodes([change])
+        } else if (
           change.type === 'position' &&
           change.position &&
           !isNaN(change.position.x) &&

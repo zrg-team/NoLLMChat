@@ -11,8 +11,13 @@ export const SESSION_INFO_SIZE = {
   height: 200,
 }
 
+export const SYSTEM_NODE_IDS = {
+  toolbox: 'toolbox',
+  sessionInfo: 'session-info',
+}
+
 export const TOOLBOX_NODE: Node = {
-  id: 'toolbox',
+  id: SYSTEM_NODE_IDS.toolbox,
   type: FlowNodeTypeEnum.Toolbox,
   position: { x: window.innerWidth / 2 - TOOLBOX_NODE_SIZE.width / 2, y: 10 },
   measured: TOOLBOX_NODE_SIZE,
@@ -20,7 +25,7 @@ export const TOOLBOX_NODE: Node = {
 }
 
 export const SESSION_INFO_NODE: Node = {
-  id: 'session-info',
+  id: SYSTEM_NODE_IDS.sessionInfo,
   type: FlowNodeTypeEnum.SessionInfo,
   position: { x: 10, y: 10 },
   measured: SESSION_INFO_SIZE,

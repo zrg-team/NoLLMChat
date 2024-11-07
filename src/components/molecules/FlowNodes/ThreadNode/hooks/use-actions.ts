@@ -22,11 +22,13 @@ export const useActions = (id: string, data: ThreadNodeData) => {
       if (!item) {
         return
       }
-      updateNodes([{
-        id: info.id,
-        type: 'replace',
-        item: { ...item, data: { ...item.data, content: info.content, loading: !info.finish } }
-      }])
+      updateNodes([
+        {
+          id: info.id,
+          type: 'replace',
+          item: { ...item, data: { ...item.data, content: info.content, loading: !info.finish } },
+        },
+      ])
     },
     [getNode, updateNodes],
   )

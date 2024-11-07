@@ -1,32 +1,39 @@
-import '@zodui/react/index.css'
-import { z } from 'zod'
-import { memo, useRef } from 'react'
+// import { z } from 'zod'
+import { memo } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
-import { List, ListRef } from '@zodui/react'
+import { Label } from 'src/lib/shadcn/ui/label'
+import { Input } from 'src/lib/shadcn/ui/input'
+import { Textarea } from 'src/lib/shadcn/ui/textarea'
+import TableData from './Table/TableData'
 
 const AddToolCard = memo(() => {
   const { t } = useTranslation('components')
-  const listRef = useRef<ListRef | null>(null)
   return (
     <div>
       <Card className="tw-mw-full">
         <CardHeader>
-          <CardTitle>{t('add_prompt_card.title')}</CardTitle>
+          <CardTitle>{t('add_tool_card.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <List
-            ref={listRef}
-            model={z.object({
-              foo: z.string().optional(),
-              bar: z.number().describe('This is my description'),
-              list: z.array(z.string()).optional(),
-            })}
-          />
+          <div className="tw-flex tw-flex-col tw-space-y-1.5">
+            <Label htmlFor="name">{t('add_tool_card.tool_name')}</Label>
+            <Input id="name" placeholder={t('add_tool_card.name_placeholder')} />
+          </div>
+          <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
+            <Label htmlFor="name">{t('add_tool_card.tool_description')}</Label>
+            <Textarea placeholder={t('add_tool_card.description_placeholder')} />
+          </div>
+          <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
+            <Label htmlFor="name">{t('add_tool_card.tool_schema')}</Label>
+            <div className="tw-rounded-md tw-border">
+              <TableData />
+            </div>
+          </div>
         </CardContent>
         <CardFooter className="tw-flex tw-justify-between">
-          <Button className="tw-w-full">t('add_prompt_card.button')</Button>
+          <Button className="tw-w-full">{t('add_tool_card.create')}</Button>
         </CardFooter>
       </Card>
     </div>
