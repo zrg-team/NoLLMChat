@@ -31,6 +31,7 @@ export const SessionInfoNode = memo(() => {
   const { t } = useTranslation('flows')
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const currentSession = useSessionState((state) => state.currentSession)
+  const [latestUpdate, setLatestUpdate] = useState<Date>()
   const [usedBytes, setUsedBytes] = useState('')
   const [countInfo, setCountInfo] = useState<
     [
@@ -92,6 +93,40 @@ export const SessionInfoNode = memo(() => {
     }
 
     Promise.all([
+      getRepository('FlowNode').findOne({
+        where: { session_id: currentSession?.id },
+        order: { updated_at: 'DESC' },
+      }),
+      getRepository('FlowEdge').findOne({
+        where: { session_id: currentSession?.id },
+        order: { updated_at: 'DESC' },
+      }),
+      getRepository('Thread').findOne({
+        where: { session_id: currentSession?.id },
+        order: { updated_at: 'DESC' },
+      }),
+      getRepository('Prompt').findOne({
+        where: { session_id: currentSession?.id },
+        order: { updated_at: 'DESC' },
+      }),
+      getRepository('LLM').findOne({
+        where: { session_id: currentSession?.id },
+        order: { updated_at: 'DESC' },
+      }),
+    ]).then((response) => {
+      const maxUpdatedAt = response.reduce(
+        (acc, item) => {
+          if (item?.updated_at && (!acc || new Date(item.updated_at) > acc)) {
+            return new Date(item.updated_at)
+          }
+          return acc
+        },
+        currentSession.updated_at ? new Date(currentSession.updated_at) : undefined,
+      )
+      setLatestUpdate(maxUpdatedAt)
+    })
+
+    Promise.all([
       getRepository('FlowNode').count({ where: { session_id: currentSession?.id } }),
       getRepository('FlowEdge').count({ where: { session_id: currentSession?.id } }),
       getRepository('Thread').count({ where: { session_id: currentSession?.id } }),
@@ -109,7 +144,7 @@ export const SessionInfoNode = memo(() => {
         },
       ])
     })
-  }, [currentSession?.id, t])
+  }, [currentSession?.id, currentSession?.updated_at, t])
 
   const handleReload = useCallback(() => {
     fetchSessionInfo()
@@ -125,7 +160,9 @@ export const SessionInfoNode = memo(() => {
           <CardHeader>
             <CardTitle>{t('session_info_node.title')}</CardTitle>
             <CardDescription>
-              {currentSession ? dayjs(currentSession?.updated_at).fromNow() : ''}
+              {latestUpdate || currentSession?.updated_at
+                ? dayjs(latestUpdate || currentSession?.updated_at).fromNow()
+                : ''}
             </CardDescription>
           </CardHeader>
           <CardContent className="tw-grid tw-gap-4">
