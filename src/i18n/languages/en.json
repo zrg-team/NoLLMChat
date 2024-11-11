@@ -8,10 +8,11 @@
   },
   "flows": {
     "supported_nodes": {
-      "add_llm": "Add LLM",
-      "add_prompt": "Add Prompt",
-      "add_tool_definition": "Add Tool",
-      "add_schema": "Add Schema"
+      "add_llm": "Create LLM",
+      "add_prompt": "Create Prompt",
+      "add_tool_definition": "Create Tool",
+      "add_schema": "Create Schema",
+      "add_few_shot_example": "Create Few Shot Example"
     },
     "toolbar_node": {
       "title": "Toolbar",
@@ -21,6 +22,16 @@
       "create_thread_button": "Create Thread",
       "load_model_button": "Load Model",
       "download_model_button": "Download and Load Model"
+    },
+    "thread_node": {
+      "structured_output": "Structured Output",
+      "prompts": {
+        "human": "Human Prompt",
+        "ai": "AI Prompt",
+        "system": "System Prompt",
+        "tool": "Tool Prompt",
+        "few_shot_example": "Few Shot Example Prompt"
+      }
     },
     "message_node": {
       "message_roles": {
@@ -69,8 +80,8 @@
   "components": {
     "add_llm_card": {
       "title": "LLM",
-      "button_add": "Add",
-      "button_download_and_add": "Add",
+      "button_add": "Create",
+      "button_download_and_add": "Create",
       "select_placeholder": "Select a model",
       "search_placeholder": "Search model...",
       "no_model": "No model found",
@@ -90,7 +101,7 @@
       "model_function_calling": "Function Calling:"
     },
     "add_tool_card": {
-      "title":"Add Tool",
+      "title":"Tool",
       "tool_name": "Name",
       "name_placeholder": "Input tool name...",
       "button": "Create",
@@ -100,9 +111,9 @@
       "create": "Create"
     },
     "add_schema_card": {
-      "title": "Add Schema",
+      "title": "Schema",
       "no_data": "No fields.",
-      "add": "Add",
+      "add": "Create",
       "field": {
         "required": "Required",
         "type": "Type",
@@ -131,15 +142,35 @@
       "placeholder": "Type your message here..."
     },
     "add_prompt_card": {
-      "select_placeholder":"Select prompt type",
+      "prompt_content": "Content",
+      "prompt_prefix": "Prefix",
+      "prompt_type": "Type",
+      "prompt_role": "Role",
+      "type_select_placeholder":"Select prompt type",
+      "role_select_placeholder":"Select prompt role",
       "prompt_types": {
+        "chat": "Chat",
+        "few_shot_example": "Few Shot Example"
+      },
+      "prompt_roles": {
         "system": "System",
         "human": "Human",
-        "ai": "AI"
+        "ai": "AI",
+        "few_shot_example": "Few Shot Example"
       },
-      "title": "Add Prompt",
+      "title": "Prompt",
       "placeholder":"Type your prompt here...",
-      "button": "Add"
+      "button": "Create",
+      "few_shot_example_note": "Use {input} to represent the input in the prompt. And use {output} to represent the output. For example, Question: {input}\nAnswer: {output}"
+    },
+    "add_few_shot_example_card": {
+      "title": "Few Shot Example",
+      "input": "Input",
+      "input_placeholder": "Type example input here...",
+      "output": "Output",
+      "output_placeholder": "Type example output here...",
+      "add": "Add",
+      "create": "Create"
     }
   }
 }

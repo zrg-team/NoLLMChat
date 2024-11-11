@@ -9,20 +9,21 @@ import {
   JoinColumn,
 } from 'typeorm'
 import { Message, PromptVariable, Session } from './index'
-import {
-  TABLE_NAMES,
-  type MessageRoleEnum,
-  type PromptStatusEnum,
-  type PromptTypeEnum,
-} from '../types'
+import { MessageRoleEnum, TABLE_NAMES, type PromptStatusEnum, type PromptTypeEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Prompt })
 export class Prompt {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @Column({ type: 'text', nullable: true })
+  prefix?: string
+
   @Column({ type: 'text' })
   content: string
+
+  @Column({ type: 'text', nullable: true })
+  suffix?: string
 
   @Column({ type: 'text' })
   type: `${PromptTypeEnum}`

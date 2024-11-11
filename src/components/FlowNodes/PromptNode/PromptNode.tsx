@@ -21,7 +21,10 @@ export const PromptNode = memo((props: PromptNodeProps) => {
           <LazyIcon size={24} name={'notepad-text'} />
           <div className="tw-ml-2">
             <AlertTitle>{`${data.entity?.role || ''}`}</AlertTitle>
-            <AlertDescription>{`${data.entity?.content || ''}`}</AlertDescription>
+            <AlertDescription>
+              {`${data.entity?.prefix ? `${data.entity?.prefix}\n` : ''}`}
+              {`${data.entity?.content || ''}`}
+            </AlertDescription>
           </div>
         </Alert>
       </div>

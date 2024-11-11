@@ -11,7 +11,7 @@ import {
   EdgeChange,
   Connection,
 } from '@xyflow/react'
-import { nodeTypes } from 'src/components/molecules/FlowNodes'
+import { nodeTypes } from 'src/components/FlowNodes'
 
 import { HomePageContext } from 'src/contexts/HomePage/context'
 import { useFlowState } from 'src/states/flow'

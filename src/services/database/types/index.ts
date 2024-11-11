@@ -8,6 +8,8 @@ import type { PromptVariable } from '../entities/prompt-variable'
 import type { Session } from '../entities/session'
 import type { Schema } from '../entities/schema'
 import type { SchemaItem } from '../entities/schema_item'
+import type { JSONData } from '../entities/json-data'
+import type { CSVData } from '../entities/csv-data'
 
 export type EntityTypesMap = {
   Thread: Thread
@@ -20,6 +22,8 @@ export type EntityTypesMap = {
   Session: Session
   Schema: Schema
   SchemaItem: SchemaItem
+  JSONData: JSONData
+  CSVData: CSVData
 }
 
 export type EntityArrayTypes = {
@@ -43,6 +47,8 @@ export type {
   Session,
   Schema,
   SchemaItem,
+  JSONData,
+  CSVData,
 }
 
 export const TABLE_NAMES = {
@@ -56,6 +62,8 @@ export const TABLE_NAMES = {
   Session: 'sessions',
   Schema: 'schemas',
   SchemaItem: 'schema_items',
+  JSONData: 'json_data',
+  CSVData: 'csv_data',
 }
 
 export * from './flow-node'

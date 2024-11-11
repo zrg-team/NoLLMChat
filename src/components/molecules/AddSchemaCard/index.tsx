@@ -36,7 +36,7 @@ const AddSchemaCard = memo((props: Omit<NodeProps, 'data'>) => {
         <CardHeader>
           <CardTitle>{t('add_schema_card.title')}</CardTitle>
         </CardHeader>
-        <CardContent className="tw-w-96">
+        <CardContent className="tw-min-w-96">
           <FieldList setData={setData} data={data} />
         </CardContent>
         <CardFooter className="tw-flex tw-justify-between">

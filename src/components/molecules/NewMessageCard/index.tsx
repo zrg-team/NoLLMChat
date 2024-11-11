@@ -7,10 +7,12 @@ import { useTranslation } from 'react-i18next'
 
 const NewMessageCard = memo(
   ({
+    tags,
     disabled,
     loading,
     onSubmit,
   }: {
+    tags?: React.ReactNode
     disabled?: boolean
     loading?: boolean
     onSubmit: (input: string) => void
@@ -38,6 +40,7 @@ const NewMessageCard = memo(
               placeholder={t('add_message_card.placeholder')}
             />
           </div>
+          {tags ? <div className="tw-mt-2 tw-gap-1 tw-flex tw-flex-wrap">{tags}</div> : null}
         </CardContent>
         <CardFooter className="tw-flex tw-justify-between">
           <Button

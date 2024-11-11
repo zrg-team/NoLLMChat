@@ -4,6 +4,6 @@ export enum PromptStatusEnum {
 }
 
 export enum PromptTypeEnum {
-  Wrapped = 'wrapped',
-  Normal = 'normal',
+  Chat = 'chat',
+  FewShotExample = 'few_shot_example',
 }

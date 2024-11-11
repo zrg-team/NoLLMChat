@@ -8,6 +8,8 @@ import { PromptVariable } from './prompt-variable'
 import { Session } from './session'
 import { Schema } from './schema'
 import { SchemaItem } from './schema_item'
+import { JSONData } from './json-data'
+import { CSVData } from './csv-data'
 
 export {
   Thread,
@@ -20,6 +22,8 @@ export {
   Session,
   Schema,
   SchemaItem,
+  JSONData,
+  CSVData,
 }
 
 export type AppEntites =
@@ -33,6 +37,8 @@ export type AppEntites =
   | typeof Session
   | typeof Schema
   | typeof SchemaItem
+  | typeof JSONData
+  | typeof CSVData
 
 export const entitiesMap: Record<string, AppEntites> = {
   LLM,
@@ -45,5 +51,7 @@ export const entitiesMap: Record<string, AppEntites> = {
   Session,
   Schema,
   SchemaItem,
+  JSONData,
+  CSVData,
 }
 // This file should not be use in main codebase. ONLY WORKER should use this file.

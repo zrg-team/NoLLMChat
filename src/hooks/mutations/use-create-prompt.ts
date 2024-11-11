@@ -20,9 +20,11 @@ export const useCreatePrompt = () => {
   const createPrompt = useCallback(
     async (
       source: Node,
-      input: string,
       options: {
-        promptRole?: `${MessageRoleEnum}`
+        content: string
+        prefix?: string
+        type?: `${PromptTypeEnum}`
+        role?: `${MessageRoleEnum}`
         thread?: Thread
       },
     ) => {
@@ -36,14 +38,12 @@ export const useCreatePrompt = () => {
         const initialY = (source.position?.y || 0) + (source.measured?.height || 0)
 
         const prompt = await getRepository('Prompt').save({
-          content: input,
-          role: options.promptRole || MessageRoleEnum.System,
+          content: options.content,
+          prefix: options.prefix,
+          role: options.role || MessageRoleEnum.System,
           status: MessageStatusEnum.Started,
           session_id: sessionId,
-          type:
-            options.promptRole === MessageRoleEnum.System && options?.thread
-              ? PromptTypeEnum.Wrapped
-              : PromptTypeEnum.Normal,
+          type: options.type || PromptTypeEnum.Chat,
         })
         if (!prompt) {
           throw new Error('Failed to save message')

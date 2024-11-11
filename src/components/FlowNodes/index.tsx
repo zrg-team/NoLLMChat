@@ -7,6 +7,7 @@ import { MessageNode } from './MessageNode'
 import { PromptNode } from './PromptNode'
 import { SessionInfoNode } from './SessionInfoNode'
 import { SchemaNode } from './SchemaNode'
+import { CSVDataNode } from './CSVDataNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -16,4 +17,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.Prompt]: PromptNode,
   [FlowNodeTypeEnum.SessionInfo]: SessionInfoNode,
   [FlowNodeTypeEnum.Schema]: SchemaNode,
+  [FlowNodeTypeEnum.CSVData]: CSVDataNode,
 }

@@ -5,6 +5,7 @@ import { useInternalNode, useReactFlow, Node } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum, Thread } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
+import { reactFlowTraveling } from 'src/utils/react-flow-traveling'
 
 export const useActions = (id: string) => {
   const { t } = useTranslation('flows')
@@ -13,61 +14,6 @@ export const useActions = (id: string) => {
   const updateNodes = useFlowState((state) => state.updateNodes)
   const { getNode, getHandleConnections, getNodes } = useReactFlow()
   const { createMessage, loading } = useCreateMessage()
-
-  const travelingConversation = useCallback(
-    (list: string[], result: Node[], handledIds: string[] = []) => {
-      const nodes = list.map((id) => getNode(id))
-      for (const node of nodes) {
-        if (!node) {
-          continue
-        } else if (node.type === FlowNodeTypeEnum.Thread) {
-          // Finding system message connected with the thread
-          const threadConnections = getHandleConnections({
-            type: 'target',
-            nodeId: node.id,
-          })
-          const promptConnection = threadConnections
-            .map((connection) => getNode(connection.source))
-            .find((node) => node?.type === FlowNodeTypeEnum.Prompt)
-          if (promptConnection) {
-            handledIds.push(promptConnection.id)
-            result.push(promptConnection)
-          }
-          const schemaConnection = threadConnections
-            .map((connection) => getNode(connection.source))
-            .find((node) => node?.type === FlowNodeTypeEnum.Schema)
-          if (schemaConnection) {
-            handledIds.push(schemaConnection.id)
-            result.push(schemaConnection)
-          }
-          handledIds.push(node.id)
-          result.push(node)
-          continue
-        } else if (node.type !== FlowNodeTypeEnum.Message) {
-          handledIds.push(node.id)
-          continue
-        } else if (handledIds.includes(node.id)) {
-          continue
-        }
-
-        handledIds.push(node.id)
-        result.push(node)
-        const connections = getHandleConnections({
-          type: 'target',
-          nodeId: node.id,
-        })
-        if (connections.length) {
-          travelingConversation(
-            connections.map((c) => c.source),
-            result,
-          )
-        }
-      }
-
-      return result
-    },
-    [getHandleConnections, getNode],
-  )
 
   const onMessageUpdate = useCallback(
     (info: { id?: string; content: string; finish?: boolean }) => {
@@ -91,8 +37,11 @@ export const useActions = (id: string) => {
 
   const handleSubmit = useCallback(
     async (input: string) => {
-      const connectionNodes = travelingConversation([id], [])
-      const threadNode = connectionNodes.find((node) => node.type === FlowNodeTypeEnum.Thread)
+      const { nodes: connectedNodes, connections } = reactFlowTraveling([id], [], [], [], {
+        getNode,
+        getHandleConnections,
+      })
+      const threadNode = connectedNodes.find((node) => node.type === FlowNodeTypeEnum.Thread)
       const thread = threadNode?.data?.entity as Thread
       if (thread && node) {
         const llmNode = getNodes().find((node) => {
@@ -114,7 +63,8 @@ export const useActions = (id: string) => {
         }
         try {
           await createMessage(node, thread, input, {
-            connectedNodes: connectionNodes,
+            connectedNodes,
+            connections,
             onMessageUpdate,
           })
         } catch (error) {
@@ -125,7 +75,7 @@ export const useActions = (id: string) => {
         }
       }
     },
-    [travelingConversation, id, node, getNodes, t, createMessage, onMessageUpdate],
+    [id, getNode, getHandleConnections, node, getNodes, t, createMessage, onMessageUpdate],
   )
 
   return {

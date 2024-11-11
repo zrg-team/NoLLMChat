@@ -9,4 +9,6 @@ export enum FlowNodeTypeEnum {
   Schema = 'SCHEMA',
   ToolDefinition = 'TOOL_DEFINITION',
   ToolHandler = 'TOOL_HANDLER',
+  FewShotExample = 'FEW_SHOT_EXAMPLE',
+  CSVData = 'CSV_DATA',
 }

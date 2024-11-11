@@ -12,4 +12,5 @@ export enum MessageRoleEnum {
   System = 'system',
   Assistant = 'assistant',
   Tool = 'tool',
+  FewShotExample = 'few_shot_example',
 }

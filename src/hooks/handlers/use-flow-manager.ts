@@ -5,9 +5,11 @@ import { FlowNode } from 'src/services/database/types'
 import { In, type FindManyOptions } from 'src/services/database/typeorm-wrapper'
 import { useFlowState } from 'src/states/flow'
 import { SYSTEM_NODE_IDS } from 'src/constants/nodes'
+import { useSessionState } from 'src/states/session'
 
 export const useFlowManager = () => {
   const flowEdges = useFlowState((state) => state.flowEdges)
+  const currentSession = useSessionState((state) => state.currentSession)
   const setNodes = useFlowState((state) => state.setNodes)
   const updateNodes = useFlowState((state) => state.updateNodes)
   const updateEdges = useFlowState((state) => state.updateEdges)
@@ -40,8 +42,17 @@ export const useFlowManager = () => {
   const prepareFlowInfo = useCallback(
     async (query: FindManyOptions<FlowNode>) => {
       try {
+        if (!currentSession?.id) {
+          return
+        }
         setLoadingState((loading) => ({ ...loading, loading: true }))
-        const flowNodes = await findFlowNodesWithSource(query)
+        const flowNodes = await findFlowNodesWithSource({
+          ...query,
+          where: {
+            ...query.where,
+            session_id: currentSession.id,
+          },
+        })
         const flowEdges = await findFlowEdges({
           where: [
             { source: In(flowNodes.map((node) => node.id)) },
@@ -56,7 +67,7 @@ export const useFlowManager = () => {
         setLoadingState((loading) => ({ ...loading, loading: false }))
       }
     },
-    [findFlowNodesWithSource, findFlowEdges],
+    [findFlowNodesWithSource, findFlowEdges, currentSession?.id],
   )
 
   const updateNodeChanges = useCallback(

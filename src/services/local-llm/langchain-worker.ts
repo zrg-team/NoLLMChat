@@ -107,7 +107,6 @@ async function handlePayload(data: MessagePayload) {
       let content = ''
       const [json, input] = data.payload
       const format = convertToJSON(json)
-      console.log('format', format)
 
       const messages = parseBridgeJSONToWebLLMInput(input)
 

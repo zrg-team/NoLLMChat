@@ -1,19 +1,18 @@
-import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
-import { Node } from '@xyflow/react'
+import { HumanMessage } from '@langchain/core/messages'
+import { Connection, Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRepository } from 'src/services/database'
 import {
   FlowNodeTypeEnum,
-  Message,
   MessageRoleEnum,
   MessageStatusEnum,
-  Prompt,
   Schema,
   Thread,
 } from 'src/services/database/types'
 import { useLocalLLMState } from 'src/services/local-llm/state'
 import { useFlowState } from 'src/states/flow'
+import { buildHistories } from 'src/utils/build-message-history'
 
 export const useCreateMessage = () => {
   const { t } = useTranslation('create-new-message')
@@ -23,39 +22,70 @@ export const useCreateMessage = () => {
   const structuredStream = useLocalLLMState((state) => state.structuredStream)
   const stream = useLocalLLMState((state) => state.stream)
 
-  const buildHistories = useCallback((nodes: Node[]) => {
-    const histories: BaseMessage[] = []
-    nodes.forEach((node) => {
-      if (!node.data?.entity) {
-        return
-      }
-      if (node.type === FlowNodeTypeEnum.Message) {
-        const message = node.data.entity as Message
-        switch (message.role) {
-          case 'human':
-            histories.push(new HumanMessage(message.content))
-            break
-          case 'ai':
-            histories.push(new AIMessage(message.content))
-            break
+  const prepareThreadConnections = useCallback(
+    (thread: Thread, connectedNodes: Node[], connections: Connection[]) => {
+      const threadNode = connectedNodes?.find((node) => {
+        if (typeof node.data.entity === 'object' && node.data.entity && 'id' in node.data.entity) {
+          return node.type === FlowNodeTypeEnum.Thread && node.data.entity.id === thread.id
         }
-      } else if (node.type === FlowNodeTypeEnum.Prompt) {
-        const prompt = node.data.entity as Prompt
-        switch (prompt.role) {
-          case 'human':
-            histories.push(new HumanMessage(prompt.content))
-            break
-          case 'system':
-            histories.push(new SystemMessage(prompt.content))
-            break
-          default:
-            histories.push(new AIMessage(prompt.content))
-            break
-        }
+        return false
+      })
+      const threadConnections = connections?.filter(
+        (connection) => connection.target === threadNode?.id,
+      )
+      const threadPromptNodes = (connectedNodes || []).filter(
+        (node) =>
+          node?.type === FlowNodeTypeEnum.Prompt &&
+          threadConnections?.some((c) => c.source === node.id),
+      )
+      const threadPromptNodeResult: { node: Node; connectedNodes?: Node[] }[] = []
+      if (threadPromptNodes?.length) {
+        threadPromptNodes.forEach((threadPromptNode) => {
+          const promptConnection = connections?.find(
+            (connection) => connection.target === threadPromptNode.id,
+          )
+          const csvDataNode = connectedNodes?.find(
+            (node) =>
+              node.type === FlowNodeTypeEnum.CSVData && promptConnection?.source === node.id,
+          )
+          threadPromptNodeResult.push({
+            node: threadPromptNode,
+            connectedNodes: csvDataNode ? [csvDataNode] : [],
+          })
+        })
       }
-    })
-    return histories
-  }, [])
+
+      const schemaNode = connectedNodes?.find((node) => node.type === FlowNodeTypeEnum.Schema)
+
+      return {
+        threadNode,
+        schemaNode,
+        threadPromptNodes: threadPromptNodeResult,
+      }
+    },
+    [],
+  )
+
+  const prepareThreadHistory = useCallback(
+    (connectedNodes: Node[], threadPromptNodes: { node: Node; connectedNodes?: Node[] }[]) => {
+      const messageNodes =
+        connectedNodes
+          ?.filter((node) => node.type === FlowNodeTypeEnum.Message)
+          .map((node) => ({ node: node, connectedNodes: [] as Node[] }))
+          .reverse() || []
+
+      threadPromptNodes.forEach(async (threadPromptNode) => {
+        if (threadPromptNode) {
+          messageNodes.unshift({
+            node: threadPromptNode.node,
+            connectedNodes: threadPromptNode.connectedNodes || [],
+          })
+        }
+      })
+      return buildHistories(messageNodes)
+    },
+    [],
+  )
 
   const createMessage = useCallback(
     async (
@@ -65,11 +95,21 @@ export const useCreateMessage = () => {
       options: {
         onMessageUpdate: (info: { id?: string; content: string; finish?: boolean }) => void
         connectedNodes?: Node[]
+        connections?: Connection[]
       },
     ) => {
       if (!source || !thread) {
-        return
+        throw new Error('Source or thread is not found')
       }
+      const { threadNode, schemaNode, threadPromptNodes } = prepareThreadConnections(
+        thread,
+        options.connectedNodes || [],
+        options.connections || [],
+      )
+      if (!threadNode) {
+        throw new Error('Thread node is not found')
+      }
+
       let aiMessageId: string | undefined
       let aiMessageNodeId: string | undefined
       try {
@@ -132,22 +172,9 @@ export const useCreateMessage = () => {
             })
           })(),
           (async () => {
-            const messageNodes = (options?.connectedNodes || [])
-              .filter((node) => node.type === FlowNodeTypeEnum.Message)
-              .reverse()
-
-            const threadPromptNode = messageNodes.find(
-              (node) => node.type === FlowNodeTypeEnum.Prompt,
-            )
-            if (threadPromptNode) {
-              messageNodes.unshift(threadPromptNode)
-            }
-            const schemaNode = (options?.connectedNodes || []).find(
-              (node) => node.type === FlowNodeTypeEnum.Schema,
-            )
             const schema = schemaNode?.data?.entity as Schema
 
-            const histories = buildHistories(messageNodes)
+            const histories = prepareThreadHistory(options.connectedNodes || [], threadPromptNodes)
             const streamResponse = schema?.schema_items?.length
               ? structuredStream?.(schema.schema_items, [...histories, new HumanMessage(input)])
               : stream?.([...histories, new HumanMessage(input)])
@@ -191,7 +218,7 @@ export const useCreateMessage = () => {
         ])
       } catch {
         if (aiMessageId) {
-          await getRepository('Message').update(aiMessageId, {
+          await getRepository('Message').update(`${aiMessageId}`, {
             status: MessageStatusEnum.Failed,
           })
         }
@@ -199,7 +226,15 @@ export const useCreateMessage = () => {
         setLoading(false)
       }
     },
-    [createOrUpdateFlowNode, createOrUpdateFlowEdge, t, buildHistories, structuredStream, stream],
+    [
+      prepareThreadConnections,
+      prepareThreadHistory,
+      createOrUpdateFlowNode,
+      createOrUpdateFlowEdge,
+      t,
+      structuredStream,
+      stream,
+    ],
   )
 
   return {

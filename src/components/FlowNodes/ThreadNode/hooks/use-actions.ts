@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
-import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
+import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { toast } from 'src/lib/hooks/use-toast'
 
 import { ThreadNodeData } from '../type'
 import { useFlowState } from 'src/states/flow'
+import { reactFlowTraveling } from 'src/utils/react-flow-traveling'
 
 export const useActions = (id: string, data: ThreadNodeData) => {
   const node = useInternalNode(id)
@@ -35,17 +36,15 @@ export const useActions = (id: string, data: ThreadNodeData) => {
     async (input: string) => {
       if (node && data.entity) {
         try {
-          const threadConnections = getHandleConnections({
-            type: 'target',
-            nodeId: node.id,
+          const { nodes: connectedNodes, connections } = reactFlowTraveling([id], [], [], [], {
+            getNode,
+            getHandleConnections,
           })
-          const connectedNodes = threadConnections.map((connection) =>
-            getNode(connection.source),
-          ) as Node[]
 
           await createMessageFunction(node, data.entity, input, {
             onMessageUpdate,
             connectedNodes: connectedNodes,
+            connections,
           })
         } catch (error) {
           toast({
@@ -54,7 +53,7 @@ export const useActions = (id: string, data: ThreadNodeData) => {
         }
       }
     },
-    [node, data.entity, getHandleConnections, createMessageFunction, onMessageUpdate, getNode],
+    [node, data.entity, id, getNode, getHandleConnections, createMessageFunction, onMessageUpdate],
   )
 
   return { loading, createMessage }

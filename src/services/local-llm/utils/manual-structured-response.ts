@@ -48,7 +48,6 @@ export async function manualStructuredResponse({
       content += message
       onChunk?.(new AIMessage({ content: message }))
     }
-    console.log(content)
   } else {
     const reply = await engine.chat.completions.create({
       messages: messages,

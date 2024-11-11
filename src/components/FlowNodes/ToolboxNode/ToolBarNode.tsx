@@ -2,10 +2,12 @@ import { NodeProps } from '@xyflow/react'
 import { memo, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Menubar, MenubarMenu, MenubarTrigger } from 'src/lib/shadcn/ui/menubar'
-import { SUPPORTED_MODES, SupportedAddNodeEnum } from './types'
 import AddLLMCard from 'src/components/molecules/AddLLMCard'
 import AddPromptCard from 'src/components/molecules/AddPromptCard'
-import AddSchemaCard from '../../AddSchemaCard'
+import AddSchemaCard from 'src/components/molecules/AddSchemaCard'
+import AddFewShotExampleCard from 'src/components/molecules/AddFewShotExampleCard'
+
+import { SUPPORTED_MODES, SupportedAddNodeEnum } from './types'
 
 export const ToolbarNode = memo((props: NodeProps) => {
   const { t } = useTranslation('flows')
@@ -35,6 +37,8 @@ export const ToolbarNode = memo((props: NodeProps) => {
         return <AddPromptCard {...props} />
       case SupportedAddNodeEnum.ADD_SCHEMA:
         return <AddSchemaCard {...props} />
+      case SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE:
+        return <AddFewShotExampleCard {...props} />
     }
   }, [props, mode])
   return (
