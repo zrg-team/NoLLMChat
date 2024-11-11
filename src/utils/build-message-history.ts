@@ -71,6 +71,5 @@ export const buildHistories = (nodes: { node: Node; connectedNodes: Node[] }[]) 
       }
     }
   })
-  console.log('histories', histories)
   return histories
 }

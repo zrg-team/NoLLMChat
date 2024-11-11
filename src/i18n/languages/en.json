@@ -5,8 +5,11 @@
     "copied": "Copied",
     "deleted": "Deleted"
   },
-  "create-new-message": {
-    "initial-ai-message": "I'm thinking..."
+  "create_new_message": {
+    "initial_ai_message": "I'm thinking...",
+    "errors": {
+      "ai_message_content_failed": "Failed to create message."
+    }
   },
   "flows": {
     "supported_nodes": {
@@ -29,6 +32,7 @@
       }
     },
     "thread_node": {
+      "title": "Thread",
       "structured_output": "Structured Output",
       "prompts": {
         "human": "Human Prompt",

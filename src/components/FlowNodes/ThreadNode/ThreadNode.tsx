@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { Handle, Position, useHandleConnections, useReactFlow } from '@xyflow/react'
 import NewMessageCard from 'src/components/molecules/NewMessageCard'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
-import { Card } from 'src/lib/shadcn/ui/card'
+import { Card, CardTitle } from 'src/lib/shadcn/ui/card'
 import { ThreadNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -59,7 +59,14 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
       return <div className="tw-w-10 tw-h-10" />
     }
 
-    return <Card className="tw-p-4 tw-pt-8">{tags}</Card>
+    return (
+      <Card className="tw-p-4 tw-pt-2">
+        <CardTitle className='tw-mb-2'>{t('thread_node.title')}</CardTitle>
+        <div className='tw-flex tw-gap-1.5'>
+          {tags}
+        </div>
+      </Card>
+    )
   }, [containMessage, createMessage, getNode, loading, props.data.entity, t, targetConnections])
   return (
     <div>

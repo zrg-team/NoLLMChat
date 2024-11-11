@@ -15,7 +15,7 @@ import { useFlowState } from 'src/states/flow'
 import { buildHistories } from 'src/utils/build-message-history'
 
 export const useCreateMessage = () => {
-  const { t } = useTranslation('create-new-message')
+  const { t } = useTranslation('create_new_message')
   const [loading, setLoading] = useState(false)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
@@ -145,7 +145,7 @@ export const useCreateMessage = () => {
             })
             const aiMessage = await getRepository('Message').save({
               thread_id: thread.id,
-              content: t('initial-ai-message'),
+              content: t('initial_ai_message'),
               role: MessageRoleEnum.AI,
               status: MessageStatusEnum.Started,
               llm_id: thread.initial_llm_id,
@@ -220,6 +220,7 @@ export const useCreateMessage = () => {
         if (aiMessageId) {
           await getRepository('Message').update(`${aiMessageId}`, {
             status: MessageStatusEnum.Failed,
+            content: t('errors.ai_message_content_failed'),
           })
         }
       } finally {
