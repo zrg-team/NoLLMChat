@@ -5,7 +5,7 @@ import { MessageNodeData } from '../type'
 
 export function HumanMessageComponent({ data }: { data: MessageNodeData }) {
   return (
-    <Alert className="tw-flex tw-justify-center">
+    <Alert className="tw-flex tw-justify-center tw-min-w-52">
       <LazyIcon size={24} name="user" />
       <div className="tw-ml-2">
         <AlertTitle>{`Human`}</AlertTitle>

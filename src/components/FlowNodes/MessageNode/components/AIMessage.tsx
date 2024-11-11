@@ -8,7 +8,7 @@ import { MessageNodeData } from '../type'
 export function AIMessageComponent({ data }: { data: MessageNodeData }) {
   const { t } = useTranslation('flows')
   return (
-    <Alert className="tw-flex tw-justify-center">
+    <Alert className="tw-flex tw-justify-center tw-min-w-52">
       <LazyIcon
         className={cn(data.loading ? 'tw-animate-spin' : undefined)}
         size={24}

@@ -5,11 +5,15 @@ import { useCreateThread } from 'src/hooks/mutations/use-create-thread'
 import { useFlowState } from 'src/states/flow'
 import { getRepository } from 'src/services/database'
 import { In } from 'src/services/database/typeorm-wrapper'
+import { useLocalLLMState } from 'src/services/local-llm/state'
+import { useTranslation } from 'react-i18next'
+import { useToast } from 'src/lib/hooks/use-toast'
 
 import { LLMNodeData } from '../type'
-import { useLocalLLMState } from 'src/services/local-llm/state'
 
 export const useActions = (id: string, data: LLMNodeData) => {
+  const { t } = useTranslation('flows')
+  const { toast } = useToast()
   const [loadingModel, setLoadingModel] = useState(false)
   const [queringThreads, setQueringThreads] = useState(false)
   const node = useInternalNode(id)
@@ -62,10 +66,16 @@ export const useActions = (id: string, data: LLMNodeData) => {
         updateNodes(llmNodeChanges)
         await queryThreadsFromModel()
       }
+    } catch (error) {
+      console.warn(error)
+      toast({
+        variant: 'destructive',
+        description: t('llm_node.errors.loading_model'),
+      })
     } finally {
       setLoadingModel(false)
     }
-  }, [data.entity, getNodes, id, loadModel, node, queryThreadsFromModel, updateNodes])
+  }, [data.entity, getNodes, id, loadModel, node, queryThreadsFromModel, t, toast, updateNodes])
 
   const handleCreateThread = useCallback(async () => {
     if (data.entity && node) {

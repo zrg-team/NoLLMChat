@@ -68,9 +68,10 @@ export const useActions = (id: string) => {
             onMessageUpdate,
           })
         } catch (error) {
+          console.warn(error)
           toast({
             variant: 'destructive',
-            title: `${error}`,
+            title: t('message_node.errors.create_message'),
           })
         }
       }

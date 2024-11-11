@@ -1,7 +1,9 @@
 {
   "common": {
     "loading": "Loading...",
-    "something_went_wrong": "Something went wrong"
+    "something_went_wrong": "Something went wrong",
+    "copied": "Copied",
+    "deleted": "Deleted"
   },
   "create-new-message": {
     "initial-ai-message": "I'm thinking..."
@@ -21,7 +23,10 @@
     "llm_node": {
       "create_thread_button": "Create Thread",
       "load_model_button": "Load Model",
-      "download_model_button": "Download and Load Model"
+      "download_model_button": "Download and Load Model",
+      "errors": {
+        "loading_model": "Failed to load model."
+      }
     },
     "thread_node": {
       "structured_output": "Structured Output",
@@ -42,7 +47,8 @@
       },
       "errors": {
         "llm_not_found": "LLM not found.",
-        "llm_not_loaded": "Model '{{name}}' not loaded yet."
+        "llm_not_loaded": "Model '{{name}}' not loaded yet.",
+        "create_message": "Failed to create message."
       }
     },
     "session_info_node": {
