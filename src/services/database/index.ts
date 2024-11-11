@@ -169,7 +169,7 @@ export const getRepository = <N extends AppEntityNames>(entity: N) => {
     delete: (id: string) => {
       return repositoryExecute<T>(entity, 'delete', id) as unknown as Promise<UpdateResult>
     },
-    save: (data: EntityType<T>) => {
+    save: (data: EntityType<T> | EntityType<T>[]) => {
       return repositoryExecute<T>(entity, 'save', data as SaveOptions) as unknown as Promise<T>
     },
     update: (id: string, update: Partial<T>) => {

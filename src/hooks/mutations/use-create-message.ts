@@ -1,6 +1,6 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Node } from '@xyflow/react'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRepository } from 'src/services/database'
 import {
@@ -9,17 +9,19 @@ import {
   MessageRoleEnum,
   MessageStatusEnum,
   Prompt,
+  Schema,
   Thread,
 } from 'src/services/database/types'
-import { LocalLLMContext } from 'src/services/llm/provider'
+import { useLocalLLMState } from 'src/services/local-llm/state'
 import { useFlowState } from 'src/states/flow'
 
-export const useCreateNewMessage = () => {
+export const useCreateMessage = () => {
   const { t } = useTranslation('create-new-message')
   const [loading, setLoading] = useState(false)
-  const llmContext = useContext(LocalLLMContext)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
+  const structuredStream = useLocalLLMState((state) => state.structuredStream)
+  const stream = useLocalLLMState((state) => state.stream)
 
   const buildHistories = useCallback((nodes: Node[]) => {
     const histories: BaseMessage[] = []
@@ -130,15 +132,32 @@ export const useCreateNewMessage = () => {
             })
           })(),
           (async () => {
-            const histories = buildHistories(options?.connectedNodes || [])
-            const stream = llmContext.stream?.([...histories, new HumanMessage(input)])
+            const messageNodes = (options?.connectedNodes || [])
+              .filter((node) => node.type === FlowNodeTypeEnum.Message)
+              .reverse()
+
+            const threadPromptNode = messageNodes.find(
+              (node) => node.type === FlowNodeTypeEnum.Prompt,
+            )
+            if (threadPromptNode) {
+              messageNodes.unshift(threadPromptNode)
+            }
+            const schemaNode = (options?.connectedNodes || []).find(
+              (node) => node.type === FlowNodeTypeEnum.Schema,
+            )
+            const schema = schemaNode?.data?.entity as Schema
+
+            const histories = buildHistories(messageNodes)
+            const streamResponse = schema?.schema_items?.length
+              ? structuredStream?.(schema.schema_items, [...histories, new HumanMessage(input)])
+              : stream?.([...histories, new HumanMessage(input)])
             if (!stream) {
               throw new Error('Stream is not supported')
             }
             let content = ''
             let response = ''
             const chunks: string[] = []
-            for await (const chunk of stream) {
+            for await (const chunk of streamResponse) {
               if (chunk && Array.isArray(chunk)) {
                 chunks.push(...chunk.map((c) => c.content))
                 if (chunks?.length) {
@@ -180,7 +199,7 @@ export const useCreateNewMessage = () => {
         setLoading(false)
       }
     },
-    [createOrUpdateFlowNode, createOrUpdateFlowEdge, t, buildHistories, llmContext],
+    [createOrUpdateFlowNode, createOrUpdateFlowEdge, t, buildHistories, structuredStream, stream],
   )
 
   return {

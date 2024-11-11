@@ -5,7 +5,7 @@ import { Menubar, MenubarMenu, MenubarTrigger } from 'src/lib/shadcn/ui/menubar'
 import { SUPPORTED_MODES, SupportedAddNodeEnum } from './types'
 import AddLLMCard from 'src/components/molecules/AddLLMCard'
 import AddPromptCard from 'src/components/molecules/AddPromptCard'
-import AddToolCard from '../../AddToolCard'
+import AddSchemaCard from '../../AddSchemaCard'
 
 export const ToolbarNode = memo((props: NodeProps) => {
   const { t } = useTranslation('flows')
@@ -33,8 +33,8 @@ export const ToolbarNode = memo((props: NodeProps) => {
         return <AddLLMCard {...props} />
       case SupportedAddNodeEnum.ADD_PROMPT:
         return <AddPromptCard {...props} />
-      case SupportedAddNodeEnum.ADD_TOOL_DEFINITION:
-        return <AddToolCard {...props} />
+      case SupportedAddNodeEnum.ADD_SCHEMA:
+        return <AddSchemaCard {...props} />
     }
   }, [props, mode])
   return (

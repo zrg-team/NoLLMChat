@@ -43,7 +43,7 @@ const init = async () => {
 const getRepositoryAction = async (
   entity: string,
   action: string,
-  data: QueryOptions<ObjectLiteral>,
+  data: QueryOptions<ObjectLiteral> | QueryOptions<ObjectLiteral[]>,
 ) => {
   if (!appDataSource) {
     throw new Error('Database not initialized')

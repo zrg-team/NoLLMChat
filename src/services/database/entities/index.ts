@@ -6,8 +6,21 @@ import { FlowEdge } from './flow-edge'
 import { Prompt } from './prompt'
 import { PromptVariable } from './prompt-variable'
 import { Session } from './session'
+import { Schema } from './schema'
+import { SchemaItem } from './schema_item'
 
-export { Thread, Message, LLM, FlowNode, FlowEdge, Prompt, PromptVariable, Session }
+export {
+  Thread,
+  Message,
+  LLM,
+  FlowNode,
+  FlowEdge,
+  Prompt,
+  PromptVariable,
+  Session,
+  Schema,
+  SchemaItem,
+}
 
 export type AppEntites =
   | typeof Thread
@@ -18,6 +31,8 @@ export type AppEntites =
   | typeof Prompt
   | typeof PromptVariable
   | typeof Session
+  | typeof Schema
+  | typeof SchemaItem
 
 export const entitiesMap: Record<string, AppEntites> = {
   LLM,
@@ -28,5 +43,7 @@ export const entitiesMap: Record<string, AppEntites> = {
   Prompt,
   PromptVariable,
   Session,
+  Schema,
+  SchemaItem,
 }
 // This file should not be use in main codebase. ONLY WORKER should use this file.

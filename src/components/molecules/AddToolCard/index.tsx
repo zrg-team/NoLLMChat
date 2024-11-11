@@ -1,4 +1,3 @@
-// import { z } from 'zod'
 import { memo } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
@@ -6,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
-import TableData from './Table/TableData'
 
 const AddToolCard = memo(() => {
   const { t } = useTranslation('components')
@@ -24,12 +22,6 @@ const AddToolCard = memo(() => {
           <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
             <Label htmlFor="name">{t('add_tool_card.tool_description')}</Label>
             <Textarea placeholder={t('add_tool_card.description_placeholder')} />
-          </div>
-          <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
-            <Label htmlFor="name">{t('add_tool_card.tool_schema')}</Label>
-            <div className="tw-rounded-md tw-border">
-              <TableData />
-            </div>
           </div>
         </CardContent>
         <CardFooter className="tw-flex tw-justify-between">

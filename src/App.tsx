@@ -10,12 +10,12 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Toaster } from 'src/lib/shadcn/ui/toaster'
 
 import { FileSystemProvider } from 'src/services/file-system/provider'
-import { LocalLLMProvider } from 'src/services/llm/provider'
 import { LocalEmbeddingMProvider } from 'src/services/embedding/provider'
 import { DatabaseProvider } from 'src/services/database/provider'
 import { useSessionState } from 'src/states/session'
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
+import { useLocalLLMState } from './services/local-llm/state'
 
 const AppRoute = lazy(() => import('src/routes'))
 
@@ -27,12 +27,14 @@ const logError = (error: Error, info: { componentStack?: string | null }) => {
 
 const MainApp = memo(() => {
   const initSessionState = useSessionState((state) => state.init)
+  const initLocalLLMState = useLocalLLMState((state) => state.init)
   const ready = useSessionState((state) => state.ready)
   const error = useSessionState((state) => state.error)
 
   useEffect(() => {
     initSessionState()
-  }, [initSessionState])
+    initLocalLLMState()
+  }, [initLocalLLMState, initSessionState])
 
   if (error) {
     return <DefaultError error={error} />
@@ -53,10 +55,8 @@ export const App: FC<PropsWithChildren> = memo(() => {
     <FileSystemProvider>
       <DatabaseProvider>
         <LocalEmbeddingMProvider>
-          <LocalLLMProvider>
-            <MainApp />
-            <Toaster />
-          </LocalLLMProvider>
+          <MainApp />
+          <Toaster />
         </LocalEmbeddingMProvider>
       </DatabaseProvider>
     </FileSystemProvider>

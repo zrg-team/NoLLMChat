@@ -7,6 +7,7 @@ import { LLMStatusEnum } from 'src/services/database/types/llm'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 import { cn } from 'src/lib/utils'
+import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -92,10 +93,13 @@ export const LLMNode = memo((props: LLMNodeProps) => {
   return (
     <div>
       <div>
+        <NodeHeader id={id} />
         <Alert className="tw-flex tw-justify-center">
-          {llmIcon}
-          <div className="tw-ml-2 tw-mt-1">
-            <AlertTitle>{`${data?.entity?.name || ''}`}</AlertTitle>
+          <div className="tw-ml-2 tw-mt-1 tw-pt-4">
+            <AlertTitle className="tw-flex tw-gap-2 tw-items-center">
+              {llmIcon}
+              {`${data?.entity?.name || ''}`}
+            </AlertTitle>
             <AlertDescription>{`${data.label || ''}`}</AlertDescription>
             {actions}
           </div>

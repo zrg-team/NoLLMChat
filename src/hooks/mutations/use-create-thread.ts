@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react'
 import { Node } from '@xyflow/react'
 import { getRepository } from 'src/services/database'
-import { FlowNodeTypeEnum } from 'src/services/database/types'
+import { FlowNodeTypeEnum, LLM, Schema } from 'src/services/database/types'
 import { ThreadStatusEnum } from 'src/services/database/types/thread'
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'
 
-export const useCreateNewThread = () => {
+export const useCreateThread = () => {
   const sessionId = useSessionState((state) => state.currentSession?.id)
 
   const [loading, setLoading] = useState(false)
@@ -14,17 +14,21 @@ export const useCreateNewThread = () => {
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
   const createThread = useCallback(
-    async (source: Node, llmName: string) => {
+    async (
+      source: Node,
+      options?: {
+        connectedNodes?: Node[]
+      },
+    ) => {
       setLoading(true)
       try {
-        const llm = await getRepository('LLM').findOne({
-          where: {
-            name: llmName,
-          },
-        })
+        const llm = source.data?.entity as LLM
         if (!llm || !sessionId) {
           throw new Error('LLM or Session not found')
         }
+        const schema = (await options?.connectedNodes?.find(
+          (node) => node.type === FlowNodeTypeEnum.Schema,
+        )?.data?.entity) as Schema
         const initialX = source.position.x
         const initialY = source.position.y + (source.measured?.height || 0)
         const thread = await getRepository('Thread').save({
@@ -33,6 +37,7 @@ export const useCreateNewThread = () => {
           status: ThreadStatusEnum.Started,
           messages: [],
           session_id: sessionId,
+          schema_id: schema?.id,
         })
         const flowNode = await createOrUpdateFlowNode({
           source_id: thread.id,

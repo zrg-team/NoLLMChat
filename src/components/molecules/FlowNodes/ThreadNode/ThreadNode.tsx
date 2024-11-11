@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react'
 import { Handle, Position, useHandleConnections } from '@xyflow/react'
 import { Avatar, AvatarFallback } from 'src/lib/shadcn/ui/avatar'
 import NewMessageCard from 'src/components/molecules/NewMessageCard'
+import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { ThreadNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -25,14 +26,17 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
 
     return (
       <Avatar>
-        <AvatarFallback>T</AvatarFallback>
+        <AvatarFallback />
       </Avatar>
     )
   }, [containMessage, createMessage, loading, props.data.entity])
   return (
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div>{inner}</div>
+      <div>
+        <NodeHeader className="tw-left-1" id={id} />
+        {inner}
+      </div>
       <Handle type="source" position={Position.Bottom} id="a" isConnectable={isConnectable} />
     </div>
   )

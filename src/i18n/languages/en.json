@@ -10,7 +10,8 @@
     "supported_nodes": {
       "add_llm": "Add LLM",
       "add_prompt": "Add Prompt",
-      "add_tool_definition": "Add Tool"
+      "add_tool_definition": "Add Tool",
+      "add_schema": "Add Schema"
     },
     "toolbar_node": {
       "title": "Toolbar",
@@ -59,6 +60,10 @@
         "prompts": "Number of Prompts: {{count}}",
         "title": "Current Session Count"
       }
+    },
+    "schema_node": {
+      "typescript": "TypeScript",
+      "zod": "zod"
     }
   },
   "components": {
@@ -91,7 +96,34 @@
       "button": "Create",
       "tool_description": "Description",
       "description_placeholder": "Input tool description...",
-      "tool_schema": "Schema"
+      "tool_schema": "Schema",
+      "create": "Create"
+    },
+    "add_schema_card": {
+      "title": "Add Schema",
+      "no_data": "No fields.",
+      "add": "Add",
+      "field": {
+        "required": "Required",
+        "type": "Type",
+        "type_placeholder": "Select a filed data type",
+        "description": "Description",
+        "description_placeholder": "Input filed description",
+        "name": "Name",
+        "name_placeholder": "Input filed name",
+        "actions": "Actions",
+        "add_field": "Add Field",
+        "enum": "Enum"
+      },
+      "types": {
+        "string": "String",
+        "number": "Number",
+        "boolean": "Boolean",
+        "object": "Object",
+        "array": "Array"
+      },
+      "create": "Create",
+      "children": "Children"
     },
     "add_message_card": {
       "title": "Send Message",

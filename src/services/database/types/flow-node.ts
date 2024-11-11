@@ -6,6 +6,7 @@ export enum FlowNodeTypeEnum {
   Message = 'MESSAGE',
   Prompt = 'PROMPT',
   SessionInfo = 'SESSION_INFO',
+  Schema = 'SCHEMA',
   ToolDefinition = 'TOOL_DEFINITION',
   ToolHandler = 'TOOL_HANDLER',
 }

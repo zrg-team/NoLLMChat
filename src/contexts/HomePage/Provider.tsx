@@ -1,11 +1,11 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
-import { LocalLLMContext } from 'src/services/llm/provider'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
 import { useFlowManager } from 'src/hooks/handlers/use-flow-manager'
 
 import { HomePageContextProvider } from './context'
 import { HomePageContextType } from './type'
 import { useAutomaticallyRenderFlows } from 'src/hooks/handlers/use-automatically-render-flow'
+import { useLocalLLMState } from 'src/services/local-llm/state'
 
 export interface JNScreenDocumentProviderProps {
   children: React.ReactNode
@@ -14,22 +14,21 @@ export interface JNScreenDocumentProviderProps {
 const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children }) => {
   const [initializing, setInitializing] = useState(true)
   const flowManager = useFlowManager()
+  const selectedModel = useLocalLLMState((state) => state.selectedModel)
+  const selectedModelRef = useRef(selectedModel)
+  const setInitProgressCallback = useLocalLLMState((state) => state.setInitProgressCallback)
   const { updateOrCreateNode, updateNodeChanges, updateEdgeChanges, updateEdgeConnection } =
     flowManager
   useAutomaticallyRenderFlows(flowManager)
 
-  const localLLm = useContext(LocalLLMContext)
+  selectedModelRef.current = selectedModel
 
   useEffect(() => {
-    if (
-      !localLLm.selectedModel ||
-      !localLLm.initializing ||
-      Object.values(localLLm.initializing).every(Boolean)
-    ) {
-      return
-    }
-    const modelName = `${localLLm.selectedModel}`
-    const callbackRemoval = localLLm.setInitProgressCallback?.((input) => {
+    const callbackRemoval = setInitProgressCallback?.((input) => {
+      if (!selectedModelRef.current) {
+        return
+      }
+      const modelName = `${selectedModelRef.current}`
       updateOrCreateNode((nodeRefs) => {
         const flowNode = nodeRefs?.find((node) => {
           if (
@@ -57,7 +56,7 @@ const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children })
     return () => {
       callbackRemoval?.()
     }
-  }, [localLLm, localLLm.initializing, localLLm.selectedModel, updateOrCreateNode])
+  }, [setInitProgressCallback, updateOrCreateNode])
 
   const contextValue = useMemo<HomePageContextType>(
     () => ({

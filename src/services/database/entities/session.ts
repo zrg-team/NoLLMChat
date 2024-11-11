@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm'
-import { FlowEdge, FlowNode, LLM, Prompt, Thread } from './index'
+import { FlowEdge, FlowNode, LLM, Prompt, Schema, Thread } from './index'
 import { TABLE_NAMES, type SessionStatusEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Session })
@@ -43,4 +43,7 @@ export class Session {
 
   @OneToMany(() => FlowEdge, (entity: FlowEdge) => entity.session)
   flow_edges?: FlowEdge[]
+
+  @OneToMany(() => Schema, (entity: Schema) => entity.session)
+  schemas?: Schema[]
 }

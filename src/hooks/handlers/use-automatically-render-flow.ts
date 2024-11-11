@@ -18,7 +18,7 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
     initialFlow(async () => {
       await prepareFlowInfo({
         where: {
-          source_type: In(['LLM', 'Prompt']),
+          source_type: In(['LLM', 'Prompt', 'Schema']),
         },
       })
     })

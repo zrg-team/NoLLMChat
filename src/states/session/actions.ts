@@ -9,9 +9,9 @@ export interface SessionStateActions {
 }
 
 export const getSessionStateActions = (
-  set: SetState<SessionState & SessionStateActions>,
+  set: SetState<SessionState>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _get: GetState<SessionState & SessionStateActions>,
+  _get: GetState<SessionState>,
 ): SessionStateActions => {
   return {
     init: async () => {

@@ -18,7 +18,7 @@ import {
 } from 'src/lib/shadcn/ui/command'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { LLMModelTypeEnum } from 'src/services/database/types'
-import { useLLMState } from 'src/states/llm'
+import { useLocalLLMState } from 'src/services/local-llm/state'
 
 function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -29,7 +29,7 @@ function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void })
   const [search, setSearch] = useState('')
   const [hasCache, setHasCache] = useState(false)
 
-  const cachedLLMURLs = useLLMState((state) => state.cachedLLMURLs)
+  const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createDatabaseLLM } = useCreateDatabaseLLM()
 
   const modelList = useMemo(() => {

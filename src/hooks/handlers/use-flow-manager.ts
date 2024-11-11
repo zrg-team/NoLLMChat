@@ -83,7 +83,7 @@ export const useFlowManager = () => {
         }
       }
     },
-    [createOrUpdateFlowNode, deleteFlowNode],
+    [createOrUpdateFlowNode, deleteFlowNode, updateNodes],
   )
 
   const updateEdgeChanges = useCallback(

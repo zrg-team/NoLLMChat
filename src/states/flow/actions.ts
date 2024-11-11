@@ -68,8 +68,8 @@ export interface FlowStateActions {
 }
 
 export const getFlowStateActions = (
-  set: SetState<FlowState & FlowStateActions>,
-  get: GetState<FlowState & FlowStateActions>,
+  set: SetState<FlowState>,
+  get: GetState<FlowState>,
 ): FlowStateActions => {
   return {
     setNodes: (newNodes) => {

@@ -60,22 +60,17 @@ export const flowNodesToNodeChanges = (
 
     const source = flowNodeSources?.[node.source_type]?.find((item) => item?.id === node.source_id)
 
-    const data = deepmerge(
-      oldNode?.data || {},
-      omitBy(
-        {
-          entity: source,
-        },
-        isUndefined,
-      ),
-    )
-
-    const newNode = flowNodeToNode(node, data)
+    const newNode = flowNodeToNode(node, {
+      ...oldNode?.data,
+      entity: source,
+    })
 
     return {
       type: oldNode ? 'replace' : 'add',
       id: node.id,
-      item: oldNode ? deepmerge(oldNode, omitBy(newNode, isUndefined)) : newNode,
+      item: oldNode
+        ? deepmerge({ ...(oldNode || {}), data: undefined }, omitBy(newNode, isUndefined))
+        : newNode,
     } as NodeChange
   })
 

@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
-import { useInternalNode, useReactFlow } from '@xyflow/react'
-import { useCreateNewMessage } from 'src/hooks/mutations/use-create-new-message'
-import { FlowNodeTypeEnum } from 'src/services/database/types'
+import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
+import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { toast } from 'src/lib/hooks/use-toast'
 
 import { ThreadNodeData } from '../type'
@@ -11,7 +10,7 @@ export const useActions = (id: string, data: ThreadNodeData) => {
   const node = useInternalNode(id)
   const { getNode, getHandleConnections } = useReactFlow()
   const updateNodes = useFlowState((state) => state.updateNodes)
-  const { createMessage: createMessageFunction, loading } = useCreateNewMessage()
+  const { createMessage: createMessageFunction, loading } = useCreateMessage()
 
   const onMessageUpdate = useCallback(
     (info: { id?: string; content: string; finish?: boolean }) => {
@@ -40,12 +39,13 @@ export const useActions = (id: string, data: ThreadNodeData) => {
             type: 'target',
             nodeId: node.id,
           })
-          const promptConnection = threadConnections
-            .map((connection) => getNode(connection.source))
-            .find((node) => node?.type === FlowNodeTypeEnum.Prompt)
+          const connectedNodes = threadConnections.map((connection) =>
+            getNode(connection.source),
+          ) as Node[]
+
           await createMessageFunction(node, data.entity, input, {
             onMessageUpdate,
-            connectedNodes: promptConnection ? [promptConnection] : undefined,
+            connectedNodes: connectedNodes,
           })
         } catch (error) {
           toast({

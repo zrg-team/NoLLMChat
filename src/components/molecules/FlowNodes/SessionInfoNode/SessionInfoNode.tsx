@@ -25,11 +25,11 @@ import { useSessionState } from 'src/states/session'
 import { formatBytes } from 'src/utils/bytes-format'
 import { Button } from 'src/lib/shadcn/ui/button'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { useLLMState } from 'src/states/llm'
+import { useLocalLLMState } from 'src/services/local-llm/state'
 
 export const SessionInfoNode = memo(() => {
   const { t } = useTranslation('flows')
-  const cachedLLMURLs = useLLMState((state) => state.cachedLLMURLs)
+  const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const currentSession = useSessionState((state) => state.currentSession)
   const [usedBytes, setUsedBytes] = useState('')
   const [countInfo, setCountInfo] = useState<

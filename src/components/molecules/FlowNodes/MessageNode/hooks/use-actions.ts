@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'src/lib/hooks/use-toast'
 import { useInternalNode, useReactFlow, Node } from '@xyflow/react'
-import { useCreateNewMessage } from 'src/hooks/mutations/use-create-new-message'
+import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum, Thread } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 
@@ -12,14 +12,10 @@ export const useActions = (id: string) => {
 
   const updateNodes = useFlowState((state) => state.updateNodes)
   const { getNode, getHandleConnections, getNodes } = useReactFlow()
-  const { createMessage, loading } = useCreateNewMessage()
+  const { createMessage, loading } = useCreateMessage()
 
   const travelingConversation = useCallback(
-    (
-      list: string[],
-      result: { messageNodes: Node[]; threadNode?: Node; threadPromptNode?: Node },
-      handledIds: string[] = [],
-    ) => {
+    (list: string[], result: Node[], handledIds: string[] = []) => {
       const nodes = list.map((id) => getNode(id))
       for (const node of nodes) {
         if (!node) {
@@ -35,10 +31,17 @@ export const useActions = (id: string) => {
             .find((node) => node?.type === FlowNodeTypeEnum.Prompt)
           if (promptConnection) {
             handledIds.push(promptConnection.id)
-            result.threadPromptNode = promptConnection
+            result.push(promptConnection)
+          }
+          const schemaConnection = threadConnections
+            .map((connection) => getNode(connection.source))
+            .find((node) => node?.type === FlowNodeTypeEnum.Schema)
+          if (schemaConnection) {
+            handledIds.push(schemaConnection.id)
+            result.push(schemaConnection)
           }
           handledIds.push(node.id)
-          result.threadNode = node
+          result.push(node)
           continue
         } else if (node.type !== FlowNodeTypeEnum.Message) {
           handledIds.push(node.id)
@@ -48,7 +51,7 @@ export const useActions = (id: string) => {
         }
 
         handledIds.push(node.id)
-        result.messageNodes.push(node)
+        result.push(node)
         const connections = getHandleConnections({
           type: 'target',
           nodeId: node.id,
@@ -60,6 +63,8 @@ export const useActions = (id: string) => {
           )
         }
       }
+
+      return result
     },
     [getHandleConnections, getNode],
   )
@@ -81,18 +86,14 @@ export const useActions = (id: string) => {
         },
       ])
     },
-    [id, node?.data?.entity, updateNodes],
+    [getNode, updateNodes],
   )
 
   const handleSubmit = useCallback(
     async (input: string) => {
-      const nodeDatas: { messageNodes: Node[]; threadNode?: Node; threadPromptNode?: Node } = {
-        messageNodes: [],
-        threadNode: undefined,
-        threadPromptNode: undefined,
-      }
-      travelingConversation([id], nodeDatas)
-      const thread = nodeDatas.threadNode?.data?.entity as Thread
+      const connectionNodes = travelingConversation([id], [])
+      const threadNode = connectionNodes.find((node) => node.type === FlowNodeTypeEnum.Thread)
+      const thread = threadNode?.data?.entity as Thread
       if (thread && node) {
         const llmNode = getNodes().find((node) => {
           const entity = node.data?.entity as LLM
@@ -112,15 +113,8 @@ export const useActions = (id: string) => {
           })
         }
         try {
-          const history = nodeDatas.messageNodes
-            .filter((node) => node.type === FlowNodeTypeEnum.Message)
-            .reverse()
-
-          if (nodeDatas.threadPromptNode) {
-            history.unshift(nodeDatas.threadPromptNode)
-          }
           await createMessage(node, thread, input, {
-            connectedNodes: history,
+            connectedNodes: connectionNodes,
             onMessageUpdate,
           })
         } catch (error) {

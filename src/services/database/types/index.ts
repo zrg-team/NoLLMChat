@@ -6,6 +6,8 @@ import type { FlowEdge } from '../entities/flow-edge'
 import type { Prompt } from '../entities/prompt'
 import type { PromptVariable } from '../entities/prompt-variable'
 import type { Session } from '../entities/session'
+import type { Schema } from '../entities/schema'
+import type { SchemaItem } from '../entities/schema_item'
 
 export type EntityTypesMap = {
   Thread: Thread
@@ -16,6 +18,8 @@ export type EntityTypesMap = {
   Prompt: Prompt
   PromptVariable: PromptVariable
   Session: Session
+  Schema: Schema
+  SchemaItem: SchemaItem
 }
 
 export type EntityArrayTypes = {
@@ -28,7 +32,18 @@ export type EntityTypes = {
 
 export type AppEntityNames = keyof EntityTypesMap
 
-export type { Thread, Message, LLM, FlowEdge, FlowNode, Prompt, PromptVariable, Session }
+export type {
+  Thread,
+  Message,
+  LLM,
+  FlowEdge,
+  FlowNode,
+  Prompt,
+  PromptVariable,
+  Session,
+  Schema,
+  SchemaItem,
+}
 
 export const TABLE_NAMES = {
   Thread: 'threads',
@@ -39,6 +54,8 @@ export const TABLE_NAMES = {
   Prompt: 'prompts',
   PromptVariable: 'prompt_variables',
   Session: 'sessions',
+  Schema: 'schemas',
+  SchemaItem: 'schema_items',
 }
 
 export * from './flow-node'
@@ -48,3 +65,4 @@ export * from './thread'
 export * from './prompt'
 export * from './prompt-variable'
 export * from './session'
+export * from './schema'
