@@ -1,7 +1,190 @@
 {
-  "chat": {
-    "assistant_welcome_message": "All set! How can I help you today?",
-    "assistant_loading_message": "I'm thinking...",
-    "assistant_loading": "Initializing..."
+  "common": {
+    "loading": "Loading...",
+    "something_went_wrong": "Something went wrong",
+    "copied": "Copied",
+    "deleted": "Deleted"
+  },
+  "create_new_message": {
+    "initial_ai_message": "I'm thinking...",
+    "errors": {
+      "ai_message_content_failed": "Failed to create message."
+    }
+  },
+  "flows": {
+    "supported_nodes": {
+      "add_llm": "Create LLM",
+      "add_prompt": "Create Prompt",
+      "add_tool_definition": "Create Tool",
+      "add_schema": "Create Schema",
+      "add_few_shot_example": "Create Few Shot Example",
+      "more": "...More"
+    },
+    "toolbar_node": {
+      "title": "Toolbar",
+      "add_node": ""
+    },
+    "llm_node": {
+      "create_thread_button": "Create Thread",
+      "load_model_button": "Load Model",
+      "download_model_button": "Download and Load Model",
+      "errors": {
+        "loading_model": "Failed to load model."
+      }
+    },
+    "thread_node": {
+      "title": "Thread",
+      "structured_output": "Structured Output",
+      "prompts": {
+        "human": "Human Prompt",
+        "ai": "AI Prompt",
+        "system": "System Prompt",
+        "tool": "Tool Prompt",
+        "few_shot_example": "Few Shot Example Prompt"
+      }
+    },
+    "message_node": {
+      "message_roles": {
+        "ai": "AI",
+        "human": "Human",
+        "system": "System",
+        "assistant": "Assistant"
+      },
+      "errors": {
+        "llm_not_found": "LLM not found.",
+        "llm_not_loaded": "Model '{{name}}' not loaded yet.",
+        "create_message": "Failed to create message."
+      }
+    },
+    "session_info_node": {
+      "entities": {
+        "nodes": "Nodes",
+        "edges": "Edges",
+        "threads": "Threads",
+        "llms": "LLMs",
+        "message": "Message",
+        "prompts": "Prompts",
+        "schemas": "Schemas",
+        "tools": "Tools",
+        "emmbeding": "Embedding"
+      },
+      "title": "Session",
+      "disk_size": "Disk Size",
+      "reload": "Reload",
+      "cached_llms": "Cached LLM",
+      "cached": "Cached",
+      "used_bytes": "Used {{used}} out of {{total}}.",
+      "function_calling": "Function Calling",
+      "low_resource_required": "Low resource required",
+      "count_info": {
+        "nodes": "Number of Nodes: {{count}}",
+        "threads": "Number of Threads: {{count}}",
+        "messages": "Number of Messages: {{count}}",
+        "llms": "Number of LLMs: {{count}}",
+        "edges": "Number of Edges: {{count}}",
+        "prompts": "Number of Prompts: {{count}}",
+        "title": "Current Session Count"
+      }
+    },
+    "schema_node": {
+      "typescript": "TypeScript",
+      "zod": "zod"
+    }
+  },
+  "components": {
+    "add_llm_card": {
+      "title": "LLM",
+      "button_add": "Create",
+      "button_download_and_add": "Create",
+      "select_placeholder": "Select a model",
+      "search_placeholder": "Search model...",
+      "no_model": "No model found",
+      "function_calling": "Function Calling",
+      "cached": "Cached",
+      "model_types": {
+        "llm": "LLM",
+        "embedding": "Embedding",
+        "vlm": "VLM"
+      },
+      "has_model_cache": "Has Model Cache",
+      "model_type": "Type:",
+      "low_resource_required": "Low resource required",
+      "model_url": "URL:",
+      "model_vram": "Required VRAM: ",
+      "model_context_window_size": "Context window size:",
+      "model_function_calling": "Function Calling:"
+    },
+    "add_tool_card": {
+      "title":"Tool",
+      "tool_name": "Name",
+      "name_placeholder": "Input tool name...",
+      "button": "Create",
+      "tool_description": "Description",
+      "description_placeholder": "Input tool description...",
+      "tool_schema": "Schema",
+      "create": "Create"
+    },
+    "add_schema_card": {
+      "title": "Schema",
+      "no_data": "No fields.",
+      "add": "Create",
+      "field": {
+        "required": "Required",
+        "type": "Type",
+        "type_placeholder": "Select a filed data type",
+        "description": "Description",
+        "description_placeholder": "Input filed description",
+        "name": "Name",
+        "name_placeholder": "Input filed name",
+        "actions": "Actions",
+        "add_field": "Add Field",
+        "enum": "Enum"
+      },
+      "types": {
+        "string": "String",
+        "number": "Number",
+        "boolean": "Boolean",
+        "object": "Object",
+        "array": "Array"
+      },
+      "create": "Create",
+      "children": "Children"
+    },
+    "add_message_card": {
+      "title": "Send Message",
+      "button": "Send",
+      "placeholder": "Type your message here..."
+    },
+    "add_prompt_card": {
+      "prompt_content": "Content",
+      "prompt_prefix": "Prefix",
+      "prompt_type": "Type",
+      "prompt_role": "Role",
+      "type_select_placeholder":"Select prompt type",
+      "role_select_placeholder":"Select prompt role",
+      "prompt_types": {
+        "chat": "Chat",
+        "few_shot_example": "Few Shot Example"
+      },
+      "prompt_roles": {
+        "system": "System",
+        "human": "Human",
+        "ai": "AI",
+        "few_shot_example": "Few Shot Example"
+      },
+      "title": "Prompt",
+      "placeholder":"Type your prompt here...",
+      "button": "Create",
+      "few_shot_example_note": "Use {input} to represent the input in the prompt. And use {output} to represent the output. For example, Question: {input}\nAnswer: {output}"
+    },
+    "add_few_shot_example_card": {
+      "title": "Few Shot Example",
+      "input": "Input",
+      "input_placeholder": "Type example input here...",
+      "output": "Output",
+      "output_placeholder": "Type example output here...",
+      "add": "Add",
+      "create": "Create"
+    }
   }
 }

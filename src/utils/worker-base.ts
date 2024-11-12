@@ -78,3 +78,16 @@ export async function init(func?: () => Promise<void>) {
   }
   respond(WOKER_INIT_MESSAGE_ID, 'complete', 'Worker initialized')
 }
+
+export async function sendMessage(
+  worker: Worker,
+  type: string,
+  messageId: string,
+  payload: unknown,
+) {
+  return worker.postMessage({
+    type: type,
+    messageId,
+    payload: payload,
+  })
+}
