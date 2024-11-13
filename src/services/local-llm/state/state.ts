@@ -13,11 +13,12 @@ export interface LocalLLMState {
   selectedModel: string
   refProcesses: Map<
     string,
-    [
-      ProcessResolveType,
-      (reason?: unknown) => void,
-      { type: string; data: unknown[]; lastIndex: number },
-    ]
+    {
+      promise: Promise<unknown>
+      resolve: ProcessResolveType
+      reject: (reason?: unknown) => void
+      processInfo: { type: string; data: unknown[]; lastIndex: number }
+    }
   >
   currentLoadModelMessageId?: string
   handler?: (

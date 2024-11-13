@@ -11,6 +11,7 @@ import type { SchemaItem } from '../entities/schema-item'
 import type { JSONData } from '../entities/json-data'
 import type { CSVData } from '../entities/csv-data'
 import type { ToolDefinition } from '../entities/tool-definition'
+import type { VectorDatabase } from '../entities/vector-database'
 
 export type EntityTypesMap = {
   Thread: Thread
@@ -26,6 +27,7 @@ export type EntityTypesMap = {
   JSONData: JSONData
   CSVData: CSVData
   ToolDefinition: ToolDefinition
+  VectorDatabase: VectorDatabase
 }
 
 export type EntityArrayTypes = {
@@ -52,6 +54,7 @@ export type {
   JSONData,
   CSVData,
   ToolDefinition,
+  VectorDatabase,
 }
 
 export const TABLE_NAMES = {
@@ -68,6 +71,7 @@ export const TABLE_NAMES = {
   JSONData: 'json_data',
   CSVData: 'csv_data',
   ToolDefinition: 'tool_definitions',
+  VectorDatabase: 'vector_databases',
 }
 
 export * from './flow-node'
@@ -79,3 +83,4 @@ export * from './prompt-variable'
 export * from './session'
 export * from './schema'
 export * from './tool-definition'
+export * from './vector-database'

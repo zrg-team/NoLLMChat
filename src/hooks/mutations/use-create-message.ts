@@ -2,6 +2,7 @@ import { HumanMessage } from '@langchain/core/messages'
 import { Connection, Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MessageNodeData } from 'src/components/FlowNodes/MessageNode/type'
 import { getRepository } from 'src/services/database'
 import {
   FlowNodeTypeEnum,
@@ -16,6 +17,11 @@ import { useLocalLLMState } from 'src/services/local-llm'
 import { useFlowState } from 'src/states/flow'
 import { buildHistories } from 'src/utils/build-message-history'
 
+type CreateMessageOption = {
+  onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeData> }) => void
+  connectedNodes?: Node[]
+  connections?: Connection[]
+}
 export const useCreateMessage = () => {
   const { t } = useTranslation('create_new_message')
   const [loading, setLoading] = useState(false)
@@ -204,14 +210,7 @@ export const useCreateMessage = () => {
     async (
       messagesInfo: Awaited<ReturnType<typeof insertMessages>>,
       threadConnection: ReturnType<typeof prepareThreadConnections>,
-      {
-        onMessageUpdate,
-        connectedNodes,
-      }: {
-        onMessageUpdate: (info: { id?: string; content: string; finish?: boolean }) => void
-        connectedNodes?: Node[]
-        connections?: Connection[]
-      },
+      { onMessageUpdate, connectedNodes }: CreateMessageOption,
     ) => {
       const { schemaNode, threadPromptNodes, threadToolNodes } = threadConnection
       const histories = prepareThreadHistory(connectedNodes || [], threadPromptNodes)
@@ -253,6 +252,7 @@ export const useCreateMessage = () => {
 
       let content = ''
       let response = ''
+      let lastChunk
       const chunks: string[] = []
       for await (const chunk of streamResponse) {
         if (!chunk) {
@@ -264,25 +264,43 @@ export const useCreateMessage = () => {
             response = chunks.join('')
             onMessageUpdate?.({
               id: messagesInfo.aiMessageNode.id,
-              content: response,
+              nodeData: {
+                content: response,
+              },
             })
           }
         } else {
-          content = typeof chunk === 'string' ? chunk : (chunk as { content: string }).content
+          content =
+            typeof chunk === 'object' && 'content' in chunk ? `${chunk.content}` : `${chunk}`
+
           onMessageUpdate?.({
             id: messagesInfo.aiMessageNode.id,
-            content,
+            nodeData: {
+              content,
+            },
           })
         }
+        lastChunk = chunk
       }
+
+      messagesInfo.aiMessage.content = content
+      messagesInfo.aiMessage.metadata = JSON.stringify({
+        message: lastChunk,
+      })
       onMessageUpdate?.({
         id: messagesInfo.aiMessageNode.id,
-        content,
-        finish: true,
+        nodeData: {
+          content,
+          loading: false,
+          entity: messagesInfo.aiMessage,
+        },
       })
       if (messagesInfo.aiMessage.id) {
         await getRepository('Message').update(messagesInfo.aiMessage.id, {
           content: content,
+          metadata: JSON.stringify({
+            message: lastChunk,
+          }),
         })
       }
       return content
@@ -291,16 +309,7 @@ export const useCreateMessage = () => {
   )
 
   const createMessage = useCallback(
-    async (
-      source: Node,
-      thread: Thread,
-      content: string,
-      options: {
-        onMessageUpdate: (info: { id?: string; content: string; finish?: boolean }) => void
-        connectedNodes?: Node[]
-        connections?: Connection[]
-      },
-    ) => {
+    async (source: Node, thread: Thread, content: string, options: CreateMessageOption) => {
       if (!source || !thread) {
         throw new Error('Source or thread is not found')
       }
@@ -319,7 +328,7 @@ export const useCreateMessage = () => {
         setLoading(true)
         // This is node thead replaced with message node
         const initialX = source.position?.x || 0
-        const initialY = (source.position?.y || 0) + (source.measured?.height || 0) / 2
+        const initialY = (source.position?.y || 0) + (source.measured?.height || 0)
 
         const messagesInfo = await insertMessages({
           content,
@@ -340,8 +349,10 @@ export const useCreateMessage = () => {
         if (aiMessageNodeId) {
           options?.onMessageUpdate({
             id: aiMessageNodeId,
-            content: t('errors.ai_message_content_failed'),
-            finish: true,
+            nodeData: {
+              content: t('errors.ai_message_content_failed'),
+              loading: false,
+            },
           })
         }
       } finally {

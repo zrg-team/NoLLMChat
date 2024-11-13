@@ -11,7 +11,7 @@ You have access to the following functions:
 {{tools}}
 
 If a you choose to call a function ONLY reply in the following format:
-    <function>{"name": function name, "parameters": dictionary of argument name and its value}</function>
+    <function>{"name": function name, "parameters": { dictionary of argument name and its value }}</function>
 Here is an example,
     <function>{"name": "example_function_name", "parameters": {"example_name": "example_value"}}</function>
 Reminder:
@@ -132,7 +132,7 @@ export async function manualFunctionCalling({
   }
 
   const matched = content?.match(/<function>(.*)<\/function>/)
-  if (!matched) {
+  if (!matched?.length) {
     return new AIMessage({
       content: content,
     })
@@ -141,18 +141,29 @@ export async function manualFunctionCalling({
   const messageContent = content.replace(matched[0], '')
   const toolCalls = []
   if (matched[1]) {
-    try {
-      const functionCall = JSON.parse(matched[1])
+    const functionCall = safeParseJSON(matched[1], ['retryWithMissingBracket'])
+    if (functionCall) {
       toolCalls.push({
         name: functionCall.name,
         args: functionCall.parameters,
       })
-    } catch {
-      // Parse error
     }
   }
   return new AIMessage({
-    content: messageContent,
+    content: toolCalls?.length ? messageContent : content,
     tool_calls: toolCalls,
   })
+}
+
+const safeParseJSON = (jsonString: string, tryOptions?: string[]) => {
+  try {
+    return JSON.parse(jsonString)
+  } catch (error) {
+    console.warn('[ManualFunctionCalling]', jsonString, error)
+    if (tryOptions?.includes('retryWithMissingBracket')) {
+      tryOptions = tryOptions.filter((item) => item === 'retryWithMissingBracket')
+      return safeParseJSON(`${jsonString}}`, tryOptions)
+    }
+    return
+  }
 }

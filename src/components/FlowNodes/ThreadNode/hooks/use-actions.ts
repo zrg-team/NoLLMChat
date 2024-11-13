@@ -1,11 +1,14 @@
 import { useCallback } from 'react'
+import omitBy from 'lodash/omitBy'
+import isUndefined from 'lodash/isUndefined'
 import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { toast } from 'src/lib/hooks/use-toast'
-
-import { ThreadNodeData } from '../type'
 import { useFlowState } from 'src/states/flow'
 import { threadNodesTraveling } from 'src/utils/thread-nodes-traveling'
+import { MessageNodeData } from 'src/components/FlowNodes/MessageNode/type'
+
+import { ThreadNodeData } from '../type'
 
 export const useActions = (id: string, data: ThreadNodeData) => {
   const node = useInternalNode(id)
@@ -14,19 +17,25 @@ export const useActions = (id: string, data: ThreadNodeData) => {
   const { createMessage: createMessageFunction, loading } = useCreateMessage()
 
   const onMessageUpdate = useCallback(
-    (info: { id?: string; content: string; finish?: boolean }) => {
-      if (!info.content || !info.id) {
+    (info: { id?: string; nodeData: Partial<MessageNodeData> }) => {
+      if (!info.id) {
         return
       }
       const item = getNode(info.id)
-      if (!item) {
+      if (!item || !info.nodeData) {
         return
       }
       updateNodes([
         {
-          id: info.id,
+          id: item.id,
           type: 'replace',
-          item: { ...item, data: { ...item.data, content: info.content, loading: !info.finish } },
+          item: {
+            ...item,
+            data: {
+              ...item.data,
+              ...omitBy(info.nodeData, isUndefined),
+            },
+          },
         },
       ])
     },

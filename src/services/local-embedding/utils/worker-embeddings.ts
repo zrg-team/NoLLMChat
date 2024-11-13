@@ -2,7 +2,7 @@ import type { PretrainedOptions, FeatureExtractionPipelineOptions } from '@huggi
 import { Embeddings, type EmbeddingsParams } from '@langchain/core/embeddings'
 import { chunkArray } from '@langchain/core/utils/chunk_array'
 import { worker } from '../worker'
-import { sendMessage, WOKER_INIT_MESSAGE_ID } from 'src/utils/worker-base'
+import { sendToWorker, WOKER_INIT_MESSAGE_ID } from 'src/utils/worker-base'
 import { nanoid } from 'nanoid'
 import { getEmptyPromise } from 'src/utils/promise'
 
@@ -62,7 +62,7 @@ export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsPara
   }
 
   initWorker = () => {
-    sendMessage(worker, 'load', this.EMBEDDING_LOAD_MESSAGE_ID, [
+    sendToWorker(worker, 'load', this.EMBEDDING_LOAD_MESSAGE_ID, [
       this.model,
       this.pretrainedOptions,
     ])
@@ -139,7 +139,7 @@ export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsPara
     return this.caller.call(async () => {
       const messageId = nanoid()
       const promiseInfo = getEmptyPromise(() => {
-        sendMessage(worker, 'embedding', messageId, [texts, this.pipelineOptions])
+        sendToWorker(worker, 'embedding', messageId, [texts, this.pipelineOptions])
       })
       this.refProcesses.set(messageId, [
         promiseInfo.promise,

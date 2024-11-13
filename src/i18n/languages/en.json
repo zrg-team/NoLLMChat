@@ -54,7 +54,8 @@
         "llm_not_found": "LLM not found.",
         "llm_not_loaded": "Model '{{name}}' not loaded yet.",
         "create_message": "Failed to create message."
-      }
+      },
+      "tool_call": "Tool: {{name}}"
     },
     "session_info_node": {
       "entities": {

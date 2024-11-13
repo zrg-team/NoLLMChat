@@ -8,12 +8,14 @@ import localforage from 'localforage'
 import { entitiesMap } from '../entities'
 import { QueryOptions } from '../utils/serialize.base'
 import { transformBridgeJSONObjectToQuery } from '../utils/serialize.worker'
+import { BaseMessagePayload, init, listenForMessages } from 'src/utils/worker-base'
+import { AppEntityNames } from '../types'
 import { WorkerExecutionType } from '../utils/bridge.base'
 
 let appDataSource: DataSource | undefined
 let initProcess: Promise<void> | undefined
 
-const init = async () => {
+const initDatabase = async () => {
   const SQL = await initSqlJs({
     locateFile: () => wasm,
   })
@@ -83,87 +85,66 @@ const getRepositoryAction = async (
   }
 }
 
-self.onmessage = async (event) => {
-  const { key, type, payload } = event.data
-  if (!key) {
-    console.error('No key provided in message')
-    return self.postMessage({ key, type, error: 'No key provided in message' })
+type DatabasePayload = (
+  | {
+      type: WorkerExecutionType.INIT
+      payload: unknown
+    }
+  | {
+      type: WorkerExecutionType.REPOSITORY_EXECUTE
+      payload: [AppEntityNames, string, QueryOptions<ObjectLiteral> | QueryOptions<ObjectLiteral[]>]
+    }
+  | {
+      type: WorkerExecutionType.RAW_QUERY_EXECUTE
+      payload: Parameters<DataSource['query']>
+    }
+) &
+  BaseMessagePayload
+
+async function handlePayload(data: DatabasePayload) {
+  const messageId = data.messageId
+  if (!messageId) {
+    return
   }
-  switch (type) {
-    case WorkerExecutionType.INIT:
-      try {
-        if (appDataSource || initProcess) {
-          return self.postMessage({
-            key,
-            type: WorkerExecutionType.INIT,
-            result: 'Database already initialized',
-          })
-        }
-        initProcess = init()
-        await initProcess
-        initProcess = undefined
-        self.postMessage({ key, type: WorkerExecutionType.INIT, result: 'Database initialized' })
-      } catch (error) {
-        console.error('[INIT] Error initializing database: ', error)
-        self.postMessage({ key, type: WorkerExecutionType.INIT, error: error })
+  switch (data.type) {
+    case WorkerExecutionType.INIT: {
+      if (appDataSource || initProcess) {
+        return 'Database already initialized'
       }
-      break
-    case WorkerExecutionType.REPOSITORY_EXECUTE:
+      initProcess = init()
+      await initProcess
+      initProcess = undefined
+
+      return 'Database initialized'
+    }
+    case WorkerExecutionType.REPOSITORY_EXECUTE: {
       if (initProcess) {
         await initProcess
       }
       if (!appDataSource) {
-        self.postMessage({
-          key,
-          type: WorkerExecutionType.REPOSITORY_EXECUTE,
-          error: 'Database not initialized',
-        })
-        return
+        throw new Error('Database not initialized')
       }
-      try {
-        const { entity, action, data } = payload
-
-        const result = await getRepositoryAction(entity, action, data)
-        self.postMessage({ key, type: WorkerExecutionType.REPOSITORY_EXECUTE, result })
-      } catch (error) {
-        console.error('[REPOSITORY-EXECUTE] Error: ', error)
-        self.postMessage({
-          key,
-          type: WorkerExecutionType.REPOSITORY_EXECUTE,
-          error,
-          context: payload,
-        })
-      }
-      break
-    case WorkerExecutionType.RAW_QUERY_EXECUTE:
+      const [entity, action, options] = data.payload
+      return getRepositoryAction(entity, action, options)
+    }
+    case WorkerExecutionType.RAW_QUERY_EXECUTE: {
       if (initProcess) {
         await initProcess
       }
       if (!appDataSource) {
-        self.postMessage({
-          key,
-          type: WorkerExecutionType.RAW_QUERY_EXECUTE,
-          error: 'Database not initialized',
-        })
-        return
+        throw new Error('Database not initialized')
       }
-      try {
-        const { query, params } = payload
 
-        const result = await appDataSource.query(query, params)
-        self.postMessage({ key, type: WorkerExecutionType.RAW_QUERY_EXECUTE, result })
-      } catch (error) {
-        console.error('[RAW-QUERY-EXECUTE] Error: ', error)
-        self.postMessage({
-          key,
-          type: WorkerExecutionType.RAW_QUERY_EXECUTE,
-          error,
-          context: payload,
-        })
-      }
-      break
+      return appDataSource.query(...data.payload)
+    }
     default:
-      console.error(`Unknown message type: ${type}`)
-      self.postMessage({ key, type, error: `Unknown message type: ${type}`, context: payload })
+      throw new Error('Invalid operation')
   }
 }
+
+// Listen for messages from the main thread
+listenForMessages<DatabasePayload>(handlePayload)
+
+init(async () => {
+  initProcess = initDatabase()
+})

@@ -13,45 +13,29 @@ import { QueryOptions } from './utils/serialize.base'
 import { transformQueryObjectToBridgeJSON } from './utils/serialize.main'
 import { WorkerExecutionType } from './utils/bridge.base'
 import { worker } from './worker'
+import { sendToWorker, workerMessagesHandler } from 'src/utils/worker-base'
+import { getEmptyPromise } from 'src/utils/promise'
 
-const processes: Record<
+const refProcesses: Map<
   string,
-  { type: string; resolve: (data: unknown) => void; reject: (err: Error) => void }
-> = {}
-
-const handleWorkerMessages = (event: MessageEvent) => {
-  const { key, type, error, result } = event.data
-  switch (type) {
-    case WorkerExecutionType.INIT:
-    case WorkerExecutionType.REPOSITORY_EXECUTE:
-      {
-        const process = processes[key]
-        if (!process) {
-          return console.error(`No process found for key: ${key}`)
-        }
-        if (error) {
-          process.reject(new Error(error))
-        } else {
-          process.resolve(result)
-        }
-      }
-      break
-    case WorkerExecutionType.RAW_QUERY_EXECUTE:
-      {
-        const process = processes[key]
-        if (!process) {
-          return console.error(`No process found for key: ${key}`)
-        }
-        if (error) {
-          process.reject(new Error(error))
-        } else {
-          process.resolve(result)
-        }
-      }
-      break
-    default:
-      console.error(`Unknown message type: ${type}`)
+  {
+    promise: Promise<unknown>
+    resolve: unknown
+    reject: (reason?: unknown) => void
   }
+> = new Map()
+
+const handleWorkerMessages = (
+  event: MessageEvent<{ messageId: string; type: string; payload: unknown }>,
+) => {
+  return workerMessagesHandler<
+    { messageId: string; type: string; payload: unknown },
+    typeof refProcesses
+  >(event, refProcesses, {
+    onWorkerInit: () => {
+      // TODO: database is ready
+    },
+  })
 }
 
 export const initDatabase = async () => {
@@ -59,29 +43,21 @@ export const initDatabase = async () => {
     worker.removeEventListener('message', handleWorkerMessages)
   }
   worker.addEventListener('message', handleWorkerMessages)
-  const { promise, key } = createProcessPromise(WorkerExecutionType.INIT)
-  worker?.postMessage({ type: WorkerExecutionType.INIT, key })
-  return promise
 }
 
-const createProcessPromise = (type: string) => {
+const createProcessPromise = () => {
   // Generate a unique key for the process
-  const key = nanoid()
-  const promise = new Promise((resolve, reject) => {
-    processes[key] = { resolve, reject, type }
+  const messageId = nanoid()
+  const promiseInfo = getEmptyPromise()
+  refProcesses.set(messageId, {
+    promise: promiseInfo.promise,
+    resolve: promiseInfo.resolve,
+    reject: promiseInfo.reject,
   })
-    .then((data) => {
-      delete processes[key]
-      return data
-    })
-    .catch((err) => {
-      delete processes[key]
-      throw err
-    })
 
   return {
-    promise,
-    key,
+    promise: promiseInfo.promise,
+    messageId,
   }
 }
 
@@ -90,48 +66,40 @@ const repositoryExecute = async <T>(
   action: string,
   data?: QueryOptions<T> | SaveOptions | UpdateOptions,
 ) => {
-  let key = ''
+  let messageId = ''
   try {
     if (!worker) {
       throw new Error('Worker not initialized')
     }
 
-    const response = createProcessPromise(WorkerExecutionType.REPOSITORY_EXECUTE)
-    key = response.key
-    worker?.postMessage({
-      key,
-      type: WorkerExecutionType.REPOSITORY_EXECUTE,
-      payload: { entity, action, data },
-    })
+    const response = createProcessPromise()
+    messageId = response.messageId
+    sendToWorker(worker, WorkerExecutionType.REPOSITORY_EXECUTE, messageId, [entity, action, data])
     return response.promise
   } catch (err) {
     console.error(`Error executing ${WorkerExecutionType.REPOSITORY_EXECUTE} action:`, err)
-    if (key) {
-      delete processes[key]
+    if (messageId) {
+      refProcesses.delete(messageId)
     }
     throw err
   }
 }
 
 export const rawQuery = async (query: string, params?: (string | number | boolean)[]) => {
-  let key = ''
+  let messageId = ''
   try {
     if (!worker) {
       throw new Error('Worker not initialized')
     }
 
-    const response = createProcessPromise(WorkerExecutionType.RAW_QUERY_EXECUTE)
-    key = response.key
-    worker?.postMessage({
-      key,
-      type: WorkerExecutionType.RAW_QUERY_EXECUTE,
-      payload: { query, params },
-    })
+    const response = createProcessPromise()
+    messageId = response.messageId
+    sendToWorker(worker, WorkerExecutionType.RAW_QUERY_EXECUTE, messageId, [query, params])
     return response.promise
   } catch (err) {
     console.error(`Error executing ${WorkerExecutionType.RAW_QUERY_EXECUTE} action:`, err)
-    if (key) {
-      delete processes[key]
+    if (messageId) {
+      refProcesses.delete(messageId)
     }
     throw err
   }

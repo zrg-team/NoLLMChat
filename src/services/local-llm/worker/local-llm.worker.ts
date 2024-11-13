@@ -1,7 +1,12 @@
 import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
 
 import { SchemaItem } from 'src/services/database/types'
-import { init, listenForMessages, respond, type BaseMessagePayload } from 'src/utils/worker-base'
+import {
+  init,
+  listenForMessages,
+  sendToMainThread,
+  type BaseMessagePayload,
+} from 'src/utils/worker-base'
 import { ChatCompletionTool, MLCEngine } from '@mlc-ai/web-llm'
 import { BaseMessage } from '@langchain/core/messages'
 import { convertToJSON } from 'src/utils/schema-format'
@@ -52,7 +57,7 @@ async function handlePayload(data: MessagePayload) {
           // @ts-expect-error engine is protected in the model
           engine = model.engine as MLCEngine
         }
-        respond(data.messageId, 'inprogress', progress)
+        sendToMainThread(data.messageId, 'inprogress', progress)
       })
     }
     case 'invoke': {
@@ -67,7 +72,7 @@ async function handlePayload(data: MessagePayload) {
       for await (const chunk of stream) {
         if (chunk) {
           content += `${chunk.content}`
-          respond(data.messageId, 'inprogress', chunk)
+          sendToMainThread(data.messageId, 'inprogress', chunk)
         }
       }
       return content
@@ -87,7 +92,7 @@ async function handlePayload(data: MessagePayload) {
         tools,
         stream: true,
         onChunk: (chunk: BaseMessage) => {
-          respond(data.messageId, 'inprogress', chunk)
+          sendToMainThread(data.messageId, 'inprogress', chunk)
         },
       })
       return content
@@ -105,7 +110,7 @@ async function handlePayload(data: MessagePayload) {
         format,
         stream: true,
         onChunk: (chunk: BaseMessage) => {
-          respond(data.messageId, 'inprogress', chunk)
+          sendToMainThread(data.messageId, 'inprogress', chunk)
         },
       })
       return content
@@ -116,6 +121,6 @@ async function handlePayload(data: MessagePayload) {
 }
 
 // Listen for messages from the main thread
-listenForMessages<MessagePayload>(handlePayload)
+listenForMessages<MessagePayload>(handlePayload, { timeout: 10000000 })
 
 init()
