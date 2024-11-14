@@ -3,7 +3,42 @@
     "loading": "Loading...",
     "something_went_wrong": "Something went wrong",
     "copied": "Copied",
-    "deleted": "Deleted"
+    "deleted": "Deleted",
+    "whiteboard": "Whiteboard"
+  },
+  "sidebar": {
+    "user": "User",
+    "contact": "Contact",
+    "sessions": "Sessions",
+    "new_session": "New Session",
+    "more_session": "More"
+  },
+  "documents": {
+    "title": "Documents",
+    "playground": {
+      "title": "Playground",
+      "drag_and_drop": "Drag and Drop",
+      "node_connections": "Node Connections",
+      "delete_nodes": "Delete Nodes"
+    },
+    "model": {
+      "title": "Models",
+      "llm": "LLM",
+      "embedding": "Embedding"
+    },
+    "tutorial": {
+      "title": "Tutorial",
+      "get_started": "Get Started",
+      "chat_with_llm": "Chat with LLM",
+      "ai_structured_output": "AI Structured Output",
+      "tool_calling": "Tool Calling",
+      "few_shot_example": "Few Shot Example",
+      "vector_database": "Vector Database"
+    },
+    "application": {
+      "title": "Application",
+      "changelog": "Changelog"
+    }
   },
   "create_new_message": {
     "initial_ai_message": "I'm thinking...",
