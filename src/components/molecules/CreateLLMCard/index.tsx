@@ -17,9 +17,18 @@ import {
   CommandList,
 } from 'src/lib/shadcn/ui/command'
 import { Badge } from 'src/lib/shadcn/ui/badge'
-import { LLMModelTypeEnum } from 'src/services/database/types'
+import { LLMModelTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { useLocalLLMState } from 'src/services/local-llm'
 import { useToast } from 'src/lib/hooks/use-toast'
+import { Label } from 'src/lib/shadcn/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'src/lib/shadcn/ui/select'
+import { SUPPORTED_PROVIDERS } from './constants'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -29,6 +38,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [provider, setProvider] = useState<`${LLMProviderEnum}`>()
   const [hasCache, setHasCache] = useState(false)
 
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
@@ -106,6 +116,9 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value)
   }, [])
+  const handleOnSelectProvider = useCallback((value: `${LLMProviderEnum}`) => {
+    setProvider(value)
+  }, [])
   const hanldeSubmit = async () => {
     if (!node) return
     try {
@@ -125,6 +138,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       setInput('')
     }
   }
+
   return (
     <Card className="tw-w-f">
       <CardHeader>
@@ -132,6 +146,22 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       </CardHeader>
       <CardContent>
         <div className="tw-grid tw-w-full tw-gap-1.5">
+          <Label>{t('add_llm_card.provider')}</Label>
+          <Select value={provider} onValueChange={handleOnSelectProvider}>
+            <SelectTrigger className="tw-w-full tw-mb-4">
+              <SelectValue placeholder={t('add_llm_card.provider_select_placeholder')} />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(SUPPORTED_PROVIDERS).map((item) => {
+                return (
+                  <SelectItem key={item} value={item}>
+                    {t(`add_llm_card.providers.${item.toLowerCase()}`)}
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+          <Label>{t('add_llm_card.model_name')}</Label>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -140,7 +170,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 aria-expanded={open}
                 className="tw-w-full tw-justify-between"
               >
-                {input ? selectedModel?.model_id : t('add_llm_card.select_placeholder')}
+                {input ? selectedModel?.model_id : t('add_llm_card.select_model_placeholder')}
                 <LazyIcon
                   name="chevrons-up-down"
                   className="tw-ml-2 tw-h-4 tw-w-4 tw-shrink-0 tw-opacity-50"

@@ -10,6 +10,7 @@ import { SchemaNode } from './SchemaNode'
 import { CSVDataNode } from './CSVDataNode'
 import { ToolNode } from './ToolNode'
 import { EmbeddingNode } from './EmbeddingNode'
+import { VectorDatabaseNode } from './VectorDatabaseNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -22,4 +23,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.CSVData]: CSVDataNode,
   [FlowNodeTypeEnum.ToolDefinition]: ToolNode,
   [FlowNodeTypeEnum.DefaultEmbeddingModel]: EmbeddingNode,
+  [FlowNodeTypeEnum.VectorDatabase]: VectorDatabaseNode,
 }

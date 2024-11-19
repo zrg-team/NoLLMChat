@@ -3,65 +3,53 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/sh
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
-import { Input } from 'src/lib/shadcn/ui/input'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import { useCreateCSVData } from 'src/hooks/mutations/use-create-csv-data'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { ExampleTable } from './ExampleTable'
+import { DataTable } from './DataTable'
 
-const CreateFewShotExampleCard = memo((props: NodeProps) => {
+const CreateTextDataCard = memo((props: NodeProps) => {
   const { id } = props
   const { t } = useTranslation('components')
-  const [data, setData] = useState<{ input: string; output: string }[]>([])
-  const [input, setInput] = useState('')
-  const [output, setOutput] = useState('')
+  const [data, setData] = useState<{ text: string }[]>([])
+  const [text, setText] = useState('')
   const node = useInternalNode(id)
   const { createCSVData, loading } = useCreateCSVData()
 
   const handleAdd = () => {
-    setData((prevData) => [...prevData, { input, output }])
-    setInput('')
-    setOutput('')
+    setData((prevData) => [...prevData, { text }])
+    setText('')
   }
   const handleCreateCSVData = async () => {
     if (node) {
       await createCSVData(
         node,
-        ['input', 'output'],
-        data.map((item) => [item.input, item.output]),
+        ['text'],
+        data.map((item) => [item.text]),
       )
     }
   }
   return (
     <Card className="tw-mw-full">
       <CardHeader>
-        <CardTitle>{t('add_few_shot_example_card.title')}</CardTitle>
+        <CardTitle>{t('add_text_data.title')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="tw-flex tw-flex-col tw-space-y-1.5">
-          <Label htmlFor="name">{t('add_few_shot_example_card.input')}</Label>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value || '')}
-            id="name"
-            placeholder={t('add_few_shot_example_card.input_placeholder')}
-          />
-        </div>
         <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
-          <Label htmlFor="name">{t('add_few_shot_example_card.output')}</Label>
+          <Label htmlFor="name">{t('add_text_data.text')}</Label>
           <Textarea
-            value={output}
-            onChange={(e) => setOutput(e.target.value || '')}
-            placeholder={t('add_few_shot_example_card.output_placeholder')}
+            value={text}
+            onChange={(e) => setText(e.target.value || '')}
+            placeholder={t('add_text_data.text_placeholder')}
           />
         </div>
         <div className="tw-w-full tw-flex tw-mt-4 tw-justify-end">
-          <Button disabled={!input || !output} onClick={handleAdd} className="tw-w-40">
-            {t('add_few_shot_example_card.add')}
+          <Button disabled={!text} onClick={handleAdd} className="tw-w-40">
+            {t('add_text_data.add')}
           </Button>
         </div>
-        <ExampleTable data={data || []} />
+        <DataTable data={data || []} />
       </CardContent>
       <CardFooter className="tw-flex tw-justify-between">
         <Button
@@ -72,7 +60,7 @@ const CreateFewShotExampleCard = memo((props: NodeProps) => {
           {loading ? (
             <LazyIcon name="loader-circle" className="tw-animate-spin" />
           ) : (
-            t('add_few_shot_example_card.create')
+            t('add_text_data.create')
           )}
         </Button>
       </CardFooter>
@@ -80,4 +68,4 @@ const CreateFewShotExampleCard = memo((props: NodeProps) => {
   )
 })
 
-export default CreateFewShotExampleCard
+export default CreateTextDataCard

@@ -4,6 +4,7 @@ import { getRepository } from 'src/services/database'
 import { FlowNodeTypeEnum } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'
+import { encodeCSVData } from 'src/utils/csv-data'
 
 export const useCreateCSVData = () => {
   const sessionId = useSessionState((state) => state.currentSession?.id)
@@ -23,8 +24,7 @@ export const useCreateCSVData = () => {
         const initialY = (source.position?.y || 0) + (source.measured?.height || 0)
 
         const csvData = await getRepository('CSVData').save({
-          headers: headers.join(','),
-          data: data.map((row) => row.join(',')).join('\n'),
+          ...encodeCSVData(headers, data),
           session_id: sessionId,
         })
         if (!csvData) {

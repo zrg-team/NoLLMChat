@@ -53,6 +53,8 @@
       "add_tool_definition": "Create Tool",
       "add_schema": "Create Schema",
       "add_few_shot_example": "Create Few Shot Example",
+      "add_vector_database": "Create Vector Database",
+      "add_text_data": "Create Text Data",
       "more": "...More"
     },
     "toolbar_node": {
@@ -129,6 +131,17 @@
     "schema_node": {
       "typescript": "TypeScript",
       "zod": "zod"
+    },
+    "vector_database_node": {
+      "k_select_placeholder": "Select a k value",
+      "similarity_search_placeholder": "Search similar ...",
+      "similarity_search_result": "Similarity Search Result",
+      "score": "Score",
+      "content": "Content",
+      "errors": {
+        "similarity_search_failed": "Failed to search similar text.",
+        "vector_database_not_found": "Vector database not found."
+      }
     }
   },
   "components": {
@@ -136,7 +149,8 @@
       "title": "LLM",
       "button_add": "Create",
       "button_download_and_add": "Create",
-      "select_placeholder": "Select a model",
+      "model_name": "Model",
+      "select_model_placeholder": "Select a model",
       "search_placeholder": "Search model...",
       "no_model": "No model found",
       "function_calling": "Function Calling",
@@ -146,6 +160,12 @@
         "embedding": "Embedding",
         "vlm": "VLM"
       },
+      "providers": {
+        "webllm": "WebLLM",
+        "openai": "OpenAI"
+      },
+      "provider": "Provider",
+      "provider_select_placeholder": "Select a provider",
       "has_model_cache": "Has Model Cache",
       "model_type": "Type:",
       "low_resource_required": "Low resource required",
@@ -226,6 +246,39 @@
       "input_placeholder": "Type example input here...",
       "output": "Output",
       "output_placeholder": "Type example output here...",
+      "add": "Add",
+      "create": "Create"
+    },
+    "create_vector_database_card": {
+      "title": "Vector Database",
+      "create": "Create",
+      "provider": "Provider",
+      "provider_select_placeholder": "Select a provider",
+      "providers": {
+        "memory": "Memory",
+        "voy": "Voy"
+      },
+      "text_splitter": "Text Splitter",
+      "text_splitter_select_placeholder": "Select a text splitter...",
+      "text_splitters": {
+        "tokentextsplitter": "Token Text Splitter",
+        "charactertextsplitter": "Character Text Splitter",
+        "recursivecharactertextsplitter": "Recursive Character Text Splitter"
+      },
+      "name": "Name",
+      "text_splitter_configuration": "Text Splitter Configuration",
+      "text_splitter_chunksize": "Chunk Size",
+      "text_splitter_chunksize_placeholder": "Input chunk size...",
+      "text_splitter_chunkoverlap": "Chunk Overlap",
+      "text_splitter_chunkoverlap_placeholder": "Input chunk overlap...",
+      "errors": {
+        "create_failed": "Failed to create vector database."
+      }
+    },
+    "add_text_data": {
+      "title": "Text Data",
+      "text": "Content",
+      "text_placeholder": "Input text here...",
       "add": "Add",
       "create": "Create"
     }

@@ -1,10 +1,11 @@
 export enum VectorDatabaseTypeEnum {
   Local = 'local',
-  Remote = 'remove',
+  Remote = 'remote',
 }
 
 export enum VectorDatabaseProviderEnum {
   Voy = 'voy',
+  Memory = 'memory',
 }
 
 export enum VectorDatabaseStorageEnum {

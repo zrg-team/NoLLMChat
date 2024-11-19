@@ -17,27 +17,8 @@ import { useTranslation } from 'react-i18next'
 import { useCreatePrompt } from 'src/hooks/mutations/use-create-prompt'
 import { Label } from 'src/lib/shadcn/ui/label'
 
-const PROMPT_TYPES = {
-  [PromptTypeEnum.Chat]: {
-    label: 'add_prompt_card.prompt_types.chat',
-    value: PromptTypeEnum.Chat,
-  },
-  [PromptTypeEnum.FewShotExample]: {
-    label: 'add_prompt_card.prompt_types.few_shot_example',
-    value: PromptTypeEnum.FewShotExample,
-  },
-}
-const PROMPT_ROLES = {
-  [MessageRoleEnum.System]: {
-    label: 'add_prompt_card.prompt_roles.system',
-    value: MessageRoleEnum.System,
-  },
-  [MessageRoleEnum.Human]: {
-    label: 'add_prompt_card.prompt_roles.human',
-    value: MessageRoleEnum.Human,
-  },
-  [MessageRoleEnum.AI]: { label: 'add_prompt_card.prompt_roles.ai', value: MessageRoleEnum.AI },
-}
+import { PROMPT_ROLES, PROMPT_TYPES } from './constants'
+
 const CreatePromptCard = memo(
   (
     props: Omit<NodeProps, 'data'> & {
@@ -100,80 +81,78 @@ const CreatePromptCard = memo(
     }, [])
 
     return (
-      <div>
-        <Card className="tw-mw-full">
-          <CardHeader>
-            <CardTitle>{t('add_prompt_card.title')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="tw-grid tw-w-full tw-gap-1.5">
-              <Label>{t('add_prompt_card.prompt_type')}</Label>
-              <Select value={promptType} onValueChange={handleOnSelectType}>
-                <SelectTrigger className="tw-w-full tw-mb-4">
-                  <SelectValue placeholder={t('add_prompt_card.type_select_placeholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(PROMPT_TYPES).map((item) => {
-                    return (
-                      <SelectItem key={item.value} value={item.value}>
-                        {t(item.label)}
-                      </SelectItem>
-                    )
-                  })}
-                </SelectContent>
-              </Select>
-              <Label>{t('add_prompt_card.prompt_role')}</Label>
-              <Select value={promptRole} onValueChange={handleOnSelectRole}>
-                <SelectTrigger className="tw-w-full tw-mb-4">
-                  <SelectValue placeholder={t('add_prompt_card.role_select_placeholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(PROMPT_ROLES).map((item) => {
-                    return (
-                      <SelectItem key={item.value} value={item.value}>
-                        {t(item.label)}
-                      </SelectItem>
-                    )
-                  })}
-                </SelectContent>
-              </Select>
-              {promptType === PromptTypeEnum.FewShotExample && (
-                <>
-                  <Label>{t('add_prompt_card.prompt_prefix')}</Label>
-                  <Textarea
-                    value={promptPrefix}
-                    onChange={handleOnchangePrefix}
-                    disabled={false}
-                    placeholder={t('add_prompt_card.placeholder')}
-                    id="message"
-                  />
-                  <Label>{t('add_prompt_card.prompt_content')}</Label>
-                  <div className="tw-w-full tw-border-0 tw-text-gray-700 tw-flex tw-text-sm tw-justify-end tw-items-center">
-                    <LazyIcon name="info" className="tw-mr-2" size={14} />
-                    {t('add_prompt_card.few_shot_example_note')}
-                  </div>
-                </>
-              )}
-              <Textarea
-                value={input}
-                onChange={handleOnchange}
-                disabled={false}
-                placeholder={t('add_prompt_card.placeholder')}
-                id="message"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="tw-flex tw-justify-between">
-            <Button onClick={handleSubmit} disabled={!input?.length} className="tw-w-full">
-              {loading ? (
-                <LazyIcon name="loader-circle" className="tw-animate-spin" />
-              ) : (
-                t('add_prompt_card.button')
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+      <Card className="tw-mw-full">
+        <CardHeader>
+          <CardTitle>{t('add_prompt_card.title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="tw-grid tw-w-full tw-gap-1.5">
+            <Label>{t('add_prompt_card.prompt_type')}</Label>
+            <Select value={promptType} onValueChange={handleOnSelectType}>
+              <SelectTrigger className="tw-w-full tw-mb-4">
+                <SelectValue placeholder={t('add_prompt_card.type_select_placeholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(PROMPT_TYPES).map((item) => {
+                  return (
+                    <SelectItem key={item.value} value={item.value}>
+                      {t(item.label)}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+            <Label>{t('add_prompt_card.prompt_role')}</Label>
+            <Select value={promptRole} onValueChange={handleOnSelectRole}>
+              <SelectTrigger className="tw-w-full tw-mb-4">
+                <SelectValue placeholder={t('add_prompt_card.role_select_placeholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(PROMPT_ROLES).map((item) => {
+                  return (
+                    <SelectItem key={item.value} value={item.value}>
+                      {t(item.label)}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+            {promptType === PromptTypeEnum.FewShotExample && (
+              <>
+                <Label>{t('add_prompt_card.prompt_prefix')}</Label>
+                <Textarea
+                  value={promptPrefix}
+                  onChange={handleOnchangePrefix}
+                  disabled={false}
+                  placeholder={t('add_prompt_card.placeholder')}
+                  id="message"
+                />
+                <Label>{t('add_prompt_card.prompt_content')}</Label>
+                <div className="tw-w-full tw-border-0 tw-text-gray-700 tw-flex tw-text-sm tw-justify-end tw-items-center">
+                  <LazyIcon name="info" className="tw-mr-2" size={14} />
+                  {t('add_prompt_card.few_shot_example_note')}
+                </div>
+              </>
+            )}
+            <Textarea
+              value={input}
+              onChange={handleOnchange}
+              disabled={false}
+              placeholder={t('add_prompt_card.placeholder')}
+              id="message"
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="tw-flex tw-justify-between">
+          <Button onClick={handleSubmit} disabled={!input?.length} className="tw-w-full">
+            {loading ? (
+              <LazyIcon name="loader-circle" className="tw-animate-spin" />
+            ) : (
+              t('add_prompt_card.button')
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
     )
   },
 )

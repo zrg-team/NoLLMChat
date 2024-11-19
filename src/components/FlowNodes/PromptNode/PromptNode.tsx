@@ -24,7 +24,7 @@ export const PromptNode = memo((props: PromptNodeProps) => {
   }, [content])
 
   return (
-    <div>
+    <div className="tw-min-w-56">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />

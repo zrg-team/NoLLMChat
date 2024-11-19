@@ -44,39 +44,37 @@ const CreateToolCard = memo((props: NodeProps) => {
   }
 
   return (
-    <div>
-      <Card className="tw-mw-full">
-        <CardHeader>
-          <CardTitle>{t('add_tool_card.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="tw-flex tw-flex-col tw-space-y-1.5">
-            <Label htmlFor="name">{t('add_tool_card.tool_name')}</Label>
-            <Input
-              onChange={handleChangeName}
-              id="name"
-              placeholder={t('add_tool_card.name_placeholder')}
-            />
-          </div>
-          <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
-            <Label htmlFor="name">{t('add_tool_card.tool_description')}</Label>
-            <Textarea
-              onChange={handleChangeDescription}
-              placeholder={t('add_tool_card.description_placeholder')}
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="tw-flex tw-justify-between">
-          <Button onClick={handleSubmit} disabled={loading} className="tw-w-full">
-            {loading ? (
-              <LazyIcon name="loader-circle" className="tw-animate-spin" />
-            ) : (
-              t('add_tool_card.create')
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+    <Card className="tw-mw-full">
+      <CardHeader>
+        <CardTitle>{t('add_tool_card.title')}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="tw-flex tw-flex-col tw-space-y-1.5">
+          <Label htmlFor="name">{t('add_tool_card.tool_name')}</Label>
+          <Input
+            onChange={handleChangeName}
+            id="name"
+            placeholder={t('add_tool_card.name_placeholder')}
+          />
+        </div>
+        <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
+          <Label htmlFor="name">{t('add_tool_card.tool_description')}</Label>
+          <Textarea
+            onChange={handleChangeDescription}
+            placeholder={t('add_tool_card.description_placeholder')}
+          />
+        </div>
+      </CardContent>
+      <CardFooter className="tw-flex tw-justify-between">
+        <Button onClick={handleSubmit} disabled={loading} className="tw-w-full">
+          {loading ? (
+            <LazyIcon name="loader-circle" className="tw-animate-spin" />
+          ) : (
+            t('add_tool_card.create')
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   )
 })
 

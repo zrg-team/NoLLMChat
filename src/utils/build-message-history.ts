@@ -7,6 +7,7 @@ import {
   Prompt,
   PromptTypeEnum,
 } from 'src/services/database/types'
+import { decodeCSVData } from './csv-data'
 
 export const buildHistories = (nodes: { node: Node; connectedNodes: Node[] }[]) => {
   const histories: BaseMessage[] = []
@@ -34,19 +35,7 @@ export const buildHistories = (nodes: { node: Node; connectedNodes: Node[] }[]) 
         const connectedDataNode = connectedNodes.find((n) => n.type === FlowNodeTypeEnum.CSVData)
         const csvData = connectedDataNode?.data?.entity as CSVData
         if (csvData) {
-          const headers = csvData.headers.split(',')
-          const rows = csvData.data.split('\n').reduce((acc: Record<string, unknown>[], row) => {
-            const rowValues = row.split(',')
-            return rowValues.length === headers.length
-              ? [
-                  ...acc,
-                  headers.reduce(
-                    (acc, header, index) => ({ ...acc, [header]: rowValues[index] }),
-                    {},
-                  ),
-                ]
-              : acc
-          }, [])
+          const { rows } = decodeCSVData(csvData.headers, csvData.data)
           rows.forEach((row: Record<string, unknown>) => {
             content += `${prompt.content.replace(/{([^{}]*)}/g, (_, key) => `${row[key as keyof typeof row]}`)}\n`
           })
