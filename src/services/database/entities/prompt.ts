@@ -46,7 +46,9 @@ export class Prompt {
   @OneToMany(() => Message, (message: Message) => message.prompt)
   messages?: Message[]
 
-  @OneToMany(() => PromptVariable, (variable: PromptVariable) => variable.prompt)
+  @OneToMany(() => PromptVariable, (variable: PromptVariable) => variable.prompt, {
+    onDelete: 'CASCADE',
+  })
   variables?: PromptVariable[]
 
   @Column('uuid')

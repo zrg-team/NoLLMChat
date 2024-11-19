@@ -26,7 +26,7 @@ export class Schema {
   @UpdateDateColumn()
   updated_at?: Date
 
-  @OneToMany(() => SchemaItem, (entity: SchemaItem) => entity.schema)
+  @OneToMany(() => SchemaItem, (entity: SchemaItem) => entity.schema, { onDelete: 'CASCADE' })
   schema_items?: SchemaItem[]
 
   @OneToMany(() => Thread, (entity: Thread) => entity.schema)

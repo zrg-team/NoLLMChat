@@ -38,7 +38,7 @@ const PROMPT_ROLES = {
   },
   [MessageRoleEnum.AI]: { label: 'add_prompt_card.prompt_roles.ai', value: MessageRoleEnum.AI },
 }
-const AddPromptCard = memo(
+const CreatePromptCard = memo(
   (
     props: Omit<NodeProps, 'data'> & {
       data?: { ready?: boolean }
@@ -178,4 +178,4 @@ const AddPromptCard = memo(
   },
 )
 
-export default AddPromptCard
+export default CreatePromptCard

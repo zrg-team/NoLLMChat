@@ -10,7 +10,7 @@ import { useToast } from 'src/lib/hooks/use-toast'
 import { useCreateTool } from 'src/hooks/mutations/use-create-tool'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 
-const AddToolCard = memo((props: NodeProps) => {
+const CreateToolCard = memo((props: NodeProps) => {
   const { t } = useTranslation('components')
   const { toast } = useToast()
   const { id } = props
@@ -80,4 +80,4 @@ const AddToolCard = memo((props: NodeProps) => {
   )
 })
 
-export default AddToolCard
+export default CreateToolCard

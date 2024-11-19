@@ -31,7 +31,7 @@ export class Thread {
   @UpdateDateColumn()
   updated_at?: Date
 
-  @OneToMany(() => Message, (entity: Message) => entity.thread)
+  @OneToMany(() => Message, (entity: Message) => entity.thread, { onDelete: 'CASCADE' })
   messages?: Message[]
 
   @Column('uuid', { nullable: true })

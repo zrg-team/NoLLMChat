@@ -28,6 +28,7 @@ export const useCreateDatabaseLLM = () => {
         const existed = await getRepository('LLM').findOne({
           where: {
             name: record.name,
+            session_id: sessionId,
           },
         })
         if (existed) {

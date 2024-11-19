@@ -28,11 +28,12 @@ import {
   flowNodeToNode,
 } from 'src/utils/flow'
 
-import { FlowState } from './state'
+import { defaultFlowState, FlowState } from './state'
 import { useSessionState } from '../session'
 import { nanoid } from 'nanoid'
 
 export interface FlowStateActions {
+  reset: () => void
   // Database node
   findFlowNodesWithSource: (
     query: FindManyOptions<FlowNode>,
@@ -72,6 +73,9 @@ export const getFlowStateActions = (
   get: GetState<FlowState>,
 ): FlowStateActions => {
   return {
+    reset: () => {
+      set(defaultFlowState)
+    },
     setNodes: (newNodes) => {
       if (typeof newNodes === 'function') {
         set({ nodes: newNodes(get().nodes) })

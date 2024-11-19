@@ -1,6 +1,7 @@
 import { AIMessage, BaseMessage } from '@langchain/core/messages'
 import { ChatCompletionMessageParam, ChatCompletionTool, MLCEngine } from '@mlc-ai/web-llm'
 import { SchemaItem } from 'src/services/database/types'
+import { safeParseJSON } from 'src/utils/json'
 
 const TOOL_CALL_SYSTEM_PROMPT = `Cutting Knowledge Date: December 2023
 Today Date: 23 Jul 2024
@@ -153,17 +154,4 @@ export async function manualFunctionCalling({
     content: toolCalls?.length ? messageContent : content,
     tool_calls: toolCalls,
   })
-}
-
-const safeParseJSON = (jsonString: string, tryOptions?: string[]) => {
-  try {
-    return JSON.parse(jsonString)
-  } catch (error) {
-    console.warn('[ManualFunctionCalling]', jsonString, error)
-    if (tryOptions?.includes('retryWithMissingBracket')) {
-      tryOptions = tryOptions.filter((item) => item === 'retryWithMissingBracket')
-      return safeParseJSON(`${jsonString}}`, tryOptions)
-    }
-    return
-  }
 }

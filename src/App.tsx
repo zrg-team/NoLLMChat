@@ -8,6 +8,7 @@ import * as dayjs from 'dayjs'
 import relatedTime from 'dayjs/plugin/relativeTime'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Toaster } from 'src/lib/shadcn/ui/toaster'
+import Modal from '@ebay/nice-modal-react'
 
 import { FileSystemProvider } from 'src/services/file-system/provider'
 import { useSessionState } from 'src/states/session'
@@ -25,7 +26,7 @@ const logError = (error: Error, info: { componentStack?: string | null }) => {
 }
 
 const MainApp = memo(() => {
-  const initSessionState = useSessionState((state) => state.init)
+  const initSessionState = useSessionState((state) => state.getLatestSessions)
   const initLocalLLMState = useLocalLLMState((state) => state.init)
   const initLocalEmbeddingState = useLocalEmbeddingState((state) => state.init)
   const ready = useSessionState((state) => state.ready)
@@ -44,11 +45,13 @@ const MainApp = memo(() => {
   }
 
   return (
-    <ErrorBoundary fallback={<DefaultError />} onError={logError}>
-      <Suspense fallback={<DefaultLoader />}>
-        <AppRoute />
-      </Suspense>
-    </ErrorBoundary>
+    <Modal.Provider>
+      <ErrorBoundary fallback={<DefaultError />} onError={logError}>
+        <Suspense fallback={<DefaultLoader />}>
+          <AppRoute />
+        </Suspense>
+      </ErrorBoundary>
+    </Modal.Provider>
   )
 })
 export const App: FC<PropsWithChildren> = memo(() => {

@@ -3,7 +3,42 @@
     "loading": "Loading...",
     "something_went_wrong": "Something went wrong",
     "copied": "Copied",
-    "deleted": "Deleted"
+    "deleted": "Deleted",
+    "whiteboard": "Whiteboard"
+  },
+  "sidebar": {
+    "user": "User",
+    "contact": "Contact",
+    "sessions": "Sessions",
+    "new_session": "New Session",
+    "more_session": "More"
+  },
+  "documents": {
+    "title": "Documents",
+    "playground": {
+      "title": "Playground",
+      "drag_and_drop": "Drag and Drop",
+      "node_connections": "Node Connections",
+      "delete_nodes": "Delete Nodes"
+    },
+    "model": {
+      "title": "Models",
+      "llm": "LLM",
+      "embedding": "Embedding"
+    },
+    "tutorial": {
+      "title": "Tutorial",
+      "get_started": "Get Started",
+      "chat_with_llm": "Chat with LLM",
+      "ai_structured_output": "AI Structured Output",
+      "tool_calling": "Tool Calling",
+      "few_shot_example": "Few Shot Example",
+      "vector_database": "Vector Database"
+    },
+    "application": {
+      "title": "Application",
+      "changelog": "Changelog"
+    }
   },
   "create_new_message": {
     "initial_ai_message": "I'm thinking...",
@@ -41,6 +76,9 @@
         "system": "System Prompt",
         "tool": "Tool Prompt",
         "few_shot_example": "Few Shot Example Prompt"
+      },
+      "errors": {
+        "llm_not_loaded_yet": "LLM not loaded yet."
       }
     },
     "message_node": {
@@ -53,9 +91,10 @@
       "errors": {
         "llm_not_found": "LLM not found.",
         "llm_not_loaded": "Model '{{name}}' not loaded yet.",
+        "llm_not_loaded_yet": "LLM not loaded yet.",
         "create_message": "Failed to create message."
       },
-      "tool_call": "Tool: {{name}}"
+      "tool_call": "{{name}} ({{args}})"
     },
     "session_info_node": {
       "entities": {
@@ -113,7 +152,10 @@
       "model_url": "URL:",
       "model_vram": "Required VRAM: ",
       "model_context_window_size": "Context window size:",
-      "model_function_calling": "Function Calling:"
+      "model_function_calling": "Function Calling:",
+      "errors": {
+        "failed_to_create": "Failed to create LLM."
+      }
     },
     "add_tool_card": {
       "title":"Tool",
@@ -186,6 +228,27 @@
       "output_placeholder": "Type example output here...",
       "add": "Add",
       "create": "Create"
+    }
+  },
+  "dialogs": {
+    "create_session": {
+      "title": "Create Session",
+      "description": "Create a new session to start building your own AI flow.",
+      "name": "Name",
+      "name_placeholder": "Input session name...",
+      "create": "Create",
+      "errors": {
+        "create_failed": "Failed to create session."
+      }
+    },
+    "delete_session": {
+      "title": "Are you sure to delete this session?",
+      "description": "Deleting this session will remove all the data in this session.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "errors": {
+        "delete_failed": "Failed to delete session."
+      }
     }
   }
 }

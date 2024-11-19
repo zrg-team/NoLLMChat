@@ -1,24 +1,44 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { useFlowManager } from 'src/hooks/handlers/use-flow-manager'
 import { getRepository } from 'src/services/database'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { useFlowState } from 'src/states/flow'
+import { useSessionState } from 'src/states/session'
 
 export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFlowManager>) => {
-  const { loadingState, prepareFlowInfo, syncEdges, initialFlow, isReadyRef } = flowManager
+  const currentSessionId = useSessionState((state) => state.currentSession?.id)
+  const { loadingState, prepareFlowInfo, syncEdges, initialFlow, currentSessionIdRef } = flowManager
 
   const flowStateReady = useFlowState((state) => state.ready)
   const removeSyncNodeQueue = useFlowState((state) => state.removeSyncNodeQueue)
   const removeSyncEdgeQueue = useFlowState((state) => state.removeSyncEdgeQueue)
 
+  useLayoutEffect(() => {}, [currentSessionId])
+
   useEffect(() => {
-    if (isReadyRef.current || loadingState.loading || !flowStateReady) {
+    if (
+      loadingState.loading ||
+      !flowStateReady ||
+      !currentSessionId ||
+      currentSessionIdRef.current === currentSessionId
+    ) {
       return
     }
-    initialFlow(async () => {
-      await prepareFlowInfo({})
+    initialFlow(currentSessionId, async () => {
+      await prepareFlowInfo({
+        where: {
+          session_id: currentSessionId,
+        },
+      })
     })
-  }, [initialFlow, prepareFlowInfo, loadingState.loading, isReadyRef, flowStateReady])
+  }, [
+    initialFlow,
+    prepareFlowInfo,
+    loadingState.loading,
+    currentSessionIdRef,
+    flowStateReady,
+    currentSessionId,
+  ])
 
   useEffect(() => {
     const unsubNodeHandler = useFlowState.subscribe(

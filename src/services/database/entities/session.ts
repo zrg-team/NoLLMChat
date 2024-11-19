@@ -29,21 +29,21 @@ export class Session {
   @UpdateDateColumn()
   updated_at?: Date
 
-  @OneToMany(() => Prompt, (entity: Prompt) => entity.session)
+  @OneToMany(() => Prompt, (entity: Prompt) => entity.session, { onDelete: 'CASCADE' })
   prompts?: Prompt[]
 
-  @OneToMany(() => Thread, (entity: Thread) => entity.session)
+  @OneToMany(() => Thread, (entity: Thread) => entity.session, { onDelete: 'CASCADE' })
   threads?: Thread[]
 
-  @OneToMany(() => LLM, (entity: LLM) => entity.session)
+  @OneToMany(() => LLM, (entity: LLM) => entity.session, { onDelete: 'CASCADE' })
   llms?: LLM[]
 
-  @OneToMany(() => FlowNode, (entity: FlowNode) => entity.session)
+  @OneToMany(() => FlowNode, (entity: FlowNode) => entity.session, { onDelete: 'CASCADE' })
   flow_nodes?: FlowNode[]
 
-  @OneToMany(() => FlowEdge, (entity: FlowEdge) => entity.session)
+  @OneToMany(() => FlowEdge, (entity: FlowEdge) => entity.session, { onDelete: 'CASCADE' })
   flow_edges?: FlowEdge[]
 
-  @OneToMany(() => Schema, (entity: Schema) => entity.session)
+  @OneToMany(() => Schema, (entity: Schema) => entity.session, { onDelete: 'CASCADE' })
   schemas?: Schema[]
 }

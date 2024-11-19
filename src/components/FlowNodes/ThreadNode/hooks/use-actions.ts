@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
 import { useInternalNode, useReactFlow } from '@xyflow/react'
@@ -12,6 +13,7 @@ import { ThreadNodeData } from '../type'
 
 export const useActions = (id: string, data: ThreadNodeData) => {
   const node = useInternalNode(id)
+  const { t } = useTranslation('flows')
   const { getNode, getHandleConnections } = useReactFlow()
   const updateNodes = useFlowState((state) => state.updateNodes)
   const { createMessage: createMessageFunction, loading } = useCreateMessage()
@@ -56,13 +58,27 @@ export const useActions = (id: string, data: ThreadNodeData) => {
             connections,
           })
         } catch (error) {
+          if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
+            return toast({
+              title: t('thread_node.errors.llm_not_loaded_yet'),
+            })
+          }
           toast({
             title: `${error}`,
           })
         }
       }
     },
-    [node, data.entity, id, getNode, getHandleConnections, createMessageFunction, onMessageUpdate],
+    [
+      node,
+      data.entity,
+      id,
+      getNode,
+      getHandleConnections,
+      createMessageFunction,
+      onMessageUpdate,
+      t,
+    ],
   )
 
   return { loading, createMessage }

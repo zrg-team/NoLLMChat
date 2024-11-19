@@ -34,6 +34,11 @@ export interface LocalLLMStateActions {
     }[],
     ...args: Parameters<ChatWebLLM['stream']>
   ) => AsyncGenerator<unknown, Awaited<ReturnType<ChatWebLLM['stream']>>, unknown>
+  getCurrentModelInfo: () => Promise<{
+    model: string
+    chatOptions: ChatWebLLM['chatOptions']
+    appConfig: ChatWebLLM['appConfig']
+  }>
 }
 
 const getHandleMessages = (get: GetState<LocalLLMState>, set: SetState<LocalLLMState>) => {
@@ -253,6 +258,29 @@ export const getLocalLLMStateActions = (
       const promise = promiseInfo.promise as Promise<Awaited<ReturnType<ChatWebLLM['stream']>>>
 
       return streamingPromise(promise, messageId, refProcesses)
+    },
+    getCurrentModelInfo: async () => {
+      const refProcesses = get().refProcesses
+      if (!worker) {
+        throw new Error('Worker not initialized')
+      }
+      const messageId = nanoid()
+
+      const promiseInfo = getEmptyPromise(() => {
+        sendToWorker(worker, 'get-current-model-info', messageId, [])
+      })
+      refProcesses.set(messageId, {
+        promise: promiseInfo.promise,
+        resolve: promiseInfo.resolve,
+        reject: promiseInfo.reject,
+        processInfo: { type: 'get-current-model-info', data: [], lastIndex: 0 },
+      })
+
+      return promiseInfo.promise as Promise<{
+        model: string
+        chatOptions: ChatWebLLM['chatOptions']
+        appConfig: ChatWebLLM['appConfig']
+      }>
     },
   }
 }

@@ -10,7 +10,7 @@ export const TOOLBOX_NODE_SIZE = {
 
 export const SESSION_INFO_SIZE = {
   width: 340,
-  height: 580,
+  height: 650,
 }
 
 export const SYSTEM_NODE_IDS = {

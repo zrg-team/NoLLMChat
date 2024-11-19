@@ -15,29 +15,31 @@ export const useFlowManager = () => {
   const updateEdges = useFlowState((state) => state.updateEdges)
   const addConnectionToEdges = useFlowState((state) => state.addConnectionToEdges)
 
-  const findFlowNodesWithSource = useFlowState((state) => state.findFlowNodesWithSource)
+  const resetFlows = useFlowState((state) => state.reset)
   const findFlowEdges = useFlowState((state) => state.findFlowEdges)
   const deleteFlowNode = useFlowState((state) => state.deleteFlowNode)
   const deleteFlowEdge = useFlowState((state) => state.deleteFlowEdge)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
+  const findFlowNodesWithSource = useFlowState((state) => state.findFlowNodesWithSource)
 
   const flowEdgesRef = useRef(flowEdges)
-  const isReadyRef = useRef(false)
+  const currentSessionIdRef = useRef<string | null>()
   const [loadingState, setLoadingState] = useState({ loading: false })
 
   flowEdgesRef.current = flowEdges
 
-  const initialFlow = useCallback(async (func?: () => Promise<void>) => {
-    try {
-      if (isReadyRef.current) {
-        return
+  const initialFlow = useCallback(
+    async (currentSessionId: string, func?: () => Promise<void>) => {
+      try {
+        currentSessionIdRef.current = currentSessionId
+        resetFlows()
+        await func?.()
+      } catch {
+        currentSessionIdRef.current = undefined
       }
-      isReadyRef.current = true
-      await func?.()
-    } finally {
-      isReadyRef.current = true
-    }
-  }, [])
+    },
+    [resetFlows],
+  )
 
   const prepareFlowInfo = useCallback(
     async (query: FindManyOptions<FlowNode>) => {
@@ -158,13 +160,13 @@ export const useFlowManager = () => {
 
   return {
     syncEdges,
-    isReadyRef,
     initialFlow,
     loadingState,
-    updateOrCreateNode,
     prepareFlowInfo,
     updateNodeChanges,
     updateEdgeChanges,
+    updateOrCreateNode,
+    currentSessionIdRef,
     updateEdgeConnection,
   }
 }
