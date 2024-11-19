@@ -41,20 +41,6 @@ const NewMessageCard = memo(
           </div>
           {tags ? <div className="tw-mt-2 tw-gap-1 tw-flex tw-flex-wrap">{tags}</div> : null}
         </CardContent>
-        {/* <CardFooter className="tw-flex tw-justify-between">
-          <Button
-            onClick={hanldeSubmit}
-            disabled={!input?.length || disabled}
-            className="tw-w-full"
-          >
-            {loading ? (
-              <LazyIcon name="loader-circle" className="tw-animate-spin" />
-            ) : (
-              t('add_message_card.button')
-            )}
-          </Button>
-        </CardFooter>
-      */}
       </Card>
     )
   },

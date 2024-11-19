@@ -40,8 +40,17 @@ export function AIMessageComponent({ data }: { data: MessageNodeData }) {
         />
         {Array.isArray(messageMetadata?.message?.tool_calls) &&
         messageMetadata?.message?.tool_calls?.length
-          ? messageMetadata?.message?.tool_calls.map((item) => {
-              return <Badge>{t('message_node.tool_call', { name: item.name })}</Badge>
+          ? messageMetadata?.message?.tool_calls.map((item, index) => {
+              return (
+                <Badge key={`${item.name}_${index}`}>
+                  {t('message_node.tool_call', {
+                    name: item.name,
+                    args: Object.entries(item.args)
+                      .map(([key, value]) => `"${key}": "${value}"`)
+                      .join(', '),
+                  })}
+                </Badge>
+              )
             })
           : null}
       </div>

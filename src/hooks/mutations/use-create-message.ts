@@ -29,6 +29,7 @@ export const useCreateMessage = () => {
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
   const toolsCallingStream = useLocalLLMState((state) => state.toolsCallingStream)
   const structuredStream = useLocalLLMState((state) => state.structuredStream)
+  const getCurrentModelInfo = useLocalLLMState((state) => state.getCurrentModelInfo)
   const stream = useLocalLLMState((state) => state.stream)
 
   const prepareThreadConnections = useCallback(
@@ -58,7 +59,7 @@ export const useCreateMessage = () => {
             (node) =>
               node.type === FlowNodeTypeEnum.CSVData && promptConnection?.source === node.id,
           )
-          if (csvDataNode && threadPromptNode) {
+          if (threadPromptNode) {
             threadPromptNodeResult.push({
               node: threadPromptNode,
               connectedNodes: csvDataNode ? [csvDataNode] : [],
@@ -313,6 +314,10 @@ export const useCreateMessage = () => {
       if (!source || !thread) {
         throw new Error('Source or thread is not found')
       }
+      const modelInfo = await getCurrentModelInfo()
+      if (!modelInfo) {
+        throw new Error('Model is not loaded yet')
+      }
       const threadConnections = prepareThreadConnections(
         thread,
         options.connectedNodes || [],
@@ -359,7 +364,7 @@ export const useCreateMessage = () => {
         setLoading(false)
       }
     },
-    [prepareThreadConnections, insertMessages, invokeMessage, t],
+    [getCurrentModelInfo, prepareThreadConnections, insertMessages, invokeMessage, t],
   )
 
   return {

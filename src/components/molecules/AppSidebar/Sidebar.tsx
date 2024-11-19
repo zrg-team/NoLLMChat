@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import { NavDocuments } from 'src/lib/shadcn/sidebar/nav-documents'
-import { NavSessions } from 'src/lib/shadcn/sidebar/nav-sessions'
-import { NavUser } from 'src/lib/shadcn/sidebar/nav-user'
+import { NavDocuments } from 'src/components/molecules/AppSidebar/NavDocuments'
+import { NavSessions } from 'src/components/molecules/AppSidebar/NavSessions'
+import { NavUser } from 'src/components/molecules/AppSidebar/NavUser'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from 'src/lib/shadcn/ui/sidebar'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { SessionStateActions } from 'src/states/session/actions'

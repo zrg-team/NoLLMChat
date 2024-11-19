@@ -10,7 +10,7 @@ import { useCreateCSVData } from 'src/hooks/mutations/use-create-csv-data'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { ExampleTable } from './ExampleTable'
 
-const AddFewShotExampleCard = memo((props: NodeProps) => {
+const CreateFewShotExampleCard = memo((props: NodeProps) => {
   const { id } = props
   const { t } = useTranslation('components')
   const [data, setData] = useState<{ input: string; output: string }[]>([])
@@ -82,4 +82,4 @@ const AddFewShotExampleCard = memo((props: NodeProps) => {
   )
 })
 
-export default AddFewShotExampleCard
+export default CreateFewShotExampleCard

@@ -35,11 +35,7 @@ export default function AIInput({
   const handleSubmit = async () => {
     try {
       setLoading(true)
-      const result = await onSubmit(value)
-      if (result) {
-        setValue('')
-        adjustHeight(true)
-      }
+      await onSubmit(value)
     } finally {
       setLoading(false)
     }

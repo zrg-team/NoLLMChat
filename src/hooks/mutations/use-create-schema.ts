@@ -1,7 +1,7 @@
 import { Node } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { useCallback, useState } from 'react'
-import { SchemaItemType } from 'src/components/molecules/AddSchemaCard/Field/type'
+import { SchemaItemType } from 'src/components/molecules/CreateSchemaCard/Field/type'
 import { getRepository } from 'src/services/database'
 import { FlowNodeTypeEnum, SchemaItem } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'

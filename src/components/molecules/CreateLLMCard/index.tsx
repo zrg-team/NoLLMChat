@@ -19,10 +19,12 @@ import {
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { LLMModelTypeEnum } from 'src/services/database/types'
 import { useLocalLLMState } from 'src/services/local-llm'
+import { useToast } from 'src/lib/hooks/use-toast'
 
-function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
+function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
   const { t } = useTranslation('components')
+  const { toast } = useToast()
   const node = useInternalNode(id)
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
@@ -115,6 +117,10 @@ function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void })
           : false,
       })
       setDialog?.(false)
+    } catch {
+      toast({
+        description: t('add_llm_card.errors.failed_to_create'),
+      })
     } finally {
       setInput('')
     }
@@ -249,4 +255,4 @@ function AddLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void })
   )
 }
 
-export default AddLLMCard
+export default CreateLLMCard

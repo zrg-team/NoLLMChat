@@ -10,7 +10,7 @@ import { toast } from 'src/lib/hooks/use-toast'
 import { SchemaItemType } from './Field/type'
 import FieldList from './Field/FieldList'
 
-const AddSchemaCard = memo((props: NodeProps) => {
+const CreateSchemaCard = memo((props: NodeProps) => {
   const { t } = useTranslation('components')
   const { id } = props
   const node = useInternalNode(id)
@@ -54,4 +54,4 @@ const AddSchemaCard = memo((props: NodeProps) => {
   )
 })
 
-export default AddSchemaCard
+export default CreateSchemaCard

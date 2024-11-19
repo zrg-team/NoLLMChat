@@ -8,12 +8,12 @@ import {
   MenubarMenu,
   MenubarTrigger,
 } from 'src/lib/shadcn/ui/menubar'
-import AddLLMCard from 'src/components/molecules/AddLLMCard'
-import AddPromptCard from 'src/components/molecules/AddPromptCard'
-import AddSchemaCard from 'src/components/molecules/AddSchemaCard'
-import AddFewShotExampleCard from 'src/components/molecules/AddFewShotExampleCard'
+import CreateLLMCard from 'src/components/molecules/CreateLLMCard'
+import CreatePromptCard from 'src/components/molecules/CreatePromptCard'
+import CreateSchemaCard from 'src/components/molecules/CreateSchemaCard'
+import CreateFewShotExampleCard from 'src/components/molecules/CreateFewShotExampleCard'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import AddToolCard from 'src/components/molecules/AddToolCard'
+import CreateToolCard from 'src/components/molecules/CreateToolCard'
 import Logo from 'src/assets/svgs/logo.svg?react'
 
 import { SUPPORTED_MODES, SupportedAddNodeEnum } from './types'
@@ -62,15 +62,15 @@ export const ToolbarNode = memo((props: NodeProps) => {
   const modeToComponent = useMemo(() => {
     switch (mode) {
       case SupportedAddNodeEnum.ADD_LLM:
-        return <AddLLMCard {...props} />
+        return <CreateLLMCard {...props} />
       case SupportedAddNodeEnum.ADD_PROMPT:
-        return <AddPromptCard {...props} />
+        return <CreatePromptCard {...props} />
       case SupportedAddNodeEnum.ADD_SCHEMA:
-        return <AddSchemaCard {...props} />
+        return <CreateSchemaCard {...props} />
       case SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE:
-        return <AddFewShotExampleCard {...props} />
+        return <CreateFewShotExampleCard {...props} />
       case SupportedAddNodeEnum.ADD_TOOL_DEFINITION:
-        return <AddToolCard {...props} />
+        return <CreateToolCard {...props} />
     }
   }, [props, mode])
   return (

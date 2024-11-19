@@ -8,18 +8,21 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "analyze": "npx vite-bundle-visualizer",
     "prettier": "prettier --write \"**/*.{ts,tsx}\" \"!./apps/ultron/volumes\" --config \".prettierrc.json\" --cache"
   },
   "dependencies": {
     "@assistant-ui/react": "^0.5.37",
     "@assistant-ui/react-markdown": "^0.2.10",
     "@assistant-ui/react-syntax-highlighter": "^0.0.9",
+    "@ebay/nice-modal-react": "^1.2.13",
     "@huggingface/transformers": "^3.0.2",
     "@langchain/community": "^0.3.3",
     "@langchain/core": "^0.3.3",
     "@langchain/langgraph": "^0.2.9",
     "@mlc-ai/web-llm": "^0.2.71",
     "@radix-ui/react-accordion": "^1.2.1",
+    "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.1.1",
@@ -67,6 +70,7 @@
     "tailwindcss-animate": "^1.0.7",
     "typeorm": "^0.3.20",
     "voy-search": "^0.6.3",
+    "zod-to-json-schema": "^3.23.5",
     "zustand": "^5.0.1"
   },
   "devDependencies": {

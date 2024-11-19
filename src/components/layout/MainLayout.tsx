@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router-dom'
-import { AppSidebar } from 'src/lib/shadcn/sidebar/app-sidebar'
+import { AppSidebar } from 'src/components/molecules/AppSidebar/Sidebar'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from 'src/lib/shadcn/ui//sidebar'
 import { Label } from 'src/lib/shadcn/ui/label'
+import { Separator } from 'src/lib/shadcn/ui/separator'
 import { useSessionState } from 'src/states/session'
 
 export function MainLayout() {
@@ -25,6 +26,7 @@ export function MainLayout() {
             <Label>{t('whiteboard')}</Label>
           </div>
         </header>
+        <Separator />
         <div className="tw-flex tw-flex-1 tw-flex-col tw-p-0 tw-m-0">
           <Outlet />
         </div>

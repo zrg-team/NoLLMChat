@@ -7,9 +7,10 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { SidebarMenuButton } from 'src/lib/shadcn/ui/sidebar'
 import { useTranslation } from 'react-i18next'
 
-interface NewProjectButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface NewSessionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   particleCount?: number
   attractRadius?: number
+  onClick?: () => void
 }
 
 interface Particle {
@@ -18,7 +19,11 @@ interface Particle {
   y: number
 }
 
-export default function NewProjectButton({ className, particleCount = 10 }: NewProjectButtonProps) {
+export default function NewSessionButton({
+  className,
+  particleCount = 10,
+  onClick,
+}: NewSessionButtonProps) {
   const { t } = useTranslation('sidebar')
 
   const [isAnimationFinish, setAnimationFinish] = useState(false)
@@ -76,6 +81,7 @@ export default function NewProjectButton({ className, particleCount = 10 }: NewP
       onMouseLeave={handleInteractionEnd}
       onTouchStart={handleInteractionStart}
       onTouchEnd={handleInteractionEnd}
+      onClick={onClick}
     >
       {particles.map((_, index) => (
         <motion.div

@@ -17,7 +17,7 @@ export const useActions = (id: string) => {
 
   const updateNodes = useFlowState((state) => state.updateNodes)
   const { getNode, getHandleConnections, getNodes } = useReactFlow()
-  const { createMessage, loading } = useCreateMessage()
+  const { createMessage: createMessageFunction, loading } = useCreateMessage()
 
   const onMessageUpdate = useCallback(
     (info: { id?: string; nodeData: Partial<MessageNodeData> }) => {
@@ -45,7 +45,7 @@ export const useActions = (id: string) => {
     [getNode, updateNodes],
   )
 
-  const handleSubmit = useCallback(
+  const createMessage = useCallback(
     async (input: string) => {
       const { nodes: connectedNodes, connections } = threadNodesTraveling([id], [], [], [], {
         getNode,
@@ -72,13 +72,17 @@ export const useActions = (id: string) => {
           })
         }
         try {
-          await createMessage(node, thread, input, {
+          await createMessageFunction(node, thread, input, {
             connectedNodes,
             connections,
             onMessageUpdate,
           })
         } catch (error) {
-          console.warn(error)
+          if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
+            return toast({
+              title: t('message_node.errors.llm_not_loaded_yet'),
+            })
+          }
           toast({
             variant: 'destructive',
             title: t('message_node.errors.create_message'),
@@ -86,11 +90,11 @@ export const useActions = (id: string) => {
         }
       }
     },
-    [id, getNode, getHandleConnections, node, getNodes, t, createMessage, onMessageUpdate],
+    [id, getNode, getHandleConnections, node, getNodes, t, createMessageFunction, onMessageUpdate],
   )
 
   return {
     loading,
-    createMessage: handleSubmit,
+    createMessage,
   }
 }
