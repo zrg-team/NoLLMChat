@@ -67,9 +67,9 @@ graph LR
     E -->|Interacts with| J((Langchain))
     J -->|Wraps| F((WebLLM))
     A <--> G[(Vector database)]
-    G <--> H[Embedding thread]
-    H -->|Interacts with| K((Langchain))
-    K -->|Wraps| L((Embedding Model))
+    G <--> |Uses| H((Langchain))
+    H --> K[Embedding thread]
+    K -->|Use| L((Embedding Model))
     
     A -->|Interacts with| B((UI Application Logic))
 ```
