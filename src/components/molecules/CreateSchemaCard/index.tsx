@@ -32,25 +32,23 @@ const CreateSchemaCard = memo((props: NodeProps) => {
     }
   }
   return (
-    <div>
-      <Card className="tw-max-w-lg">
-        <CardHeader>
-          <CardTitle>{t('add_schema_card.title')}</CardTitle>
-        </CardHeader>
-        <CardContent className="tw-min-w-96">
-          <FieldList setData={setData} data={data} />
-        </CardContent>
-        <CardFooter className="tw-flex tw-justify-between">
-          <Button disabled={loading || !data?.length} onClick={handleSubmit} className="tw-w-full">
-            {loading ? (
-              <LazyIcon name="loader-circle" className="tw-animate-spin" />
-            ) : (
-              t('add_schema_card.create')
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+    <Card className="tw-max-w-lg">
+      <CardHeader>
+        <CardTitle>{t('add_schema_card.title')}</CardTitle>
+      </CardHeader>
+      <CardContent className="tw-min-w-96">
+        <FieldList setData={setData} data={data} />
+      </CardContent>
+      <CardFooter className="tw-flex tw-justify-between">
+        <Button disabled={loading || !data?.length} onClick={handleSubmit} className="tw-w-full">
+          {loading ? (
+            <LazyIcon name="loader-circle" className="tw-animate-spin" />
+          ) : (
+            t('add_schema_card.create')
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   )
 })
 

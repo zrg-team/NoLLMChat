@@ -12,4 +12,5 @@ export enum FlowNodeTypeEnum {
   FewShotExample = 'FEW_SHOT_EXAMPLE',
   CSVData = 'CSV_DATA',
   DefaultEmbeddingModel = 'DEFAULT_EMBEDDING_MODEL',
+  VectorDatabase = 'VECTOR_DATABASE',
 }

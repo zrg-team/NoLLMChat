@@ -14,9 +14,11 @@ import CreateSchemaCard from 'src/components/molecules/CreateSchemaCard'
 import CreateFewShotExampleCard from 'src/components/molecules/CreateFewShotExampleCard'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import CreateToolCard from 'src/components/molecules/CreateToolCard'
+import CreateVectorDatabaseCard from 'src/components/molecules/CreateVectorDatabaseCard'
 import Logo from 'src/assets/svgs/logo.svg?react'
 
-import { SUPPORTED_MODES, SupportedAddNodeEnum } from './types'
+import { SUPPORTED_MODES, SupportedAddNodeEnum } from './constants'
+import CreateTextDataCard from 'src/components/molecules/CreateTextDataCard'
 
 export const ToolbarNode = memo((props: NodeProps) => {
   const { t } = useTranslation('flows')
@@ -71,6 +73,10 @@ export const ToolbarNode = memo((props: NodeProps) => {
         return <CreateFewShotExampleCard {...props} />
       case SupportedAddNodeEnum.ADD_TOOL_DEFINITION:
         return <CreateToolCard {...props} />
+      case SupportedAddNodeEnum.ADD_VECTOR_DATABASE:
+        return <CreateVectorDatabaseCard {...props} />
+      case SupportedAddNodeEnum.ADD_TEXT_DATA:
+        return <CreateTextDataCard {...props} />
     }
   }, [props, mode])
   return (

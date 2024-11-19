@@ -12,6 +12,7 @@ import {
   TableRow,
 } from 'src/lib/shadcn/ui/table'
 import { Card } from 'src/lib/shadcn/ui/card'
+import { decodeLine, decodeSplitter } from 'src/utils/csv-data'
 
 export const CSVDataNode = memo((props: CSVDataNodeProps) => {
   const { id, data, isConnectable } = props
@@ -25,8 +26,8 @@ export const CSVDataNode = memo((props: CSVDataNodeProps) => {
     }
 
     return {
-      headers: data.entity.headers.split(','),
-      rows: data.entity.data.split('\n').map((row) => row.split(',')),
+      headers: decodeSplitter(data.entity.headers),
+      rows: decodeLine(data.entity.data).map((row) => decodeSplitter(row)),
     }
   }, [data?.entity])
 
