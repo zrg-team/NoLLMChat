@@ -1,32 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Dispatch, SetStateAction, useMemo } from 'react'
 import { cn } from 'src/lib/utils'
-import { Upload, X, FileText } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
+import { useTranslation } from 'react-i18next'
 import { useFileInput, UseFileInputOptions } from './use-file-input'
-import { Button } from '../shadcn/ui/button'
 
 export default function FileUploadInput({
-  onFileSubmit,
+  file,
+  setFile,
+  loading,
+  progress,
   fileOptions,
 }: {
-  onFileSubmit: (file: File) => Promise<void>
+  file?: File
+  progress?: number
+  loading?: boolean
+  setFile: Dispatch<SetStateAction<File | undefined>>
   fileOptions?: UseFileInputOptions
 }) {
-  const [file, setFile] = useState<File>()
+  const { t } = useTranslation('atoms')
   const [isDragging, setIsDragging] = useState(false)
-  const [preview, setPreview] = useState<string | null>(null)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const { fileName, fileInputRef, clearFile, error, validateAndSetFile, fileSize } = useFileInput({
     accept: fileOptions?.accept || 'image/*',
     maxSize: fileOptions?.maxSize || 3,
   })
 
   function handleFile(file: File) {
-    validateAndSetFile(file)
+    const result = validateAndSetFile(file)
 
-    if (!error) {
-      setFile(file)
+    if (result) {
+      setFile(result)
     }
   }
 
@@ -49,18 +53,36 @@ export default function FileUploadInput({
 
   function removeFile() {
     clearFile()
-    setPreview(null)
-    setUploadProgress(0)
+    setFile(undefined)
   }
 
-  function handleFileSubmit() {
-    if (!file) return
+  const preview = useMemo(() => {
+    if (!file) {
+      return (
+        <div className="tw-w-16 tw-h-16 tw-rounded-lg tw-bg-zinc-100 dark:tw-bg-zinc-800 tw-flex tw-items-center tw-justify-center">
+          <LazyIcon name="file-text" className="tw-w-8 tw-h-8 tw-text-zinc-400" />
+        </div>
+      )
+    }
 
-    onFileSubmit(file)
-  }
+    const isImage = file.type.startsWith('image/')
+    return (
+      <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-lg tw-overflow-hidden">
+        {isImage ? (
+          <img
+            src={URL.createObjectURL(file)}
+            alt="Preview"
+            className="tw-w-full tw-h-full tw-object-cover"
+          />
+        ) : (
+          <LazyIcon className="tw-w-14 tw-h-14" name="file-text" />
+        )}
+      </div>
+    )
+  }, [file])
 
   return (
-    <div className="tw-w-full tw-max-w-md tw-space-y-2 tw-mt-4">
+    <>
       <div
         className={cn(
           'tw-relative tw-group tw-cursor-pointer',
@@ -96,26 +118,17 @@ export default function FileUploadInput({
         <div className="tw-p-8 tw-space-y-4">
           {!fileName ? (
             <div className="tw-flex tw-flex-col tw-items-center tw-gap-2">
-              <Upload className="tw-w-8 tw-h-8 tw-text-zinc-400 dark:tw-text-zinc-500" />
+              <LazyIcon
+                name="upload"
+                className="tw-w-8 tw-h-8 tw-text-zinc-400 dark:tw-text-zinc-500"
+              />
               <p className="tw-text-sm tw-text-zinc-600 dark:tw-text-zinc-400">
-                Drag and drop or click to upload
+                {t('file_upload_input.drop_file')}
               </p>
             </div>
           ) : (
             <div className="tw-flex tw-items-center tw-gap-4">
-              {preview ? (
-                <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-lg tw-overflow-hidden">
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="tw-w-full tw-h-full tw-object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="tw-w-16 tw-h-16 tw-rounded-lg tw-bg-zinc-100 dark:tw-bg-zinc-800 tw-flex tw-items-center tw-justify-center">
-                  <FileText className="tw-w-8 tw-h-8 tw-text-zinc-400" />
-                </div>
-              )}
+              {preview}
               <div className="tw-flex-1 tw-min-w-0">
                 <p className="tw-text-sm tw-font-medium tw-truncate">
                   {fileName || 'No file selected'}
@@ -123,34 +136,33 @@ export default function FileUploadInput({
                 <p className="tw-text-xs tw-text-zinc-500">
                   {fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)} MB` : '0 MB'}
                 </p>
-                {uploadProgress < 100 && (
+                {progress && progress < 1 ? (
                   <div className="tw-mt-2 tw-h-1 tw-w-full tw-bg-zinc-100 dark:tw-bg-zinc-800 tw-rounded-full tw-overflow-hidden">
                     <div
                       className="tw-h-full tw-bg-indigo-500 tw-transition-all tw-duration-200"
                       style={{
-                        width: `${uploadProgress}%`,
+                        width: `${progress * 100}%`,
                       }}
                     />
                   </div>
-                )}
+                ) : undefined}
               </div>
               <button
                 type="button"
+                disabled={loading}
                 onClick={(e) => {
                   e.stopPropagation()
                   removeFile()
                 }}
                 className="tw-p-1 hover:tw-bg-zinc-100 dark:hover:tw-bg-zinc-800 tw-rounded"
               >
-                <X className="tw-w-5 tw-h-5 tw-text-zinc-400" />
+                <LazyIcon name="x" className="tw-w-5 tw-h-5 tw-text-zinc-400" />
               </button>
             </div>
           )}
         </div>
       </div>
-      <Button disabled={!file} onClick={handleFileSubmit} className="tw-w-full tw-mt-4">
-        Upload
-      </Button>
-    </div>
+      {error ? <p className="tw-text-red-500">{error}</p> : undefined}
+    </>
   )
 }

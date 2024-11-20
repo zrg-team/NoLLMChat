@@ -1,4 +1,5 @@
 import { Document } from '@langchain/core/documents'
+import chunk from 'lodash/chunk'
 import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -83,8 +84,33 @@ export const useActions = (id: string) => {
   )
 
   const indexData = useCallback(
-    async (data: { id?: string; content: string }) => {
+    async (
+      data: { id?: string; content?: string; documents?: Document[] },
+      options?: {
+        onChunkStart?: (part: Document[], all: Document[]) => void
+        onChunkEnd?: (part: Document[], all: Document[]) => void
+      },
+    ) => {
       try {
+        const documents = data.content
+          ? [
+              new Document({
+                pageContent: data.content,
+                id: data.id,
+                metadata: {
+                  id: data.id,
+                },
+              }),
+            ]
+          : data.documents
+
+        if (!documents?.length) {
+          toast({
+            title: t('vector_database_node.errors.content_not_found'),
+          })
+          return
+        }
+
         const entity = node?.data?.entity as VectorDatabase
         if (!entity) {
           toast({
@@ -92,6 +118,7 @@ export const useActions = (id: string) => {
           })
           return
         }
+
         const connections = getHandleConnections({
           nodeId: id,
           type: 'target',
@@ -114,39 +141,38 @@ export const useActions = (id: string) => {
         }
         setLoading(true)
         const dataSourceType = getStorageDataSource(dataSource)
-        await indexFunction(
-          {
-            databaseId: entity.id,
-            dataSourceId: dataSource.id,
-            dataSourceType,
-          },
-          [
-            new Document({
-              pageContent: data.content,
-              id: data.id,
-              metadata: {
-                id: data.id,
-              },
-            }),
-          ],
-        )
-        if (dataSourceType && dataSourceNode) {
-          const updatedDataNode = await getRepository(dataSourceType).findOne({
-            where: { id: dataSource.id },
-          })
-          updateNodes([
+
+        const chunkedDocuments = chunk(documents, 20)
+
+        for (const partDocuments of chunkedDocuments) {
+          options?.onChunkStart?.(partDocuments, documents)
+          await indexFunction(
             {
-              type: 'replace',
-              id: dataSourceNode.id,
-              item: {
-                ...dataSourceNode,
-                data: {
-                  ...dataSourceNode.data,
-                  entity: updatedDataNode,
+              databaseId: entity.id,
+              dataSourceId: dataSource.id,
+              dataSourceType,
+            },
+            partDocuments,
+          )
+          if (dataSourceType && dataSourceNode) {
+            const updatedDataNode = await getRepository(dataSourceType).findOne({
+              where: { id: dataSource.id },
+            })
+            updateNodes([
+              {
+                type: 'replace',
+                id: dataSourceNode.id,
+                item: {
+                  ...dataSourceNode,
+                  data: {
+                    ...dataSourceNode.data,
+                    entity: updatedDataNode,
+                  },
                 },
               },
-            },
-          ])
+            ])
+          }
+          options?.onChunkEnd?.(partDocuments, documents)
         }
       } catch {
         toast({

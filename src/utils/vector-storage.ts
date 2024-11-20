@@ -1,3 +1,4 @@
+import { md5 } from 'js-md5'
 import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import localforage from 'localforage'
@@ -141,15 +142,15 @@ export const getVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
 }
 
 export const storeVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
-  database,
   docstore,
   storageType,
+  databaseName,
   embeddingStorage,
   storageDataNode,
 }: {
   storageType: `${VectorDatabaseStorageEnum}`
   provider: T
-  database: string
+  databaseName: string
   embeddingStorage: typeof localforage
   docstore: VectorDatabaseDocType<T>
   storageDataNode?: JSONData | CSVData | JSONLData
@@ -202,7 +203,7 @@ export const storeVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
       break
     case 'IndexedDB':
       {
-        await embeddingStorage.setItem(database, data)
+        await embeddingStorage.setItem(databaseName, data)
       }
       break
   }
@@ -218,3 +219,5 @@ export const getStorageDataSource = (dataSource: CSVData | JSONData | JSONLData)
         ? 'JSONLData'
         : undefined
 }
+
+export const getDatabaseId = (name: string) => md5(name)

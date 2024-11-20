@@ -1,6 +1,7 @@
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import { Handle, Position, useInternalNode } from '@xyflow/react'
+import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { useTranslation } from 'react-i18next'
@@ -12,12 +13,13 @@ import { VectorDatabaseNodeProps } from './type'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { useActions } from './hooks/use-actions'
 import { VectorSearch } from './components/VectorSearch'
-import UpdateTextDataCard from './components/UpdateTextDataCard'
-import FileUploadInput from 'src/lib/kokonutui/file-upload-input'
+import IndexNewText from './components/IndexNewText'
+import IndexNewFile from './components/IndexNewFile'
 
 export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   const { toast } = useToast()
   const { t } = useTranslation('flows')
+  const [progress, setProgress] = useState(0)
   const [mode, setMode] = useState('search')
   const node = useInternalNode(props.id)
   const { id, data, isConnectable } = props
@@ -26,9 +28,9 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   useConnectionToHandler(id)
 
   const handleCreateData = useCallback(
-    async (data: { index?: string; content: string }) => {
+    async (...args: Parameters<typeof indexData>) => {
       if (node) {
-        await indexData(data)
+        await indexData(...args)
       }
     },
     [indexData, node],
@@ -47,12 +49,12 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
         description: (
           <div className="tw-w-full">
             <div className="tw-flex tw-h-5 tw-items-center tw-space-x-4 tw-text-sm tw-justify-between">
-              <div className="tw-flex-1 tw-text-ellipsis tw-overflow-hidden tw-max-h-full tw-font-medium">
-                {t('vector_database_node.content')}
-              </div>
               <div className="tw-flex tw-h-5 tw-space-x-4 tw-w-10">
-                <Separator orientation="vertical" />
                 <div className="tw-font-medium">{t('vector_database_node.score')}</div>
+              </div>
+              <div className="tw-flex-1 tw-text-ellipsis tw-overflow-hidden tw-max-h-full tw-font-medium">
+                <Separator orientation="vertical" />
+                {t('vector_database_node.content')}
               </div>
             </div>
             {documents.map(([document, score], index) => (
@@ -60,12 +62,12 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
                 className="tw-flex tw-h-5 tw-items-center tw-space-x-4 tw-text-sm tw-justify-between"
                 key={`${index}`}
               >
-                <div className="tw-flex-1 tw-text-ellipsis tw-overflow-hidden tw-max-h-full">
-                  {document.pageContent}
-                </div>
                 <div className="tw-flex tw-h-5 tw-space-x-4 tw-w-10">
-                  <Separator orientation="vertical" />
                   <div>{score.toFixed(2)}</div>
+                </div>
+                <div className="tw-flex-1 tw-text-ellipsis tw-overflow-hidden tw-max-h-full">
+                  <Separator orientation="vertical" />
+                  {document.pageContent}
                 </div>
               </div>
             ))}
@@ -78,13 +80,39 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
 
   const handleIndexPDF = useCallback(
     async (file: File) => {
-      // const blob = new Blob([file], { type: file.type })
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        const content = e.target?.result as string
-        await handleCreateData({ content })
+      if (file.type.endsWith('text')) {
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+          const content = e.target?.result as string
+          await handleCreateData({ content })
+        }
+        reader.readAsText(file)
+      } else if (file.type.endsWith('pdf')) {
+        // File to blob
+        const blob = new Blob([file], { type: 'application/pdf' })
+        const customBuildLoader = new WebPDFLoader(blob, {
+          // you may need to add `.then(m => m.default)` to the end of the import
+          pdfjs: async () => {
+            const pdfjs = await import('pdfjs-dist/legacy/build/pdf.min.mjs')
+            await import('pdfjs-dist/legacy/build/pdf.worker.min.mjs')
+            pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+              'pdfjs-dist/build/pdf.worker.min.js',
+              import.meta.url,
+            ).toString()
+            return pdfjs
+          },
+          parsedItemSeparator: ' ',
+        })
+        const documents = await customBuildLoader.load()
+        await handleCreateData(
+          { documents },
+          {
+            onChunkStart: (part, all) => {
+              setProgress(part.length / all.length)
+            },
+          },
+        )
       }
-      reader.readAsText(file)
     },
     [handleCreateData],
   )
@@ -100,13 +128,18 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
       case 'new':
         return (
           <TabsContent className="tw-min-w-80" value="new">
-            <UpdateTextDataCard loading={loading} onCreateData={handleCreateData} />
+            <IndexNewText loading={loading} onCreateData={handleCreateData} />
           </TabsContent>
         )
       case 'file':
         return (
           <TabsContent value="file">
-            <FileUploadInput onFileSubmit={handleIndexPDF} fileOptions={{ accept: '.pdf,.txt' }} />
+            <IndexNewFile
+              loading={loading}
+              progress={progress}
+              onFileSubmit={handleIndexPDF}
+              fileOptions={{ accept: '.pdf,.txt', maxSize: 5 }}
+            />
           </TabsContent>
         )
     }
@@ -128,9 +161,9 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
               className="tw-w-full tw-mt-4"
             >
               <TabsList className="tw-grid tw-w-full tw-grid-cols-3">
-                <TabsTrigger value="search">Search</TabsTrigger>
-                <TabsTrigger value="new">New</TabsTrigger>
-                <TabsTrigger value="file">File</TabsTrigger>
+                <TabsTrigger value="search">{t('vector_database_node.search')}</TabsTrigger>
+                <TabsTrigger value="new">{t('vector_database_node.text')}</TabsTrigger>
+                <TabsTrigger value="file">{t('vector_database_node.file')}</TabsTrigger>
               </TabsList>
               {renderContent}
             </Tabs>

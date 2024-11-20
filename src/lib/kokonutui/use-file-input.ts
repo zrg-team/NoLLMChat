@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export interface UseFileInputOptions {
   accept?: string
@@ -6,6 +7,7 @@ export interface UseFileInputOptions {
 }
 
 export function useFileInput({ accept, maxSize }: UseFileInputOptions) {
+  const { t } = useTranslation('atoms')
   const [fileName, setFileName] = useState<string>('')
   const [error, setError] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -21,17 +23,28 @@ export function useFileInput({ accept, maxSize }: UseFileInputOptions) {
 
     if (file) {
       if (maxSize && file.size > maxSize * 1024 * 1024) {
-        setError(`File size must be less than ${maxSize}MB`)
+        setError(
+          t('file_upload_input.errors.max_size', {
+            maxSize,
+            fileSize: (file.size / 1024 / 1024).toFixed(2),
+          }),
+        )
         return
       }
 
-      if (accept && !file.type.match(accept.replace('/*', '/'))) {
-        setError(`File type must be ${accept}`)
+      const acceptFiles = accept?.split(',').map((a) => a.replace('.', '').trim())
+      if (
+        accept &&
+        !file.type.match(accept.replace('/*', '/')) &&
+        !acceptFiles?.some((item) => file.type.includes(item))
+      ) {
+        setError(t('file_upload_input.errors.accept', { accept }))
         return
       }
 
       setFileSize(file.size)
       setFileName(file.name)
+      return file
     }
   }
 

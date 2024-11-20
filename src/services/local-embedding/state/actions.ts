@@ -1,5 +1,4 @@
-import { md5 } from 'js-md5'
-import { Document } from 'langchain/document'
+import { Document } from '@langchain/core/documents'
 import {
   CharacterTextSplitter,
   RecursiveCharacterTextSplitter,
@@ -10,7 +9,11 @@ import localforage from 'localforage'
 import { SetState, GetState } from 'src/utils/zustand'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
-import { getVectorDatabaseStorage, storeVectorDatabaseStorage } from 'src/utils/vector-storage'
+import {
+  getDatabaseId,
+  getVectorDatabaseStorage,
+  storeVectorDatabaseStorage,
+} from 'src/utils/vector-storage'
 import { getRepository } from 'src/services/database'
 import {
   VectorDatabase,
@@ -55,25 +58,29 @@ export interface LocalEmbeddingStateActions {
 }
 
 const splitterDocuments = (database: VectorDatabase, documents: Document[]) => {
-  const metadata = database.metadata as {
-    textSplitter?: {
-      type: string
-      chunkSize: number
-      chunkOverlap: number
+  try {
+    const metadata = JSON.parse(database.metadata || '{}') as {
+      textSplitter?: {
+        type: string
+        chunkSize: number
+        chunkOverlap: number
+      }
     }
-  }
-  if (!metadata?.textSplitter) {
+    if (!metadata?.textSplitter) {
+      return documents
+    }
+    switch (metadata?.textSplitter?.type) {
+      case 'TokenTextSplitter':
+        return new TokenTextSplitter(metadata.textSplitter).splitDocuments(documents)
+      case 'CharacterTextSplitter':
+        return new CharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+      case 'RecursiveCharacterTextSplitter':
+        return new RecursiveCharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+      default:
+        throw new Error('Invalid text splitter')
+    }
+  } catch {
     return documents
-  }
-  switch (metadata?.textSplitter?.type) {
-    case 'TokenTextSplitter':
-      return new TokenTextSplitter(metadata.textSplitter).splitDocuments(documents)
-    case 'CharacterTextSplitter':
-      return new CharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
-    case 'RecursiveCharacterTextSplitter':
-      return new RecursiveCharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
-    default:
-      throw new Error('Invalid text splitter')
   }
 }
 
@@ -130,11 +137,12 @@ export const getLocalEmbeddingStateActions = (
             })
           : undefined
 
-      const hashDatabaseName = md5(database.name)
+      const databaseName = getDatabaseId(database.name)
+      const splittedDocuments = await splitterDocuments(database, documents)
       const data = await getVectorDatabaseStorage({
+        databaseName,
         storageType: database.storage || 'IndexedDB',
         provider: database.provider,
-        databaseName: hashDatabaseName,
         storageService: embeddingStorage,
         storageDataNode: dataSource,
       })
@@ -145,9 +153,9 @@ export const getLocalEmbeddingStateActions = (
               embeddings: data as EmbeddedResource[],
             })
             const store = new VoyVectorStore(voyClient, embedding)
-            await store.addDocuments(await splitterDocuments(database, documents))
+            await store.addDocuments(splittedDocuments)
             await storeVectorDatabaseStorage({
-              database: hashDatabaseName,
+              databaseName,
               provider: database.provider,
               embeddingStorage,
               docstore: store.docstore,
@@ -160,9 +168,9 @@ export const getLocalEmbeddingStateActions = (
           {
             const store = new MemoryVectorStore(embedding)
             store.memoryVectors = data as unknown as MemoryVectorStore['memoryVectors']
-            await store.addDocuments(await splitterDocuments(database, documents))
+            await store.addDocuments(splittedDocuments)
             await storeVectorDatabaseStorage({
-              database: hashDatabaseName,
+              databaseName,
               provider: database.provider,
               embeddingStorage,
               docstore: store.memoryVectors,
@@ -195,13 +203,13 @@ export const getLocalEmbeddingStateActions = (
             })
           : undefined
 
-      const hashDatabaseName = md5(database.name)
+      const databaseName = getDatabaseId(database.name)
       const data = await getVectorDatabaseStorage({
-        storageType: database.storage || 'IndexedDB',
-        provider: database.provider,
-        databaseName: hashDatabaseName,
-        storageService: embeddingStorage,
+        databaseName,
         storageDataNode: dataSource,
+        provider: database.provider,
+        storageService: embeddingStorage,
+        storageType: database.storage || 'IndexedDB',
       })
       switch (database.provider) {
         case VectorDatabaseProviderEnum.Voy: {
@@ -248,13 +256,13 @@ export const getLocalEmbeddingStateActions = (
             })
           : undefined
 
-      const hashDatabaseName = md5(database.name)
+      const databaseName = getDatabaseId(database.name)
       const data = await getVectorDatabaseStorage({
-        storageType: database.storage || 'IndexedDB',
+        databaseName,
         provider: database.provider,
-        databaseName: hashDatabaseName,
-        storageService: embeddingStorage,
         storageDataNode: dataSource,
+        storageService: embeddingStorage,
+        storageType: database.storage || 'IndexedDB',
       })
       switch (database.provider) {
         case VectorDatabaseProviderEnum.Voy: {

@@ -141,12 +141,26 @@
       "errors": {
         "similarity_search_failed": "Failed to search similar text.",
         "vector_database_not_found": "Vector database not found.",
-        "data_node_not_found": "Data node not found."
+        "data_node_not_found": "Data node not found.",
+        "content_not_found": "Must provide content or documents."
       },
       "storage_type": "Storage Type",
       "storage_types": {
         "datanode": "DataNode",
         "indexeddb": "IndexedDB"
+      },
+      "search": "Search",
+      "text": "Text",
+      "file": "File",
+      "add_text": {
+        "id": "ID",
+        "id_placeholder":"Input ID here...",
+        "content": "Content",
+        "content_placeholder": "Input content here...",
+        "add": "Add"
+      },
+      "add_file": {
+        "upload": "Upload"
       }
     }
   },
@@ -309,6 +323,15 @@
       "delete": "Delete",
       "errors": {
         "delete_failed": "Failed to delete session."
+      }
+    }
+  },
+  "atoms": {
+    "file_upload_input": {
+      "drop_file": "Drag and drop or click to upload",
+      "errors": {
+        "max_size": "File size must be less than {{maxSize}}MB. Your file {{fileSize}}MB.",
+        "accept": "File type must be {{accept}}"
       }
     }
   }

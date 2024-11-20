@@ -66,7 +66,7 @@ export const VectorSearch = memo(
               type="button"
               disabled={loading}
               onClick={() => handleSimilaritySearch(value, +k)}
-              className="tw-absolute tw-right-3 tw-top-1/2 tw--translate-y-1/2 tw-rounded-xl tw-bg-black/5 dark:tw-bg-white/5 p-1"
+              className="tw-absolute tw-right-3 tw-top-5 tw--translate-y-1/2 tw-rounded-xl tw-bg-black/5 dark:tw-bg-white/5 p-1"
             >
               <LazyIcon
                 name="arrow-right"

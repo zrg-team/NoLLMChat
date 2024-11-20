@@ -26,11 +26,11 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
       }
     }
 
+    const lines = decodeLine(data.entity.jsonl)
     return {
+      lines,
       headers: decodeSplitter(data.entity.headers || ''),
-      rows: decodeLine(data.entity.jsonl)
-        .slice(0, MAX_SHOW)
-        .map((row) => JSON.parse(row)),
+      rows: lines.slice(0, MAX_SHOW).map((row) => JSON.parse(row)),
     }
   }, [data?.entity])
 
@@ -39,12 +39,15 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Card className="tw-min-w-32 tw-min-h-16">
+        <Card className="tw-min-w-32 tw-min-h-16 tw-max-h-96">
           <CardHeader className="!tw-p-2">
             <div className="tw-pt-2 tw-flex !tw-flex-row">
               <LazyIcon name="file-json" className="tw-mr-2" />
               <Label className="!tw-font-medium tw-leading-none tw-tracking-tight tw-pr-8">
-                JSONL Data
+                JSONL Data{' '}
+                {jsonl.rows?.length && jsonl?.lines?.length
+                  ? `(${jsonl.rows?.length || 0} / ${jsonl?.lines?.length || 0})`
+                  : ''}
               </Label>
             </div>
           </CardHeader>
