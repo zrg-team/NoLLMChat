@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
-import { Handle, Position } from '@xyflow/react'
+import { Handle, Position, useInternalNode } from '@xyflow/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { useTranslation } from 'react-i18next'
@@ -12,15 +12,27 @@ import { VectorDatabaseNodeProps } from './type'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { useActions } from './hooks/use-actions'
 import { VectorSearch } from './components/VectorSearch'
+import UpdateTextDataCard from './components/UpdateTextDataCard'
+import FileUploadInput from 'src/lib/kokonutui/file-upload-input'
 
 export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   const { toast } = useToast()
   const { t } = useTranslation('flows')
   const [mode, setMode] = useState('search')
+  const node = useInternalNode(props.id)
   const { id, data, isConnectable } = props
-  const { loading, similaritySearchWithScore } = useActions(id)
+  const { loading, similaritySearchWithScore, indexData } = useActions(id)
 
   useConnectionToHandler(id)
+
+  const handleCreateData = useCallback(
+    async (data: { index?: string; content: string }) => {
+      if (node) {
+        await indexData(data)
+      }
+    },
+    [indexData, node],
+  )
 
   const handleSimilaritySearch = useCallback(
     async (value: string, k?: number) => {
@@ -64,6 +76,19 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
     [similaritySearchWithScore, t, toast],
   )
 
+  const handleIndexPDF = useCallback(
+    async (file: File) => {
+      // const blob = new Blob([file], { type: file.type })
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const content = e.target?.result as string
+        await handleCreateData({ content })
+      }
+      reader.readAsText(file)
+    },
+    [handleCreateData],
+  )
+
   const renderContent = useMemo(() => {
     switch (mode) {
       case 'search':
@@ -72,8 +97,20 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
             <VectorSearch loading={loading} handleSimilaritySearch={handleSimilaritySearch} />
           </TabsContent>
         )
+      case 'new':
+        return (
+          <TabsContent className="tw-min-w-80" value="new">
+            <UpdateTextDataCard loading={loading} onCreateData={handleCreateData} />
+          </TabsContent>
+        )
+      case 'file':
+        return (
+          <TabsContent value="file">
+            <FileUploadInput onFileSubmit={handleIndexPDF} fileOptions={{ accept: '.pdf,.txt' }} />
+          </TabsContent>
+        )
     }
-  }, [handleSimilaritySearch, loading, mode])
+  }, [handleCreateData, handleIndexPDF, handleSimilaritySearch, loading, mode])
 
   return (
     <div className="tw-min-w-64">
@@ -90,9 +127,10 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
               defaultValue="search"
               className="tw-w-full tw-mt-4"
             >
-              <TabsList className="tw-grid tw-w-full tw-grid-cols-2">
+              <TabsList className="tw-grid tw-w-full tw-grid-cols-3">
                 <TabsTrigger value="search">Search</TabsTrigger>
                 <TabsTrigger value="new">New</TabsTrigger>
+                <TabsTrigger value="file">File</TabsTrigger>
               </TabsList>
               {renderContent}
             </Tabs>

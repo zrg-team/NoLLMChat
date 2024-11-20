@@ -283,6 +283,8 @@
     },
     "add_text_data": {
       "title": "Text Data",
+      "id": "ID",
+      "id_placeholder": "Input ID here...",
       "text": "Content",
       "text_placeholder": "Input text here...",
       "add": "Add",

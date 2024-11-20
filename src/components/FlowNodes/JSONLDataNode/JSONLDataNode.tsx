@@ -16,6 +16,7 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 
 export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
   const { id, data, isConnectable } = props
+  const MAX_SHOW = 10
 
   const jsonl = useMemo(() => {
     if (!data?.entity) {
@@ -27,12 +28,14 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
 
     return {
       headers: decodeSplitter(data.entity.headers || ''),
-      rows: decodeLine(data.entity.jsonl).map((row) => JSON.parse(row)),
+      rows: decodeLine(data.entity.jsonl)
+        .slice(0, MAX_SHOW)
+        .map((row) => JSON.parse(row)),
     }
   }, [data?.entity])
 
   return (
-    <div>
+    <div className="tw-min-w-80">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
@@ -50,10 +53,9 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
               {jsonl?.rows?.map((row, index) => {
                 return (
                   <AccordionItem key={`${index}`} value={`${index}`}>
-                    <AccordionTrigger>{`${row.pageContent}`.substring(0, 12)}</AccordionTrigger>
+                    <AccordionTrigger>{`${row.content}`.substring(0, 32)}...</AccordionTrigger>
                     <AccordionContent>
-                      {row.vectors}
-                      {row.pageContent}
+                      <pre>{row.content}</pre>
                     </AccordionContent>
                   </AccordionItem>
                 )

@@ -11,7 +11,6 @@ import {
 import { Session } from './index'
 import {
   TABLE_NAMES,
-  VectorDatabaseNodeDataSource,
   VectorDatabaseProviderEnum,
   VectorDatabaseStorageEnum,
   VectorDatabaseTypeEnum,
@@ -36,12 +35,6 @@ export class VectorDatabase {
 
   @Column({ type: 'text', nullable: true })
   metadata?: string
-
-  @Column({ type: 'text' })
-  data_source_id?: string
-
-  @Column({ type: 'text' })
-  data_source_type?: `${VectorDatabaseNodeDataSource}`
 
   @CreateDateColumn()
   created_at?: Date

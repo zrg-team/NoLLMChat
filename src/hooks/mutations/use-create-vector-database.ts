@@ -63,8 +63,6 @@ export const useCreateVectorDatabase = () => {
           type: data.type || VectorDatabaseTypeEnum.Local,
           storage: data.storage || VectorDatabaseStorageEnum.DataNode,
           provider: data.provider || VectorDatabaseProviderEnum.Memory,
-          data_source_id: databaseSource.id,
-          data_source_type: 'JSONLData',
           session_id: sessionId,
           metadata: textSplitter ? JSON.stringify({ textSplitter }) : undefined,
         })

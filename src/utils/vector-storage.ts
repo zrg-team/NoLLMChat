@@ -206,6 +206,7 @@ export const storeVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
       }
       break
   }
+  return data
 }
 
 export const getStorageDataSource = (dataSource: CSVData | JSONData | JSONLData) => {

@@ -1,4 +1,10 @@
 import { md5 } from 'js-md5'
+import { Document } from 'langchain/document'
+import {
+  CharacterTextSplitter,
+  RecursiveCharacterTextSplitter,
+  TokenTextSplitter,
+} from 'langchain/text_splitter'
 import { EmbeddedResource, Voy } from 'voy-search'
 import localforage from 'localforage'
 import { SetState, GetState } from 'src/utils/zustand'
@@ -7,6 +13,7 @@ import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
 import { getVectorDatabaseStorage, storeVectorDatabaseStorage } from 'src/utils/vector-storage'
 import { getRepository } from 'src/services/database'
 import {
+  VectorDatabase,
   VectorDatabaseNodeDataSource,
   VectorDatabaseProviderEnum,
 } from 'src/services/database/types'
@@ -47,6 +54,29 @@ export interface LocalEmbeddingStateActions {
   >
 }
 
+const splitterDocuments = (database: VectorDatabase, documents: Document[]) => {
+  const metadata = database.metadata as {
+    textSplitter?: {
+      type: string
+      chunkSize: number
+      chunkOverlap: number
+    }
+  }
+  if (!metadata?.textSplitter) {
+    return documents
+  }
+  switch (metadata?.textSplitter?.type) {
+    case 'TokenTextSplitter':
+      return new TokenTextSplitter(metadata.textSplitter).splitDocuments(documents)
+    case 'CharacterTextSplitter':
+      return new CharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+    case 'RecursiveCharacterTextSplitter':
+      return new RecursiveCharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+    default:
+      throw new Error('Invalid text splitter')
+  }
+}
+
 export const getLocalEmbeddingStateActions = (
   set: SetState<LocalEmbeddingState>,
   get: GetState<LocalEmbeddingState>,
@@ -78,7 +108,7 @@ export const getLocalEmbeddingStateActions = (
         set({ ready: true })
       }
     },
-    index: async (databaseInfo, ...args) => {
+    index: async (databaseInfo, documents) => {
       const embedding = get().embedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
@@ -115,7 +145,7 @@ export const getLocalEmbeddingStateActions = (
               embeddings: data as EmbeddedResource[],
             })
             const store = new VoyVectorStore(voyClient, embedding)
-            await store.addDocuments(...(args as Parameters<VoyVectorStore['addDocuments']>))
+            await store.addDocuments(await splitterDocuments(database, documents))
             await storeVectorDatabaseStorage({
               database: hashDatabaseName,
               provider: database.provider,
@@ -129,7 +159,8 @@ export const getLocalEmbeddingStateActions = (
         case VectorDatabaseProviderEnum.Memory:
           {
             const store = new MemoryVectorStore(embedding)
-            await store.addDocuments(...(args as Parameters<MemoryVectorStore['addDocuments']>))
+            store.memoryVectors = data as unknown as MemoryVectorStore['memoryVectors']
+            await store.addDocuments(await splitterDocuments(database, documents))
             await storeVectorDatabaseStorage({
               database: hashDatabaseName,
               provider: database.provider,
