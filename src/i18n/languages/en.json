@@ -140,7 +140,13 @@
       "content": "Content",
       "errors": {
         "similarity_search_failed": "Failed to search similar text.",
-        "vector_database_not_found": "Vector database not found."
+        "vector_database_not_found": "Vector database not found.",
+        "data_node_not_found": "Data node not found."
+      },
+      "storage_type": "Storage Type",
+      "storage_types": {
+        "datanode": "DataNode",
+        "indexeddb": "IndexedDB"
       }
     }
   },

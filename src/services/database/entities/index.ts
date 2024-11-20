@@ -12,6 +12,7 @@ import { JSONData } from './json-data'
 import { CSVData } from './csv-data'
 import { ToolDefinition } from './tool-definition'
 import { VectorDatabase } from './vector-database'
+import { JSONLData } from './jsonl-data'
 
 export {
   Thread,
@@ -28,6 +29,7 @@ export {
   CSVData,
   ToolDefinition,
   VectorDatabase,
+  JSONLData,
 }
 
 export type AppEntites =
@@ -45,6 +47,7 @@ export type AppEntites =
   | typeof CSVData
   | typeof ToolDefinition
   | typeof VectorDatabase
+  | typeof JSONLData
 
 export const entitiesMap: Record<string, AppEntites> = {
   LLM,
@@ -61,5 +64,6 @@ export const entitiesMap: Record<string, AppEntites> = {
   CSVData,
   ToolDefinition,
   VectorDatabase,
+  JSONLData,
 }
 // This file should not be use in main codebase. ONLY WORKER should use this file.

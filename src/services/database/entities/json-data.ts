@@ -1,10 +1,23 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
+
+import { Session } from './index'
 import { TABLE_NAMES } from '../types'
 
 @Entity({ name: TABLE_NAMES.JSONData })
 export class JSONData {
   @PrimaryGeneratedColumn('uuid')
   id: string
+
+  @Column({ type: 'text' })
+  headers: string
 
   @Column({ type: 'text' })
   json: string
@@ -20,4 +33,7 @@ export class JSONData {
 
   @Column('uuid')
   session_id: string
+  @ManyToOne(() => Session, (entity: Session) => entity.threads)
+  @JoinColumn({ name: 'session_id' })
+  session?: Session
 }

@@ -9,12 +9,16 @@ import {
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { VectorDatabaseProviderEnum } from 'src/services/database/types'
+import { VectorDatabaseProviderEnum, VectorDatabaseStorageEnum } from 'src/services/database/types'
 import { Button } from 'src/lib/shadcn/ui/button'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
-import { SUPPORTED_TEXT_SPLITTERS, SUPPORTED_VECTOR_DATABASE_PROVIDERS } from './constants'
+import {
+  SUPPORTED_TEXT_SPLITTERS,
+  SUPPORTED_VECTOR_DATABASE_PROVIDERS,
+  SUPPORTED_VECTOR_DATABASE_SOURCE_TYPE,
+} from './constants'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { useCreateVectorDatabase } from 'src/hooks/mutations/use-create-vector-database'
 
@@ -27,6 +31,9 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
   const [provider, setProvider] = useState<`${VectorDatabaseProviderEnum}`>(
     SUPPORTED_VECTOR_DATABASE_PROVIDERS[0],
   )
+  const [storageType, setStorageType] = useState<`${VectorDatabaseStorageEnum}`>(
+    SUPPORTED_VECTOR_DATABASE_SOURCE_TYPE[0],
+  )
   const [textSplitter, setTextSplitter] = useState<{
     type?: string
     chunkSize?: number
@@ -36,6 +43,10 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
 
   const handleOnSelectProvider = useCallback((value: `${VectorDatabaseProviderEnum}`) => {
     setProvider(value)
+  }, [])
+
+  const handleOnSelectStorageType = useCallback((value: `${VectorDatabaseStorageEnum}`) => {
+    setStorageType(value)
   }, [])
 
   const handleOnSelectTextSplitter = useCallback((value: string) => {
@@ -64,6 +75,7 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
         {
           name,
           provider,
+          storage: storageType,
         },
         textSplitter?.type
           ? {
@@ -89,6 +101,27 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
         <div className="tw-grid tw-w-full tw-gap-1.5">
           <Label>{t('create_vector_database_card.name')}</Label>
           <Input className="tw-mb-4" value={name} onChange={handleOnChangeName} />
+          {SUPPORTED_VECTOR_DATABASE_SOURCE_TYPE?.length > 1 ? (
+            <>
+              <Label>{t('create_vector_database_card.storage_type')}</Label>
+              <Select value={storageType} onValueChange={handleOnSelectStorageType}>
+                <SelectTrigger className="tw-w-full tw-mb-4">
+                  <SelectValue
+                    placeholder={t('create_vector_database_card.provider_select_placeholder')}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(SUPPORTED_VECTOR_DATABASE_SOURCE_TYPE).map((item) => {
+                    return (
+                      <SelectItem key={item} value={item}>
+                        {t(`create_vector_database_card.storage_types.${item.toLowerCase()}`)}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </>
+          ) : undefined}
           {SUPPORTED_VECTOR_DATABASE_PROVIDERS?.length > 1 ? (
             <>
               <Label>{t('create_vector_database_card.provider')}</Label>

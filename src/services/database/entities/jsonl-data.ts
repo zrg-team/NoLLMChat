@@ -11,8 +11,8 @@ import {
 import { Session } from './index'
 import { TABLE_NAMES } from '../types'
 
-@Entity({ name: TABLE_NAMES.CSVData })
-export class CSVData {
+@Entity({ name: TABLE_NAMES.JSONLData })
+export class JSONLData {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -20,7 +20,7 @@ export class CSVData {
   headers: string
 
   @Column({ type: 'text' })
-  csv: string
+  jsonl: string
 
   @Column({ type: 'text', nullable: true })
   metadata?: string
