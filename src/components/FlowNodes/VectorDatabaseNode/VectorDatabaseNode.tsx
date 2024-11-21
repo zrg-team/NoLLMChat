@@ -143,7 +143,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
           </TabsContent>
         )
     }
-  }, [handleCreateData, handleIndexPDF, handleSimilaritySearch, loading, mode])
+  }, [handleCreateData, handleIndexPDF, handleSimilaritySearch, loading, mode, progress])
 
   return (
     <div className="tw-min-w-64">
