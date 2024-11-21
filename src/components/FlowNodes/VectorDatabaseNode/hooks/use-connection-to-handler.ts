@@ -4,7 +4,7 @@ import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connecti
 import { useFlowState } from 'src/states/flow'
 import { CSVData, FlowNodeTypeEnum, VectorDatabase } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
-import { decodeCSVData } from 'src/utils/csv-data'
+import { decodeCSVData } from 'src/utils/string-data'
 import { Document } from '@langchain/core/documents'
 
 export const useConnectionToHandler = (id: string) => {
@@ -25,14 +25,21 @@ export const useConnectionToHandler = (id: string) => {
               deleteEdgeId: edgeId,
             }
           }
-          const { rows } = decodeCSVData(csvData.headers, csvData.data)
+          const { rows } = decodeCSVData(csvData.headers, csvData.csv)
           const documents = rows.map(
             (row) =>
               new Document({
                 pageContent: `${row.text}`,
               }),
           )
-          await indexVector(targetEntity.id, documents)
+          await indexVector(
+            {
+              databaseId: targetEntity.id,
+              dataSourceId: csvData.id,
+              dataSourceType: 'CSVData',
+            },
+            documents,
+          )
           await createOrUpdateFlowEdge({
             source: source.id,
             target: target.id,

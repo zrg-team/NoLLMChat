@@ -11,6 +11,7 @@ import { CSVDataNode } from './CSVDataNode'
 import { ToolNode } from './ToolNode'
 import { EmbeddingNode } from './EmbeddingNode'
 import { VectorDatabaseNode } from './VectorDatabaseNode'
+import { JSONLDataNode } from './JSONLDataNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -24,4 +25,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.ToolDefinition]: ToolNode,
   [FlowNodeTypeEnum.DefaultEmbeddingModel]: EmbeddingNode,
   [FlowNodeTypeEnum.VectorDatabase]: VectorDatabaseNode,
+  [FlowNodeTypeEnum.JSONLData]: JSONLDataNode,
 }

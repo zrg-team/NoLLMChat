@@ -1,16 +1,24 @@
-export const encodeSplitter = (strings: string[]) => {
+export const encodeSplitter = (strings?: string[]) => {
+  if (!strings) return ''
+
   return strings.join('|⥊|')
 }
 
-export const decodeSplitter = (strings: string) => {
+export const decodeSplitter = (strings?: string) => {
+  if (!strings) return []
+
   return strings.split('|⥊|')
 }
 
-export const encodeLine = (strings: string[]) => {
+export const encodeLine = (strings?: string[]) => {
+  if (!strings) return ''
+
   return strings.join('|⥌|')
 }
 
-export const decodeLine = (strings: string) => {
+export const decodeLine = (strings?: string) => {
+  if (!strings) return []
+
   return strings.split('|⥌|')
 }
 

@@ -1,12 +1,25 @@
-import { md5 } from 'js-md5'
-import { Voy } from 'voy-search'
+import { Document } from '@langchain/core/documents'
+import {
+  CharacterTextSplitter,
+  RecursiveCharacterTextSplitter,
+  TokenTextSplitter,
+} from 'langchain/text_splitter'
+import { EmbeddedResource, Voy } from 'voy-search'
 import localforage from 'localforage'
 import { SetState, GetState } from 'src/utils/zustand'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
-import { getVectorDatabaseStorage, storeVectorDatabaseStorage } from 'src/utils/vector-storage'
+import {
+  getDatabaseId,
+  getVectorDatabaseStorage,
+  storeVectorDatabaseStorage,
+} from 'src/utils/vector-storage'
 import { getRepository } from 'src/services/database'
-import { VectorDatabaseProviderEnum } from 'src/services/database/types'
+import {
+  VectorDatabase,
+  VectorDatabaseNodeDataSource,
+  VectorDatabaseProviderEnum,
+} from 'src/services/database/types'
 import { DEFAULT_EMBEDDING_MODEL } from 'src/constants/embedding'
 
 import { LocalEmbeddingState } from './state'
@@ -15,21 +28,60 @@ import { WorkerEmbeddings } from '../utils/worker-embeddings'
 export interface LocalEmbeddingStateActions {
   init: () => void
   index: (
-    database: string,
+    database: {
+      databaseId: string
+      dataSourceId?: string
+      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    },
     ...args: Parameters<VoyVectorStore['addDocuments'] | MemoryVectorStore['addDocuments']>
   ) => ReturnType<VoyVectorStore['addDocuments'] | MemoryVectorStore['addDocuments']>
   similaritySearch: (
-    database: string,
+    database: {
+      databaseId: string
+      dataSourceId?: string
+      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    },
     ...args: Parameters<VoyVectorStore['similaritySearch'] | MemoryVectorStore['similaritySearch']>
   ) => ReturnType<VoyVectorStore['similaritySearch'] | MemoryVectorStore['similaritySearch']>
   similaritySearchWithScore: (
-    database: string,
+    database: {
+      databaseId: string
+      dataSourceId?: string
+      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    },
     ...args: Parameters<
       VoyVectorStore['similaritySearchWithScore'] | MemoryVectorStore['similaritySearchWithScore']
     >
   ) => ReturnType<
     VoyVectorStore['similaritySearchWithScore'] | MemoryVectorStore['similaritySearchWithScore']
   >
+}
+
+const splitterDocuments = (database: VectorDatabase, documents: Document[]) => {
+  try {
+    const metadata = JSON.parse(database.metadata || '{}') as {
+      textSplitter?: {
+        type: string
+        chunkSize: number
+        chunkOverlap: number
+      }
+    }
+    if (!metadata?.textSplitter) {
+      return documents
+    }
+    switch (metadata?.textSplitter?.type) {
+      case 'TokenTextSplitter':
+        return new TokenTextSplitter(metadata.textSplitter).splitDocuments(documents)
+      case 'CharacterTextSplitter':
+        return new CharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+      case 'RecursiveCharacterTextSplitter':
+        return new RecursiveCharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+      default:
+        throw new Error('Invalid text splitter')
+    }
+  } catch {
+    return documents
+  }
 }
 
 export const getLocalEmbeddingStateActions = (
@@ -63,68 +115,106 @@ export const getLocalEmbeddingStateActions = (
         set({ ready: true })
       }
     },
-    index: async (databaseId, ...args) => {
+    index: async (databaseInfo, documents) => {
       const embedding = get().embedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
-      const database = await getRepository('VectorDatabase').findOne({ where: { id: databaseId } })
+      const database = await getRepository('VectorDatabase').findOne({
+        where: { id: databaseInfo.databaseId },
+      })
       if (!database) {
         throw new Error('Database not found.')
       }
+      if (!database.provider) {
+        throw new Error('Database provider not found.')
+      }
+      const dataSource =
+        databaseInfo.dataSourceId && databaseInfo.dataSourceType
+          ? await getRepository(databaseInfo.dataSourceType).findOne({
+              where: { id: databaseInfo.dataSourceId },
+            })
+          : undefined
 
-      const hashDatabaseName = md5(database.name)
+      const databaseName = getDatabaseId(database.name)
+      const splittedDocuments = await splitterDocuments(database, documents)
+      const data = await getVectorDatabaseStorage({
+        databaseName,
+        storageType: database.storage || 'IndexedDB',
+        provider: database.provider,
+        storageService: embeddingStorage,
+        storageDataNode: dataSource,
+      })
       switch (database.provider) {
         case VectorDatabaseProviderEnum.Voy:
           {
-            const data = await getVectorDatabaseStorage(
-              database.provider,
-              database.name,
-              embeddingStorage,
-            )
             const voyClient = new Voy({
-              embeddings: data,
+              embeddings: data as EmbeddedResource[],
             })
             const store = new VoyVectorStore(voyClient, embedding)
-            await store.addDocuments(...(args as Parameters<VoyVectorStore['addDocuments']>))
-            await storeVectorDatabaseStorage(hashDatabaseName, embeddingStorage, store.docstore)
+            await store.addDocuments(splittedDocuments)
+            await storeVectorDatabaseStorage({
+              databaseName,
+              provider: database.provider,
+              embeddingStorage,
+              docstore: store.docstore,
+              storageType: database.storage || 'IndexedDB',
+              storageDataNode: dataSource,
+            })
           }
           break
         case VectorDatabaseProviderEnum.Memory:
           {
             const store = new MemoryVectorStore(embedding)
-            await store.addDocuments(...(args as Parameters<MemoryVectorStore['addDocuments']>))
-            await storeVectorDatabaseStorage(
-              hashDatabaseName,
+            store.memoryVectors = data as unknown as MemoryVectorStore['memoryVectors']
+            await store.addDocuments(splittedDocuments)
+            await storeVectorDatabaseStorage({
+              databaseName,
+              provider: database.provider,
               embeddingStorage,
-              store.memoryVectors,
-            )
+              docstore: store.memoryVectors,
+              storageType: database.storage || 'IndexedDB',
+              storageDataNode: dataSource,
+            })
           }
           break
       }
     },
-    similaritySearch: async (databaseId, ...args) => {
+    similaritySearch: async (databaseInfo, ...args) => {
       const embedding = get().embedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
-      const database = await getRepository('VectorDatabase').findOne({ where: { id: databaseId } })
+      const database = await getRepository('VectorDatabase').findOne({
+        where: { id: databaseInfo.databaseId },
+      })
       if (!database || !database.provider) {
         throw new Error('Database not found.')
       }
+      if (!database.provider) {
+        throw new Error('Database provider not found.')
+      }
+      const dataSource =
+        databaseInfo.dataSourceId && databaseInfo.dataSourceType
+          ? await getRepository(databaseInfo.dataSourceType).findOne({
+              where: { id: databaseInfo.dataSourceId },
+            })
+          : undefined
 
-      const hashDatabaseName = md5(database.name)
+      const databaseName = getDatabaseId(database.name)
+      const data = await getVectorDatabaseStorage({
+        databaseName,
+        storageDataNode: dataSource,
+        provider: database.provider,
+        storageService: embeddingStorage,
+        storageType: database.storage || 'IndexedDB',
+      })
       switch (database.provider) {
         case VectorDatabaseProviderEnum.Voy: {
-          const data = await getVectorDatabaseStorage(
-            database.provider,
-            hashDatabaseName,
-            embeddingStorage,
-          )
           const voyClient = new Voy({
-            embeddings: data,
+            embeddings: data as EmbeddedResource[],
           })
           const store = new VoyVectorStore(voyClient, embedding)
           const documents = await store.similaritySearch(
@@ -133,13 +223,8 @@ export const getLocalEmbeddingStateActions = (
           return documents
         }
         case VectorDatabaseProviderEnum.Memory: {
-          const data = await getVectorDatabaseStorage(
-            database.provider,
-            hashDatabaseName,
-            embeddingStorage,
-          )
           const store = new MemoryVectorStore(embedding)
-          store.memoryVectors = data
+          store.memoryVectors = data as unknown as MemoryVectorStore['memoryVectors']
           const documents = await store.similaritySearch(
             ...(args as Parameters<MemoryVectorStore['similaritySearch']>),
           )
@@ -149,27 +234,40 @@ export const getLocalEmbeddingStateActions = (
           throw new Error('Invalid provider')
       }
     },
-    similaritySearchWithScore: async (databaseId, ...args) => {
+    similaritySearchWithScore: async (databaseInfo, ...args) => {
       const embedding = get().embedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
-      const database = await getRepository('VectorDatabase').findOne({ where: { id: databaseId } })
+      const database = await getRepository('VectorDatabase').findOne({
+        where: { id: databaseInfo.databaseId },
+      })
       if (!database || !database.provider) {
         throw new Error('Database not found.')
       }
+      if (!database.provider) {
+        throw new Error('Database provider not found.')
+      }
+      const dataSource =
+        databaseInfo.dataSourceId && databaseInfo.dataSourceType
+          ? await getRepository(databaseInfo.dataSourceType).findOne({
+              where: { id: databaseInfo.dataSourceId },
+            })
+          : undefined
 
-      const hashDatabaseName = md5(database.name)
+      const databaseName = getDatabaseId(database.name)
+      const data = await getVectorDatabaseStorage({
+        databaseName,
+        provider: database.provider,
+        storageDataNode: dataSource,
+        storageService: embeddingStorage,
+        storageType: database.storage || 'IndexedDB',
+      })
       switch (database.provider) {
         case VectorDatabaseProviderEnum.Voy: {
-          const data = await getVectorDatabaseStorage(
-            database.provider,
-            hashDatabaseName,
-            embeddingStorage,
-          )
           const voyClient = new Voy({
-            embeddings: data,
+            embeddings: data as EmbeddedResource[],
           })
           const store = new VoyVectorStore(voyClient, embedding)
           const documents = await store.similaritySearchWithScore(
@@ -178,13 +276,8 @@ export const getLocalEmbeddingStateActions = (
           return documents
         }
         case VectorDatabaseProviderEnum.Memory: {
-          const data = await getVectorDatabaseStorage(
-            database.provider,
-            hashDatabaseName,
-            embeddingStorage,
-          )
           const store = new MemoryVectorStore(embedding)
-          store.memoryVectors = data
+          store.memoryVectors = data as unknown as MemoryVectorStore['memoryVectors']
           const documents = await store.similaritySearchWithScore(
             ...(args as Parameters<MemoryVectorStore['similaritySearchWithScore']>),
           )

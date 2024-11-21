@@ -6,7 +6,19 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm'
-import { FlowEdge, FlowNode, LLM, Prompt, Schema, Thread } from './index'
+import {
+  FlowEdge,
+  FlowNode,
+  LLM,
+  Prompt,
+  Schema,
+  Thread,
+  CSVData,
+  VectorDatabase,
+  JSONData,
+  JSONLData,
+  ToolDefinition,
+} from './index'
 import { TABLE_NAMES, type SessionStatusEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Session })
@@ -46,4 +58,23 @@ export class Session {
 
   @OneToMany(() => Schema, (entity: Schema) => entity.session, { onDelete: 'CASCADE' })
   schemas?: Schema[]
+
+  @OneToMany(() => CSVData, (entity: CSVData) => entity.session, { onDelete: 'CASCADE' })
+  csv_datas?: CSVData[]
+
+  @OneToMany(() => VectorDatabase, (entity: VectorDatabase) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  vector_databases?: VectorDatabase[]
+
+  @OneToMany(() => JSONData, (entity: JSONData) => entity.session, { onDelete: 'CASCADE' })
+  json_datas?: JSONData[]
+
+  @OneToMany(() => JSONLData, (entity: JSONLData) => entity.session, { onDelete: 'CASCADE' })
+  jsonl_datas?: JSONLData[]
+
+  @OneToMany(() => ToolDefinition, (entity: ToolDefinition) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  tool_definitions?: ToolDefinition[]
 }

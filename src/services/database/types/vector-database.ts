@@ -9,5 +9,8 @@ export enum VectorDatabaseProviderEnum {
 }
 
 export enum VectorDatabaseStorageEnum {
+  DataNode = 'DataNode',
   IndexedDB = 'IndexedDB',
 }
+
+export type VectorDatabaseNodeDataSource = 'CSVData' | 'JSONData' | 'JSONLData'

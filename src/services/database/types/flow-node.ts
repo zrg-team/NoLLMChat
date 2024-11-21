@@ -13,4 +13,5 @@ export enum FlowNodeTypeEnum {
   CSVData = 'CSV_DATA',
   DefaultEmbeddingModel = 'DEFAULT_EMBEDDING_MODEL',
   VectorDatabase = 'VECTOR_DATABASE',
+  JSONLData = 'JSONL_DATA',
 }

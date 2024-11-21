@@ -1,4 +1,14 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
+
+import { Session } from './index'
 import {
   TABLE_NAMES,
   VectorDatabaseProviderEnum,
@@ -34,4 +44,7 @@ export class VectorDatabase {
 
   @Column('uuid')
   session_id: string
+  @ManyToOne(() => Session, (entity: Session) => entity.threads)
+  @JoinColumn({ name: 'session_id' })
+  session?: Session
 }
