@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { cn } from 'src/lib/utils'
 import { ButtonProps, buttonVariants } from 'src/lib/shadcn/ui/button'
+import { useTranslation } from 'react-i18next'
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
   <nav
@@ -53,42 +54,51 @@ PaginationLink.displayName = 'PaginationLink'
 const PaginationPrevious = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
-    aria-label="Go to previous page"
-    size="default"
-    className={cn('tw-gap-1 tw-pl-2.5', className)}
-    {...props}
-  >
-    <ChevronLeft className="tw-h-4 tw-w-4" />
-    <span>Previous</span>
-  </PaginationLink>
-)
+}: React.ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation('atoms')
+  return (
+    <PaginationLink
+      aria-label="Go to previous page"
+      size="default"
+      className={cn('tw-gap-1 tw-pl-2.5', className)}
+      {...props}
+    >
+      <LazyIcon name="chevron-left" className="tw-h-4 tw-w-4" />
+      <span>{t('pagination.previous')}</span>
+    </PaginationLink>
+  )
+}
 PaginationPrevious.displayName = 'PaginationPrevious'
 
-const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
-    aria-label="Go to next page"
-    size="default"
-    className={cn('tw-gap-1 tw-pr-2.5', className)}
-    {...props}
-  >
-    <span>Next</span>
-    <ChevronRight className="tw-h-4 tw-w-4" />
-  </PaginationLink>
-)
+const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation('atoms')
+  return (
+    <PaginationLink
+      aria-label="Go to next page"
+      size="default"
+      className={cn('tw-gap-1 tw-pr-2.5', className)}
+      {...props}
+    >
+      <span>{t('pagination.next')}</span>
+      <LazyIcon name="chevron-right" className="tw-h-4 tw-w-4" />
+    </PaginationLink>
+  )
+}
 PaginationNext.displayName = 'PaginationNext'
 
-const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'>) => (
-  <span
-    aria-hidden
-    className={cn('tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center', className)}
-    {...props}
-  >
-    <MoreHorizontal className="tw-h-4 tw-w-4" />
-    <span className="tw-sr-only">More pages</span>
-  </span>
-)
+const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'>) => {
+  const { t } = useTranslation('atoms')
+  return (
+    <span
+      aria-hidden
+      className={cn('tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center', className)}
+      {...props}
+    >
+      <LazyIcon name="ellipsis" className="tw-h-4 tw-w-4" />
+      <span className="tw-sr-only">{t('pagination.more_pages')}</span>
+    </span>
+  )
+}
 PaginationEllipsis.displayName = 'PaginationEllipsis'
 
 export {
