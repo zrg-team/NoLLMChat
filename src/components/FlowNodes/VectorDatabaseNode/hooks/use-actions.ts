@@ -54,7 +54,7 @@ export const useActions = (id: string) => {
           return
         }
         setLoading(true)
-        return similaritySearchWithScoreFunction(
+        const result = await similaritySearchWithScoreFunction(
           {
             databaseId: entity.id,
             dataSourceId: dataSource.id,
@@ -63,6 +63,7 @@ export const useActions = (id: string) => {
           input,
           options?.k,
         )
+        return result
       } catch {
         toast({
           variant: 'destructive',
