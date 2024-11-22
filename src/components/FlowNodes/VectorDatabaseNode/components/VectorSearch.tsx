@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { Document } from '@langchain/core/documents'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import {
   Select,
@@ -7,26 +8,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from 'src/lib/shadcn/ui/accordion'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { cn } from 'src/lib/utils'
 import { useTranslation } from 'react-i18next'
 
+const K_RANGE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 export const VectorSearch = memo(
   (props: {
     loading: boolean
-    handleSimilaritySearch: (input: string, k?: number) => Promise<void>
+    handleSimilaritySearch: (input: string, k?: number) => Promise<[Document, number][] | undefined>
   }) => {
     const { t } = useTranslation('flows')
     const [value, setValue] = useState('')
+    const [documents, setDocuments] = useState<[Document, number][] | undefined>([])
     const [k, setK] = useState(`${1}`)
     const { loading, handleSimilaritySearch } = props
-
-    const kRange = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault()
-        await handleSimilaritySearch(value, +k)
+        setDocuments(await handleSimilaritySearch(value, +k))
         setValue('')
       }
     }
@@ -40,7 +47,7 @@ export const VectorSearch = memo(
                 <SelectValue placeholder={t('vector_database_node.k_select_placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                {kRange.map((item) => {
+                {K_RANGE.map((item) => {
                   return (
                     <SelectItem key={`${item}`} value={`${item}`}>
                       {item}
@@ -69,15 +76,30 @@ export const VectorSearch = memo(
               className="tw-absolute tw-right-3 tw-top-5 tw--translate-y-1/2 tw-rounded-xl tw-bg-black/5 dark:tw-bg-white/5 p-1"
             >
               <LazyIcon
-                name="arrow-right"
+                name={loading ? 'loader-circle' : 'arrow-right'}
                 className={cn(
                   'tw-w-4 tw-h-4 dark:tw-text-white',
                   value ? 'tw-opacity-100' : 'tw-opacity-30',
+                  loading ? 'tw-animate-spin' : '',
                 )}
               />
             </button>
           </div>
         </div>
+        <Accordion type="single" collapsible>
+          {documents?.map(([row, score], index) => {
+            return (
+              <AccordionItem key={`${index}`} value={`${index}`}>
+                <AccordionTrigger>
+                  {`[${score.toFixed(2)}] ${row.pageContent}`.substring(0, 32)}...
+                </AccordionTrigger>
+                <AccordionContent>
+                  <pre>{row.pageContent}</pre>
+                </AccordionContent>
+              </AccordionItem>
+            )
+          })}
+        </Accordion>
       </div>
     )
   },

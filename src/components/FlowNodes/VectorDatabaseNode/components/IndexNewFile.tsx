@@ -29,13 +29,15 @@ export default function IndexNewFile({
 
   return (
     <div className="tw-w-full tw-max-w-md tw-space-y-2 tw-mt-4">
-      <FileUploadInput
-        progress={progress}
-        loading={loading}
-        fileOptions={fileOptions}
-        setFile={setFile}
-        file={file}
-      />
+      <div className="tw-mb-6">
+        <FileUploadInput
+          progress={progress}
+          loading={loading}
+          fileOptions={fileOptions}
+          setFile={setFile}
+          file={file}
+        />
+      </div>
       <Button disabled={!file || loading} onClick={handleFileSubmit} className="tw-w-full tw-mt-4">
         {loading ? (
           <LazyIcon name="loader-circle" className="tw-animate-spin" />

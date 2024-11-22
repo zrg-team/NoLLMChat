@@ -5,8 +5,6 @@ import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { useTranslation } from 'react-i18next'
-import { useToast } from 'src/lib/hooks/use-toast'
-import { Separator } from 'src/lib/shadcn/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/lib/shadcn/ui/tabs'
 
 import { VectorDatabaseNodeProps } from './type'
@@ -17,7 +15,6 @@ import IndexNewText from './components/IndexNewText'
 import IndexNewFile from './components/IndexNewFile'
 
 export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
-  const { toast } = useToast()
   const { t } = useTranslation('flows')
   const [progress, setProgress] = useState(0)
   const [mode, setMode] = useState('search')
@@ -43,39 +40,9 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
       if (!documents?.length) {
         return
       }
-      toast({
-        title: t('vector_database_node.similarity_search_result'),
-        duration: 30000,
-        description: (
-          <div className="tw-w-full">
-            <div className="tw-flex tw-h-5 tw-items-center tw-space-x-4 tw-text-sm tw-justify-between">
-              <div className="tw-flex tw-h-5 tw-space-x-4 tw-w-10">
-                <div className="tw-font-medium">{t('vector_database_node.score')}</div>
-              </div>
-              <div className="tw-flex-1 tw-text-ellipsis tw-overflow-hidden tw-max-h-full tw-font-medium">
-                <Separator orientation="vertical" />
-                {t('vector_database_node.content')}
-              </div>
-            </div>
-            {documents.map(([document, score], index) => (
-              <div
-                className="tw-flex tw-h-5 tw-items-center tw-space-x-4 tw-text-sm tw-justify-between"
-                key={`${index}`}
-              >
-                <div className="tw-flex tw-h-5 tw-space-x-4 tw-w-10">
-                  <div>{score.toFixed(2)}</div>
-                </div>
-                <div className="tw-flex-1 tw-text-ellipsis tw-overflow-hidden tw-max-h-full">
-                  <Separator orientation="vertical" />
-                  {document.pageContent}
-                </div>
-              </div>
-            ))}
-          </div>
-        ),
-      })
+      return documents
     },
-    [similaritySearchWithScore, t, toast],
+    [similaritySearchWithScore],
   )
 
   const handleIndexPDF = useCallback(
