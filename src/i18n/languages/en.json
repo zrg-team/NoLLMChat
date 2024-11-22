@@ -333,6 +333,11 @@
         "max_size": "File size must be less than {{maxSize}}MB. Your file {{fileSize}}MB.",
         "accept": "File type must be {{accept}}"
       }
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "more_pages": "More pages"
     }
   }
 }

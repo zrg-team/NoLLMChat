@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "analyze": "npx vite-bundle-visualizer",
-    "prettier": "prettier --write \"**/*.{ts,tsx}\" \"!./apps/ultron/volumes\" --config \".prettierrc.json\" --cache"
+    "prettier": "prettier --write \"**/*.{ts,tsx}\" \"!./apps/ultron/volumes\" --config \".prettierrc.json\" --cache",
+    "prepare": "husky"
   },
   "dependencies": {
     "@assistant-ui/react": "^0.5.37",
@@ -77,6 +78,8 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.4.2",
+    "@commitlint/config-conventional": "^19.6.0",
     "@eslint/js": "^9.9.0",
     "@types/lodash": "^4.17.13",
     "@types/node": "^22.5.0",
@@ -93,6 +96,8 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
+    "pinst": "^3.0.0",
     "postcss": "^8.4.41",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.10",
@@ -102,5 +107,11 @@
     "vite-plugin-svgr": "^4.3.0",
     "vite-plugin-top-level-await": "^1.4.4",
     "vite-plugin-wasm": "^3.3.0"
+  },
+  "lint-staged": {
+    "**/*.{ts, tsx}": "prettier --write --config \".prettierrc.json\" --ignore-path \".prettierignore\""
+  },
+  "validate-branch-name": {
+    "pattern": "^(master|main|develop){1}$|^(feature|feat|fix|hotfix|release|chore)/.+$"
   }
 }
