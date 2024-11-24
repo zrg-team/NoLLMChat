@@ -40,7 +40,7 @@ export default function IndexNewFile({
         />
       </div>
       <Button disabled={!file || loading} onClick={handleFileSubmit} className="w-full mt-4">
-        {loading ? (
+        {loading || !!(progress && progress < 1) ? (
           <LazyIcon name="loader-circle" className="animate-spin" />
         ) : (
           t('vector_database_node.add_file.upload')

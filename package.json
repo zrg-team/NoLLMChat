@@ -10,13 +10,15 @@
     "preview": "vite preview",
     "analyze": "npx vite-bundle-visualizer",
     "prettier": "prettier --write \"**/*.{ts,tsx}\" \"!./apps/ultron/volumes\" --config \".prettierrc.json\" --cache",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "npx patch-package"
   },
   "dependencies": {
     "@assistant-ui/react": "^0.5.37",
     "@assistant-ui/react-markdown": "^0.2.10",
     "@assistant-ui/react-syntax-highlighter": "^0.0.9",
     "@ebay/nice-modal-react": "^1.2.13",
+    "@electric-sql/pglite": "^0.2.13",
     "@huggingface/transformers": "^3.0.2",
     "@langchain/community": "^0.3.3",
     "@langchain/core": "^0.3.3",
@@ -49,6 +51,7 @@
     "cmdk": "1.0.0",
     "dayjs": "^1.11.13",
     "deepmerge": "^4.3.1",
+    "eventemitter3": "^5.0.1",
     "framer-motion": "^11.11.17",
     "i18next": "^23.15.1",
     "js-md5": "^0.8.3",
@@ -71,8 +74,7 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
-    "shiki": "^1.23.1",
-    "sql.js": "^1.11.0",
+    "sql.js": "^1.12.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "typeorm": "^0.3.20",
@@ -107,6 +109,7 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
+    "vite-plugin-node-polyfills": "^0.22.0",
     "vite-plugin-svgr": "^4.3.0",
     "vite-plugin-top-level-await": "^1.4.4",
     "vite-plugin-wasm": "^3.3.0"

@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, Dispatch, SetStateAction, useMemo } from 'react'
+import { useState, Dispatch, SetStateAction, useMemo, useEffect } from 'react'
 import { cn } from 'src/lib/utils'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { useFileInput, UseFileInputOptions } from './use-file-input'
+import { BorderBeam } from '../shadcn/ui/border-beam'
 
 export default function FileUploadInput({
   file,
@@ -25,6 +26,12 @@ export default function FileUploadInput({
     accept: fileOptions?.accept || 'image/*',
     maxSize: fileOptions?.maxSize || 3,
   })
+
+  useEffect(() => {
+    if (!file) {
+      clearFile()
+    }
+  }, [clearFile, file])
 
   function handleFile(file: File) {
     const result = validateAndSetFile(file)
@@ -127,24 +134,29 @@ export default function FileUploadInput({
             <div className="flex items-center gap-4">
               {preview}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{fileName || 'No file selected'}</p>
-                <p className="text-xs text-zinc-500">
-                  {fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)} MB` : '0 MB'}
+                <p className="text-sm font-medium truncate">
+                  {fileName || 'No file selected'}{' '}
+                  <span className="text-xs text-zinc-500 leading-5">
+                    {fileSize ? `(${(fileSize / 1024 / 1024).toFixed(2)} MB)` : ''}
+                  </span>
                 </p>
                 {progress && progress < 1 ? (
-                  <div className="mt-2 h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-indigo-500 transition-all duration-200"
-                      style={{
-                        width: `${progress * 100}%`,
-                      }}
-                    />
+                  <div className="flex items-center gap-2 text-xs">
+                    <p>{(progress * 100).toFixed(2)} %</p>
+                    <div className="h-1 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden items-center flex">
+                      <div
+                        className="h-full bg-indigo-500 transition-all duration-200"
+                        style={{
+                          width: `${progress * 100}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 ) : undefined}
               </div>
               <button
                 type="button"
-                disabled={loading}
+                disabled={loading || !!(progress && progress < 1)}
                 onClick={(e) => {
                   e.stopPropagation()
                   removeFile()
@@ -153,6 +165,7 @@ export default function FileUploadInput({
               >
                 <LazyIcon name="x" className="w-5 h-5 text-zinc-400" />
               </button>
+              {progress && progress < 1 ? <BorderBeam className="rounded-lg" /> : undefined}
             </div>
           )}
         </div>

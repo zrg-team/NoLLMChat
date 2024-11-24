@@ -24,16 +24,16 @@ export class FlowNode {
   @Column({ type: 'text' })
   node_type: `${FlowNodeTypeEnum}`
 
-  @Column({ type: 'int' })
+  @Column({ type: 'float' })
   x?: number
 
-  @Column({ type: 'int' })
+  @Column({ type: 'float' })
   y?: number
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'float', nullable: true })
   width?: number
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'float', nullable: true })
   height?: number
 
   @Column({ type: 'json', nullable: true })
