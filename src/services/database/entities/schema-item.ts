@@ -46,19 +46,25 @@ export class SchemaItem {
 
   @Column('uuid', { nullable: true })
   parent_id?: string
-  @ManyToOne(() => SchemaItem, (entity: SchemaItem) => entity.schemas)
+  @ManyToOne(() => SchemaItem, (entity: SchemaItem) => entity.schemas, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'parent_id' })
   parent?: SchemaItem
 
   @Column('uuid')
   schema_id: string
-  @ManyToOne(() => Schema, (entity: Schema) => entity.schema_items)
+  @ManyToOne(() => Schema, (entity: Schema) => entity.schema_items, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'schema_id' })
   schema?: Schema
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.schemas)
+  @ManyToOne(() => Session, (entity: Session) => entity.schemas, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

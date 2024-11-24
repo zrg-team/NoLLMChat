@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm'
 import { LLM, Thread, Prompt } from './index'
 import { TABLE_NAMES, type MessageRoleEnum, type MessageStatusEnum } from '../types'
@@ -41,25 +42,33 @@ export class Message {
 
   @Column('uuid', { nullable: true })
   parent_message_id?: string
-  @ManyToOne(() => Message, (entity) => entity.message)
+  @OneToOne(() => Message, (entity) => entity.message, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'parent_message_id' })
   message?: Message
 
   @Column('uuid')
   thread_id: string
-  @ManyToOne(() => Thread, (entity) => entity.messages)
+  @ManyToOne(() => Thread, (entity) => entity.messages, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'thread_id' })
   thread?: Thread
 
   @Column('uuid')
   llm_id: string
-  @ManyToOne(() => LLM, (entity: LLM) => entity.messages)
+  @ManyToOne(() => LLM, (entity: LLM) => entity.messages, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'llm_id' })
   llm?: LLM
 
   @Column('uuid', { nullable: true })
   prompt_id?: string
-  @ManyToOne(() => Prompt, (entity: Prompt) => entity.messages)
+  @ManyToOne(() => Prompt, (entity: Prompt) => entity.messages, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'prompt_id' })
   prompt?: Prompt
 }

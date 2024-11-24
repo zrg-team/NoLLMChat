@@ -51,7 +51,9 @@ export class PromptVariable {
 
   @Column('uuid', { nullable: true })
   prompt_id: string
-  @ManyToOne(() => Prompt, (llm: Prompt) => llm.variables)
+  @ManyToOne(() => Prompt, (llm: Prompt) => llm.variables, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'prompt_id' })
   prompt?: Prompt
 }

@@ -56,7 +56,9 @@ export class LLM {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.llms)
+  @ManyToOne(() => Session, (entity: Session) => entity.llms, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

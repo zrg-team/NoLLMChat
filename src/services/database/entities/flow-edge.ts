@@ -50,7 +50,9 @@ export class FlowEdge {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.flow_edges)
+  @ManyToOne(() => Session, (entity: Session) => entity.flow_edges, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }
