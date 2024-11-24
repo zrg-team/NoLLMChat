@@ -2,17 +2,11 @@ import { create, useModal } from '@ebay/nice-modal-react'
 import { Node } from '@xyflow/react'
 import { Document } from '@langchain/core/documents'
 import { useTranslation } from 'react-i18next'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from 'src/lib/shadcn/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from 'src/lib/shadcn/ui/dialog'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useCreatePrompt } from 'src/hooks/mutations/use-create-prompt'
 import { Prompt } from 'src/services/database/types'
 import PromptForm from 'src/components/molecules/CreatePromptCard/PromptForm'
-
 
 const DEFAULT_PROMPT = `Use the following pieces of context to answer the question at the end.
 If you don't know the answer, just say that you don't know, don't try to make up an answer.
@@ -38,7 +32,10 @@ const CreateVectorDatabasePromptDialog = create<CreateVectorDatabasePromptProps>
       return
     }
     // NOTE: No need to use Prompt template because it will automatically added role prefix
-    const content = data.content.replace('{context}', documents.map((doc) => `<document>${doc.pageContent}</document>`).join('\n'))
+    const content = data.content.replace(
+      '{context}',
+      documents.map((doc) => `<document>${doc.pageContent}</document>`).join('\n'),
+    )
     await createPrompt(source, {
       ...data,
       content,
@@ -59,7 +56,7 @@ const CreateVectorDatabasePromptDialog = create<CreateVectorDatabasePromptProps>
             onSubmit={handleSubmit}
             loading={loading}
             hidePromptType
-            defaultPromptRole='system'
+            defaultPromptRole="system"
             defaultPromptContent={DEFAULT_PROMPT}
           />
           <div className="w-full border-0 text-gray-700 flex text-sm items-center">

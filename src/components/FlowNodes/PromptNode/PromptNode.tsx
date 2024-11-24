@@ -30,7 +30,7 @@ export const PromptNode = memo((props: PromptNodeProps) => {
   const isOverLimit = content.length > 990
 
   const handleOpenDetail = () => {
-    viewDetailDialog.show({ title: 'Prompt', content  })
+    viewDetailDialog.show({ title: 'Prompt', content })
   }
 
   return (
@@ -44,7 +44,9 @@ export const PromptNode = memo((props: PromptNodeProps) => {
             <AlertTitle>{`${data.entity?.role || ''}`}</AlertTitle>
             <AlertDescription onClick={isOverLimit ? handleOpenDetail : undefined}>
               {isOverLimit ? `${content.slice(0, 990)}...` : content}
-              <span className='float-right'><LazyIcon name='chevron-right' /></span>
+              <span className="float-right">
+                <LazyIcon name="chevron-right" />
+              </span>
             </AlertDescription>
             {promptArguments?.length
               ? promptArguments.map((argument, index) => {

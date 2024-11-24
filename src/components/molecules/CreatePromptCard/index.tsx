@@ -52,8 +52,8 @@ const CreatePromptCard = memo(
           <PromptForm
             onSubmit={handleSubmit}
             loading={loading}
-            defaultPromptRole='system'
-            defaultPromptType='chat'
+            defaultPromptRole="system"
+            defaultPromptType="chat"
           />
         </CardContent>
       </Card>
