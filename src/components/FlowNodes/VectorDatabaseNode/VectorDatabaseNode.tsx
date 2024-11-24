@@ -74,8 +74,8 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
         await handleCreateData(
           { documents },
           {
-            onChunkStart: (part, all) => {
-              setProgress(part.length / all.length)
+            onProgressReport: (info) => {
+              setProgress((info.handled + info.handling) / info.total)
             },
           },
         )

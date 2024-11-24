@@ -88,8 +88,7 @@ export const useActions = (id: string) => {
     async (
       data: { id?: string; content?: string; documents?: Document[] },
       options?: {
-        onChunkStart?: (part: Document[], all: Document[]) => void
-        onChunkEnd?: (part: Document[], all: Document[]) => void
+        onProgressReport?: (info: { total: number; handled: number; handling: number }) => void
       },
     ) => {
       try {
@@ -143,10 +142,15 @@ export const useActions = (id: string) => {
         setLoading(true)
         const dataSourceType = getStorageDataSource(dataSource)
 
-        const chunkedDocuments = chunk(documents, 20)
+        const chunkedDocuments = chunk(documents, 10)
+        let handledCount = 0
 
         for (const partDocuments of chunkedDocuments) {
-          options?.onChunkStart?.(partDocuments, documents)
+          options?.onProgressReport?.({
+            handling: partDocuments.length,
+            handled: handledCount,
+            total: documents.length,
+          })
           await indexFunction(
             {
               databaseId: entity.id,
@@ -173,7 +177,7 @@ export const useActions = (id: string) => {
               },
             ])
           }
-          options?.onChunkEnd?.(partDocuments, documents)
+          handledCount += partDocuments.length
         }
       } catch {
         toast({

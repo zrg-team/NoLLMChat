@@ -1,0 +1,12 @@
+diff --git a/node_modules/typeorm/package.jsson b/node_modules/typeorm/package.jsson
+index dd493ba..66ce2f1 100644
+--- a/node_modules/typeorm/package.json
++++ b/node_modules/typeorm/package.json
+@@ -52,7 +52,6 @@
+     "./browser/driver/mongodb/typings.js": "./browser/platform/BrowserDisabledDriversDummy.js",
+     "./browser/driver/mysql/MysqlDriver.js": "./browser/platform/BrowserDisabledDriversDummy.js",
+     "./browser/driver/oracle/OracleDriver.js": "./browser/platform/BrowserDisabledDriversDummy.js",
+-    "./browser/driver/postgres/PostgresDriver.js": "./browser/platform/BrowserDisabledDriversDummy.js",
+     "./browser/driver/sap/SapDriver.js": "./browser/platform/BrowserDisabledDriversDummy.js",
+     "./browser/driver/sqlite/SqliteDriver.js": "./browser/platform/BrowserDisabledDriversDummy.js",
+     "./browser/driver/sqlserver/SqlServerDriver.js": "./browser/platform/BrowserDisabledDriversDummy.js",

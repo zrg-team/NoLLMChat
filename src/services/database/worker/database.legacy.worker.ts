@@ -1,9 +1,12 @@
+// import 'reflect-metadata'
+import './database-polyfill.worker'
 import { DataSource, FindManyOptions, ObjectLiteral } from 'typeorm'
+import initSqlJs from 'sql.js'
+import wasm from 'sql.js/dist/sql-wasm.wasm?url'
+import localforage from 'localforage'
 
-import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp'
 import { DATABASE_LOG_CONFIG } from 'src/constants/dev'
 import { logDebug, logInfo } from 'src/utils/worker-logger'
-import { PGliteDriver } from 'src/lib/typeorm-pglite-browser'
 import { BaseMessagePayload, init, listenForMessages } from 'src/utils/worker-base'
 
 import { entitiesMap } from '../entities'
@@ -16,23 +19,28 @@ let appDataSource: DataSource | undefined
 let initProcess: Promise<void> | undefined
 
 const initDatabase = async () => {
+  const SQL = await initSqlJs({
+    locateFile: () => wasm,
+  })
+  const injectedData = (await localforage.getItem('injected_db')) as Uint8Array
   appDataSource = new DataSource({
-    type: 'postgres',
-    driver: new PGliteDriver({
-      dataDir: 'idb://local-db',
-      extensions: { uuid_ossp },
-    }).driver,
+    type: 'sqljs',
+    database: injectedData ? injectedData : undefined,
+    driver: SQL,
+    autoSave: true,
     entities: Object.values(entitiesMap),
+    location: injectedData ? undefined : 'db',
     logging: [...DATABASE_LOG_CONFIG.logging],
-    synchronize: true,
+    useLocalForage: true,
+    autoSaveCallback: injectedData
+      ? (data: unknown) => {
+          localforage.setItem('injected_db', data)
+        }
+      : undefined,
+    synchronize: false,
     logger: DATABASE_LOG_CONFIG.logger,
     entitySkipConstructor: true,
   })
-
-  if (!appDataSource) {
-    throw new Error('Database not initialized')
-  }
-
   await appDataSource.initialize()
   initProcess = undefined
   logDebug('Database initialized with log config:', DATABASE_LOG_CONFIG)
