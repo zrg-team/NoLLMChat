@@ -33,7 +33,7 @@ export const getSessionStateActions = (
     },
     deleteSession: async (id) => {
       const session = await getRepository('Session').delete(id)
-      if (!session?.affected) {
+      if (!session) {
         throw new Error('Failed delete.')
       }
       const currentSession = get().currentSession
