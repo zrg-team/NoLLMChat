@@ -46,7 +46,7 @@ src/
 The architecture of the application is designed to efficiently handle different tasks by dividing them into separate threads. This ensures smooth operation and responsiveness of the UI while managing complex processes in the background.
 
 * Main Thread: Handles the UI application logic, ensuring a responsive user interface.
-* Database Worker Thread: Manages database operations using TypeORM and Sqlite WASM. This thread is responsible for data storage and retrieval without blocking the main UI thread.
+* Database Worker Thread: Manages database operations using TypeORM and PgLite. This thread is responsible for data storage and retrieval without blocking the main UI thread.
 * LLM Thread: Dedicated to handling large language model processes using WebLLM and Langchain. This thread manages AI computations and interactions.
 * Embedding Thread: Focuses on handling the vector database and embedding models. It processes and manages embeddings for efficient data retrieval and manipulation.
 
@@ -54,7 +54,7 @@ The architecture of the application is designed to efficiently handle different 
 graph LR
     A[Main Thread] <--> C[Database Worker Thread]
     C -->|Uses| I((TypeORM))
-    I -->|Interacts with| D((SQLite WASM))
+    I -->|Interacts with| D((PgLite))
     A <--> E[LLM Thread]
     E -->|Interacts with| J((Langchain))
     J -->|Wraps| F((WebLLM))
@@ -70,6 +70,7 @@ graph LR
 
 - **Vite**: Fast and modern build tool for web projects.
 - **React**: A popular JavaScript library for building user interfaces.
+- **PgLite**: A lightweight PostgreSQL client for Node.js and browsers.
 - **Voy Vector Database**: A WASM vector similarity search engine written in Rust
 - **WebLLM**: Run large language models in the browser without server dependencies.
 - **Langchain**: LangChain is a framework for developing applications powered by large language models (LLMs)
