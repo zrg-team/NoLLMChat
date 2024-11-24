@@ -27,19 +27,19 @@ const NewMessageCard = memo(
     }
 
     return (
-      <Card className="tw-min-w-64">
+      <Card className="min-w-64">
         <CardHeader>
           <CardTitle>{t('add_message_card.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="tw-grid tw-w-full tw-gap-1.5">
+          <div className="grid w-full gap-1.5">
             <AIInput
               onSubmit={hanldeSubmit}
               disabled={disabled || loading}
               placeholder={t('add_message_card.placeholder')}
             />
           </div>
-          {tags ? <div className="tw-mt-2 tw-gap-1 tw-flex tw-flex-wrap">{tags}</div> : null}
+          {tags ? <div className="mt-2 gap-1 flex flex-wrap">{tags}</div> : null}
         </CardContent>
       </Card>
     )

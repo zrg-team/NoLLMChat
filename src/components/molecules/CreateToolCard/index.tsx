@@ -44,12 +44,12 @@ const CreateToolCard = memo((props: NodeProps) => {
   }
 
   return (
-    <Card className="tw-mw-full">
+    <Card className="mw-full">
       <CardHeader>
         <CardTitle>{t('add_tool_card.title')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="tw-flex tw-flex-col tw-space-y-1.5">
+        <div className="flex flex-col space-y-1.5">
           <Label htmlFor="name">{t('add_tool_card.tool_name')}</Label>
           <Input
             onChange={handleChangeName}
@@ -57,7 +57,7 @@ const CreateToolCard = memo((props: NodeProps) => {
             placeholder={t('add_tool_card.name_placeholder')}
           />
         </div>
-        <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
+        <div className="flex flex-col space-y-1.5 mt-3">
           <Label htmlFor="name">{t('add_tool_card.tool_description')}</Label>
           <Textarea
             onChange={handleChangeDescription}
@@ -65,10 +65,10 @@ const CreateToolCard = memo((props: NodeProps) => {
           />
         </div>
       </CardContent>
-      <CardFooter className="tw-flex tw-justify-between">
-        <Button onClick={handleSubmit} disabled={loading} className="tw-w-full">
+      <CardFooter className="flex justify-between">
+        <Button onClick={handleSubmit} disabled={loading} className="w-full">
           {loading ? (
-            <LazyIcon name="loader-circle" className="tw-animate-spin" />
+            <LazyIcon name="loader-circle" className="animate-spin" />
           ) : (
             t('add_tool_card.create')
           )}

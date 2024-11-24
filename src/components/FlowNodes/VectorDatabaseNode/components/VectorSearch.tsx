@@ -39,11 +39,11 @@ export const VectorSearch = memo(
     }
 
     return (
-      <div className="tw-mt-4">
-        <div className="tw-bg-black/5 dark:bg-white/5 tw-rounded-xl tw-relative">
-          <div className="tw-relative tw-px-2 tw-py-1 tw-pb-2">
+      <div className="mt-4">
+        <div className="bg-black/5 dark:bg-white/5 rounded-xl relative">
+          <div className="relative px-2 py-1 pb-2">
             <Select value={`${k}`} onValueChange={(newValue) => setK(newValue)}>
-              <SelectTrigger className="tw-absolute tw-left-0 !tw-w-14 tw-top-[2px] tw-rounded-xl tw-bg-transparent tw-border-none focus:tw-outline-none focus:tw-ring-0 focus:tw-border-opacity-0 focus:tw-ring-transparent">
+              <SelectTrigger className="absolute left-0 !w-14 top-[2px] rounded-xl bg-transparent border-none focus:outline-none focus:ring-0 focus:border-opacity-0 focus:ring-transparent">
                 <SelectValue placeholder={t('vector_database_node.k_select_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -61,8 +61,8 @@ export const VectorSearch = memo(
               disabled={loading}
               placeholder={t('vector_database_node.similarity_search_placeholder')}
               className={cn(
-                'tw-w-full tw-rounded-xl tw-px-2 tw-pl-11 tw-border-none tw-resize-none tw-bg-transparent',
-                `tw-min-h-8 tw-max-h-8`,
+                'w-full rounded-xl px-2 pl-11 border-none resize-none bg-transparent',
+                `min-h-8 max-h-8`,
               )}
               onKeyDown={handleKeyDown}
               onChange={(e) => {
@@ -73,14 +73,14 @@ export const VectorSearch = memo(
               type="button"
               disabled={loading}
               onClick={() => handleSimilaritySearch(value, +k)}
-              className="tw-absolute tw-right-3 tw-top-5 tw--translate-y-1/2 tw-rounded-xl tw-bg-black/5 dark:tw-bg-white/5 p-1"
+              className="absolute right-3 top-5 -translate-y-1/2 rounded-xl bg-black/5 dark:bg-white/5 p-1"
             >
               <LazyIcon
                 name={loading ? 'loader-circle' : 'arrow-right'}
                 className={cn(
-                  'tw-w-4 tw-h-4 dark:tw-text-white',
-                  value ? 'tw-opacity-100' : 'tw-opacity-30',
-                  loading ? 'tw-animate-spin' : '',
+                  'w-4 h-4 dark:text-white',
+                  value ? 'opacity-100' : 'opacity-30',
+                  loading ? 'animate-spin' : '',
                 )}
               />
             </button>

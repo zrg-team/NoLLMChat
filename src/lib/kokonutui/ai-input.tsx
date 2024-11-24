@@ -42,16 +42,16 @@ export default function AIInput({
   }
 
   return (
-    <div className="tw-w-full tw-py-4">
-      <div className="tw-relative tw-max-w-xl tw-w-full tw-mx-auto">
-        <div className="tw-relative tw-flex tw-flex-col">
-          <div className="tw-overflow-y-auto" style={{ maxHeight: `${MAX_HEIGHT}px` }}>
+    <div className="w-full py-4">
+      <div className="relative max-w-xl w-full mx-auto">
+        <div className="relative flex flex-col">
+          <div className="overflow-y-auto" style={{ maxHeight: `${MAX_HEIGHT}px` }}>
             <Textarea
               id="ai-input-04"
               value={value}
               disabled={disabled || loading}
               placeholder={placeholder}
-              className="tw-w-full tw-rounded-xl tw-rounded-b-none tw-px-4 tw-py-3 tw-bg-black/5 dark:tw-bg-white/5 tw-border-none dark:tw-text-white placeholder:tw-text-black/70 dark:placeholder:tw-text-white/70 tw-resize-none focus-visible:tw-ring-0 tw-leading-[1.2]"
+              className="w-full rounded-xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white placeholder:text-black/70 dark:placeholder:text-white/70 resize-none focus-visible:ring-0 leading-[1.2]"
               ref={textareaRef}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -66,14 +66,14 @@ export default function AIInput({
             />
           </div>
 
-          <div className="tw-h-12 tw-bg-black/5 dark:tw-bg-white/5 tw-rounded-b-xl">
-            <div className="tw-absolute tw-left-3 tw-bottom-3 tw-flex tw-items-center tw-gap-2">
+          <div className="h-12 bg-black/5 dark:bg-white/5 rounded-b-xl">
+            <div className="absolute left-3 bottom-3 flex items-center gap-2">
               {enableFile ? (
-                <label className="tw-cursor-pointer tw-rounded-lg tw-p-2 tw-bg-black/5 dark:tw-bg-white/5">
-                  <input type="file" className="tw-hidden" />
+                <label className="cursor-pointer rounded-lg p-2 bg-black/5 dark:bg-white/5">
+                  <input type="file" className="hidden" />
                   <LazyIcon
                     name="paperclip"
-                    className="tw-w-4 tw-h-4 tw-text-black/40 dark:tw-text-white/40 hover:tw-text-black dark:hover:tw-text-white tw-transition-colors"
+                    className="w-4 h-4 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors"
                   />
                 </label>
               ) : undefined}
@@ -84,13 +84,13 @@ export default function AIInput({
                     setShowSearch(!showSearch)
                   }}
                   className={cn(
-                    'tw-rounded-full tw-transition-all tw-flex tw-items-center tw-gap-2 tw-px-1.5 tw-py-1 tw-border tw-h-8',
+                    'rounded-full transition-all flex items-center gap-2 px-1.5 py-1 border h-8',
                     showSearch
-                      ? 'tw-bg-sky-500/15 tw-border-sky-400 tw-text-sky-500'
-                      : 'tw-bg-black/5 dark:tw-bg-white/5 tw-border-transparent tw-text-black/40 dark:tw-text-white/40 hover:tw-text-black dark:hover:tw-text-white',
+                      ? 'bg-sky-500/15 border-sky-400 text-sky-500'
+                      : 'bg-black/5 dark:bg-white/5 border-transparent text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white',
                   )}
                 >
-                  <div className="tw-w-4 tw-h-4 tw-flex tw-items-center tw-justify-center tw-flex-shrink-0">
+                  <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                     <motion.div
                       animate={{
                         rotate: showSearch ? 180 : 0,
@@ -113,10 +113,7 @@ export default function AIInput({
                     >
                       <LazyIcon
                         name="globe"
-                        className={cn(
-                          'tw-w-4 tw-h-4',
-                          showSearch ? 'tw-text-sky-500' : 'tw-text-inherit',
-                        )}
+                        className={cn('w-4 h-4', showSearch ? 'text-sky-500' : 'text-inherit')}
                       />
                     </motion.div>
                   </div>
@@ -130,7 +127,7 @@ export default function AIInput({
                         }}
                         exit={{ width: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="tw-text-sm tw-overflow-hidden tw-whitespace-nowrap tw-text-sky-500 tw-flex-shrink-0"
+                        className="text-sm overflow-hidden whitespace-nowrap text-sky-500 flex-shrink-0"
                       >
                         Search
                       </motion.span>
@@ -139,19 +136,19 @@ export default function AIInput({
                 </button>
               ) : undefined}
             </div>
-            <div className="tw-absolute tw-right-3 tw-bottom-3">
+            <div className="absolute right-3 bottom-3">
               <button
                 type="button"
                 disabled={disabled || loading}
                 onClick={handleSubmit}
                 className={cn(
-                  'tw-rounded-lg tw-p-2 tw-transition-colors',
+                  'rounded-lg p-2 transition-colors',
                   value
-                    ? 'tw-bg-sky-500/15 tw-text-sky-500'
-                    : 'tw-bg-black/5 dark:tw-bg-white/5 tw-text-black/40 dark:tw-text-white/40 hover:tw-text-black dark:hover:tw-text-white',
+                    ? 'bg-sky-500/15 text-sky-500'
+                    : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white',
                 )}
               >
-                <LazyIcon name="send" className="tw-w-4 tw-h-4" />
+                <LazyIcon name="send" className="w-4 h-4" />
               </button>
             </div>
           </div>

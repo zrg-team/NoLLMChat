@@ -47,7 +47,7 @@ const ChartContainer = React.forwardRef<
       <div
         data-chart={chartId}
         ref={ref}
-        className={cn('tw-flex tw-aspect-video tw-justify-center tw-text-xs', className)}
+        className={cn('flex aspect-video justify-center text-xs', className)}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
@@ -138,9 +138,7 @@ const ChartTooltipContent = React.forwardRef<
 
       if (labelFormatter) {
         return (
-          <div className={cn('tw-font-medium', labelClassName)}>
-            {labelFormatter(value, payload)}
-          </div>
+          <div className={cn('font-medium', labelClassName)}>{labelFormatter(value, payload)}</div>
         )
       }
 
@@ -148,7 +146,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn('tw-font-medium', labelClassName)}>{value}</div>
+      return <div className={cn('font-medium', labelClassName)}>{value}</div>
     }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey])
 
     if (!active || !payload?.length) {
@@ -161,12 +159,12 @@ const ChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'tw-grid tw-min-w-[8rem] tw-items-start tw-gap-1.5 tw-rounded-lg tw-border tw-border-border/50 tw-bg-background tw-px-2.5 tw-py-1.5 tw-text-xs tw-shadow-xl',
+          'grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
           className,
         )}
       >
         {!nestLabel ? tooltipLabel : null}
-        <div className="tw-grid tw-gap-1.5">
+        <div className="grid gap-1.5">
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || 'value'}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
@@ -176,8 +174,8 @@ const ChartTooltipContent = React.forwardRef<
               <div
                 key={item.dataKey}
                 className={cn(
-                  'tw-flex tw-w-full tw-flex-wrap tw-items-stretch tw-gap-2 [&>svg]:tw-h-2.5 [&>svg]:tw-w-2.5 [&>svg]:tw-text-muted-foreground',
-                  indicator === 'dot' && 'tw-items-center',
+                  'flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground',
+                  indicator === 'dot' && 'items-center',
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
@@ -190,7 +188,7 @@ const ChartTooltipContent = React.forwardRef<
                       !hideIndicator && (
                         <div
                           className={cn(
-                            'tw-shrink-0 tw-rounded-[2px] tw-border-[--color-border] tw-bg-[--color-bg]',
+                            'shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]',
                             {
                               'h-2.5 w-2.5': indicator === 'dot',
                               'w-1': indicator === 'line',
@@ -210,18 +208,18 @@ const ChartTooltipContent = React.forwardRef<
                     )}
                     <div
                       className={cn(
-                        'tw-flex tw-flex-1 tw-justify-between tw-leading-none',
-                        nestLabel ? 'tw-items-end' : 'tw-items-center',
+                        'flex flex-1 justify-between leading-none',
+                        nestLabel ? 'items-end' : 'items-center',
                       )}
                     >
-                      <div className="tw-grid tw-gap-1.5">
+                      <div className="grid gap-1.5">
                         {nestLabel ? tooltipLabel : null}
-                        <span className="tw-text-muted-foreground">
+                        <span className="text-muted-foreground">
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
                       {item.value && (
-                        <span className="tw-font-mono tw-font-medium tw-tabular-nums tw-text-foreground">
+                        <span className="font-mono font-medium tabular-nums text-foreground">
                           {item.value.toLocaleString()}
                         </span>
                       )}
@@ -258,8 +256,8 @@ const ChartLegendContent = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'tw-flex tw-items-center tw-justify-center tw-gap-4',
-        verticalAlign === 'top' ? 'tw-pb-3' : 'tw-pt-3',
+        'flex items-center justify-center gap-4',
+        verticalAlign === 'top' ? 'pb-3' : 'pt-3',
         className,
       )}
     >
@@ -271,14 +269,14 @@ const ChartLegendContent = React.forwardRef<
           <div
             key={item.value}
             className={cn(
-              'tw-flex tw-items-center tw-gap-1.5 [&>svg]:tw-h-3 [&>svg]:tw-w-3 [&>svg]:tw-text-muted-foreground',
+              'flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground',
             )}
           >
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />
             ) : (
               <div
-                className="tw-h-2 tw-w-2 tw-shrink-0 tw-rounded-[2px]"
+                className="h-2 w-2 shrink-0 rounded-[2px]"
                 style={{
                   backgroundColor: item.color,
                 }}

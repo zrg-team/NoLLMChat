@@ -12,9 +12,9 @@ export const ToolNode = memo(({ id, data, isConnectable }: ToolNodeProps) => {
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
-        <Alert className="tw-flex tw-justify-center">
+        <Alert className="flex justify-center">
           <LazyIcon size={24} name="wrench" />
-          <div className="tw-ml-2">
+          <div className="ml-2">
             <AlertTitle>{`${data.entity?.name || ''}`}</AlertTitle>
             <AlertDescription>{`${data.entity?.description || ''}`}</AlertDescription>
           </div>

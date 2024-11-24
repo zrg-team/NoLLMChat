@@ -19,18 +19,18 @@ const IndexNewText = memo(
     const [text, setText] = useState('')
 
     return (
-      <div className="tw-min-w-80">
-        <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
+      <div className="min-w-80">
+        <div className="flex flex-col space-y-1.5 mt-3">
           <Label htmlFor="name">{t('vector_database_node.add_text.id')}</Label>
           <Input
             value={id}
             disabled={loading}
             onChange={(e) => setId(e.target.value || '')}
             placeholder={t('vector_database_node.add_text.id_placeholder')}
-            className="tw-mb-4"
+            className="mb-4"
           />
           <Label htmlFor="name">
-            {t('vector_database_node.add_text.content')} <span className="tw-text-red-600">*</span>
+            {t('vector_database_node.add_text.content')} <span className="text-red-600">*</span>
           </Label>
           <Textarea
             value={text}
@@ -39,14 +39,14 @@ const IndexNewText = memo(
             placeholder={t('vector_database_node.add_text.content_placeholder')}
           />
         </div>
-        <div className="tw-flex tw-justify-between tw-mt-6">
+        <div className="flex justify-between mt-6">
           <Button
             onClick={() => onCreateData({ id: id, content: text })}
             disabled={loading || !text?.length}
-            className="tw-w-full"
+            className="w-full"
           >
             {loading ? (
-              <LazyIcon name="loader-circle" className="tw-animate-spin" />
+              <LazyIcon name="loader-circle" className="animate-spin" />
             ) : (
               t('vector_database_node.add_text.add')
             )}

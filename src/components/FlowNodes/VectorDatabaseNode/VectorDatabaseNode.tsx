@@ -94,7 +94,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
         )
       case 'new':
         return (
-          <TabsContent className="tw-min-w-80" value="new">
+          <TabsContent className="min-w-80" value="new">
             <IndexNewText loading={loading} onCreateData={handleCreateData} />
           </TabsContent>
         )
@@ -113,21 +113,21 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   }, [handleCreateData, handleIndexPDF, handleSimilaritySearch, loading, mode, progress])
 
   return (
-    <div className="tw-min-w-64">
+    <div className="min-w-64">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Alert className="tw-flex tw-justify-center" variant="default">
+        <Alert className="flex justify-center" variant="default">
           <LazyIcon size={24} name={'database-zap'} />
-          <div className="tw-ml-2">
+          <div className="ml-2">
             <AlertTitle>{`${data.entity?.name || ''}`}</AlertTitle>
             <Tabs
               value={mode}
               onValueChange={setMode}
               defaultValue="search"
-              className="tw-w-full tw-mt-4"
+              className="w-full mt-4"
             >
-              <TabsList className="tw-grid tw-w-full tw-grid-cols-3">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="search">{t('vector_database_node.search')}</TabsTrigger>
                 <TabsTrigger value="new">{t('vector_database_node.text')}</TabsTrigger>
                 <TabsTrigger value="file">{t('vector_database_node.file')}</TabsTrigger>

@@ -11,7 +11,7 @@ import {
 export function DataTable({ data }: { data: { text: string }[] }) {
   const { t } = useTranslation('components')
   return (
-    <Table className="tw-w-full">
+    <Table className="w-full">
       <TableHeader>
         <TableRow>
           <TableHead>{t('add_text_data.text')}</TableHead>
@@ -20,7 +20,7 @@ export function DataTable({ data }: { data: { text: string }[] }) {
       <TableBody>
         {data?.map((item, index) => (
           <TableRow key={`${item.text}_${index}`}>
-            <TableCell className="tw-p-4">{item.text}</TableCell>
+            <TableCell className="p-4">{item.text}</TableCell>
           </TableRow>
         ))}
       </TableBody>

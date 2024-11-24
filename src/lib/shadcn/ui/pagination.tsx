@@ -9,7 +9,7 @@ const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
   <nav
     role="navigation"
     aria-label="pagination"
-    className={cn('tw-mx-auto tw-flex tw-w-full tw-justify-center', className)}
+    className={cn('mx-auto flex w-full justify-center', className)}
     {...props}
   />
 )
@@ -17,17 +17,13 @@ Pagination.displayName = 'Pagination'
 
 const PaginationContent = React.forwardRef<HTMLUListElement, React.ComponentProps<'ul'>>(
   ({ className, ...props }, ref) => (
-    <ul
-      ref={ref}
-      className={cn('tw-flex tw-flex-row tw-items-center tw-gap-1', className)}
-      {...props}
-    />
+    <ul ref={ref} className={cn('flex flex-row items-center gap-1', className)} {...props} />
   ),
 )
 PaginationContent.displayName = 'PaginationContent'
 
 const PaginationItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
-  ({ className, ...props }, ref) => <li ref={ref} className={cn('tw-', className)} {...props} />,
+  ({ className, ...props }, ref) => <li ref={ref} className={cn('', className)} {...props} />,
 )
 PaginationItem.displayName = 'PaginationItem'
 
@@ -60,10 +56,10 @@ const PaginationPrevious = ({
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      className={cn('tw-gap-1 tw-pl-2.5', className)}
+      className={cn('gap-1 pl-2.5', className)}
       {...props}
     >
-      <LazyIcon name="chevron-left" className="tw-h-4 tw-w-4" />
+      <LazyIcon name="chevron-left" className="h-4 w-4" />
       <span>{t('pagination.previous')}</span>
     </PaginationLink>
   )
@@ -76,11 +72,11 @@ const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof Pag
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      className={cn('tw-gap-1 tw-pr-2.5', className)}
+      className={cn('gap-1 pr-2.5', className)}
       {...props}
     >
       <span>{t('pagination.next')}</span>
-      <LazyIcon name="chevron-right" className="tw-h-4 tw-w-4" />
+      <LazyIcon name="chevron-right" className="h-4 w-4" />
     </PaginationLink>
   )
 }
@@ -91,11 +87,11 @@ const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'
   return (
     <span
       aria-hidden
-      className={cn('tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center', className)}
+      className={cn('flex h-9 w-9 items-center justify-center', className)}
       {...props}
     >
-      <LazyIcon name="ellipsis" className="tw-h-4 tw-w-4" />
-      <span className="tw-sr-only">{t('pagination.more_pages')}</span>
+      <LazyIcon name="ellipsis" className="h-4 w-4" />
+      <span className="sr-only">{t('pagination.more_pages')}</span>
     </span>
   )
 }

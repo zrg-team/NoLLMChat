@@ -57,13 +57,13 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
     }
 
     if (!tags?.length) {
-      return <div className="tw-w-10 tw-h-10" />
+      return <div className="w-10 h-10" />
     }
 
     return (
-      <Card className="tw-p-4 tw-pt-2">
-        <CardTitle className="tw-mb-2">{t('thread_node.title')}</CardTitle>
-        <div className="tw-flex tw-gap-1.5">{tags}</div>
+      <Card className="p-4 pt-2">
+        <CardTitle className="mb-2">{t('thread_node.title')}</CardTitle>
+        <div className="flex gap-1.5">{tags}</div>
       </Card>
     )
   }, [containMessage, createMessage, getNode, loading, props.data.entity, t, targetConnections])

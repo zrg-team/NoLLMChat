@@ -59,23 +59,23 @@ export default function FileUploadInput({
   const preview = useMemo(() => {
     if (!file) {
       return (
-        <div className="tw-w-16 tw-h-16 tw-rounded-lg tw-bg-zinc-100 dark:tw-bg-zinc-800 tw-flex tw-items-center tw-justify-center">
-          <LazyIcon name="file-text" className="tw-w-8 tw-h-8 tw-text-zinc-400" />
+        <div className="w-16 h-16 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+          <LazyIcon name="file-text" className="w-8 h-8 text-zinc-400" />
         </div>
       )
     }
 
     const isImage = file.type.startsWith('image/')
     return (
-      <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-lg tw-overflow-hidden">
+      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
         {isImage ? (
           <img
             src={URL.createObjectURL(file)}
             alt="Preview"
-            className="tw-w-full tw-h-full tw-object-cover"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <LazyIcon className="tw-w-14 tw-h-14" name="file-text" />
+          <LazyIcon className="w-14 h-14" name="file-text" />
         )}
       </div>
     )
@@ -85,12 +85,12 @@ export default function FileUploadInput({
     <>
       <div
         className={cn(
-          'tw-relative tw-group tw-cursor-pointer',
-          'tw-rounded-lg tw-border-2 tw-border-dashed',
-          'tw-transition-colors tw-duration-200',
+          'relative group cursor-pointer',
+          'rounded-lg border-2 border-dashed',
+          'transition-colors duration-200',
           isDragging
-            ? 'tw-border-indigo-500 tw-bg-indigo-50/50 dark:tw-bg-indigo-500/10'
-            : 'tw-border-zinc-200 dark:tw-border-zinc-800',
+            ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10'
+            : 'border-zinc-200 dark:border-zinc-800',
         )}
         onDragOver={(e) => {
           e.preventDefault()
@@ -112,34 +112,29 @@ export default function FileUploadInput({
           type="file"
           accept={fileOptions?.accept || 'image/*'}
           onChange={handleChange}
-          className="tw-hidden"
+          className="hidden"
         />
 
-        <div className="tw-p-8 tw-space-y-4">
+        <div className="p-8 space-y-4">
           {!fileName ? (
-            <div className="tw-flex tw-flex-col tw-items-center tw-gap-2">
-              <LazyIcon
-                name="upload"
-                className="tw-w-8 tw-h-8 tw-text-zinc-400 dark:tw-text-zinc-500"
-              />
-              <p className="tw-text-sm tw-text-zinc-600 dark:tw-text-zinc-400">
+            <div className="flex flex-col items-center gap-2">
+              <LazyIcon name="upload" className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 {t('file_upload_input.drop_file')}
               </p>
             </div>
           ) : (
-            <div className="tw-flex tw-items-center tw-gap-4">
+            <div className="flex items-center gap-4">
               {preview}
-              <div className="tw-flex-1 tw-min-w-0">
-                <p className="tw-text-sm tw-font-medium tw-truncate">
-                  {fileName || 'No file selected'}
-                </p>
-                <p className="tw-text-xs tw-text-zinc-500">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{fileName || 'No file selected'}</p>
+                <p className="text-xs text-zinc-500">
                   {fileSize ? `${(fileSize / 1024 / 1024).toFixed(2)} MB` : '0 MB'}
                 </p>
                 {progress && progress < 1 ? (
-                  <div className="tw-mt-2 tw-h-1 tw-w-full tw-bg-zinc-100 dark:tw-bg-zinc-800 tw-rounded-full tw-overflow-hidden">
+                  <div className="mt-2 h-1 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div
-                      className="tw-h-full tw-bg-indigo-500 tw-transition-all tw-duration-200"
+                      className="h-full bg-indigo-500 transition-all duration-200"
                       style={{
                         width: `${progress * 100}%`,
                       }}
@@ -154,15 +149,15 @@ export default function FileUploadInput({
                   e.stopPropagation()
                   removeFile()
                 }}
-                className="tw-p-1 hover:tw-bg-zinc-100 dark:hover:tw-bg-zinc-800 tw-rounded"
+                className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
               >
-                <LazyIcon name="x" className="tw-w-5 tw-h-5 tw-text-zinc-400" />
+                <LazyIcon name="x" className="w-5 h-5 text-zinc-400" />
               </button>
             </div>
           )}
         </div>
       </div>
-      {error ? <p className="tw-text-red-500">{error}</p> : undefined}
+      {error ? <p className="text-red-500">{error}</p> : undefined}
     </>
   )
 }

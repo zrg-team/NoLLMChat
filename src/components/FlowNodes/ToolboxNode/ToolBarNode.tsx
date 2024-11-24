@@ -28,7 +28,7 @@ export const ToolbarNode = memo((props: NodeProps) => {
     return (
       <Menubar>
         <MenubarMenu>
-          <Logo width={32} height={32} className="tw-pl-2" />
+          <Logo width={32} height={32} className="pl-2" />
         </MenubarMenu>
         {SUPPORTED_MODES.map((mode) => {
           if (typeof mode === 'object') {
@@ -82,7 +82,7 @@ export const ToolbarNode = memo((props: NodeProps) => {
   return (
     <>
       {menu}
-      <div className="tw-mt-4">{modeToComponent}</div>
+      <div className="mt-4">{modeToComponent}</div>
     </>
   )
 })

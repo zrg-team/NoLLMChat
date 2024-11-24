@@ -77,18 +77,18 @@ export default function AIInputWithTags({
   }
 
   return (
-    <div className="tw-w-full tw-py-4">
-      <div className="tw-relative tw-max-w-xl tw-w-full tw-mx-auto">
-        <div className="tw-relative tw-border tw-border-black/10 dark:tw-border-white/10 focus-within:tw-border-black/20 dark:focus-within:tw-border-white/20 tw-rounded-2xl tw-bg-black/[0.03] dark:tw-bg-white/[0.03]">
-          <div className="tw-flex tw-flex-col">
-            <div className="tw-overflow-y-auto" style={{ maxHeight: `${MAX_HEIGHT - 48}px` }}>
+    <div className="w-full py-4">
+      <div className="relative max-w-xl w-full mx-auto">
+        <div className="relative border border-black/10 dark:border-white/10 focus-within:border-black/20 dark:focus-within:border-white/20 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03]">
+          <div className="flex flex-col">
+            <div className="overflow-y-auto" style={{ maxHeight: `${MAX_HEIGHT - 48}px` }}>
               <Textarea
                 ref={textareaRef}
                 id="ai-input-03"
                 disabled={disabled || loading}
                 placeholder={placeholder}
                 className={cn(
-                  'tw-max-w-xl tw-w-full tw-rounded-2xl tw-pr-10 tw-pt-3 tw-pb-3 placeholder:tw-text-black/70 dark:placeholder:tw-text-white/70 tw-border-none focus:tw-ring tw-text-black dark:tw-text-white tw-resize-none tw-text-wrap tw-bg-transparent focus-visible:tw-ring-0 focus-visible:tw-ring-offset-0 tw-leading-[1.2]',
+                  'max-w-xl w-full rounded-2xl pr-10 pt-3 pb-3 placeholder:text-black/70 dark:placeholder:text-white/70 border-none focus:ring text-black dark:text-white resize-none text-wrap bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 leading-[1.2]',
                   `min-h-[${MIN_HEIGHT}px]`,
                 )}
                 value={inputValue}
@@ -105,17 +105,17 @@ export default function AIInputWithTags({
               />
             </div>
 
-            <div className="tw-h-12 tw-bg-transparent">
+            <div className="h-12 bg-transparent">
               {currentItem && (
-                <div className="tw-absolute tw-left-3 tw-bottom-3 tw-z-10">
+                <div className="absolute left-3 bottom-3 z-10">
                   <button
                     type="button"
                     disabled={disabled || loading}
                     onClick={handleSubmit}
                     className={cn(
-                      'tw-inline-flex tw-items-center tw-gap-1.5',
-                      'tw-border tw-shadow-sm tw-rounded-md tw-px-2 tw-py-0.5 tw-text-xs tw-font-medium',
-                      'tw-animate-fadeIn hover:tw-bg-black/5 dark:hover:tw-bg-white/5 tw-transition-colors tw-duration-200',
+                      'inline-flex items-center gap-1.5',
+                      'border shadow-sm rounded-md px-2 py-0.5 text-xs font-medium',
+                      'animate-fadeIn hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200',
                       currentItem.colors.bg,
                       currentItem.colors.border,
                     )}
@@ -130,30 +130,28 @@ export default function AIInputWithTags({
 
           <CornerRightDown
             className={cn(
-              'tw-absolute tw-right-3 tw-top-3 tw-w-4 tw-h-4 tw-transition-all tw-duration-200 dark:tw-text-white',
-              inputValue ? 'tw-opacity-100 tw-scale-100' : 'tw-opacity-30 tw-scale-95',
+              'absolute right-3 top-3 w-4 h-4 transition-all duration-200 dark:text-white',
+              inputValue ? 'opacity-100 scale-100' : 'opacity-30 scale-95',
             )}
           />
         </div>
       </div>
-      <div className="tw-flex tw-flex-wrap tw-gap-1.5 tw-mt-2 tw-max-w-xl tw-mx-auto tw-justify-start tw-px-4">
+      <div className="flex flex-wrap gap-1.5 mt-2 max-w-xl mx-auto justify-start px-4">
         {ITEMS.filter((item) => item.text !== selectedItem).map(({ text, icon: Icon, colors }) => (
           <button
             type="button"
             key={text}
             className={cn(
-              'tw-px-3 tw-py-1.5 tw-text-xs tw-font-medium tw-rounded-full',
-              'tw-border tw-transition-all tw-duration-200',
-              'tw-border-black/10 dark:tw-border-white/10 tw-bg-white dark:tw-bg-gray-900 hover:tw-bg-black/5 dark:hover:tw-bg-white/5',
-              'tw-flex-shrink-0',
+              'px-3 py-1.5 text-xs font-medium rounded-full',
+              'border transition-all duration-200',
+              'border-black/10 dark:border-white/10 bg-white dark:bg-gray-900 hover:bg-black/5 dark:hover:bg-white/5',
+              'flex-shrink-0',
             )}
             onClick={() => toggleItem(text)}
           >
-            <div className="tw-flex tw-items-center tw-gap-1.5">
-              <Icon className={cn('tw-h-4 tw-w-4', colors.icon)} />
-              <span className="tw-text-black/70 dark:tw-text-white/70 tw-whitespace-nowrap">
-                {text}
-              </span>
+            <div className="flex items-center gap-1.5">
+              <Icon className={cn('h-4 w-4', colors.icon)} />
+              <span className="text-black/70 dark:text-white/70 whitespace-nowrap">{text}</span>
             </div>
           </button>
         ))}

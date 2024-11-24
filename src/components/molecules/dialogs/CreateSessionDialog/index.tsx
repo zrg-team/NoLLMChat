@@ -46,14 +46,14 @@ const CreateSessionDialog = create<CreateSessionProps>(() => {
 
   return (
     <Dialog open={currentModal.visible} onOpenChange={currentModal.hide}>
-      <DialogContent className="tw-sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{t('create_session.title')}</DialogTitle>
           <DialogDescription>{t('create_session.description')}</DialogDescription>
         </DialogHeader>
-        <div className="tw-grid tw-gap-4 tw-py-4">
-          <div className="tw-flex tw-flex-col tw-space-y-1.5">
-            <Label className="tw-mb-2" htmlFor="name">
+        <div className="grid gap-4 py-4">
+          <div className="flex flex-col space-y-1.5">
+            <Label className="mb-2" htmlFor="name">
               {t('create_session.name')}
             </Label>
             <Input

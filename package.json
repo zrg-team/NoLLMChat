@@ -48,7 +48,7 @@
     "cmdk": "1.0.0",
     "dayjs": "^1.11.13",
     "deepmerge": "^4.3.1",
-    "framer-motion": "^11.11.15",
+    "framer-motion": "^11.11.17",
     "i18next": "^23.15.1",
     "js-md5": "^0.8.3",
     "langchain": "^0.3.2",

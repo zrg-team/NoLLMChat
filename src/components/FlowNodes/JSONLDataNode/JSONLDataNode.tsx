@@ -60,7 +60,7 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
     let renderLeftEllipsis = false
     let renderRightEllipsis = false
     return (
-      <Pagination className="tw-mt-4">
+      <Pagination className="mt-4">
         <PaginationContent>
           {pagination.page > 1 ? (
             <PaginationItem
@@ -118,15 +118,15 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
   }, [pagination])
 
   return (
-    <div className="tw-min-w-80">
+    <div className="min-w-80">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Card className="tw-min-w-32 tw-min-h-16 tw-p-4">
-          <CardHeader className="!tw-p-0">
-            <div className="tw-pt-2 tw-flex !tw-flex-row">
-              <LazyIcon name="file-json" className="tw-mr-2" />
-              <Label className="!tw-font-medium tw-leading-none tw-tracking-tight tw-pr-8">
+        <Card className="min-w-32 min-h-16 p-4">
+          <CardHeader className="!p-0">
+            <div className="pt-2 flex !flex-row">
+              <LazyIcon name="file-json" className="mr-2" />
+              <Label className="!font-medium leading-none tracking-tight pr-8">
                 {FlowNodeTypeEnum.JSONLData}{' '}
                 {showingRows?.length && jsonl?.rows?.length
                   ? `(${showingRows?.length || 0} / ${jsonl?.rows?.length || 0})`

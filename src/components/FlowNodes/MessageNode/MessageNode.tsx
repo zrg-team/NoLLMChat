@@ -42,23 +42,23 @@ export const MessageNode = memo((props: MessageNodeProps) => {
   return (
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div className="tw-max-w-sm">
-        <div className="tw-w-auto">
+      <div className="max-w-sm">
+        <div className="w-auto">
           <NodeHeader id={id} />
           {data.entity?.role === MessageRoleEnum.Human ? (
             <HumanMessageComponent data={data} />
           ) : (
             <AIMessageComponent data={data} />
           )}
-          <Button onClick={handleCopy} className="tw-absolute tw-top-0 tw-right-7" variant="link">
+          <Button onClick={handleCopy} className="absolute top-0 right-7" variant="link">
             <LazyIcon name="copy" size={16} />
           </Button>
           {isEnd && !data.loading ? (
-            <div className="tw-w-[1px] tw-ml-[50%] tw-h-[30px] tw-bg-gray-500" />
+            <div className="w-[1px] ml-[50%] h-[30px] bg-gray-500" />
           ) : null}
           {isEnd && !data.loading ? (
-            <div className="tw-absolute">
-              <div className="tw-ml-[-15%]">
+            <div className="absolute">
+              <div className="ml-[-15%]">
                 <NewMessageCard disabled={loading} loading={loading} onSubmit={createMessage} />
               </div>
             </div>

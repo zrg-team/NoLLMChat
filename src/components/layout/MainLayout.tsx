@@ -20,14 +20,14 @@ export function MainLayout() {
         setCurrentSession={setCurrentSession}
       />
       <SidebarInset>
-        <header className="tw-flex tw-h-14 tw-shrink-0 tw-items-center tw-gap-2 tw-transition-[width,height] tw-ease-linear">
-          <div className="tw-flex tw-items-center tw-gap-2 tw-px-4">
-            <SidebarTrigger className="tw-ml-1" />
+        <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="ml-1" />
             <Label>{t('whiteboard')}</Label>
           </div>
         </header>
         <Separator />
-        <div className="tw-flex tw-flex-1 tw-flex-col tw-p-0 tw-m-0">
+        <div className="flex flex-1 flex-col p-0 m-0">
           <Outlet />
         </div>
       </SidebarInset>

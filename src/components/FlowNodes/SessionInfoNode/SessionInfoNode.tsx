@@ -176,7 +176,7 @@ export const SessionInfoNode = memo(() => {
   return (
     <div>
       <div>
-        <Card className="tw-w-96">
+        <Card className="w-96">
           <CardHeader>
             <CardTitle>{t('session_info_node.title')}</CardTitle>
             <CardDescription>
@@ -185,36 +185,36 @@ export const SessionInfoNode = memo(() => {
                 : ''}
             </CardDescription>
           </CardHeader>
-          <CardContent className="tw-grid tw-gap-4">
-            <div className="tw-flex tw-items-center tw-space-x-4 tw-rounded-md tw-border tw-p-4">
-              <div className="tw-flex-1 tw-space-y-1">
-                <p className="tw-text-sm tw-font-medium tw-leading-none">
+          <CardContent className="grid gap-4">
+            <div className="flex items-center space-x-4 rounded-md border p-4">
+              <div className="flex-1 space-y-1">
+                <p className="text-sm font-medium leading-none">
                   {t('session_info_node.disk_size')}
                 </p>
-                <p className="tw-text-sm tw-text-muted-foreground">{usedBytes}</p>
+                <p className="text-sm text-muted-foreground">{usedBytes}</p>
               </div>
             </div>
-            <div className="tw-flex tw-items-center tw-space-x-4 tw-rounded-md tw-border tw-p-4">
-              <div className="tw-flex-1 tw-space-y-1">
-                <div className="tw-text-sm tw-font-medium tw-leading-none">
+            <div className="flex items-center space-x-4 rounded-md border p-4">
+              <div className="flex-1 space-y-1">
+                <div className="text-sm font-medium leading-none">
                   {t('session_info_node.cached_llms')}
-                  <Badge className="tw-ml-2">{cachedModdels?.length || 0}</Badge>
+                  <Badge className="ml-2">{cachedModdels?.length || 0}</Badge>
                 </div>
                 {cachedModdels?.map((llm) => (
-                  <div key={llm?.model_id} className="tw-text-sm tw-text-muted-foreground tw-gap-1">
+                  <div key={llm?.model_id} className="text-sm text-muted-foreground gap-1">
                     {llm?.model_id}
                     {llm?.model_id && functionCallingModelIds.includes(llm?.model_id) ? (
-                      <Badge className="tw-ml-1" variant="outline">
+                      <Badge className="ml-1" variant="outline">
                         {t('session_info_node.function_calling')}
                       </Badge>
                     ) : null}
                     {llm?.vram_required_MB ? (
-                      <Badge className="tw-ml-1" variant="outline">
+                      <Badge className="ml-1" variant="outline">
                         VRAM: {llm.vram_required_MB.toLocaleString('en-US')} MB
                       </Badge>
                     ) : null}
                     {llm?.low_resource_required ? (
-                      <Badge className="tw-ml-1" variant="default">
+                      <Badge className="ml-1" variant="default">
                         {t('session_info_node.low_resource_required')}
                       </Badge>
                     ) : null}
@@ -223,7 +223,7 @@ export const SessionInfoNode = memo(() => {
               </div>
             </div>
             <div>
-              <ChartContainer config={chartConfig} className="tw-min-h-28 tw-w-full">
+              <ChartContainer config={chartConfig} className="min-h-28 w-full">
                 <BarChart accessibilityLayer data={countInfo}>
                   <CartesianGrid vertical={false} />
                   <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
@@ -236,7 +236,7 @@ export const SessionInfoNode = memo(() => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="tw-w-full" onClick={handleReload}>
+            <Button className="w-full" onClick={handleReload}>
               <LazyIcon size={24} name={'refresh-ccw'} />
               {t('session_info_node.reload')}
             </Button>

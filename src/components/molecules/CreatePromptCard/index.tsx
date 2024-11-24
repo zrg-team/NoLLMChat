@@ -81,15 +81,15 @@ const CreatePromptCard = memo(
     }, [])
 
     return (
-      <Card className="tw-mw-full">
+      <Card className="mw-full">
         <CardHeader>
           <CardTitle>{t('add_prompt_card.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="tw-grid tw-w-full tw-gap-1.5">
+          <div className="grid w-full gap-1.5">
             <Label>{t('add_prompt_card.prompt_type')}</Label>
             <Select value={promptType} onValueChange={handleOnSelectType}>
-              <SelectTrigger className="tw-w-full tw-mb-4">
+              <SelectTrigger className="w-full mb-4">
                 <SelectValue placeholder={t('add_prompt_card.type_select_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -104,7 +104,7 @@ const CreatePromptCard = memo(
             </Select>
             <Label>{t('add_prompt_card.prompt_role')}</Label>
             <Select value={promptRole} onValueChange={handleOnSelectRole}>
-              <SelectTrigger className="tw-w-full tw-mb-4">
+              <SelectTrigger className="w-full mb-4">
                 <SelectValue placeholder={t('add_prompt_card.role_select_placeholder')} />
               </SelectTrigger>
               <SelectContent>
@@ -128,8 +128,8 @@ const CreatePromptCard = memo(
                   id="message"
                 />
                 <Label>{t('add_prompt_card.prompt_content')}</Label>
-                <div className="tw-w-full tw-border-0 tw-text-gray-700 tw-flex tw-text-sm tw-justify-end tw-items-center">
-                  <LazyIcon name="info" className="tw-mr-2" size={14} />
+                <div className="w-full border-0 text-gray-700 flex text-sm justify-end items-center">
+                  <LazyIcon name="info" className="mr-2" size={14} />
                   {t('add_prompt_card.few_shot_example_note')}
                 </div>
               </>
@@ -143,10 +143,10 @@ const CreatePromptCard = memo(
             />
           </div>
         </CardContent>
-        <CardFooter className="tw-flex tw-justify-between">
-          <Button onClick={handleSubmit} disabled={!input?.length} className="tw-w-full">
+        <CardFooter className="flex justify-between">
+          <Button onClick={handleSubmit} disabled={!input?.length} className="w-full">
             {loading ? (
-              <LazyIcon name="loader-circle" className="tw-animate-spin" />
+              <LazyIcon name="loader-circle" className="animate-spin" />
             ) : (
               t('add_prompt_card.button')
             )}

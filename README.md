@@ -18,14 +18,6 @@ The project aims to transform AI interaction by developing a platform that impro
 
 * **Free and Browser-Based**: Operates locally and free of charge, with the option to extend capabilities using services like OpenAI. This ensures accessibility and ease of use directly from the browser.
 
-## Technology Stack
-
-- **Vite**: Fast and modern build tool for web projects.
-- **React**: A popular JavaScript library for building user interfaces.
-- **Voy Vector Database**: A WASM vector similarity search engine written in Rust
-- **WebLLM**: Run large language models in the browser without server dependencies.
-- **Langchain**: LangChain is a framework for developing applications powered by large language models (LLMs)
-
 ## Project Structure
 
 ```
@@ -74,6 +66,24 @@ graph LR
     A -->|Interacts with| B((UI Application Logic))
 ```
 
+## Libraries and Tools
+
+- **Vite**: Fast and modern build tool for web projects.
+- **React**: A popular JavaScript library for building user interfaces.
+- **Voy Vector Database**: A WASM vector similarity search engine written in Rust
+- **WebLLM**: Run large language models in the browser without server dependencies.
+- **Langchain**: LangChain is a framework for developing applications powered by large language models (LLMs)
+- **Langgraph**: A graph-based language model.
+- **shadcn**: A lightweight and fast state management library for React.
+- **TypeORM**: An ORM that can run in NodeJS and the browser which supports SQLite WASM.
+- **Tailwind CSS**: A utility-first CSS framework for quickly building custom designs.
+- **i18next**: Internationalization framework for browser or any other JavaScript environment.
+- **React Router**: Declarative routing for React applications.
+- **Zustand**: A small, fast, and scaleable state management library for React.
+- **ESLint**: A pluggable and configurable linter tool for identifying and reporting on patterns in JavaScript.
+- **Prettier**: An opinionated code formatter that ensures consistent code style.
+- **ReactFlow**: A library for building node-based applications.
+- **Components**: [magicui](https://magicui.design) and [kokonut](https://kokonut.dev)
 
 ## Getting Started
 

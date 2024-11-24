@@ -140,15 +140,15 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   }
 
   return (
-    <Card className="tw-w-f">
+    <Card className="w-f">
       <CardHeader>
         <CardTitle>{t('add_llm_card.title')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="tw-grid tw-w-full tw-gap-1.5">
+        <div className="grid w-full gap-1.5">
           <Label>{t('add_llm_card.provider')}</Label>
           <Select value={provider} onValueChange={handleOnSelectProvider}>
-            <SelectTrigger className="tw-w-full tw-mb-4">
+            <SelectTrigger className="w-full mb-4">
               <SelectValue placeholder={t('add_llm_card.provider_select_placeholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -168,16 +168,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="tw-w-full tw-justify-between"
+                className="w-full justify-between"
               >
                 {input ? selectedModel?.model_id : t('add_llm_card.select_model_placeholder')}
-                <LazyIcon
-                  name="chevrons-up-down"
-                  className="tw-ml-2 tw-h-4 tw-w-4 tw-shrink-0 tw-opacity-50"
-                />
+                <LazyIcon name="chevrons-up-down" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="tw-w-full tw-p-0">
+            <PopoverContent className="w-full p-0">
               <Command>
                 <CommandInput
                   onValueChange={handleSearchChange}
@@ -193,27 +190,25 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                         onSelect={handleOnchange}
                       >
                         {input === model.model_id ? (
-                          <LazyIcon name="check" className={'tw-mr-2 tw-h-4 tw-w-4'} />
+                          <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
                         ) : (
-                          <div className="tw-mr-2 tw-h-4 tw-w-4" />
+                          <div className="mr-2 h-4 w-4" />
                         )}
                         <span>
-                          <Badge className="tw-mr-1">
-                            {t(modelTypeToString(model.model_type))}
-                          </Badge>
+                          <Badge className="mr-1">{t(modelTypeToString(model.model_type))}</Badge>
                           {model.model_id}
                           {cachedLLMURLs.some((item) => item.includes(model.model_id)) ? (
-                            <Badge className="tw-ml-1 tw-mb-1" variant="outline">
+                            <Badge className="ml-1 mb-1" variant="outline">
                               {t('add_llm_card.cached')}
                             </Badge>
                           ) : null}
                           {functionCallingModelIds.includes(model.model_id) ? (
-                            <Badge className="tw-ml-1 tw-mb-1" variant="outline">
+                            <Badge className="ml-1 mb-1" variant="outline">
                               {t('add_llm_card.function_calling')}
                             </Badge>
                           ) : null}
                           {model.vram_required_MB ? (
-                            <Badge className="tw-ml-1" variant="outline">
+                            <Badge className="ml-1" variant="outline">
                               VRAM: {model.vram_required_MB.toLocaleString('en-US')} MB
                             </Badge>
                           ) : null}
@@ -227,41 +222,41 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           </Popover>
         </div>
         {selectedModel ? (
-          <div className="tw-mt-4">
-            <div className="tw-mt-4 tw-text-sm tw-text-muted-foreground tw-center tw-flex tw-gap-1">
+          <div className="mt-4">
+            <div className="mt-4 text-sm text-muted-foreground center flex gap-1">
               {hasCache ? (
-                <Badge className="tw-mb-1" variant="default">
+                <Badge className="mb-1" variant="default">
                   {t('add_llm_card.has_model_cache')}
                 </Badge>
               ) : null}
               {functionCallingModelIds.includes(selectedModel.model_id) ? (
-                <Badge className="tw-mb-1" variant="default">
+                <Badge className="mb-1" variant="default">
                   {t('add_llm_card.function_calling')}
                 </Badge>
               ) : null}
               {selectedModel.low_resource_required ? (
-                <Badge className="tw-mb-1" variant="default">
+                <Badge className="mb-1" variant="default">
                   {t('add_llm_card.low_resource_required')}
                 </Badge>
               ) : null}
             </div>
-            <div className="tw-mt-2 tw-text-sm tw-text-muted-foreground tw-center tw-flex">
-              <span className="tw-font-bold tw-mr-2">{t('add_llm_card.model_type')}</span>
+            <div className="mt-2 text-sm text-muted-foreground center flex">
+              <span className="font-bold mr-2">{t('add_llm_card.model_type')}</span>
               {t(modelTypeToString(selectedModel.model_type))}
             </div>
-            <div className="tw-mt-2 tw-text-sm tw-text-muted-foreground">
-              <span className="tw-font-bold tw-mr-2">{t('add_llm_card.model_url')}</span>
+            <div className="mt-2 text-sm text-muted-foreground">
+              <span className="font-bold mr-2">{t('add_llm_card.model_url')}</span>
               {selectedModel.model}
             </div>
             {selectedModel.vram_required_MB ? (
-              <div className="tw-mt-2 tw-text-sm tw-text-muted-foreground">
-                <span className="tw-font-bold tw-mr-2">{t('add_llm_card.model_vram')}</span>
+              <div className="mt-2 text-sm text-muted-foreground">
+                <span className="font-bold mr-2">{t('add_llm_card.model_vram')}</span>
                 {selectedModel.vram_required_MB?.toLocaleString('en-US')} MB
               </div>
             ) : null}
             {selectedModel.overrides?.context_window_size ? (
-              <div className="tw-mt-2 tw-text-sm tw-text-muted-foreground">
-                <span className="tw-font-bold tw-mr-2">
+              <div className="mt-2 text-sm text-muted-foreground">
+                <span className="font-bold mr-2">
                   {t('add_llm_card.model_context_window_size')}
                 </span>
                 {selectedModel.overrides.context_window_size?.toLocaleString('en-US')}
@@ -270,10 +265,10 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           </div>
         ) : null}
       </CardContent>
-      <CardFooter className="tw-flex tw-justify-between">
-        <Button onClick={hanldeSubmit} disabled={!input || creatingLLM} className="tw-w-full">
+      <CardFooter className="flex justify-between">
+        <Button onClick={hanldeSubmit} disabled={!input || creatingLLM} className="w-full">
           {creatingLLM ? (
-            <LazyIcon className={'tw-animate-spin'} size={24} name={'loader-circle'} />
+            <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
           ) : hasCache ? (
             t('add_llm_card.button_add')
           ) : (

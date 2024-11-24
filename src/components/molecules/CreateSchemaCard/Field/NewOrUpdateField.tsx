@@ -195,7 +195,7 @@ const NewOrUpdateField = memo(
     const shouldShowChildData = ['object', 'array'].includes(currentRow.type)
 
     return (
-      <div className="tw-w-full tw-p-1">
+      <div className="w-full p-1">
         <div>
           <Label>{t('add_schema_card.field.name')}</Label>
           <Input
@@ -229,34 +229,34 @@ const NewOrUpdateField = memo(
             </SelectContent>
           </Select>
         </div>
-        <div className="tw-flex tw-items-center tw-h-10">
+        <div className="flex items-center h-10">
           <Label>{t('add_schema_card.field.required')}</Label>
           <Checkbox
-            className="tw-ml-2"
+            className="ml-2"
             aria-label="Select row"
             onCheckedChange={handleChangeRequired}
             checked={currentRow?.required}
           />
         </div>
         {shouldShowChildData ? (
-          <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-2">
+          <div className="mt-2 flex flex-col gap-2">
             <Label>{t('add_schema_card.children')}</Label>
             <FieldList data={currentRow?.data || []} setData={handleSetChildData} />
           </div>
         ) : null}
         {currentRow?.type === 'enum' ? (
-          <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-2">
+          <div className="mt-2 flex flex-col gap-2">
             <Label>{t('add_schema_card.field.enum')}</Label>
             <Input id="enum" onChange={handleChangeEnum} placeholder="Enum" />
           </div>
         ) : null}
         {!id ? (
-          <div className="tw-w-full tw-flex tw-justify-end tw-mt-2">
+          <div className="w-full flex justify-end mt-2">
             <Button
               variant="secondary"
               disabled={!currentRow.name || !currentRow.description || !currentRow.type}
               onClick={handleAddNew}
-              className="tw-w-full"
+              className="w-full"
             >
               {t('add_schema_card.field.add_field')}
             </Button>
