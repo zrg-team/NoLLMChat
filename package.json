@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://zrg-team.github.io/NoLLMChat/",
   "scripts": {
     "dev": "vite --force --host",
     "build": "tsc -b && vite build",
@@ -11,7 +12,9 @@
     "analyze": "npx vite-bundle-visualizer",
     "prettier": "prettier --write \"**/*.{ts,tsx}\" \"!./apps/ultron/volumes\" --config \".prettierrc.json\" --cache",
     "prepare": "husky",
-    "postinstall": "npx patch-package"
+    "postinstall": "npx patch-package",
+    "predeploy" : "yarn build",
+    "deploy" : "gh-pages -d dist"
   },
   "dependencies": {
     "@assistant-ui/react": "^0.5.37",
@@ -100,6 +103,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
+    "gh-pages": "^6.2.0",
     "globals": "^15.9.0",
     "husky": "^9.1.7",
     "pinst": "^3.0.0",
