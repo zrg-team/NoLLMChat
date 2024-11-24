@@ -17,7 +17,7 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
   const { id, data, isConnectable } = props
 
   const jsonl = useMemo(() => {
-    if (!data?.entity) {
+    if (!data?.entity?.jsonl) {
       return {
         headers: [],
         rows: [],
@@ -37,7 +37,7 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
         }
       }),
     }
-  }, [data?.entity])
+  }, [data?.entity?.jsonl, data.entity.headers])
 
   return (
     <div className="min-w-80">

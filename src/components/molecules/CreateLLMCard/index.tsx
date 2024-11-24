@@ -38,7 +38,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [provider, setProvider] = useState<`${LLMProviderEnum}`>()
+  const [provider, setProvider] = useState<`${LLMProviderEnum}`>(LLMProviderEnum.WebLLM)
   const [hasCache, setHasCache] = useState(false)
 
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)

@@ -33,7 +33,7 @@ export class CSVData {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.threads)
+  @ManyToOne(() => Session, (entity: Session) => entity.csv_datas)
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

@@ -33,7 +33,7 @@ export class JSONLData {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.threads)
+  @ManyToOne(() => Session, (entity: Session) => entity.jsonl_datas)
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

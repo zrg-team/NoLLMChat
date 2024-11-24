@@ -35,7 +35,7 @@ export class ToolDefinition {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.prompts)
+  @ManyToOne(() => Session, (entity: Session) => entity.tool_definitions)
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }
