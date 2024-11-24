@@ -4,6 +4,8 @@ import { Handle, Position } from '@xyflow/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { Badge } from 'src/lib/shadcn/ui/badge'
+import { useModal } from '@ebay/nice-modal-react'
+import ViewDataDetailDialog from 'src/components/molecules/dialogs/ViewDataDetailDialog'
 
 import { PromptNodeProps } from './type'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -13,15 +15,23 @@ export const PromptNode = memo((props: PromptNodeProps) => {
 
   useConnectionToHandler(id)
 
+  const viewDetailDialog = useModal(ViewDataDetailDialog)
+
   const content = useMemo(() => {
     return `${data.entity?.prefix ? `${data.entity?.prefix}\n` : ''}${data.entity?.content || ''}`
   }, [data.entity?.prefix, data.entity?.content])
 
   const promptArguments = useMemo(() => {
-    const regex = /{{(.*?)}}/g
+    const regex = /{(.*?)}/g
     const matches = content.match(regex)
-    return matches?.map((match) => match.replace('{{', '').replace('}}', '')) || []
+    return matches?.map((match) => match.replace('{', '').replace('}', '')) || []
   }, [content])
+
+  const isOverLimit = content.length > 990
+
+  const handleOpenDetail = () => {
+    viewDetailDialog.show({ title: 'Prompt', content  })
+  }
 
   return (
     <div className="min-w-56">
@@ -32,7 +42,10 @@ export const PromptNode = memo((props: PromptNodeProps) => {
           <LazyIcon size={24} name={'notepad-text'} />
           <div className="ml-2">
             <AlertTitle>{`${data.entity?.role || ''}`}</AlertTitle>
-            <AlertDescription>{content}</AlertDescription>
+            <AlertDescription onClick={isOverLimit ? handleOpenDetail : undefined}>
+              {isOverLimit ? `${content.slice(0, 990)}...` : content}
+              <span className='float-right'><LazyIcon name='chevron-right' /></span>
+            </AlertDescription>
             {promptArguments?.length
               ? promptArguments.map((argument, index) => {
                   return (

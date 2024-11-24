@@ -1,23 +1,12 @@
-import { memo, useCallback, useState } from 'react'
+import { memo } from 'react'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'src/lib/shadcn/ui/select'
-import { MessageRoleEnum, PromptTypeEnum, Thread } from 'src/services/database/types'
-import { Textarea } from 'src/lib/shadcn/ui/textarea'
-import { Button } from 'src/lib/shadcn/ui/button'
-import LazyIcon from 'src/components/atoms/LazyIcon'
+import { Card, CardContent, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
+import { Prompt, Thread } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
 import { useCreatePrompt } from 'src/hooks/mutations/use-create-prompt'
-import { Label } from 'src/lib/shadcn/ui/label'
 
-import { PROMPT_ROLES, PROMPT_TYPES } from './constants'
+import PromptForm from './PromptForm'
 
 const CreatePromptCard = memo(
   (
@@ -28,30 +17,23 @@ const CreatePromptCard = memo(
     },
   ) => {
     const { id, thread, setDialog } = props
-    const [input, setInput] = useState('')
-    const [promptType, setPromptType] = useState<`${PromptTypeEnum}`>()
-    const [promptRole, setPromptRole] = useState<`${MessageRoleEnum}`>()
-    const [promptPrefix, setPromptPrefix] = useState('')
 
     const { t } = useTranslation('components')
     const { toast } = useToast()
     const node = useInternalNode(id)
     const { createPrompt, loading } = useCreatePrompt()
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (data: Partial<Prompt>) => {
       if (node) {
         try {
+          if (!data?.content) {
+            throw new Error('Prompt data is missing')
+          }
           await createPrompt(node, {
-            prefix: promptPrefix,
-            content: input,
-            type: promptType,
-            role: promptRole,
+            ...data,
+            content: data.content,
             thread,
           })
-          setInput('')
-          setPromptPrefix('')
-          setPromptRole(undefined)
-          setPromptType(undefined)
           setDialog?.(false)
         } catch (error) {
           toast({
@@ -61,97 +43,19 @@ const CreatePromptCard = memo(
       }
     }
 
-    const handleOnchange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setInput(e.target.value)
-    }, [])
-
-    const handleOnchangePrefix = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setPromptPrefix(e.target.value)
-    }, [])
-
-    const handleOnSelectType = useCallback((value: `${PromptTypeEnum}`) => {
-      if (value === PromptTypeEnum.FewShotExample) {
-        setInput('Question: {input}\nAnswer: {output}')
-      }
-      setPromptType(value)
-    }, [])
-
-    const handleOnSelectRole = useCallback((value: `${MessageRoleEnum}`) => {
-      setPromptRole(value)
-    }, [])
-
     return (
       <Card className="mw-full">
         <CardHeader>
           <CardTitle>{t('add_prompt_card.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid w-full gap-1.5">
-            <Label>{t('add_prompt_card.prompt_type')}</Label>
-            <Select value={promptType} onValueChange={handleOnSelectType}>
-              <SelectTrigger className="w-full mb-4">
-                <SelectValue placeholder={t('add_prompt_card.type_select_placeholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(PROMPT_TYPES).map((item) => {
-                  return (
-                    <SelectItem key={item.value} value={item.value}>
-                      {t(item.label)}
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
-            <Label>{t('add_prompt_card.prompt_role')}</Label>
-            <Select value={promptRole} onValueChange={handleOnSelectRole}>
-              <SelectTrigger className="w-full mb-4">
-                <SelectValue placeholder={t('add_prompt_card.role_select_placeholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(PROMPT_ROLES).map((item) => {
-                  return (
-                    <SelectItem key={item.value} value={item.value}>
-                      {t(item.label)}
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
-            {promptType === PromptTypeEnum.FewShotExample && (
-              <>
-                <Label>{t('add_prompt_card.prompt_prefix')}</Label>
-                <Textarea
-                  value={promptPrefix}
-                  onChange={handleOnchangePrefix}
-                  disabled={false}
-                  placeholder={t('add_prompt_card.placeholder')}
-                  id="message"
-                />
-                <Label>{t('add_prompt_card.prompt_content')}</Label>
-                <div className="w-full border-0 text-gray-700 flex text-sm justify-end items-center">
-                  <LazyIcon name="info" className="mr-2" size={14} />
-                  {t('add_prompt_card.few_shot_example_note')}
-                </div>
-              </>
-            )}
-            <Textarea
-              value={input}
-              onChange={handleOnchange}
-              disabled={false}
-              placeholder={t('add_prompt_card.placeholder')}
-              id="message"
-            />
-          </div>
+          <PromptForm
+            onSubmit={handleSubmit}
+            loading={loading}
+            defaultPromptRole='system'
+            defaultPromptType='chat'
+          />
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button onClick={handleSubmit} disabled={!input?.length} className="w-full">
-            {loading ? (
-              <LazyIcon name="loader-circle" className="animate-spin" />
-            ) : (
-              t('add_prompt_card.button')
-            )}
-          </Button>
-        </CardFooter>
       </Card>
     )
   },

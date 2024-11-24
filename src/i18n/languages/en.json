@@ -152,6 +152,7 @@
       "search": "Search",
       "text": "Text",
       "file": "File",
+      "create_prompt": "Create Prompt",
       "add_text": {
         "id": "ID",
         "id_placeholder":"Input ID here...",
@@ -324,6 +325,10 @@
       "errors": {
         "delete_failed": "Failed to delete session."
       }
+    },
+    "create_vector_database_prompt": {
+      "title": "Create prompt from search result",
+      "fill_content_note": "Use {content} as similarity result placeholder in the prompt."
     }
   },
   "atoms": {

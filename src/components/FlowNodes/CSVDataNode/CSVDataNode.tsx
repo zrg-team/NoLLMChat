@@ -44,7 +44,7 @@ export const CSVDataNode = memo((props: CSVDataNodeProps) => {
               </Label>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pb-0">
             <DataViewer data={csv.rows} headers={csv.headers} />
           </CardContent>
         </Card>

@@ -1,11 +1,14 @@
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
+import { Document } from '@langchain/core/documents'
 import { Handle, Position, useInternalNode } from '@xyflow/react'
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/lib/shadcn/ui/tabs'
+import { useModal } from '@ebay/nice-modal-react'
+import CreatePromptDialog from 'src/components/molecules/dialogs/CreateVectorDatabasePromptDialog'
 
 import { VectorDatabaseNodeProps } from './type'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -21,6 +24,8 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   const node = useInternalNode(props.id)
   const { id, data, isConnectable } = props
   const { loading, similaritySearchWithScore, indexData } = useActions(id)
+
+  const createPromptDialog = useModal(CreatePromptDialog)
 
   useConnectionToHandler(id)
 
@@ -43,6 +48,16 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
       return documents
     },
     [similaritySearchWithScore],
+  )
+
+  const handleCreatePrompt = useCallback(
+    (content: [Document, number][]) => {
+      createPromptDialog.show({
+        source: node,
+        documents: content.map(([doc]) => doc),
+      })
+    },
+    [createPromptDialog, node],
   )
 
   const handleIndexPDF = useCallback(
@@ -89,7 +104,11 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
       case 'search':
         return (
           <TabsContent value="search">
-            <VectorSearch loading={loading} handleSimilaritySearch={handleSimilaritySearch} />
+            <VectorSearch
+              loading={loading}
+              onSimilaritySearch={handleSimilaritySearch}
+              onCreatePrompt={handleCreatePrompt}
+            />
           </TabsContent>
         )
       case 'new':
@@ -110,7 +129,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
           </TabsContent>
         )
     }
-  }, [handleCreateData, handleIndexPDF, handleSimilaritySearch, loading, mode, progress])
+  }, [handleCreateData, handleCreatePrompt, handleIndexPDF, handleSimilaritySearch, loading, mode, progress])
 
   return (
     <div className="min-w-64">

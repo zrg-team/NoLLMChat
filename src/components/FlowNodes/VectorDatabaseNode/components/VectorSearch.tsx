@@ -17,21 +17,23 @@ import {
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { cn } from 'src/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { Button } from 'src/lib/shadcn/ui/button'
 
 const K_RANGE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 export const VectorSearch = memo(
   (props: {
     loading: boolean
-    handleSimilaritySearch: (input: string, k?: number) => Promise<[Document, number][] | undefined>
+    onCreatePrompt?: (content: [Document, number][]) => void
+    onSimilaritySearch: (input: string, k?: number) => Promise<[Document, number][] | undefined>
   }) => {
     const { t } = useTranslation('flows')
     const [value, setValue] = useState('')
     const [documents, setDocuments] = useState<[Document, number][] | undefined>([])
     const [k, setK] = useState(`${1}`)
-    const { loading, handleSimilaritySearch } = props
+    const { loading, onSimilaritySearch, onCreatePrompt } = props
 
     const handleSeach = async () => {
-      setDocuments(await handleSimilaritySearch(value, +k))
+      setDocuments(await onSimilaritySearch(value, +k))
       setValue('')
     }
     const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -103,6 +105,11 @@ export const VectorSearch = memo(
             )
           })}
         </Accordion>
+        {documents?.length && onCreatePrompt ? (
+          <Button disabled={loading} onClick={() => onCreatePrompt(documents)} className="w-full">
+            {t('vector_database_node.create_prompt')}
+          </Button>
+        ) : undefined}
       </div>
     )
   },

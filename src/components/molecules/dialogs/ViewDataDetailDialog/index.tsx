@@ -13,18 +13,18 @@ const ViewDataDetailDialog = create<CreateSessionProps>(({ title, content }) => 
 
   return (
     <Dialog open={currentModal.visible} onOpenChange={currentModal.hide}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <div className="flex">
             <LazyIcon name="file" className="mr-2 h-4 w-4" />
             <DialogTitle>{title}</DialogTitle>
           </div>
         </DialogHeader>
-        <div className="mx-auto w-full max-w-5xl min-h-96 max-h-96">
+        <div className="mx-auto w-full min-h-96 max-h-96 overflow-hidden">
           <div className="relative w-full h-full overflow-hidden rounded-xl p-1 border border-border">
-            <p className="break-all h-full overflow-y-auto bg-background font-mono text-xs w-full">
+            <pre className="break-all h-full overflow-y-auto bg-background font-mono text-xs w-full">
               {content}
-            </p>
+            </pre>
           </div>
         </div>
       </DialogContent>

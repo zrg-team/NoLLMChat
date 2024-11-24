@@ -54,7 +54,7 @@ export const JSONLDataNode = memo((props: JSONLDataNodeProps) => {
               </Label>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pb-0">
             <DataViewer
               data={jsonl.rows}
               headers={jsonl.headers}
