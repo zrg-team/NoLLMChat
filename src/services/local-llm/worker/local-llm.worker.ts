@@ -17,6 +17,7 @@ import {
 import { AIMessage, BaseMessage } from '@langchain/core/messages'
 import { convertToJSON, convertToZodSchema } from 'src/utils/schema-format'
 import { safeParseJSON } from 'src/utils/json'
+import { logDebug, logInfo } from 'src/utils/worker-logger'
 
 import {
   convertToChatCompletionTool,
@@ -65,6 +66,7 @@ type MessagePayload = (
   BaseMessagePayload
 
 async function handlePayload(data: MessagePayload) {
+  logDebug('Received payload:', data)
   if ((!engine || !model) && data.type !== 'load') {
     throw new Error('LLM_NOT_LOADED_YET')
   }
@@ -247,5 +249,7 @@ async function handlePayload(data: MessagePayload) {
 
 // Listen for messages from the main thread
 listenForMessages<MessagePayload>(handlePayload, { timeout: 10000000 })
+
+logInfo('Local LLM worker initialized')
 
 init()
