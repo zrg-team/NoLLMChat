@@ -40,6 +40,8 @@ export const LLMNode = memo((props: LLMNodeProps) => {
         return <LazyIcon size={24} name={'brain'} />
       case LLMStatusEnum.Loading:
         return <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
+      default:
+        return <LazyIcon size={24} name={'brain'} />
     }
   }, [data.status])
 
@@ -95,9 +97,9 @@ export const LLMNode = memo((props: LLMNodeProps) => {
       <div>
         <NodeHeader id={id} />
         <Alert className="flex justify-center">
-          <div className="ml-2 mt-1 pt-4">
-            <AlertTitle className="flex gap-2 items-center">
-              {llmIcon}
+          {llmIcon}
+          <div className="ml-2 pt-1">
+            <AlertTitle className="flex gap-2 items-center pr-6">
               {`${data?.entity?.name || ''}`}
             </AlertTitle>
             <AlertDescription>{`${data.label || ''}`}</AlertDescription>
