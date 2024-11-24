@@ -39,7 +39,7 @@ export const useCreateVectorDatabase = () => {
 
         // Default JSONLData source
         const databaseSource = await getRepository('JSONLData').save({
-          headers: encodeSplitter(['pageContent', 'vectors', 'metadata']),
+          headers: encodeSplitter(['content', 'embedding', 'metadata']),
           jsonl: '',
           session_id: sessionId,
         })

@@ -18,6 +18,16 @@ const IndexNewText = memo(
     const [id, setId] = useState('')
     const [text, setText] = useState('')
 
+    const handleIndexText = async () => {
+      if (!text) {
+        return
+      }
+
+      await onCreateData({ id: id, content: text })
+      setId('')
+      setText('')
+    }
+
     return (
       <div className="min-w-80">
         <div className="flex flex-col space-y-1.5 mt-3">
@@ -40,11 +50,7 @@ const IndexNewText = memo(
           />
         </div>
         <div className="flex justify-between mt-6">
-          <Button
-            onClick={() => onCreateData({ id: id, content: text })}
-            disabled={loading || !text?.length}
-            className="w-full"
-          >
+          <Button onClick={handleIndexText} disabled={loading || !text?.length} className="w-full">
             {loading ? (
               <LazyIcon name="loader-circle" className="animate-spin" />
             ) : (

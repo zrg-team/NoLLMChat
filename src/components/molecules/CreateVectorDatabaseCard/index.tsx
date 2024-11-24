@@ -50,7 +50,7 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
   }, [])
 
   const handleOnSelectTextSplitter = useCallback((value: string) => {
-    setTextSplitter((prev) => ({ ...prev, type: value }))
+    setTextSplitter((prev) => ({ ...prev, type: value, chunkSize: 500, chunkOverlap: 40 }))
   }, [])
 
   const handleOnChangeName = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +85,8 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
             }
           : undefined,
       )
+      setName('')
+      setTextSplitter({})
     } catch {
       toast({
         description: t('create_vector_database_card.errors.create_failed'),
@@ -170,11 +172,13 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
               <CardContent>
                 <Label>{t('create_vector_database_card.text_splitter_chunksize')}</Label>
                 <Input
+                  value={textSplitter.chunkSize}
                   onChange={handleOnChangeChunkSize}
                   placeholder={t('create_vector_database_card.text_splitter_chunksize_placeholder')}
                 />
                 <Label>{t('create_vector_database_card.text_splitter_chunkoverlap')}</Label>
                 <Input
+                  value={textSplitter.chunkOverlap}
                   onChange={handleOnChangeChunkOverlap}
                   placeholder={t(
                     'create_vector_database_card.text_splitter_chunkoverlap_placeholder',

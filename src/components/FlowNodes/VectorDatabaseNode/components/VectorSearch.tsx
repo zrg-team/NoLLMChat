@@ -30,11 +30,14 @@ export const VectorSearch = memo(
     const [k, setK] = useState(`${1}`)
     const { loading, handleSimilaritySearch } = props
 
+    const handleSeach = async () => {
+      setDocuments(await handleSimilaritySearch(value, +k))
+      setValue('')
+    }
     const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault()
-        setDocuments(await handleSimilaritySearch(value, +k))
-        setValue('')
+        handleSeach()
       }
     }
 
@@ -72,7 +75,7 @@ export const VectorSearch = memo(
             <button
               type="button"
               disabled={loading}
-              onClick={() => handleSimilaritySearch(value, +k)}
+              onClick={handleSeach}
               className="absolute right-3 top-5 -translate-y-1/2 rounded-xl bg-black/5 dark:bg-white/5 p-1"
             >
               <LazyIcon
