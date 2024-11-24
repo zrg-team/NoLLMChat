@@ -21,10 +21,11 @@ export default function IndexNewFile({
   const { t } = useTranslation('flows')
   const [file, setFile] = useState<File>()
 
-  function handleFileSubmit() {
+  const handleFileSubmit = async () => {
     if (!file) return
 
-    onFileSubmit(file)
+    await onFileSubmit(file)
+    setFile(undefined)
   }
 
   return (

@@ -1,4 +1,4 @@
-import { logError, logWarn } from 'src/utils/worker-logger'
+import { logDebug, logError, logWarn } from 'src/utils/worker-logger'
 
 const processes = new Map<string, unknown>()
 
@@ -32,7 +32,7 @@ export function sendToMainThread(
 ) {
   const process = processes.get(id)
   if (!process && id !== WOKER_INIT_MESSAGE_ID) {
-    logWarn('No process found for message', id)
+    logWarn('[No process found for message]', id)
     return
   }
   self.postMessage({
@@ -40,6 +40,7 @@ export function sendToMainThread(
     type,
     payload,
   } as BaseMessageResponse)
+  logDebug('[Message sent to main thread]', { id, type, payload })
 }
 
 function handlePayloadFunc<M extends BaseMessagePayload>(handler: (data: M) => Promise<unknown>) {
@@ -141,6 +142,6 @@ export const workerMessagesHandler = <
   } else if (event.data.type === 'started') {
     // do nothing
   } else {
-    logWarn('Unknown message type', event.data)
+    logWarn('[Unknown message type]', event.data)
   }
 }

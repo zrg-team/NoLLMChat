@@ -266,6 +266,7 @@ export const useCreateMessage = () => {
             onMessageUpdate?.({
               id: messagesInfo.aiMessageNode.id,
               nodeData: {
+                loading: true,
                 content: response,
               },
             })
@@ -277,6 +278,7 @@ export const useCreateMessage = () => {
           onMessageUpdate?.({
             id: messagesInfo.aiMessageNode.id,
             nodeData: {
+              loading: true,
               content,
             },
           })

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 import { MessageNodeData } from '../type'
 import { Badge } from 'src/lib/shadcn/ui/badge'
+import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 
 export function AIMessageComponent({ data }: { data: MessageNodeData }) {
   const { t } = useTranslation('flows')
@@ -54,6 +55,7 @@ export function AIMessageComponent({ data }: { data: MessageNodeData }) {
             })
           : null}
       </div>
+      {data.loading ? <BorderBeam size={350} duration={10} /> : undefined}
     </Alert>
   )
 }
