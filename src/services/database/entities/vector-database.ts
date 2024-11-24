@@ -44,7 +44,9 @@ export class VectorDatabase {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.vector_databases)
+  @ManyToOne(() => Session, (entity: Session) => entity.vector_databases, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

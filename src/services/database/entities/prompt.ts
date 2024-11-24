@@ -53,7 +53,9 @@ export class Prompt {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.prompts)
+  @ManyToOne(() => Session, (entity: Session) => entity.prompts, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

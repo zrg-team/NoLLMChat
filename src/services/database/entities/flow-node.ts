@@ -47,7 +47,9 @@ export class FlowNode {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.flow_nodes)
+  @ManyToOne(() => Session, (entity: Session) => entity.flow_nodes, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }

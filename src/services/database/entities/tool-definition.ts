@@ -35,7 +35,9 @@ export class ToolDefinition {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.tool_definitions)
+  @ManyToOne(() => Session, (entity: Session) => entity.tool_definitions, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'session_id' })
   session?: Session
 }
