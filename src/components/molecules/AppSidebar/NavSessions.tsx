@@ -45,19 +45,19 @@ export function NavSessions({
   )
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:tw-hidden">
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>
-        <div className="tw-text-sm">{t('sessions')}</div>
+        <div className="text-sm">{t('sessions')}</div>
       </SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
-          <NewSessionButton onClick={handleNewSession} className="tw-w-full" />
+          <NewSessionButton onClick={handleNewSession} className="w-full" />
         </SidebarMenuItem>
         {sessions.map((item) => (
-          <SidebarMenuItem className="tw-cursor-pointer" key={item.id}>
+          <SidebarMenuItem className="cursor-pointer" key={item.id}>
             <SidebarMenuButton asChild onClick={() => setCurrentSession(item)}>
-              <div className="tw-flex tw-flex-row tw-justify-between tw-items-center">
-                <div className="tw-flex tw-gap-2">
+              <div className="flex flex-row justify-between items-center">
+                <div className="flex gap-2">
                   {currentSession?.id === item.id ? (
                     <LazyIcon size={16} color="green" name="check" />
                   ) : (
@@ -75,8 +75,8 @@ export function NavSessions({
           </SidebarMenuItem>
         ))}
         <SidebarMenuItem>
-          <SidebarMenuButton className="tw-text-sidebar-foreground/70">
-            <LazyIcon name="ellipsis" className="tw-text-sidebar-foreground/70" />
+          <SidebarMenuButton className="text-sidebar-foreground/70">
+            <LazyIcon name="ellipsis" className="text-sidebar-foreground/70" />
             <span>{t('more_session')}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>

@@ -43,7 +43,7 @@ export default function HomeInner() {
   )
 
   return (
-    <div className="tw-w-full tw-h-full">
+    <div className="w-full h-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}

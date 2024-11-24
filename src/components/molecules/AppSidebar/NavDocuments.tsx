@@ -31,7 +31,7 @@ export function NavDocuments({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>
-        <div className="tw-text-sm">{t('title')}</div>
+        <div className="text-sm">{t('title')}</div>
       </SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
@@ -39,23 +39,23 @@ export function NavDocuments({
             key={item.title}
             asChild
             defaultOpen={item.isActive}
-            className="tw-group/collapsible"
+            className="group/collapsible"
           >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton className="tw-cursor-pointer" tooltip={t(item.title)}>
+                <SidebarMenuButton className="cursor-pointer" tooltip={t(item.title)}>
                   {item.icon}
                   <span>{t(item.title)}</span>
                   <LazyIcon
                     name="chevron-right"
-                    className="tw-ml-auto tw-transition-transform tw-duration-200 tw-group-data-[state=open]/collapsible:rotate-90"
+                    className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
                   />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem className="tw-cursor-pointer" key={t(subItem.title)}>
+                    <SidebarMenuSubItem className="cursor-pointer" key={t(subItem.title)}>
                       <SidebarMenuSubButton asChild>
                         <span>{t(subItem.title)}</span>
                       </SidebarMenuSubButton>

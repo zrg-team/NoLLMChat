@@ -65,7 +65,7 @@ export const CSVDataNode = memo((props: CSVDataNodeProps) => {
     let renderLeftEllipsis = false
     let renderRightEllipsis = false
     return (
-      <Pagination className="tw-mt-4 tw-mb-4 tw-ml-4 tw-mr-4 tw-w-full">
+      <Pagination className="mt-4 mb-4 ml-4 mr-4 w-full">
         <PaginationContent>
           {pagination.page > 1 ? (
             <PaginationItem
@@ -127,11 +127,11 @@ export const CSVDataNode = memo((props: CSVDataNodeProps) => {
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Card className="tw-min-w-32 tw-min-h-16 tw-p-4">
-          <CardHeader className="!tw-p-0">
-            <div className="tw-pt-2 tw-flex !tw-flex-row">
-              <LazyIcon name="file-spreadsheet" className="tw-mr-2" />
-              <Label className="!tw-font-medium tw-leading-none tw-tracking-tight tw-pr-8">
+        <Card className="min-w-32 min-h-16 p-4">
+          <CardHeader className="!p-0">
+            <div className="pt-2 flex !flex-row">
+              <LazyIcon name="file-spreadsheet" className="mr-2" />
+              <Label className="!font-medium leading-none tracking-tight pr-8">
                 {FlowNodeTypeEnum.CSVData}{' '}
                 {showingRows?.length && csv?.rows?.length
                   ? `(${showingRows?.length || 0} / ${csv?.rows?.length || 0})`
@@ -140,13 +140,13 @@ export const CSVDataNode = memo((props: CSVDataNodeProps) => {
             </div>
           </CardHeader>
           <CardContent>
-            <Table className="tw-w-full">
+            <Table className="w-full">
               <TableHeader>
                 <TableRow>
                   {csv?.headers
                     ? csv?.headers.map((header) => (
                         <TableHead key={header}>
-                          <div className="tw-font-bold">{header}</div>
+                          <div className="font-bold">{header}</div>
                         </TableHead>
                       ))
                     : undefined}
@@ -158,7 +158,7 @@ export const CSVDataNode = memo((props: CSVDataNodeProps) => {
                       <TableRow key={`${index}`}>
                         {item
                           ? item.map((cell, cellIndex) => (
-                              <TableCell key={`${cellIndex}`} className="tw-p-4">
+                              <TableCell key={`${cellIndex}`} className="p-4">
                                 {cell}
                               </TableCell>
                             ))

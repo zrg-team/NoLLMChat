@@ -93,19 +93,19 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
   }
 
   return (
-    <Card className="tw-mw-full">
+    <Card className="mw-full">
       <CardHeader>
         <CardTitle>{t('create_vector_database_card.title')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="tw-grid tw-w-full tw-gap-1.5">
+        <div className="grid w-full gap-1.5">
           <Label>{t('create_vector_database_card.name')}</Label>
-          <Input className="tw-mb-4" value={name} onChange={handleOnChangeName} />
+          <Input className="mb-4" value={name} onChange={handleOnChangeName} />
           {SUPPORTED_VECTOR_DATABASE_SOURCE_TYPE?.length > 1 ? (
             <>
               <Label>{t('create_vector_database_card.storage_type')}</Label>
               <Select value={storageType} onValueChange={handleOnSelectStorageType}>
-                <SelectTrigger className="tw-w-full tw-mb-4">
+                <SelectTrigger className="w-full mb-4">
                   <SelectValue
                     placeholder={t('create_vector_database_card.provider_select_placeholder')}
                   />
@@ -126,7 +126,7 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
             <>
               <Label>{t('create_vector_database_card.provider')}</Label>
               <Select value={provider} onValueChange={handleOnSelectProvider}>
-                <SelectTrigger className="tw-w-full tw-mb-4">
+                <SelectTrigger className="w-full mb-4">
                   <SelectValue
                     placeholder={t('create_vector_database_card.provider_select_placeholder')}
                   />
@@ -145,7 +145,7 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
           ) : undefined}
           <Label>{t('create_vector_database_card.text_splitter')}</Label>
           <Select value={textSplitter.type} onValueChange={handleOnSelectTextSplitter}>
-            <SelectTrigger className="tw-w-full tw-mb-4">
+            <SelectTrigger className="w-full mb-4">
               <SelectValue
                 placeholder={t('create_vector_database_card.text_splitter_select_placeholder')}
               />
@@ -185,10 +185,10 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
           ) : undefined}
         </div>
       </CardContent>
-      <CardFooter className="tw-flex tw-justify-between">
-        <Button disabled={!textSplitter.type || !name} onClick={handleSubmit} className="tw-w-full">
+      <CardFooter className="flex justify-between">
+        <Button disabled={!textSplitter.type || !name} onClick={handleSubmit} className="w-full">
           {loading ? (
-            <LazyIcon name="loader-circle" className="tw-animate-spin" />
+            <LazyIcon name="loader-circle" className="animate-spin" />
           ) : (
             t('create_vector_database_card.create')
           )}

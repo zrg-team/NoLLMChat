@@ -31,12 +31,12 @@ const CreateTextDataCard = memo((props: NodeProps) => {
     }
   }
   return (
-    <Card className="tw-mw-full">
+    <Card className="mw-full">
       <CardHeader>
         <CardTitle>{t('add_text_data.title')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="tw-flex tw-flex-col tw-space-y-1.5 tw-mt-3">
+        <div className="flex flex-col space-y-1.5 mt-3">
           <Label htmlFor="name">{t('add_text_data.text')}</Label>
           <Textarea
             value={text}
@@ -44,21 +44,21 @@ const CreateTextDataCard = memo((props: NodeProps) => {
             placeholder={t('add_text_data.text_placeholder')}
           />
         </div>
-        <div className="tw-w-full tw-flex tw-mt-4 tw-justify-end">
-          <Button disabled={!text} onClick={handleAdd} className="tw-w-40">
+        <div className="w-full flex mt-4 justify-end">
+          <Button disabled={!text} onClick={handleAdd} className="w-40">
             {t('add_text_data.add')}
           </Button>
         </div>
         <DataTable data={data || []} />
       </CardContent>
-      <CardFooter className="tw-flex tw-justify-between">
+      <CardFooter className="flex justify-between">
         <Button
           onClick={handleCreateCSVData}
           disabled={loading || !data?.length}
-          className="tw-w-full"
+          className="w-full"
         >
           {loading ? (
-            <LazyIcon name="loader-circle" className="tw-animate-spin" />
+            <LazyIcon name="loader-circle" className="animate-spin" />
           ) : (
             t('add_text_data.create')
           )}

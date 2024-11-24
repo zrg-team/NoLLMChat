@@ -24,19 +24,19 @@ export const PromptNode = memo((props: PromptNodeProps) => {
   }, [content])
 
   return (
-    <div className="tw-min-w-56">
+    <div className="min-w-56">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Alert className="tw-flex tw-justify-center tw-max-w-64" variant="default">
+        <Alert className="flex justify-center max-w-64" variant="default">
           <LazyIcon size={24} name={'notepad-text'} />
-          <div className="tw-ml-2">
+          <div className="ml-2">
             <AlertTitle>{`${data.entity?.role || ''}`}</AlertTitle>
             <AlertDescription>{content}</AlertDescription>
             {promptArguments?.length
               ? promptArguments.map((argument, index) => {
                   return (
-                    <Badge key={index} className="tw-mt-2 tw-mr-1" variant="default">
+                    <Badge key={index} className="mt-2 mr-1" variant="default">
                       {argument}
                     </Badge>
                   )

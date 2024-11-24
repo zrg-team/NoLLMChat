@@ -8,7 +8,7 @@
     "css": "src/css/global.css",
     "baseColor": "neutral",
     "cssVariables": true,
-    "prefix": "tw-"
+    "prefix": ""
   },
   "aliases": {
     "components": "src/lib/shadcn",

@@ -66,12 +66,12 @@ export const SchemaNode = memo((props: SchemaNodeProps) => {
             <TabsTrigger value="password">{t('schema_node.zod')}</TabsTrigger>
           </TabsList>
           <TabsContent value="account">
-            <Card className="tw-p-4">
+            <Card className="p-4">
               <pre>{convertToTypeScriptInterface(data?.entity?.schema_items || [])}</pre>
             </Card>
           </TabsContent>
           <TabsContent value="password">
-            <Card className="tw-p-4">
+            <Card className="p-4">
               <pre>{convertToZodSchemaString(data?.entity?.schema_items || [])}</pre>
             </Card>
           </TabsContent>

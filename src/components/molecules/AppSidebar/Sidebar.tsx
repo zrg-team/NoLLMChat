@@ -89,7 +89,7 @@ export function AppSidebar({
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <div className="tw-h-1" />
+      <div className="h-1" />
       <SidebarContent>
         <NavSessions
           sessions={sessions || []}

@@ -18,18 +18,18 @@ export function AIMessageComponent({ data }: { data: MessageNodeData }) {
     }
   }, [data?.entity?.metadata])
   return (
-    <Alert className="tw-flex tw-justify-center tw-min-w-52">
+    <Alert className="flex justify-center min-w-52">
       <LazyIcon
-        className={cn(data.loading ? 'tw-animate-spin' : undefined)}
+        className={cn(data.loading ? 'animate-spin' : undefined)}
         size={24}
         name={data.loading ? 'loader' : 'bot'}
       />
-      <div className="tw-ml-2">
+      <div className="ml-2">
         <AlertTitle>
           {t(`message_node.message_roles.${data.entity?.role?.toLowerCase()}`)}
         </AlertTitle>
         <MarkdownPreview
-          className="!tw-text-sm [&_p]:tw-leading-relaxed"
+          className="!text-sm [&_p]:leading-relaxed"
           style={{
             maxWidth: '100%',
             background: 'transparent',

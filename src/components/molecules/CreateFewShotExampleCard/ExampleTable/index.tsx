@@ -11,7 +11,7 @@ import {
 export function ExampleTable({ data }: { data: { input: string; output: string }[] }) {
   const { t } = useTranslation('components')
   return (
-    <Table className="tw-w-full">
+    <Table className="w-full">
       <TableHeader>
         <TableRow>
           <TableHead>{t('add_few_shot_example_card.input')}</TableHead>
@@ -21,8 +21,8 @@ export function ExampleTable({ data }: { data: { input: string; output: string }
       <TableBody>
         {data?.map((item, index) => (
           <TableRow key={`${item.input}_${item.output}_${index}`}>
-            <TableCell className="tw-p-4">{item.input}</TableCell>
-            <TableCell className="tw-p-4">{item.output}</TableCell>
+            <TableCell className="p-4">{item.input}</TableCell>
+            <TableCell className="p-4">{item.output}</TableCell>
           </TableRow>
         ))}
       </TableBody>

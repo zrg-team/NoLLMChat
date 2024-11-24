@@ -6,9 +6,9 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 export const DefaultError = memo(({ error }: { error?: string }) => {
   const { t } = useTranslation('common')
   return (
-    <div className="tw-flex tw-items-center tw-justify-center tw-h-screen">
+    <div className="flex items-center justify-center h-screen">
       <LazyIcon size={30} name="shield-alert" />
-      <div className="tw-ml-4 tw-text-lg tw-font-semibold tw-text-center">
+      <div className="ml-4 text-lg font-semibold text-center">
         {error || t('something_went_wrong')}
       </div>
     </div>

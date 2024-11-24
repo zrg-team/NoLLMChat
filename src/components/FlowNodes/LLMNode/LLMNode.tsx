@@ -35,11 +35,11 @@ export const LLMNode = memo((props: LLMNodeProps) => {
   const llmIcon = useMemo(() => {
     switch (data.status) {
       case LLMStatusEnum.Downloading:
-        return <LazyIcon className={'tw-animate-spin'} size={24} name={'arrow-big-down-dash'} />
+        return <LazyIcon className={'animate-spin'} size={24} name={'arrow-big-down-dash'} />
       case LLMStatusEnum.Loaded:
         return <LazyIcon size={24} name={'brain'} />
       case LLMStatusEnum.Loading:
-        return <LazyIcon className={'tw-animate-spin'} size={24} name={'loader-circle'} />
+        return <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
     }
   }, [data.status])
 
@@ -50,32 +50,32 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     }
     if (loadingModel) {
       return (
-        <Button disabled={true} className="tw-w-full tw-mt-4">
-          <LazyIcon className={'tw-animate-spin'} size={24} name={'loader-circle'} />
+        <Button disabled={true} className="w-full mt-4">
+          <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
         </Button>
       )
     }
     if (data.status === LLMStatusEnum.Loaded) {
       return (
-        <Button onClick={createThread} className="tw-mt-4 tw-w-full">
+        <Button onClick={createThread} className="mt-4 w-full">
           {t('llm_node.create_thread_button')}
         </Button>
       )
     }
     return (
-      <div className="tw-flex tw-gap-2 tw-mt-4">
+      <div className="flex gap-2 mt-4">
         {hasCache ? (
           <Button disabled={queringThreads} onClick={queryThreads} className="">
             {
               <LazyIcon
                 size={24}
-                className={cn(queringThreads ? 'tw-animate-spin' : undefined)}
+                className={cn(queringThreads ? 'animate-spin' : undefined)}
                 name={queringThreads ? 'loader-circle' : 'message-square-more'}
               />
             }
           </Button>
         ) : null}
-        <Button disabled={loadingModel} onClick={loadModel} className="tw-w-full">
+        <Button disabled={loadingModel} onClick={loadModel} className="w-full">
           {t(hasCache ? 'llm_node.load_model_button' : 'llm_node.download_model_button')}
         </Button>
       </div>
@@ -94,9 +94,9 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     <div>
       <div>
         <NodeHeader id={id} />
-        <Alert className="tw-flex tw-justify-center">
-          <div className="tw-ml-2 tw-mt-1 tw-pt-4">
-            <AlertTitle className="tw-flex tw-gap-2 tw-items-center">
+        <Alert className="flex justify-center">
+          <div className="ml-2 mt-1 pt-4">
+            <AlertTitle className="flex gap-2 items-center">
               {llmIcon}
               {`${data?.entity?.name || ''}`}
             </AlertTitle>

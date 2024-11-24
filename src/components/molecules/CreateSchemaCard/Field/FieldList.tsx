@@ -30,7 +30,7 @@ const FieldList = memo(
             </AccordionItem>
           )
         })}
-        <Card className="tw-p-2 tw-mt-4">
+        <Card className="p-2 mt-4">
           <NewOrUpdateField setData={setData} data={data} />
         </Card>
       </Accordion>

@@ -17,9 +17,9 @@ export const EmbeddingNode = memo((props: EmbeddingNodeProps) => {
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Alert className="tw-flex tw-justify-center tw-max-w-64" variant="default">
+        <Alert className="flex justify-center max-w-64" variant="default">
           <LazyIcon size={24} name={'chart-scatter'} />
-          <div className="tw-ml-2 tw-pr-2">
+          <div className="ml-2 pr-2">
             <AlertTitle>{`${data.model || ''}`}</AlertTitle>
           </div>
         </Alert>

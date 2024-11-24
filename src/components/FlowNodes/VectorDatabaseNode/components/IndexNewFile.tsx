@@ -28,8 +28,8 @@ export default function IndexNewFile({
   }
 
   return (
-    <div className="tw-w-full tw-max-w-md tw-space-y-2 tw-mt-4">
-      <div className="tw-mb-6">
+    <div className="w-full max-w-md space-y-2 mt-4">
+      <div className="mb-6">
         <FileUploadInput
           progress={progress}
           loading={loading}
@@ -38,9 +38,9 @@ export default function IndexNewFile({
           file={file}
         />
       </div>
-      <Button disabled={!file || loading} onClick={handleFileSubmit} className="tw-w-full tw-mt-4">
+      <Button disabled={!file || loading} onClick={handleFileSubmit} className="w-full mt-4">
         {loading ? (
-          <LazyIcon name="loader-circle" className="tw-animate-spin" />
+          <LazyIcon name="loader-circle" className="animate-spin" />
         ) : (
           t('vector_database_node.add_file.upload')
         )}
