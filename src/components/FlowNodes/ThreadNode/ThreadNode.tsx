@@ -1,18 +1,23 @@
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Handle, Position, useHandleConnections, useReactFlow } from '@xyflow/react'
 import NewMessageCard from 'src/components/molecules/NewMessageCard'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
 import { Card, CardTitle } from 'src/lib/shadcn/ui/card'
-import { ThreadNodeProps } from './type'
-import { useActions } from './hooks/use-actions'
-import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { FlowNodeTypeEnum, Prompt, PromptTypeEnum } from 'src/services/database/types'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { useTranslation } from 'react-i18next'
+import { Button } from 'src/lib/shadcn/ui/button'
+import LazyIcon from 'src/components/atoms/LazyIcon'
+
+import { ThreadNodeProps } from './type'
+import { useActions } from './hooks/use-actions'
+import { useConnectionToHandler } from './hooks/use-connection-to-handler'
+import BlurFade from 'src/lib/shadcn/ui/blur-fade'
 
 export const ThreadNode = memo((props: ThreadNodeProps) => {
   const { id, data, isConnectable } = props
   const { t } = useTranslation('flows')
+  const [showThread, setShowThread] = useState(false)
   const connections = useHandleConnections({
     type: 'source',
   })
@@ -24,9 +29,22 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
 
   useConnectionToHandler(id)
 
+  const handleCreateMessage = useCallback(
+    async (...args: Parameters<typeof createMessage>) => {
+      const result = await createMessage(...args)
+      setShowThread(false)
+      return result
+    },
+    [createMessage],
+  )
+
   const containMessage = useMemo(() => {
     return connections.length > 0
   }, [connections])
+
+  const handleNewThread = useCallback(() => {
+    setShowThread((pre) => !pre)
+  }, [])
 
   const inner = useMemo(() => {
     const tags = targetConnections
@@ -64,15 +82,47 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
       <Card className="p-4 pt-2">
         <CardTitle className="mb-2">{t('thread_node.title')}</CardTitle>
         <div className="flex gap-1.5">{tags}</div>
+        <div className="mt-4 w-full flex justify-end">
+          <Button onClick={handleNewThread} variant="outline">
+            <LazyIcon name={showThread ? 'copy-minus' : 'copy-plus'} />
+            {showThread ? t('thread_node.hide') : t('thread_node.clone')}
+          </Button>
+        </div>
       </Card>
     )
-  }, [containMessage, createMessage, getNode, loading, props.data.entity, t, targetConnections])
+  }, [
+    containMessage,
+    createMessage,
+    getNode,
+    handleNewThread,
+    loading,
+    props.data.entity,
+    showThread,
+    t,
+    targetConnections,
+  ])
   return (
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
         {inner}
+        {showThread ? (
+          <>
+            <div className="w-[1px] absolute ml-[50%] h-[30px] bg-gray-500" />
+            <div className="absolute mt-[30px] w-full">
+              <div className="ml-[10%] w-80">
+                <BlurFade inView delay={0.15}>
+                  <NewMessageCard
+                    disabled={loading}
+                    loading={loading}
+                    onSubmit={handleCreateMessage}
+                  />
+                </BlurFade>
+              </div>
+            </div>
+          </>
+        ) : undefined}
       </div>
       <Handle type="source" position={Position.Bottom} id="a" isConnectable={isConnectable} />
     </div>

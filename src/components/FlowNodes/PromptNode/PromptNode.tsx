@@ -38,15 +38,17 @@ export const PromptNode = memo((props: PromptNodeProps) => {
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <NodeHeader id={id} />
-        <Alert className="flex justify-center max-w-64" variant="default">
+        <Alert className="flex justify-center max-w-72" variant="default">
           <LazyIcon size={24} name={'notepad-text'} />
-          <div className="ml-2">
+          <div className="ml-2 max-w-full break-words break-all">
             <AlertTitle>{`${data.entity?.role || ''}`}</AlertTitle>
             <AlertDescription onClick={isOverLimit ? handleOpenDetail : undefined}>
               {isOverLimit ? `${content.slice(0, 990)}...` : content}
-              <span className="float-right">
-                <LazyIcon name="chevron-right" />
-              </span>
+              {isOverLimit ? (
+                <span className="float-right">
+                  <LazyIcon name="chevron-right" />
+                </span>
+              ) : undefined}
             </AlertDescription>
             {promptArguments?.length
               ? promptArguments.map((argument, index) => {

@@ -81,7 +81,9 @@
       },
       "errors": {
         "llm_not_loaded_yet": "LLM not loaded yet."
-      }
+      },
+      "clone": "Clone",
+      "hide": "Hide"
     },
     "message_node": {
       "message_roles": {
@@ -96,7 +98,9 @@
         "llm_not_loaded_yet": "LLM not loaded yet.",
         "create_message": "Failed to create message."
       },
-      "tool_call": "{{name}} ({{args}})"
+      "tool_call": "{{name}} ({{args}})",
+      "new_thread": "Thread",
+      "hide_thread": "Hide"
     },
     "session_info_node": {
       "entities": {

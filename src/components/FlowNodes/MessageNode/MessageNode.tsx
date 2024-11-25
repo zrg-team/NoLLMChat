@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Handle, Position, useHandleConnections } from '@xyflow/react'
 import NewMessageCard from 'src/components/molecules/NewMessageCard'
@@ -13,9 +13,11 @@ import { AIMessageComponent } from './components/AIMessage'
 import { MessageNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
+import BlurFade from 'src/lib/shadcn/ui/blur-fade'
 
 export const MessageNode = memo((props: MessageNodeProps) => {
   const { id, data, isConnectable } = props
+  const [showThread, setShowThread] = useState(false)
   const { t } = useTranslation('common')
   const connections = useHandleConnections({
     type: 'source',
@@ -24,6 +26,15 @@ export const MessageNode = memo((props: MessageNodeProps) => {
   const { toast } = useToast()
 
   useConnectionToHandler(id)
+
+  const handleCreateMessage = useCallback(
+    async (...args: Parameters<typeof createMessage>) => {
+      const result = await createMessage(...args)
+      setShowThread(false)
+      return result
+    },
+    [createMessage],
+  )
 
   const isEnd = useMemo(() => {
     return connections.length === 0
@@ -39,31 +50,50 @@ export const MessageNode = memo((props: MessageNodeProps) => {
     })
   }, [toast, data, t])
 
+  const handleNewThread = useCallback(() => {
+    setShowThread((pre) => !pre)
+  }, [])
+
+  const newMessageCard = useMemo(() => {
+    if ((!isEnd && !showThread) || data.loading || loading) {
+      return undefined
+    }
+    return (
+      <>
+        <div className="w-[1px] absolute ml-[50%] h-[30px] bg-gray-500" />
+        <div className="absolute mt-[30px] w-full">
+          <div className="ml-[10%] w-80">
+            <BlurFade inView delay={0.15}>
+              <NewMessageCard disabled={loading} loading={loading} onSubmit={handleCreateMessage} />
+            </BlurFade>
+          </div>
+        </div>
+      </>
+    )
+  }, [data.loading, handleCreateMessage, isEnd, loading, showThread])
+
   return (
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="max-w-sm">
         <div className="w-auto">
           <NodeHeader id={id} />
-          {data.entity?.role === MessageRoleEnum.Human ? (
-            <HumanMessageComponent data={data} />
-          ) : (
-            <AIMessageComponent data={data} />
-          )}
+          <div>
+            {data.entity?.role === MessageRoleEnum.Human ? (
+              <HumanMessageComponent data={data} />
+            ) : (
+              <AIMessageComponent
+                data={data}
+                showThread={showThread}
+                onNewThread={!isEnd ? handleNewThread : undefined}
+              />
+            )}
+          </div>
           <Button onClick={handleCopy} className="absolute top-0 right-7" variant="link">
             <LazyIcon name="copy" size={16} />
           </Button>
-          {isEnd && !data.loading ? (
-            <div className="w-[1px] ml-[50%] h-[30px] bg-gray-500" />
-          ) : null}
-          {isEnd && !data.loading ? (
-            <div className="absolute">
-              <div className="ml-[-15%]">
-                <NewMessageCard disabled={loading} loading={loading} onSubmit={createMessage} />
-              </div>
-            </div>
-          ) : null}
         </div>
+        {newMessageCard}
       </div>
       <Handle type="source" position={Position.Bottom} id="a" isConnectable={isConnectable} />
     </div>

@@ -13,8 +13,8 @@
     "prettier": "prettier --write \"**/*.{ts,tsx}\" \"!./apps/ultron/volumes\" --config \".prettierrc.json\" --cache",
     "prepare": "husky",
     "postinstall": "npx patch-package",
-    "predeploy" : "yarn build",
-    "deploy" : "gh-pages -d dist"
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@assistant-ui/react": "^0.5.37",
