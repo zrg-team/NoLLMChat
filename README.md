@@ -4,6 +4,13 @@ The project aims to transform AI interaction by developing a platform that impro
 
 ## Intro
 
+<p align="center">
+    <a href="https://zrg-team.github.io/NoLLMChat/">✨✨✨ DEMO ✨✨✨</a>
+</p>
+<p align="center">
+    [■■□□□□□□□□] 20%
+</p>
+
 ![Intro Image](./public/intro.jpeg)
 
 ![Demo](./public/demo.gif)
