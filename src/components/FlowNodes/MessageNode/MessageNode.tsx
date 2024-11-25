@@ -19,6 +19,7 @@ import textToSpeech from 'src/utils/text-to-speech'
 export const MessageNode = memo((props: MessageNodeProps) => {
   const { id, data, isConnectable } = props
   const [showThread, setShowThread] = useState(false)
+  const [speaking, setSpeaking] = useState(false)
   const { t } = useTranslation('common')
   const connections = useHandleConnections({
     type: 'source',
@@ -53,13 +54,20 @@ export const MessageNode = memo((props: MessageNodeProps) => {
 
   const handleSpeech = useCallback(async () => {
     try {
+      if (speaking) {
+        await textToSpeech.stop()
+        return setSpeaking(false)
+      }
+      setSpeaking(true)
       await textToSpeech.speak(data.entity?.content || '')
     } catch {
       toast({
         description: t('errors.speech_is_not_supported'),
       })
+    } finally {
+      setSpeaking(false)
     }
-  }, [data.entity?.content, t, toast])
+  }, [data.entity?.content, speaking, t, toast])
 
   const handleNewThread = useCallback(() => {
     setShowThread((pre) => !pre)
@@ -83,6 +91,8 @@ export const MessageNode = memo((props: MessageNodeProps) => {
     )
   }, [data.loading, handleCreateMessage, isEnd, loading, showThread])
 
+  console.log('speaking', speaking)
+
   return (
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
@@ -105,10 +115,18 @@ export const MessageNode = memo((props: MessageNodeProps) => {
               />
             )}
           </div>
-          <Button onClick={handleSpeech} className="absolute top-0 right-14" variant="link">
-            <LazyIcon name="speech" size={16} />
+          <Button
+            onClick={handleSpeech}
+            className="absolute top-0 right-[68px] !px-2 !rounded-none"
+            variant="ghost"
+          >
+            <LazyIcon name={speaking ? 'circle-stop' : 'speech'} size={16} />
           </Button>
-          <Button onClick={handleCopy} className="absolute top-0 right-7" variant="link">
+          <Button
+            onClick={handleCopy}
+            className="absolute top-0 right-[36px] !px-2 !rounded-none"
+            variant="ghost"
+          >
             <LazyIcon name="copy" size={16} />
           </Button>
         </div>

@@ -31,7 +31,7 @@ class TextToSpeech {
       throw new Error('EasySpeech is not ready')
     }
 
-    EasySpeech.speak({
+    return EasySpeech.speak({
       text,
       pitch: 1,
       rate: 1,
@@ -40,6 +40,10 @@ class TextToSpeech {
     }).catch((error) => {
       console.error('Error during speech synthesis:', error)
     })
+  }
+
+  async stop() {
+    return EasySpeech.cancel()
   }
 }
 

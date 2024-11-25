@@ -27,8 +27,8 @@ export const NodeHeader = memo(({ id, className }: { id: string; className?: str
   }, [id, updateNode, updateEdges, toast, t])
   return (
     <div className={cn('absolute z-10 right-0 top-0 w-10 h-10', className)}>
-      <Button className="w-9 h-9" onClick={handleDelete} variant="link">
-        <LazyIcon name="trash-2" />
+      <Button className="!rounded-none !px-2" onClick={handleDelete} variant="ghost">
+        <LazyIcon name="trash-2" size={16} />
       </Button>
     </div>
   )
