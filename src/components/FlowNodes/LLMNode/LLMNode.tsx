@@ -8,6 +8,8 @@ import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 import { cn } from 'src/lib/utils'
 import { NodeHeader } from 'src/components/molecules/NodeHeader'
+import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
+
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -22,6 +24,8 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     data,
   )
   useConnectionToHandler(id)
+
+  const isLoading = [LLMStatusEnum.Loading, LLMStatusEnum.Downloading].includes(data.status)
 
   useEffect(() => {
     if (typeof hasCache == 'boolean' || !data?.entity?.name) {
@@ -46,7 +50,6 @@ export const LLMNode = memo((props: LLMNodeProps) => {
   }, [data.status])
 
   const actions = useMemo(() => {
-    const isLoading = [LLMStatusEnum.Loading, LLMStatusEnum.Downloading].includes(data.status)
     if (isLoading) {
       return null
     }
@@ -83,8 +86,9 @@ export const LLMNode = memo((props: LLMNodeProps) => {
       </div>
     )
   }, [
-    data.status,
+    isLoading,
     loadingModel,
+    data.status,
     hasCache,
     queringThreads,
     queryThreads,
@@ -106,6 +110,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
             {actions}
           </div>
         </Alert>
+        {isLoading ? <BorderBeam className="rounded-lg" /> : undefined}
       </div>
       <Handle type="source" position={Position.Bottom} id="a" isConnectable={isConnectable} />
     </div>
