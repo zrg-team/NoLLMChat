@@ -61,11 +61,11 @@ The architecture of the application is designed to efficiently handle different 
 graph LR
     A[Main Thread] <--> C[Database Worker Thread]
     C -->|Uses| I((TypeORM))
-    I -->|Interacts with| D((PgLite))
+    I -->|Interacts with| D((PGLite))
     A <--> E[LLM Thread]
     E -->|Interacts with| J((Langchain))
     J -->|Wraps| F((WebLLM))
-    A <--> G[(Vector database)]
+    A <--> G[(Memory Vector database)]
     G <--> |Uses| H((Langchain))
     H --> K[Embedding thread]
     K -->|Use| L((Embedding Model))
@@ -75,22 +75,23 @@ graph LR
 
 ## Libraries and Tools
 
-- **Vite**: Fast and modern build tool for web projects.
-- **React**: A popular JavaScript library for building user interfaces.
-- **PgLite**: A lightweight PostgreSQL client for Node.js and browsers.
-- **Voy Vector Database**: A WASM vector similarity search engine written in Rust
-- **WebLLM**: Run large language models in the browser without server dependencies.
-- **Langchain**: LangChain is a framework for developing applications powered by large language models (LLMs)
-- **Langgraph**: A graph-based language model.
-- **shadcn**: A lightweight and fast state management library for React.
-- **TypeORM**: An ORM that can run in NodeJS and the browser which supports SQLite WASM.
-- **Tailwind CSS**: A utility-first CSS framework for quickly building custom designs.
-- **i18next**: Internationalization framework for browser or any other JavaScript environment.
-- **React Router**: Declarative routing for React applications.
-- **Zustand**: A small, fast, and scaleable state management library for React.
-- **ESLint**: A pluggable and configurable linter tool for identifying and reporting on patterns in JavaScript.
-- **Prettier**: An opinionated code formatter that ensures consistent code style.
-- **ReactFlow**: A library for building node-based applications.
+- **[Vite](https://vite.dev/)**: Fast and modern build tool for web projects.
+- **[React](https://react.dev/)**: A popular JavaScript library for building user interfaces.
+- **[ReactFlow](https://reactflow.dev/)**: A library for building node-based applications.
+- **[PGLite](https://pglite.dev/)**: A lightweight PostgreSQL client for Node.js and browsers.
+- **[Voy](https://github.com/tantaraio/voy)**: A WASM vector similarity search engine written in Rust
+- **[Memory Vector Database](https://js.langchain.com/docs/integrations/vectorstores/memory/)**: ephemeral vectorstore that stores embeddings in-memory and does an exact, linear search for the most similar embeddings.
+- **[WebLLM](https://webllm.mlc.ai/)**: Run large language models in the browser without server dependencies.
+- **[Langchain](https://js.langchain.com/docs/introduction/)**: LangChain is a framework for developing applications powered by large language models (LLMs)
+- **[Langgraph](https://langchain-ai.github.io/langgraph/)**: A graph-based language model.
+- **[shadcn UI](https://ui.shadcn.com/)**: A lightweight and fast state management library for React.
+- **[TypeORM](https://typeorm.io/)**: An ORM that can run in NodeJS and the browser which supports SQLite WASM.
+- **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for quickly building custom designs.
+- **[i18next](https://www.i18next.com/)**: Internationalization framework for browser or any other JavaScript environment.
+- **[React Router](https://reactrouter.com/)**: Declarative routing for React applications.
+- **[Zustand](https://github.com/pmndrs/zustand)**: A small, fast, and scaleable state management library for React.
+- **[ESLint](https://eslint.org/)**: A pluggable and configurable linter tool for identifying and reporting on patterns in JavaScript.
+- **[Prettier](https://prettier.io/)**: An opinionated code formatter that ensures consistent code style.
 - **Components**: [magicui](https://magicui.design) and [kokonut](https://kokonut.dev)
 
 ## Getting Started
