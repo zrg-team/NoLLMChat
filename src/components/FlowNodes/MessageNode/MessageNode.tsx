@@ -14,6 +14,7 @@ import { MessageNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import BlurFade from 'src/lib/shadcn/ui/blur-fade'
+import textToSpeech from 'src/utils/text-to-speech'
 
 export const MessageNode = memo((props: MessageNodeProps) => {
   const { id, data, isConnectable } = props
@@ -50,6 +51,16 @@ export const MessageNode = memo((props: MessageNodeProps) => {
     })
   }, [toast, data, t])
 
+  const handleSpeech = useCallback(async () => {
+    try {
+      await textToSpeech.speak(data.entity?.content || '')
+    } catch {
+      toast({
+        description: t('errors.speech_is_not_supported'),
+      })
+    }
+  }, [data.entity?.content, t, toast])
+
   const handleNewThread = useCallback(() => {
     setShowThread((pre) => !pre)
   }, [])
@@ -75,7 +86,7 @@ export const MessageNode = memo((props: MessageNodeProps) => {
   return (
     <div>
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div className="max-w-sm">
+      <div className="max-w-sm min-w-64">
         <div className="w-auto">
           <NodeHeader id={id} />
           <div>
@@ -94,6 +105,9 @@ export const MessageNode = memo((props: MessageNodeProps) => {
               />
             )}
           </div>
+          <Button onClick={handleSpeech} className="absolute top-0 right-14" variant="link">
+            <LazyIcon name="speech" size={16} />
+          </Button>
           <Button onClick={handleCopy} className="absolute top-0 right-7" variant="link">
             <LazyIcon name="copy" size={16} />
           </Button>

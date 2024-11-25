@@ -36,18 +36,13 @@ export function AIMessageComponent({
         size={24}
         name={data.loading ? 'loader' : 'bot'}
       />
+      <LazyIcon name={!showThread ? 'plus' : 'minus'} size={24} />
       <div className="ml-2 max-w-full">
         <AlertTitle>
           {t(`message_node.message_roles.${data.entity?.role?.toLowerCase()}`)}
         </AlertTitle>
         <MarkdownPreview
-          className="!text-sm [&_p]:leading-relaxed"
-          style={{
-            maxWidth: '100%',
-            background: 'transparent',
-            color: 'unset',
-            fontFamily: 'unset',
-          }}
+          className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !text-inherit !font-sans"
           source={`${data.content || data.entity?.content || ''}`}
         />
         {Array.isArray(messageMetadata?.message?.tool_calls) &&
