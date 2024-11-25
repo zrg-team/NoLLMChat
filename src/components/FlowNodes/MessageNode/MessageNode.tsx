@@ -80,11 +80,16 @@ export const MessageNode = memo((props: MessageNodeProps) => {
           <NodeHeader id={id} />
           <div>
             {data.entity?.role === MessageRoleEnum.Human ? (
-              <HumanMessageComponent data={data} />
+              <HumanMessageComponent
+                data={data}
+                showThread={showThread}
+                onNewThread={!isEnd ? handleNewThread : undefined}
+              />
             ) : (
               <AIMessageComponent
                 data={data}
                 showThread={showThread}
+                loading={loading}
                 onNewThread={!isEnd ? handleNewThread : undefined}
               />
             )}
