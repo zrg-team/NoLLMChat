@@ -1,6 +1,6 @@
 export interface AppState {
   language?: string
-  theme?: string
+  theme?: 'dark' | 'light' | 'system'
 }
 
 export const defaultAppState: AppState = {

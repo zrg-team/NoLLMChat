@@ -16,6 +16,7 @@ import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 import { useLocalLLMState } from './services/local-llm'
 import { useLocalEmbeddingState } from './services/local-embedding/state'
+import { ThemeProvider } from './components/layout/ThemeProvider'
 
 const AppRoute = lazy(() => import('src/routes'))
 
@@ -45,13 +46,15 @@ const MainApp = memo(() => {
   }
 
   return (
-    <Modal.Provider>
-      <ErrorBoundary fallback={<DefaultError />} onError={logError}>
-        <Suspense fallback={<DefaultLoader />}>
-          <AppRoute />
-        </Suspense>
-      </ErrorBoundary>
-    </Modal.Provider>
+    <ThemeProvider>
+      <Modal.Provider>
+        <ErrorBoundary fallback={<DefaultError />} onError={logError}>
+          <Suspense fallback={<DefaultLoader />}>
+            <AppRoute />
+          </Suspense>
+        </ErrorBoundary>
+      </Modal.Provider>
+    </ThemeProvider>
   )
 })
 export const App: FC<PropsWithChildren> = memo(() => {
