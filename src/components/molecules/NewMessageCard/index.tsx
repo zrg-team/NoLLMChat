@@ -27,7 +27,7 @@ const NewMessageCard = memo(
     }
 
     return (
-      <Card className="min-w-64">
+      <Card className="min-w-80">
         <CardHeader>
           <CardTitle>{t('add_message_card.title')}</CardTitle>
         </CardHeader>

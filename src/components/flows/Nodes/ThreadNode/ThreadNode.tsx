@@ -8,7 +8,6 @@ import { FlowNodeTypeEnum, Prompt, PromptTypeEnum } from 'src/services/database/
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { Button } from 'src/lib/shadcn/ui/button'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import BlurFade from 'src/lib/shadcn/ui/blur-fade'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 
 import { ThreadNodeProps } from './type'
@@ -32,8 +31,8 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
 
   const handleCreateMessage = useCallback(
     async (...args: Parameters<typeof createMessage>) => {
-      const result = await createMessage(...args)
       setShowThread(false)
+      const result = await createMessage(...args)
       return result
     },
     [createMessage],
@@ -71,7 +70,12 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
 
     if (props.data.entity && !props.data.entity?.messages?.length && !containMessage) {
       return (
-        <NewMessageCard disabled={loading} loading={loading} onSubmit={createMessage} tags={tags} />
+        <NewMessageCard
+          disabled={loading}
+          loading={loading}
+          onSubmit={handleCreateMessage}
+          tags={tags}
+        />
       )
     }
 
@@ -93,8 +97,8 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
     )
   }, [
     containMessage,
-    createMessage,
     getNode,
+    handleCreateMessage,
     handleNewThread,
     loading,
     props.data.entity,
@@ -112,14 +116,12 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
           <>
             <div className="w-[1px] absolute ml-[50%] h-[30px] bg-gray-500" />
             <div className="absolute mt-[30px] w-full">
-              <div className="ml-[10%] w-80">
-                <BlurFade inView delay={0.15}>
-                  <NewMessageCard
-                    disabled={loading}
-                    loading={loading}
-                    onSubmit={handleCreateMessage}
-                  />
-                </BlurFade>
+              <div className="ml-[10%] w-80 animate-in slide-in-from-bottom-5">
+                <NewMessageCard
+                  disabled={loading}
+                  loading={loading}
+                  onSubmit={handleCreateMessage}
+                />
               </div>
             </div>
           </>

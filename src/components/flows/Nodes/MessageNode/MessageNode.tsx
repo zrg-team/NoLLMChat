@@ -86,7 +86,7 @@ export const MessageNode = memo((props: MessageNodeProps) => {
       <>
         <div className="w-[1px] absolute ml-[50%] h-[30px] bg-gray-500" />
         <div className="absolute mt-[30px] w-full">
-          <div className="ml-[10%] w-80">
+          <div className="ml-[10%] w-80 animate-in slide-in-from-bottom-5">
             <NewMessageCard disabled={loading} loading={loading} onSubmit={handleCreateMessage} />
           </div>
         </div>
