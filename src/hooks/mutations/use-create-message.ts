@@ -162,7 +162,7 @@ export const useCreateMessage = () => {
         source_type: 'Message',
         node_type: FlowNodeTypeEnum.Message,
         x: initialX,
-        y: initialY,
+        y: initialY + 80,
       })
       if (!humanMessageNode) {
         throw new Error('Failed to save human message node')
@@ -187,7 +187,7 @@ export const useCreateMessage = () => {
         source_type: 'Message',
         node_type: FlowNodeTypeEnum.Message,
         x: initialX,
-        y: initialY + 140,
+        y: initialY + 250,
       })
       if (!aiMessageNode) {
         throw new Error('Failed to save ai message node')
@@ -329,15 +329,14 @@ export const useCreateMessage = () => {
         throw new Error('Thread node is not found')
       }
 
-      let aiMessageId: string | undefined
-      let aiMessageNodeId: string | undefined
+      let messagesInfo: Awaited<ReturnType<typeof insertMessages>> | undefined
       try {
         setLoading(true)
         // This is node thead replaced with message node
         const initialX = source.position?.x || 0
         const initialY = (source.position?.y || 0) + (source.measured?.height || 0)
 
-        const messagesInfo = await insertMessages({
+        messagesInfo = await insertMessages({
           content,
           initialX,
           initialY,
@@ -346,19 +345,27 @@ export const useCreateMessage = () => {
           initialLLMId: thread.initial_llm_id,
         })
         await invokeMessage(messagesInfo, threadConnections, options)
-        await getRepository('Message').update(`${aiMessageId}`, {
+        await getRepository('Message').update(`${messagesInfo.aiMessage.id}`, {
           status: MessageStatusEnum.Success,
         })
+        messagesInfo.aiMessage.status = MessageStatusEnum.Success
+        options.onMessageUpdate({
+          id: messagesInfo.aiMessageNode.id,
+          nodeData: {
+            entity: messagesInfo.aiMessage,
+            loading: false,
+          },
+        })
       } catch {
-        if (aiMessageId) {
-          await getRepository('Message').update(`${aiMessageId}`, {
+        if (messagesInfo?.aiMessage) {
+          await getRepository('Message').update(`${messagesInfo.aiMessage.id}`, {
             status: MessageStatusEnum.Failed,
             content: t('errors.ai_message_content_failed'),
           })
         }
-        if (aiMessageNodeId) {
+        if (messagesInfo?.aiMessageNode.id) {
           options?.onMessageUpdate({
-            id: aiMessageNodeId,
+            id: messagesInfo.aiMessageNode.id,
             nodeData: {
               content: t('errors.ai_message_content_failed'),
               loading: false,

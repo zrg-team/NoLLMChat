@@ -7,7 +7,6 @@ import { NodeHeader } from 'src/components/flows/NodeHeader'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useToast } from 'src/lib/hooks/use-toast'
-import BlurFade from 'src/lib/shadcn/ui/blur-fade'
 import textToSpeech from 'src/utils/text-to-speech'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 
@@ -88,9 +87,7 @@ export const MessageNode = memo((props: MessageNodeProps) => {
         <div className="w-[1px] absolute ml-[50%] h-[30px] bg-gray-500" />
         <div className="absolute mt-[30px] w-full">
           <div className="ml-[10%] w-80">
-            <BlurFade inView delay={0.15}>
-              <NewMessageCard disabled={loading} loading={loading} onSubmit={handleCreateMessage} />
-            </BlurFade>
+            <NewMessageCard disabled={loading} loading={loading} onSubmit={handleCreateMessage} />
           </div>
         </div>
       </>

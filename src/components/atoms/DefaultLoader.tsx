@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import Meteors from 'src/lib/shadcn/ui/meteors'
 
 import RetroGrid from 'src/lib/shadcn/ui/retro-grid'
 import TypingAnimation from 'src/lib/shadcn/ui/typing-animation'
@@ -18,6 +19,7 @@ export const DefaultLoader = memo(() => {
         />
       </div>
       <RetroGrid />
+      <Meteors number={25} />
     </div>
   )
 })
