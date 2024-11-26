@@ -4,7 +4,7 @@ import { AppState } from './state'
 
 export interface AppStateActions {
   setLanguage: (language: string) => void
-  setTheme: (theme: string) => void
+  setTheme: (theme: AppState['theme']) => void
 }
 
 export const getAppStateActions = (
