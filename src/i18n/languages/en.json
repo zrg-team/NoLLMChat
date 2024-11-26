@@ -115,7 +115,10 @@
         "prompts": "Prompts",
         "schemas": "Schemas",
         "tools": "Tools",
-        "emmbeding": "Embedding"
+        "emmbeding": "Embedding",
+        "vector_databases": "Vector Databases",
+        "jsonl_data": "JSON Data",
+        "csv_data": "CSV Data"
       },
       "title": "Session",
       "disk_size": "Disk Size",

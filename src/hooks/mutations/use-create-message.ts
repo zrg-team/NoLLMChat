@@ -2,7 +2,7 @@ import { HumanMessage } from '@langchain/core/messages'
 import { Connection, Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MessageNodeData } from 'src/components/FlowNodes/MessageNode/type'
+import { MessageNodeData } from 'src/components/flows/Nodes/MessageNode/type'
 import { getRepository } from 'src/services/database'
 import {
   FlowNodeTypeEnum,
@@ -175,7 +175,7 @@ export const useCreateMessage = () => {
         thread_id: threadId,
         content: t('initial_ai_message'),
         role: MessageRoleEnum.AI,
-        status: MessageStatusEnum.Started,
+        status: MessageStatusEnum.Inprogress,
         llm_id: initialLLMId,
         parent_message_id: humanMessage.id,
       })
@@ -187,7 +187,7 @@ export const useCreateMessage = () => {
         source_type: 'Message',
         node_type: FlowNodeTypeEnum.Message,
         x: initialX,
-        y: initialY + 120,
+        y: initialY + 140,
       })
       if (!aiMessageNode) {
         throw new Error('Failed to save ai message node')
@@ -346,6 +346,9 @@ export const useCreateMessage = () => {
           initialLLMId: thread.initial_llm_id,
         })
         await invokeMessage(messagesInfo, threadConnections, options)
+        await getRepository('Message').update(`${aiMessageId}`, {
+          status: MessageStatusEnum.Success,
+        })
       } catch {
         if (aiMessageId) {
           await getRepository('Message').update(`${aiMessageId}`, {
