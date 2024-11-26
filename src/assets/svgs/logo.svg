@@ -3,10 +3,9 @@
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="512.000000pt" height="512.000000pt" viewBox="64 64 384.000000 384.000000"
- preserveAspectRatio="xMidYMid meet">
+ preserveAspectRatio="xMidYMid meet" fill="#000000">
 
-<g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
-fill="#000000" stroke="none">
+<g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" stroke="none">
 <path d="M1953 3948 c-13 -21 -16 -289 -4 -369 15 -97 39 -193 62 -247 l18
 -42 -69 -133 -69 -132 32 -22 c18 -12 40 -25 49 -28 24 -9 13 -25 -18 -25 -13
 0 -24 -4 -24 -9 0 -13 40 -60 61 -71 10 -6 107 -15 215 -21 175 -9 198 -8 214

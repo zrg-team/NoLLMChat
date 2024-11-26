@@ -51,13 +51,13 @@
   },
   "flows": {
     "supported_nodes": {
-      "add_llm": "Create LLM",
-      "add_prompt": "Create Prompt",
-      "add_tool_definition": "Create Tool",
-      "add_schema": "Create Schema",
-      "add_few_shot_example": "Create Few Shot Example",
-      "add_vector_database": "Create Vector Database",
-      "add_text_data": "Create Text Data",
+      "add_llm": "LLM",
+      "add_prompt": "Prompt",
+      "add_tool_definition": "Tool",
+      "add_schema": "Schema",
+      "add_few_shot_example": "Few Shot Example",
+      "add_vector_database": "Vector Database",
+      "add_text_data": "Text Data",
       "more": "...More"
     },
     "toolbar_node": {

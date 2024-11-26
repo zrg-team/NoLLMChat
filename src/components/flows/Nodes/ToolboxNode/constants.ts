@@ -11,6 +11,7 @@ export const SUPPORTED_MODES = [
   SupportedAddNodeEnum.ADD_LLM,
   SupportedAddNodeEnum.ADD_PROMPT,
   SupportedAddNodeEnum.ADD_SCHEMA,
+  SupportedAddNodeEnum.ADD_VECTOR_DATABASE,
   {
     key: 'more',
     label: 'more',
@@ -18,7 +19,6 @@ export const SUPPORTED_MODES = [
     children: [
       SupportedAddNodeEnum.ADD_TOOL_DEFINITION,
       SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE,
-      SupportedAddNodeEnum.ADD_VECTOR_DATABASE,
       SupportedAddNodeEnum.ADD_TEXT_DATA,
     ],
   },

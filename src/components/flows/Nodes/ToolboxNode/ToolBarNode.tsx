@@ -17,18 +17,31 @@ import CreateToolCard from 'src/components/molecules/CreateToolCard'
 import CreateVectorDatabaseCard from 'src/components/molecules/CreateVectorDatabaseCard'
 import Logo from 'src/assets/svgs/logo.svg?react'
 import CreateTextDataCard from 'src/components/molecules/CreateTextDataCard'
+import { useAppState } from 'src/states/app'
+import { cn } from 'src/lib/utils'
 
 import { SUPPORTED_MODES, SupportedAddNodeEnum } from './constants'
+import { CoolMode } from 'src/lib/shadcn/ui/cool-mode'
+import { Button } from 'src/lib/shadcn/ui/button'
 
 export const ToolbarNode = memo((props: NodeProps) => {
   const { t } = useTranslation('flows')
+  const theme = useAppState((state) => state.theme)
   const [mode, setMode] = useState(`${SupportedAddNodeEnum.ADD_LLM}`)
 
   const menu = useMemo(() => {
     return (
       <Menubar>
         <MenubarMenu>
-          <Logo width={32} height={32} className="pl-2" />
+          <CoolMode>
+            <Button variant="link" className="!p-0 !pl-3">
+              <Logo
+                width={32}
+                height={32}
+                className={cn(theme === 'dark' ? 'fill-white' : 'fill-black')}
+              />
+            </Button>
+          </CoolMode>
         </MenubarMenu>
         {SUPPORTED_MODES.map((mode) => {
           if (typeof mode === 'object') {
@@ -59,7 +72,7 @@ export const ToolbarNode = memo((props: NodeProps) => {
         })}
       </Menubar>
     )
-  }, [t])
+  }, [t, theme])
 
   const modeToComponent = useMemo(() => {
     switch (mode) {
