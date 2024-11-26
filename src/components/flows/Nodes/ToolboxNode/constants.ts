@@ -16,10 +16,6 @@ export const SUPPORTED_MODES = [
     key: 'more',
     label: 'more',
     icon: 'ellipsis' as const,
-    children: [
-      SupportedAddNodeEnum.ADD_TOOL_DEFINITION,
-      SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE,
-      SupportedAddNodeEnum.ADD_TEXT_DATA,
-    ],
+    children: [SupportedAddNodeEnum.ADD_TOOL_DEFINITION, SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE],
   },
 ]
