@@ -2,8 +2,6 @@ import { lazy, Suspense, memo, LazyExoticComponent } from 'react'
 import type { LucideProps } from 'lucide-react'
 import dynamicIconImports from 'lucide-react/dynamicIconImports'
 
-const fallback = <div style={{ background: '#ddd', width: 24, height: 24 }} />
-
 export type IconNames = keyof typeof dynamicIconImports
 type IconCache = {
   [key in IconNames]?: LazyExoticComponent<React.ComponentType<LucideProps>>
@@ -29,7 +27,7 @@ const LazyIcon = memo(({ name, ...props }: IconProps) => {
   const LucideIcon = iconCache[iconName]
 
   return (
-    <Suspense fallback={fallback}>
+    <Suspense fallback={<div className={props.className} />}>
       <LucideIcon {...props} />
     </Suspense>
   )
