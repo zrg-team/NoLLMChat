@@ -1,6 +1,7 @@
 import { Session, SessionStatusEnum } from 'src/services/database/types'
 import { SetState, GetState } from 'src/utils/zustand'
 import { getRepository } from 'src/services/database'
+import { useAppState } from 'src/states/app'
 
 import { SessionState } from './state'
 
@@ -17,6 +18,7 @@ export const getSessionStateActions = (
 ): SessionStateActions => {
   return {
     setCurrentSession: (session) => {
+      useAppState.setState({ selectedSessionId: session.id })
       set({ currentSession: session })
     },
     createSession: async (data) => {
@@ -52,15 +54,31 @@ export const getSessionStateActions = (
           take: 7,
         })
         if (sessions?.length) {
-          const newestSession = sessions?.[0]
+          const selectedSessionId = useAppState.getState().selectedSessionId
+          const existed = sessions.find((s) => s.id === selectedSessionId)
 
-          set({ currentSession: newestSession, sessions, ready: true })
+          if (!selectedSessionId || existed) {
+            set({ currentSession: existed || sessions?.[0], sessions, ready: true })
+            return
+          }
+          const selectedSession = await getRepository('Session')
+            .findOne({
+              where: { id: selectedSessionId },
+            })
+            .catch(() => undefined)
+
+          set({
+            currentSession: selectedSession || sessions?.[0],
+            sessions: selectedSession ? [selectedSession, ...sessions] : sessions,
+            ready: true,
+          })
         } else {
           const newSession = await getRepository('Session').save({
             name: 'Default',
             status: SessionStatusEnum.Started,
           })
           if (newSession) {
+            useAppState.setState({ selectedSessionId: newSession.id })
             set({ currentSession: newSession, sessions: [newSession], ready: true })
           } else {
             throw new Error('No session')

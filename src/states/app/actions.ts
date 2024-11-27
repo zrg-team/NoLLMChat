@@ -5,6 +5,7 @@ import { AppState } from './state'
 export interface AppStateActions {
   setLanguage: (language: string) => void
   setTheme: (theme: AppState['theme']) => void
+  setSelectedSessionId: (selectedSessionId: string) => void
 }
 
 export const getAppStateActions = (
@@ -21,6 +22,11 @@ export const getAppStateActions = (
       const currentTheme = get().theme
       if (currentTheme === theme) return
       set({ theme })
+    },
+    setSelectedSessionId: (selectedSessionId) => {
+      const currentSelectedSessionId = get().selectedSessionId
+      if (currentSelectedSessionId === selectedSessionId) return
+      set({ selectedSessionId })
     },
   }
 }
