@@ -114,26 +114,33 @@ export const LLMNode = memo((props: LLMNodeProps) => {
               {`${data?.entity?.name || ''}`}
             </AlertTitle>
             <AlertDescription className="max-w-72">{`${data.label || ''}`}</AlertDescription>
-            {RECOMMENDATION_LOCAL_LLMS.some((item) => item.includes(data?.entity?.name)) ? (
-              <Badge className="ml-1 mb-1" variant="outline">
-                {t('llm_node.recommended')}
-              </Badge>
-            ) : null}
-            {functionCallingModelIds.includes(data?.entity?.name) ? (
-              <Badge className="ml-1 mb-1" variant="outline">
-                {t('llm_node.function_calling')}
-              </Badge>
-            ) : null}
-            {llmInfo?.low_resource_required ? (
-              <Badge className="ml-1" variant="outline">
-                {t('llm_node.low_resource_required')}
-              </Badge>
-            ) : null}
-            {llmInfo?.vram_required_MB ? (
-              <Badge className="ml-1" variant="outline">
-                VRAM: {llmInfo?.vram_required_MB.toLocaleString('en-US')} MB
-              </Badge>
-            ) : null}
+            <div>
+              {RECOMMENDATION_LOCAL_LLMS.some((item) => item.includes(data?.entity?.name)) ? (
+                <Badge className="ml-1 mb-1" variant="outline">
+                  {t('llm_node.recommended')}
+                </Badge>
+              ) : null}
+              {functionCallingModelIds.includes(data?.entity?.name) ? (
+                <Badge className="ml-1 mb-1" variant="outline">
+                  {t('llm_node.function_calling')}
+                </Badge>
+              ) : null}
+              {llmInfo?.low_resource_required ? (
+                <Badge className="ml-1" variant="outline">
+                  {t('llm_node.low_resource_required')}
+                </Badge>
+              ) : null}
+              {llmInfo?.overrides?.context_window_size ? (
+                <Badge className="ml-1" variant="outline">
+                  {llmInfo?.overrides?.context_window_size.toLocaleString('en-US')} Tokens
+                </Badge>
+              ) : null}
+              {llmInfo?.vram_required_MB ? (
+                <Badge className="ml-1" variant="outline">
+                  VRAM: {llmInfo?.vram_required_MB.toLocaleString('en-US')} MB
+                </Badge>
+              ) : null}
+            </div>
             {actions}
           </div>
         </Alert>
