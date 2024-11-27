@@ -10,6 +10,7 @@ import {
   type Edge,
   type Node,
 } from '@xyflow/react'
+import { nanoid } from 'nanoid'
 import deepmerge from 'deepmerge'
 import {
   AppEntityNames,
@@ -30,7 +31,6 @@ import {
 
 import { defaultFlowState, FlowState } from './state'
 import { useSessionState } from '../session'
-import { nanoid } from 'nanoid'
 
 export interface FlowStateActions {
   reset: () => void
@@ -66,6 +66,8 @@ export interface FlowStateActions {
   flowNodesToNodes: (newNodes: FlowNode[]) => void
   flowEdgesToEdges: (newEdges: FlowEdge[]) => void
   addConnectionToEdges: (connection: Connection) => void
+  // Update directly no additional logic
+  updateFlowNode: (node: Partial<FlowNode>, options?: { silent?: boolean }) => Promise<void>
 }
 
 export const getFlowStateActions = (
@@ -294,6 +296,37 @@ export const getFlowStateActions = (
         }
       } catch (error) {
         console.warn('Failed to delete flow edge', error)
+      }
+    },
+    updateFlowNode: async (inputNode, options) => {
+      try {
+        const currentSession = useSessionState.getState().currentSession
+        if (!currentSession?.id) {
+          throw new Error('Session not found')
+        }
+        if (!inputNode.id) {
+          throw new Error('Missing flow node indentify')
+        }
+
+        await getRepository('FlowNode').update(inputNode.id, inputNode)
+
+        const flowNodes = get().flowNodes
+
+        const newFlowNodes = flowNodes.map((item) => {
+          if (item.id === inputNode.id) {
+            return {
+              ...item,
+              ...inputNode,
+            }
+          }
+          return item
+        })
+
+        set({
+          flowNodes: options?.silent ? newFlowNodes : [...newFlowNodes],
+        })
+      } catch (error) {
+        console.warn('Failed to create or update flow node', error, inputNode)
       }
     },
     createOrUpdateFlowNode: async (inputNode, options) => {

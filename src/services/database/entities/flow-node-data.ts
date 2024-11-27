@@ -8,39 +8,21 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 import { Session } from './index'
-import { AppEntityNames, FlowNodeTypeEnum, TABLE_NAMES } from '../types'
+import { TABLE_NAMES } from '../types'
 
-@Entity({ name: TABLE_NAMES.FlowNode })
-export class FlowNode {
+@Entity({ name: TABLE_NAMES.FlowNodeData })
+export class FlowNodeData {
   @PrimaryGeneratedColumn('uuid')
   id: string
-
-  @Column({ type: 'text' })
-  node_type: `${FlowNodeTypeEnum}`
-
-  @Column({ type: 'text', nullable: true })
-  source_id: string
-
-  @Column({ type: 'text', nullable: true })
-  source_type: `${AppEntityNames}`
-
-  @Column({ type: 'float' })
-  x?: number
-
-  @Column({ type: 'float' })
-  y?: number
-
-  @Column({ type: 'float', nullable: true })
-  width?: number
-
-  @Column({ type: 'float', nullable: true })
-  height?: number
 
   @Column({ type: 'json', nullable: true })
   data?: Record<string, unknown>
 
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, unknown>
+
+  @Column({ type: 'json', nullable: true })
+  properties?: Record<string, unknown>
 
   @CreateDateColumn()
   created_at?: Date

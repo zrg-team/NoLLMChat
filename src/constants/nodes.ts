@@ -17,6 +17,7 @@ export const SYSTEM_NODE_IDS = {
   [FlowNodeTypeEnum.Toolbox]: 'toolbox',
   [FlowNodeTypeEnum.SessionInfo]: 'session-info',
   [FlowNodeTypeEnum.DefaultEmbeddingModel]: 'default-embedding-model',
+  [FlowNodeTypeEnum.ApplicationBar]: 'application-bar',
 }
 
 export const TOOLBOX_NODE: Node = {
@@ -44,4 +45,16 @@ export const EMBEDDING_MODEL: Node = {
   },
 }
 
-export const DEFAULT_SYSTEM_NODES = [TOOLBOX_NODE, SESSION_INFO_NODE, EMBEDDING_MODEL]
+export const APPLICATION_BAR_MODEL: Node = {
+  id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.ApplicationBar],
+  type: FlowNodeTypeEnum.ApplicationBar,
+  position: { x: 10 + SESSION_INFO_SIZE.width + TOOLBOX_NODE_SIZE.width + 40, y: 80 },
+  data: {},
+}
+
+export const DEFAULT_SYSTEM_NODES = [
+  TOOLBOX_NODE,
+  SESSION_INFO_NODE,
+  EMBEDDING_MODEL,
+  APPLICATION_BAR_MODEL,
+]

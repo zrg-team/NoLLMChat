@@ -216,7 +216,6 @@ interface CoolModeProps {
 
 export const CoolMode: React.FC<CoolModeProps> = ({ children, options }) => {
   const ref = useRef<HTMLElement>(null)
-  console.log('here')
 
   useEffect(() => {
     if (ref.current) {
