@@ -79,7 +79,7 @@ export const SessionInfoNode = memo(() => {
         label: t('session_info_node.entities.schemas'),
         color: '#ffb6c1', // Lighter and more colorful
       },
-      VectorDatabases: {
+      vectorDatabases: {
         label: t('session_info_node.entities.vector_databases'),
         color: '#ff69b4', // Lighter and more colorful
       },

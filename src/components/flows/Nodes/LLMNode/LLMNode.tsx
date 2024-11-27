@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Position } from '@xyflow/react'
-import { hasModelInCache } from '@mlc-ai/web-llm'
+import { hasModelInCache, functionCallingModelIds, prebuiltAppConfig } from '@mlc-ai/web-llm'
 import { Alert, AlertDescription, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
@@ -14,6 +14,8 @@ import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
+import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
+import { Badge } from 'src/lib/shadcn/ui/badge'
 
 export const LLMNode = memo((props: LLMNodeProps) => {
   const { id, data, isConnectable } = props
@@ -36,6 +38,10 @@ export const LLMNode = memo((props: LLMNodeProps) => {
       setHasCache(result)
     })
   }, [data?.entity?.name, hasCache])
+
+  const llmInfo = useMemo(() => {
+    return prebuiltAppConfig.model_list.find((item) => item.model_id === data?.entity?.name)
+  }, [data?.entity?.name])
 
   const llmIcon = useMemo(() => {
     switch (data.status) {
@@ -107,7 +113,27 @@ export const LLMNode = memo((props: LLMNodeProps) => {
             <AlertTitle className="flex gap-2 items-center pr-6">
               {`${data?.entity?.name || ''}`}
             </AlertTitle>
-            <AlertDescription>{`${data.label || ''}`}</AlertDescription>
+            <AlertDescription className="max-w-72">{`${data.label || ''}`}</AlertDescription>
+            {RECOMMENDATION_LOCAL_LLMS.some((item) => item.includes(data?.entity?.name)) ? (
+              <Badge className="ml-1 mb-1" variant="outline">
+                {t('llm_node.recommended')}
+              </Badge>
+            ) : null}
+            {functionCallingModelIds.includes(data?.entity?.name) ? (
+              <Badge className="ml-1 mb-1" variant="outline">
+                {t('llm_node.function_calling')}
+              </Badge>
+            ) : null}
+            {llmInfo?.low_resource_required ? (
+              <Badge className="ml-1" variant="outline">
+                {t('llm_node.low_resource_required')}
+              </Badge>
+            ) : null}
+            {llmInfo?.vram_required_MB ? (
+              <Badge className="ml-1" variant="outline">
+                VRAM: {llmInfo?.vram_required_MB.toLocaleString('en-US')} MB
+              </Badge>
+            ) : null}
             {actions}
           </div>
         </Alert>

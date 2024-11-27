@@ -68,6 +68,9 @@
       "create_thread_button": "Create Thread",
       "load_model_button": "Load Model",
       "download_model_button": "Download and Load Model",
+      "function_calling": "Function Calling",
+      "recommended": "Recommended",
+      "low_resource_required": "Low resource required",
       "errors": {
         "loading_model": "Failed to load model."
       }
@@ -186,10 +189,11 @@
       "no_model": "No model found",
       "function_calling": "Function Calling",
       "cached": "Cached",
+      "recommended": "Recommended",
       "model_types": {
         "llm": "LLM",
         "embedding": "Embedding",
-        "vlm": "VLM"
+        "vlm": "Vision"
       },
       "providers": {
         "webllm": "WebLLM",
