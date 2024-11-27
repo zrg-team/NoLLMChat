@@ -11,7 +11,7 @@ export const CircleNode = memo((props: NodeProps) => {
     <>
       <NodeResizer isVisible={!!selected} minWidth={40} minHeight={40} />
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div className="min-w-10 min-h-10 w-full h-full bg-white rounded-full border">
+      <div className="min-w-10 min-h-10 w-full h-full bg-border rounded-full border">
         <NodeHeader id={id} />
       </div>
       <DefaultHandle type="source" position={Position.Bottom} isConnectable={isConnectable} />

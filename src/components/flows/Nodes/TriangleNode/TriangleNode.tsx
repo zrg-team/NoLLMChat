@@ -12,7 +12,7 @@ export const TriangleNode = memo((props: NodeProps) => {
       <NodeResizer isVisible={!!selected} minWidth={40} minHeight={40} />
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div
-        className="w-0 h-0 border-l-transparent border-r-transparent border-b-gray-100"
+        className="w-0 h-0 border-l-transparent border-r-transparent border-b-border"
         style={{
           borderLeftWidth: (width || 0) / 2,
           borderRightWidth: (width || 0) / 2,

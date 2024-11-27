@@ -43,6 +43,9 @@ export function NavSessions({
     },
     [deleteSessionDialog],
   )
+  const handleSetCurrentSession = (session: Session) => {
+    setCurrentSession(session)
+  }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -55,7 +58,7 @@ export function NavSessions({
         </SidebarMenuItem>
         {sessions.map((item) => (
           <SidebarMenuItem className="cursor-pointer" key={item.id}>
-            <SidebarMenuButton asChild onClick={() => setCurrentSession(item)}>
+            <SidebarMenuButton asChild onClick={() => handleSetCurrentSession(item)}>
               <div className="flex flex-row justify-between items-center">
                 <div className="flex gap-2">
                   {currentSession?.id === item.id ? (

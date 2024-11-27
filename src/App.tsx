@@ -14,9 +14,11 @@ import { FileSystemProvider } from 'src/services/file-system/provider'
 import { useSessionState } from 'src/states/session'
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
+
 import { useLocalLLMState } from './services/local-llm'
 import { useLocalEmbeddingState } from './services/local-embedding/state'
 import { ThemeProvider } from './components/layout/ThemeProvider'
+import { useAppHydration } from './hooks/handlers/use-app-hydration'
 
 const AppRoute = lazy(() => import('src/routes'))
 
@@ -32,6 +34,7 @@ const MainApp = memo(() => {
   const initLocalEmbeddingState = useLocalEmbeddingState((state) => state.init)
   const ready = useSessionState((state) => state.ready)
   const error = useSessionState((state) => state.error)
+  const hydrated = useAppHydration()
 
   useEffect(() => {
     initSessionState()
@@ -41,27 +44,27 @@ const MainApp = memo(() => {
 
   if (error) {
     return <DefaultError error={error} />
-  } else if (!ready) {
+  } else if (!ready || !hydrated) {
     return <DefaultLoader />
   }
 
   return (
-    <ThemeProvider>
-      <Modal.Provider>
-        <ErrorBoundary fallback={<DefaultError />} onError={logError}>
-          <Suspense fallback={<DefaultLoader />}>
-            <AppRoute />
-          </Suspense>
-        </ErrorBoundary>
-      </Modal.Provider>
-    </ThemeProvider>
+    <Modal.Provider>
+      <ErrorBoundary fallback={<DefaultError />} onError={logError}>
+        <Suspense fallback={<DefaultLoader />}>
+          <AppRoute />
+        </Suspense>
+      </ErrorBoundary>
+    </Modal.Provider>
   )
 })
 export const App: FC<PropsWithChildren> = memo(() => {
   return (
-    <FileSystemProvider>
-      <MainApp />
-      <Toaster />
-    </FileSystemProvider>
+    <ThemeProvider>
+      <FileSystemProvider>
+        <MainApp />
+        <Toaster />
+      </FileSystemProvider>
+    </ThemeProvider>
   )
 })
