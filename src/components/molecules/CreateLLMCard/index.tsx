@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
 import { SUPPORTED_PROVIDERS } from './constants'
+import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -52,26 +53,50 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         )
 
     return data.sort((pre, next) => {
-      let countPre = 0
-      let countNext = 0
+      // Check if models are in cachedLLMURLs
+      const preInCache = cachedLLMURLs.some((item) => item.includes(pre.model_id))
+      const nextInCache = cachedLLMURLs.some((item) => item.includes(next.model_id))
 
-      if (functionCallingModelIds.includes(pre.model_id)) {
-        countPre += 1
+      // Prioritize models in cachedLLMURLs
+      if (preInCache && !nextInCache) {
+        return -1
       }
-      if (cachedLLMURLs.some((item) => item.includes(pre.model_id))) {
-        countPre += 1
-      }
-
-      if (functionCallingModelIds.includes(next.model_id)) {
-        countNext += 1
-      }
-      if (cachedLLMURLs.some((item) => item.includes(next.model_id))) {
-        countNext += 1
+      if (!preInCache && nextInCache) {
+        return 1
       }
 
-      if (countNext !== countPre) {
-        return countNext - countPre
+      const preInRecommended = RECOMMENDATION_LOCAL_LLMS.includes(pre.model_id)
+      const nextInRecommended = RECOMMENDATION_LOCAL_LLMS.includes(next.model_id)
+
+      // Prioritize models in RECOMMENDATION_LOCAL_LLMS
+      if (preInRecommended && !nextInRecommended) {
+        return -1
       }
+      if (!preInRecommended && nextInRecommended) {
+        return 1
+      }
+
+      // Check if models are in functionCallingModelIds
+      const preInFunctionCalling = functionCallingModelIds.includes(pre.model_id)
+      const nextInFunctionCalling = functionCallingModelIds.includes(next.model_id)
+
+      // Prioritize models in functionCallingModelIds
+      if (preInFunctionCalling && !nextInFunctionCalling) {
+        return -1
+      }
+      if (!preInFunctionCalling && nextInFunctionCalling) {
+        return 1
+      }
+
+      // Compare buffer_size_required_bytes
+      if (
+        pre.vram_required_MB &&
+        next.vram_required_MB &&
+        pre.vram_required_MB !== next.vram_required_MB
+      ) {
+        return pre.vram_required_MB - next.vram_required_MB
+      }
+
       return pre.model_id.localeCompare(next.model_id)
     })
   }, [cachedLLMURLs, search])
@@ -202,9 +227,21 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                               {t('add_llm_card.cached')}
                             </Badge>
                           ) : null}
+                          {RECOMMENDATION_LOCAL_LLMS.some((item) =>
+                            item.includes(model.model_id),
+                          ) ? (
+                            <Badge className="ml-1 mb-1" variant="outline">
+                              {t('add_llm_card.recommended')}
+                            </Badge>
+                          ) : null}
                           {functionCallingModelIds.includes(model.model_id) ? (
                             <Badge className="ml-1 mb-1" variant="outline">
                               {t('add_llm_card.function_calling')}
+                            </Badge>
+                          ) : null}
+                          {model.low_resource_required ? (
+                            <Badge className="ml-1" variant="outline">
+                              {t('add_llm_card.low_resource_required')}
                             </Badge>
                           ) : null}
                           {model.vram_required_MB ? (

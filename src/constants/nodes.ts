@@ -4,12 +4,12 @@ import { FlowNodeTypeEnum } from 'src/services/database/types'
 import { DEFAULT_EMBEDDING_MODEL } from './embedding'
 
 export const TOOLBOX_NODE_SIZE = {
-  width: 340,
-  height: 200,
+  width: 440,
+  height: 360,
 }
 
 export const SESSION_INFO_SIZE = {
-  width: 340,
+  width: 380,
   height: 650,
 }
 
@@ -22,7 +22,7 @@ export const SYSTEM_NODE_IDS = {
 export const TOOLBOX_NODE: Node = {
   id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.Toolbox],
   type: FlowNodeTypeEnum.Toolbox,
-  position: { x: window.innerWidth / 2 - TOOLBOX_NODE_SIZE.width / 2, y: 10 },
+  position: { x: 10 + SESSION_INFO_SIZE.width + 20, y: 10 },
   measured: TOOLBOX_NODE_SIZE,
   data: {},
 }
@@ -38,7 +38,7 @@ export const SESSION_INFO_NODE: Node = {
 export const EMBEDDING_MODEL: Node = {
   id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.DefaultEmbeddingModel],
   type: FlowNodeTypeEnum.DefaultEmbeddingModel,
-  position: { x: 10, y: 30 + SESSION_INFO_SIZE.height },
+  position: { x: 10 + SESSION_INFO_SIZE.width + TOOLBOX_NODE_SIZE.width + 40, y: 10 },
   data: {
     model: DEFAULT_EMBEDDING_MODEL,
   },
