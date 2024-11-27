@@ -2,7 +2,6 @@ import { memo } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import { Position } from '@xyflow/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 
 import { EmbeddingNodeProps } from './type'
@@ -17,8 +16,7 @@ export const EmbeddingNode = memo((props: EmbeddingNodeProps) => {
     <div>
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
-        <NodeHeader id={id} />
-        <Alert className="flex justify-center max-w-64" variant="default">
+        <Alert className="flex justify-center max-w-80" variant="default">
           <LazyIcon size={24} name={'chart-scatter'} />
           <div className="ml-2 pr-4">
             <AlertTitle>{`${data.model || ''}`}</AlertTitle>

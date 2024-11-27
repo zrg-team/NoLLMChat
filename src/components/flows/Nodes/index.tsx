@@ -12,6 +12,10 @@ import { ToolNode } from './ToolNode'
 import { EmbeddingNode } from './EmbeddingNode'
 import { VectorDatabaseNode } from './VectorDatabaseNode'
 import { JSONLDataNode } from './JSONLDataNode'
+import { ApplicationBarNode } from './ApplicationBarNode'
+import { ShapeNode } from './ShapeNode'
+import { CircleNode } from './CircleNode'
+import { TriangleNode } from './TriangleNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -26,4 +30,8 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.DefaultEmbeddingModel]: EmbeddingNode,
   [FlowNodeTypeEnum.VectorDatabase]: VectorDatabaseNode,
   [FlowNodeTypeEnum.JSONLData]: JSONLDataNode,
+  [FlowNodeTypeEnum.ApplicationBar]: ApplicationBarNode,
+  [FlowNodeTypeEnum.Shape]: ShapeNode,
+  [FlowNodeTypeEnum.CircleShape]: CircleNode,
+  [FlowNodeTypeEnum.TriangleShape]: TriangleNode,
 }

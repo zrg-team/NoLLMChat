@@ -176,6 +176,15 @@
       "add_file": {
         "upload": "Upload"
       }
+    },
+    "application_bar": {
+      "note": "Add Note",
+      "square": "Add Square",
+      "circle": "Add Circle",
+      "triangle": "Add Triangle",
+      "errors": {
+        "add_node_failed": "Failed to add node."
+      }
     }
   },
   "components": {

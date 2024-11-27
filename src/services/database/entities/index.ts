@@ -13,6 +13,7 @@ import { CSVData } from './csv-data'
 import { ToolDefinition } from './tool-definition'
 import { VectorDatabase } from './vector-database'
 import { JSONLData } from './jsonl-data'
+import { FlowNodeData } from './flow-node-data'
 
 export {
   Thread,
@@ -30,6 +31,7 @@ export {
   ToolDefinition,
   VectorDatabase,
   JSONLData,
+  FlowNodeData,
 }
 
 export type AppEntites =
@@ -48,6 +50,7 @@ export type AppEntites =
   | typeof ToolDefinition
   | typeof VectorDatabase
   | typeof JSONLData
+  | typeof FlowNodeData
 
 export const entitiesMap: Record<string, AppEntites> = {
   LLM,
@@ -65,5 +68,6 @@ export const entitiesMap: Record<string, AppEntites> = {
   ToolDefinition,
   VectorDatabase,
   JSONLData,
+  FlowNodeData,
 }
 // This file should not be use in main codebase. ONLY WORKER should use this file.

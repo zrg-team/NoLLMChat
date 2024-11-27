@@ -19,7 +19,7 @@ export const useFlowManager = () => {
   const findFlowEdges = useFlowState((state) => state.findFlowEdges)
   const deleteFlowNode = useFlowState((state) => state.deleteFlowNode)
   const deleteFlowEdge = useFlowState((state) => state.deleteFlowEdge)
-  const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
+  const updateFlowNode = useFlowState((state) => state.updateFlowNode)
   const findFlowNodesWithSource = useFlowState((state) => state.findFlowNodesWithSource)
 
   const flowEdgesRef = useRef(flowEdges)
@@ -83,20 +83,38 @@ export const useFlowManager = () => {
           !isNaN(change.position.x) &&
           !isNaN(change.position.y)
         ) {
-          await createOrUpdateFlowNode(
+          updateNodes([change])
+          await updateFlowNode(
             {
               id: change.id,
               x: change.position.x,
               y: change.position.y,
             },
-            { lazy: true },
+            { silent: true },
           )
         } else if (change.type === 'remove') {
           await deleteFlowNode({ id: change.id })
+        } else if (
+          change.type === 'dimensions' &&
+          change.dimensions &&
+          !isNaN(change.dimensions.width) &&
+          !isNaN(change.dimensions.height)
+        ) {
+          updateNodes([change])
+          await updateFlowNode(
+            {
+              id: change.id,
+              width: change.dimensions.width,
+              height: change.dimensions.height,
+            },
+            { silent: true },
+          )
+        } else if (change.type === 'select') {
+          updateNodes([change])
         }
       }
     },
-    [createOrUpdateFlowNode, deleteFlowNode, updateNodes],
+    [updateFlowNode, deleteFlowNode, updateNodes],
   )
 
   const updateEdgeChanges = useCallback(

@@ -14,4 +14,9 @@ export enum FlowNodeTypeEnum {
   DefaultEmbeddingModel = 'DEFAULT_EMBEDDING_MODEL',
   VectorDatabase = 'VECTOR_DATABASE',
   JSONLData = 'JSONL_DATA',
+  ApplicationBar = 'APPLICATION_BAR',
+  Shape = 'SHAPE',
+  CircleShape = 'CIRCLE_SHAPE',
+  TriangleShape = 'TRIANGLE_SHAPE',
+  NoteApp = 'NOTE_APP',
 }
