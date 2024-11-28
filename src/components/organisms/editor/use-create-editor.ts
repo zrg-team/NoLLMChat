@@ -134,11 +134,14 @@ export const useCreateEditor = ({
       FloatingToolbarPlugin,
       MarkdownPlugin,
     ],
-    value: defaultValue || [
-      {
-        children: [{ text: 'NoLLMChat Playground' }],
-        type: 'h1',
-      },
-    ],
+    value:
+      Array.isArray(defaultValue) && defaultValue?.length
+        ? defaultValue
+        : [
+            {
+              children: [{ text: 'NoLLMChat Playground' }],
+              type: 'h1',
+            },
+          ],
   })
 }

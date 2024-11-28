@@ -39,6 +39,7 @@ export interface LocalLLMStateActions {
     chatOptions: ChatWebLLM['chatOptions']
     appConfig: ChatWebLLM['appConfig']
   }>
+  syncCachedLLMURLs: () => Promise<string[]>
 }
 
 const getHandleMessages = (get: GetState<LocalLLMState>, set: SetState<LocalLLMState>) => {
@@ -99,20 +100,24 @@ export const getLocalLLMStateActions = (
         if (worker && oldHandler) {
           worker.removeEventListener('message', oldHandler)
         }
-        caches
-          .open('webllm/config')
-          .then(async (cache) => {
-            return cache.keys()
-          })
-          .then((requests) => {
-            set({ cachedLLMURLs: requests.map((request) => request.url) })
-          })
         const handler = getHandleMessages(get, set)
         set({ handler })
         worker.addEventListener('message', handler)
       } catch (error) {
         console.warn('Failed to init', error)
       }
+    },
+    syncCachedLLMURLs: async () => {
+      return caches
+        .open('webllm/config')
+        .then(async (cache) => {
+          return cache.keys()
+        })
+        .then((requests) => {
+          const urls = requests.map((request) => request.url)
+          set({ cachedLLMURLs: urls })
+          return urls
+        })
     },
     loadModel: async (modelName: string) => {
       let currentLoadModelMessageId = get().currentLoadModelMessageId

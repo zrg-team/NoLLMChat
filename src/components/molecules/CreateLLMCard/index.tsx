@@ -46,18 +46,21 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     functionCallingModelIds: string[]
   }>()
 
+  const syncCachedLLMURLs = useLocalLLMState((state) => state.syncCachedLLMURLs)
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createDatabaseLLM } = useCreateDatabaseLLM()
 
   useEffect(() => {
-    // import { functionCallingModelIds, prebuiltAppConfig, hasModelInCache } from '@mlc-ai/web-llm'
-    // dynamic import to avoid circular dependency
-
     import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
       const modelList = prebuiltAppConfig.model_list
       setLLMsInfo({ modelList, functionCallingModelIds })
     })
   }, [])
+
+  useEffect(() => {
+    syncCachedLLMURLs()
+  }, [syncCachedLLMURLs])
+
   const modelList = useMemo(() => {
     if (!llmsInfo?.functionCallingModelIds || !llmsInfo?.modelList) return []
 
