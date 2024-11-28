@@ -20,6 +20,7 @@ export const useFlowManager = () => {
   const deleteFlowNode = useFlowState((state) => state.deleteFlowNode)
   const deleteFlowEdge = useFlowState((state) => state.deleteFlowEdge)
   const updateFlowNode = useFlowState((state) => state.updateFlowNode)
+  const getNodes = useFlowState((state) => state.getNodes)
   const findFlowNodesWithSource = useFlowState((state) => state.findFlowNodesWithSource)
 
   const flowEdgesRef = useRef(flowEdges)
@@ -100,6 +101,10 @@ export const useFlowManager = () => {
           !isNaN(change.dimensions.width) &&
           !isNaN(change.dimensions.height)
         ) {
+          const node = getNodes([change.id])?.[0]
+          if (!node?.width && !node?.height) {
+            return
+          }
           updateNodes([change])
           await updateFlowNode(
             {
@@ -114,7 +119,7 @@ export const useFlowManager = () => {
         }
       }
     },
-    [updateFlowNode, deleteFlowNode, updateNodes],
+    [updateNodes, updateFlowNode, deleteFlowNode, getNodes],
   )
 
   const updateEdgeChanges = useCallback(

@@ -48,6 +48,7 @@ export const getSessionStateActions = (
     getLatestSessions: async () => {
       try {
         if (get().ready) return
+
         const sessions = await getRepository('Session').find({
           where: { status: SessionStatusEnum.Started },
           order: { updated_at: 'DESC' },
@@ -66,7 +67,6 @@ export const getSessionStateActions = (
               where: { id: selectedSessionId },
             })
             .catch(() => undefined)
-
           set({
             currentSession: selectedSession || sessions?.[0],
             sessions: selectedSession ? [selectedSession, ...sessions] : sessions,

@@ -13,7 +13,11 @@ import { useToast } from 'src/lib/hooks/use-toast'
 
 const DATA = {
   applications: [
-    { key: FlowNodeTypeEnum.NoteApp, icon: 'sticky-note' as const, label: 'application_bar.note' },
+    {
+      key: FlowNodeTypeEnum.EditorApp,
+      icon: 'sticky-note' as const,
+      label: 'application_bar.note',
+    },
   ],
   shapes: [
     { key: FlowNodeTypeEnum.Shape, icon: 'square' as const, label: 'application_bar.square' },

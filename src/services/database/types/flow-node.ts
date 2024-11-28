@@ -18,5 +18,5 @@ export enum FlowNodeTypeEnum {
   Shape = 'SHAPE',
   CircleShape = 'CIRCLE_SHAPE',
   TriangleShape = 'TRIANGLE_SHAPE',
-  NoteApp = 'NOTE_APP',
+  EditorApp = 'EDITOR_APP',
 }

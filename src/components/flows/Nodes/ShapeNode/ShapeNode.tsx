@@ -1,7 +1,8 @@
 import { memo } from 'react'
-import { Position, NodeResizer, NodeProps } from '@xyflow/react'
+import { Position, NodeProps } from '@xyflow/react'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
+import { DefaultNodeResizer } from 'src/components/flows/DefaultNodeResizer'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 
 export const ShapeNode = memo((props: NodeProps) => {
@@ -9,7 +10,7 @@ export const ShapeNode = memo((props: NodeProps) => {
   useConnectionToHandler(id)
   return (
     <>
-      <NodeResizer isVisible={!!selected} minWidth={40} minHeight={40} />
+      <DefaultNodeResizer isVisible={!!selected} minWidth={40} minHeight={40} />
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="min-w-10 min-h-10 w-full h-full bg-border border">
         <NodeHeader id={id} />

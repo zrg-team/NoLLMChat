@@ -68,6 +68,7 @@ export interface FlowStateActions {
   addConnectionToEdges: (connection: Connection) => void
   // Update directly no additional logic
   updateFlowNode: (node: Partial<FlowNode>, options?: { silent?: boolean }) => Promise<void>
+  getNodes: (nodeIds: string[]) => Node[]
 }
 
 export const getFlowStateActions = (
@@ -125,6 +126,10 @@ export const getFlowStateActions = (
         changes.push({ type: 'remove' as const, id: id })
       })
       set({ edges: applyEdgeChanges(changes, currentEdges) })
+    },
+    getNodes: (nodeIds) => {
+      const nodes = get().nodes
+      return nodes.filter((node) => nodeIds.includes(node.id))
     },
     removeSyncNodeQueue: (timestamps) => {
       const { syncNodeQueue } = get()
