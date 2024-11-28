@@ -16,7 +16,7 @@ export const flowNodeToNode = (node: FlowNode, data: Record<string, unknown>): N
     height: node.height || undefined,
     data: {
       loading: false,
-      FlowNode: node,
+      flowNode: node,
       ...data,
     },
   }

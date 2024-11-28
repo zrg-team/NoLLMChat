@@ -12,7 +12,7 @@ export const DefaultLoader = memo(() => {
     <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
       <div className="flex flex-row items-center gap-2">
         <TypingAnimation
-          className="text-4xl font-bold text-black dark:text-white"
+          className="text-4xl font-bold text-black dark:text-white mb-32"
           text={t('loading')}
           repeat
           repeatDelay={500}

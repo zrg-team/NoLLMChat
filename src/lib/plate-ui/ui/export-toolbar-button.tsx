@@ -3,7 +3,9 @@
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
 import { toDOMNode, useEditorRef } from '@udecode/plate-common/react'
-import { ArrowDownToLineIcon } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
+import { useToast } from 'src/lib/hooks/use-toast'
+import { useTranslation } from 'react-i18next'
 
 import {
   DropdownMenu,
@@ -16,6 +18,8 @@ import {
 import { ToolbarButton } from './toolbar'
 
 export function ExportToolbarButton({ ...props }: DropdownMenuProps) {
+  const { t } = useTranslation('common')
+  const { toast } = useToast()
   const editor = useEditorRef()
   const openState = useOpenState()
 
@@ -40,6 +44,22 @@ export function ExportToolbarButton({ ...props }: DropdownMenuProps) {
     document.body.append(element)
     element.click()
     element.remove()
+  }
+
+  const copyMarkdown = async () => {
+    if (
+      'markdown' in editor.api &&
+      typeof editor.api.markdown === 'object' &&
+      editor.api.markdown &&
+      'serialize' in editor.api.markdown &&
+      typeof editor.api.markdown.serialize === 'function'
+    ) {
+      const content = editor.api.markdown.serialize()
+      navigator.clipboard.writeText(content)
+      toast({
+        description: t('copied'),
+      })
+    }
   }
 
   const exportToPdf = async () => {
@@ -70,12 +90,13 @@ export function ExportToolbarButton({ ...props }: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Export" isDropdown>
-          <ArrowDownToLineIcon className="size-4" />
+          <ExternalLink className="size-4" />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
+          <DropdownMenuItem onSelect={copyMarkdown}>Copy as Markdown</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
         </DropdownMenuGroup>

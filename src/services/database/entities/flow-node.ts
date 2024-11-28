@@ -37,10 +37,10 @@ export class FlowNode {
   height?: number
 
   @Column({ type: 'json', nullable: true })
-  data?: Record<string, unknown>
+  data?: unknown
 
   @Column({ type: 'json', nullable: true })
-  metadata?: Record<string, unknown>
+  metadata?: unknown
 
   @CreateDateColumn()
   created_at?: Date

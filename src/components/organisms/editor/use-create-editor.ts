@@ -10,7 +10,9 @@ import {
   UnderlinePlugin,
 } from '@udecode/plate-basic-marks/react'
 import { BlockquotePlugin } from '@udecode/plate-block-quote/react'
+import { MarkdownPlugin } from '@udecode/plate-markdown'
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from '@udecode/plate-code-block/react'
+import { Value } from '@udecode/plate-common'
 import { ParagraphPlugin, PlateLeaf, usePlateEditor } from '@udecode/plate-common/react'
 import { DatePlugin } from '@udecode/plate-date/react'
 import { EmojiInputPlugin } from '@udecode/plate-emoji/react'
@@ -61,7 +63,7 @@ import { TocElement } from 'src/lib/plate-ui/ui/toc-element'
 import { ToggleElement } from 'src/lib/plate-ui/ui/toggle-element'
 import { withDraggables } from 'src/lib/plate-ui/ui/with-draggables'
 
-export const useCreateEditor = () => {
+export const useCreateEditor = ({ defaultValue }: { defaultValue: Value }) => {
   return usePlateEditor({
     override: {
       components: withDraggables(
@@ -104,21 +106,17 @@ export const useCreateEditor = () => {
         }),
       ),
     },
-    plugins: [...copilotPlugins, ...editorPlugins, FixedToolbarPlugin, FloatingToolbarPlugin],
-    value: [
+    plugins: [
+      ...copilotPlugins,
+      ...editorPlugins,
+      FixedToolbarPlugin,
+      FloatingToolbarPlugin,
+      MarkdownPlugin,
+    ],
+    value: defaultValue || [
       {
-        children: [{ text: 'Playground' }],
+        children: [{ text: 'NoLLMChat Playground' }],
         type: 'h1',
-      },
-      {
-        children: [
-          { text: 'A rich-text editor with AI capabilities. Try the ' },
-          { bold: true, text: 'AI commands' },
-          { text: ' or use ' },
-          { kbd: true, text: 'Cmd+J' },
-          { text: ' to open the AI menu.' },
-        ],
-        type: ParagraphPlugin.key,
       },
     ],
   })

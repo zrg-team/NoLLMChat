@@ -20,12 +20,7 @@ export const useConnectionToHandler = (id: string) => {
       connection: Connection
     }) => {
       try {
-        if (
-          [FlowNodeTypeEnum.CircleShape, FlowNodeTypeEnum.TriangleShape].includes(
-            source?.type as FlowNodeTypeEnum,
-          ) &&
-          target?.type === FlowNodeTypeEnum.Shape
-        ) {
+        if (source?.type === FlowNodeTypeEnum.LLM && target?.type === FlowNodeTypeEnum.EditorApp) {
           await createOrUpdateFlowEdge({
             source: connection.source,
             target: connection.target,

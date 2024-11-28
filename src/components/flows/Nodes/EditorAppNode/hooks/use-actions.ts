@@ -1,24 +1,25 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef } from 'react'
 import { useInternalNode } from '@xyflow/react'
-import { useFlowState } from 'src/states/flow'
-import { useSessionState } from 'src/states/session'
+import { getRepository } from 'src/services/database'
 
 export const useActions = (id: string) => {
   const node = useInternalNode(id)
-  const currentSession = useSessionState((state) => state.currentSession)
-  const [loading, setLoading] = useState(false)
-  const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
+  const refDebounce = useRef<number | null>(null)
 
-  const updateEditorContent = useCallback(async () => {
-    try {
-      setLoading(true)
-    } finally {
-      setLoading(false)
-    }
-  }, [createOrUpdateFlowNode, currentSession?.id, node])
+  const updateEditorContent = useCallback(
+    async (value: unknown[]) => {
+      if (!node) return
+      clearTimeout(refDebounce.current!)
+      refDebounce.current = setTimeout(async () => {
+        await getRepository('FlowNode').update(node.id, {
+          data: value,
+        })
+      }, 150) as unknown as number
+    },
+    [node],
+  )
 
   return {
-    loading,
     updateEditorContent,
   }
 }
