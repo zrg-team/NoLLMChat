@@ -1,6 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Position } from '@xyflow/react'
-import { hasModelInCache, functionCallingModelIds, prebuiltAppConfig } from '@mlc-ai/web-llm'
 import { Alert, AlertDescription, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
@@ -10,16 +9,19 @@ import { cn } from 'src/lib/utils'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
+import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
+import { Badge } from 'src/lib/shadcn/ui/badge'
+import type { ModelRecord } from '@mlc-ai/web-llm'
 
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
-import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
-import { Badge } from 'src/lib/shadcn/ui/badge'
 
 export const LLMNode = memo((props: LLMNodeProps) => {
   const { id, data, isConnectable } = props
-  const [hasCache, setHasCache] = useState<boolean>()
+  const [llmInfo, setLLMInfo] = useState<
+    { hasCache: boolean; isFunctionCalling: boolean; info?: ModelRecord } | undefined
+  >()
   const { t } = useTranslation('flows')
 
   const { createThread, loadModel, queringThreads, queryThreads, loadingModel } = useActions(
@@ -31,17 +33,20 @@ export const LLMNode = memo((props: LLMNodeProps) => {
   const isLoading = [LLMStatusEnum.Loading, LLMStatusEnum.Downloading].includes(data.status)
 
   useEffect(() => {
-    if (typeof hasCache == 'boolean' || !data?.entity?.name) {
+    if (llmInfo || !data?.entity?.name) {
       return
     }
-    hasModelInCache(data?.entity?.name).then((result) => {
-      setHasCache(result)
-    })
-  }, [data?.entity?.name, hasCache])
-
-  const llmInfo = useMemo(() => {
-    return prebuiltAppConfig.model_list.find((item) => item.model_id === data?.entity?.name)
-  }, [data?.entity?.name])
+    import('@mlc-ai/web-llm').then(
+      async ({ hasModelInCache, functionCallingModelIds, prebuiltAppConfig }) => {
+        const hasCache = await hasModelInCache(data?.entity?.name)
+        setLLMInfo({
+          hasCache,
+          isFunctionCalling: functionCallingModelIds.includes(data?.entity?.name),
+          info: prebuiltAppConfig.model_list.find((item) => item.model_id === data?.entity?.name),
+        })
+      },
+    )
+  }, [data?.entity?.name, llmInfo])
 
   const llmIcon = useMemo(() => {
     switch (data.status) {
@@ -76,7 +81,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     }
     return (
       <div className="flex gap-2 mt-4">
-        {hasCache ? (
+        {llmInfo?.hasCache ? (
           <Button disabled={queringThreads} onClick={queryThreads} className="">
             {
               <LazyIcon
@@ -88,7 +93,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
           </Button>
         ) : null}
         <Button disabled={loadingModel} onClick={loadModel} className="w-full">
-          {t(hasCache ? 'llm_node.load_model_button' : 'llm_node.download_model_button')}
+          {t(llmInfo?.hasCache ? 'llm_node.load_model_button' : 'llm_node.download_model_button')}
         </Button>
       </div>
     )
@@ -96,7 +101,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     isLoading,
     loadingModel,
     data.status,
-    hasCache,
+    llmInfo?.hasCache,
     queringThreads,
     queryThreads,
     loadModel,
@@ -109,35 +114,35 @@ export const LLMNode = memo((props: LLMNodeProps) => {
         <NodeHeader id={id} />
         <Alert className="flex justify-center">
           {llmIcon}
-          <div className="ml-2 pt-1">
+          <div className="ml-2 pt-1 max-w-lg">
             <AlertTitle className="flex gap-2 items-center pr-6">
               {`${data?.entity?.name || ''}`}
             </AlertTitle>
-            <AlertDescription className="max-w-72">{`${data.label || ''}`}</AlertDescription>
-            <div>
+            <AlertDescription className="max-w-full">{`${data.label || ''}`}</AlertDescription>
+            <div className="max-w-full">
               {RECOMMENDATION_LOCAL_LLMS.some((item) => item.includes(data?.entity?.name)) ? (
                 <Badge className="ml-1 mb-1" variant="outline">
                   {t('llm_node.recommended')}
                 </Badge>
               ) : null}
-              {functionCallingModelIds.includes(data?.entity?.name) ? (
+              {llmInfo?.isFunctionCalling ? (
                 <Badge className="ml-1 mb-1" variant="outline">
                   {t('llm_node.function_calling')}
                 </Badge>
               ) : null}
-              {llmInfo?.low_resource_required ? (
+              {llmInfo?.info?.low_resource_required ? (
                 <Badge className="ml-1" variant="outline">
                   {t('llm_node.low_resource_required')}
                 </Badge>
               ) : null}
-              {llmInfo?.overrides?.context_window_size ? (
+              {llmInfo?.info?.overrides?.context_window_size ? (
                 <Badge className="ml-1" variant="outline">
-                  {llmInfo?.overrides?.context_window_size.toLocaleString('en-US')} Tokens
+                  {llmInfo?.info?.overrides?.context_window_size.toLocaleString('en-US')} Tokens
                 </Badge>
               ) : null}
-              {llmInfo?.vram_required_MB ? (
+              {llmInfo?.info?.vram_required_MB ? (
                 <Badge className="ml-1" variant="outline">
-                  VRAM: {llmInfo?.vram_required_MB.toLocaleString('en-US')} MB
+                  VRAM: {llmInfo?.info.vram_required_MB.toLocaleString('en-US')} MB
                 </Badge>
               ) : null}
             </div>

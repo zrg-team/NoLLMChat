@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
-import { functionCallingModelIds, prebuiltAppConfig, hasModelInCache } from '@mlc-ai/web-llm'
 import { useCreateDatabaseLLM } from 'src/hooks/mutations/use-create-database-llm'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
@@ -30,6 +29,7 @@ import {
 } from 'src/lib/shadcn/ui/select'
 import { SUPPORTED_PROVIDERS } from './constants'
 import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
+import { ModelRecord } from '@mlc-ai/web-llm'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -41,18 +41,33 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const [search, setSearch] = useState('')
   const [provider, setProvider] = useState<`${LLMProviderEnum}`>(LLMProviderEnum.WebLLM)
   const [hasCache, setHasCache] = useState(false)
+  const [llmsInfo, setLLMsInfo] = useState<{
+    modelList: ModelRecord[]
+    functionCallingModelIds: string[]
+  }>()
 
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createDatabaseLLM } = useCreateDatabaseLLM()
 
+  useEffect(() => {
+    // import { functionCallingModelIds, prebuiltAppConfig, hasModelInCache } from '@mlc-ai/web-llm'
+    // dynamic import to avoid circular dependency
+
+    import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
+      const modelList = prebuiltAppConfig.model_list
+      setLLMsInfo({ modelList, functionCallingModelIds })
+    })
+  }, [])
   const modelList = useMemo(() => {
+    if (!llmsInfo?.functionCallingModelIds || !llmsInfo?.modelList) return []
+
     const data = !search
-      ? prebuiltAppConfig.model_list
-      : prebuiltAppConfig.model_list.filter((model) =>
+      ? llmsInfo?.modelList
+      : llmsInfo?.modelList.filter((model) =>
           model.model_id.toLowerCase().includes(search.toLowerCase()),
         )
 
-    return data.sort((pre, next) => {
+    return (data || []).sort((pre, next) => {
       // Check if models are in cachedLLMURLs
       const preInCache = cachedLLMURLs.some((item) => item.includes(pre.model_id))
       const nextInCache = cachedLLMURLs.some((item) => item.includes(next.model_id))
@@ -77,8 +92,8 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       }
 
       // Check if models are in functionCallingModelIds
-      const preInFunctionCalling = functionCallingModelIds.includes(pre.model_id)
-      const nextInFunctionCalling = functionCallingModelIds.includes(next.model_id)
+      const preInFunctionCalling = llmsInfo?.functionCallingModelIds.includes(pre.model_id)
+      const nextInFunctionCalling = llmsInfo?.functionCallingModelIds.includes(next.model_id)
 
       // Prioritize models in functionCallingModelIds
       if (preInFunctionCalling && !nextInFunctionCalling) {
@@ -99,20 +114,18 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
 
       return pre.model_id.localeCompare(next.model_id)
     })
-  }, [cachedLLMURLs, search])
+  }, [llmsInfo?.modelList, llmsInfo?.functionCallingModelIds, search, cachedLLMURLs])
 
   const selectedModel = useMemo(() => {
-    if (!input) return
-    return prebuiltAppConfig.model_list.find((model) => model.model_id === input)
-  }, [input])
+    if (!input || !llmsInfo?.modelList) return
+    return llmsInfo?.modelList.find((model) => model.model_id === input)
+  }, [input, llmsInfo?.modelList])
 
   useEffect(() => {
-    if (!selectedModel?.model_id) return
+    if (!selectedModel?.model_id || !cachedLLMURLs) return
 
-    hasModelInCache(selectedModel.model_id).then((result) => {
-      setHasCache(result)
-    })
-  }, [selectedModel?.model_id])
+    setHasCache(cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)))
+  }, [cachedLLMURLs, selectedModel?.model_id])
 
   const modelTypeToString = useCallback((modelType?: unknown) => {
     if (modelType === 1) {
@@ -151,7 +164,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         name: input,
         model_type: modelTypeToLLMType(selectedModel?.model_type),
         function_calling: selectedModel?.model_id
-          ? functionCallingModelIds.includes(selectedModel?.model_id)
+          ? llmsInfo?.functionCallingModelIds?.includes(selectedModel?.model_id)
           : false,
       })
       setDialog?.(false)
@@ -234,7 +247,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                               {t('add_llm_card.recommended')}
                             </Badge>
                           ) : null}
-                          {functionCallingModelIds.includes(model.model_id) ? (
+                          {llmsInfo?.functionCallingModelIds?.includes(model.model_id) ? (
                             <Badge className="ml-1 mb-1" variant="outline">
                               {t('add_llm_card.function_calling')}
                             </Badge>
@@ -266,7 +279,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                   {t('add_llm_card.has_model_cache')}
                 </Badge>
               ) : null}
-              {functionCallingModelIds.includes(selectedModel.model_id) ? (
+              {llmsInfo?.functionCallingModelIds?.includes(selectedModel.model_id) ? (
                 <Badge className="mb-1" variant="default">
                   {t('add_llm_card.function_calling')}
                 </Badge>

@@ -5,6 +5,8 @@ import { useFlowState } from 'src/states/flow'
 import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 
+import { DEFAULT_NODE_SIZE } from '../constants'
+
 export const useActions = (id: string) => {
   const node = useInternalNode(id)
   const currentSession = useSessionState((state) => state.currentSession)
@@ -35,6 +37,7 @@ export const useActions = (id: string) => {
             source_type: 'FlowNodeData',
             x: initialX,
             y: initialY + 20,
+            ...(DEFAULT_NODE_SIZE[nodeType] || {}),
           })
           if (!newNode) {
             throw new Error('Failed to save node')

@@ -2,8 +2,8 @@ import dayjs from 'dayjs'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bar, XAxis, CartesianGrid, BarChart } from 'recharts'
-import { functionCallingModelIds, prebuiltAppConfig } from '@mlc-ai/web-llm'
 import { Badge } from 'src/lib/shadcn/ui/badge'
+import type { ModelRecord } from '@mlc-ai/web-llm'
 import {
   Card,
   CardContent,
@@ -27,6 +27,8 @@ import { useLocalLLMState } from 'src/services/local-llm'
 
 export const SessionInfoNode = memo(() => {
   const { t } = useTranslation('flows')
+  const [cachedModdels, setCachedModels] =
+    useState<{ model_id: string; info: ModelRecord; isFunctionCalling: boolean }[]>()
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const currentSession = useSessionState((state) => state.currentSession)
   const [latestUpdate, setLatestUpdate] = useState<Date>()
@@ -94,10 +96,22 @@ export const SessionInfoNode = memo(() => {
     } satisfies ChartConfig
   }, [t])
 
-  const cachedModdels = useMemo(() => {
-    return cachedLLMURLs?.map((url) =>
-      prebuiltAppConfig.model_list.find((model) => url.includes(model.model)),
-    )
+  useEffect(() => {
+    import('@mlc-ai/web-llm').then(({ functionCallingModelIds, prebuiltAppConfig }) => {
+      setCachedModels(
+        cachedLLMURLs?.map((url) => {
+          const item = prebuiltAppConfig.model_list.find((model) => url.includes(model.model))
+          if (!item) {
+            return
+          }
+          return {
+            model_id: item?.model_id || '',
+            info: item,
+            isFunctionCalling: functionCallingModelIds.includes(item?.model_id || ''),
+          }
+        }) as { model_id: string; info: ModelRecord; isFunctionCalling: boolean }[],
+      )
+    })
   }, [cachedLLMURLs])
 
   const fetchSessionInfo = useCallback(async () => {
@@ -249,17 +263,17 @@ export const SessionInfoNode = memo(() => {
                 {cachedModdels?.map((llm) => (
                   <div key={llm?.model_id} className="text-sm text-muted-foreground gap-1">
                     {llm?.model_id}
-                    {llm?.model_id && functionCallingModelIds.includes(llm?.model_id) ? (
+                    {llm?.model_id && llm?.isFunctionCalling ? (
                       <Badge className="ml-1" variant="outline">
                         {t('session_info_node.function_calling')}
                       </Badge>
                     ) : null}
-                    {llm?.vram_required_MB ? (
+                    {llm?.info?.vram_required_MB ? (
                       <Badge className="ml-1" variant="outline">
-                        VRAM: {llm.vram_required_MB.toLocaleString('en-US')} MB
+                        VRAM: {llm.info.vram_required_MB.toLocaleString('en-US')} MB
                       </Badge>
                     ) : null}
-                    {llm?.low_resource_required ? (
+                    {llm.info?.low_resource_required ? (
                       <Badge className="ml-1" variant="default">
                         {t('session_info_node.low_resource_required')}
                       </Badge>
