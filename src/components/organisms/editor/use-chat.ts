@@ -1,68 +1,82 @@
 'use client'
 
-import { faker } from '@faker-js/faker'
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { useChat as useBaseChat } from 'ai/react'
 
-export const useChat = () => {
+export const useChat = ({
+  copilotStream,
+}: {
+  copilotStream?: (
+    message: string | BaseMessage[],
+    onMessageUpdate: (chunk: string) => void,
+  ) => void
+}) => {
   return useBaseChat({
-    id: 'editor',
-    api: '/api/ai/command',
-    body: {},
-    fetch: async (input, init) => {
-      const res = await fetch(input, init)
-
-      if (!res.ok) {
-        // Mock the API response. Remove it when you implement the route /api/ai/command
-        await new Promise((resolve) => setTimeout(resolve, 400))
-
-        const stream = fakeStreamText()
-
-        return new Response(stream, {
-          headers: {
-            Connection: 'keep-alive',
-            'Content-Type': 'text/plain',
-          },
-        })
+    fetch: async (_, init) => {
+      const data = (init?.body ? JSON.parse(init.body as string) : {}) as {
+        messages: { role: string; content: string }[]
+        system?: string
+      }
+      const messages = data.messages.map((message) => {
+        if (message.role === 'user') {
+          return new HumanMessage(message.content)
+        }
+        return new AIMessage(message.content)
+      })
+      if (data.system) {
+        messages.unshift(new SystemMessage(data.system))
       }
 
-      return res
+      const stream = createStreamResponse({
+        messages,
+        copilotStream,
+      })
+      return new Response(stream, {
+        headers: {
+          Connection: 'keep-alive',
+          'Content-Type': 'text/plain',
+        },
+      })
     },
   })
 }
 
-// Used for testing. Remove it after implementing useChat api.
-const fakeStreamText = ({
-  chunkCount = 10,
+const createStreamResponse = ({
+  messages,
+  copilotStream,
   streamProtocol = 'data',
 }: {
+  messages: BaseMessage[]
+  copilotStream?: (
+    message: string | BaseMessage[],
+    onMessageUpdate: (chunk: string) => void,
+  ) => void
   chunkCount?: number
   streamProtocol?: 'data' | 'text'
-} = {}) => {
-  const chunks = Array.from({ length: chunkCount }, () => ({
-    delay: faker.number.int({ max: 150, min: 50 }),
-    texts: faker.lorem.words({ max: 3, min: 1 }) + ' ',
-  }))
+}) => {
   const encoder = new TextEncoder()
 
   return new ReadableStream({
     async start(controller) {
-      for (const chunk of chunks) {
-        await new Promise((resolve) => setTimeout(resolve, chunk.delay))
+      try {
+        let count = 0
+        await copilotStream?.(messages, (chunk) => {
+          count += 1
+          if (streamProtocol === 'text') {
+            controller.enqueue(encoder.encode(chunk))
+          } else {
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`))
+          }
+        })
 
-        if (streamProtocol === 'text') {
-          controller.enqueue(encoder.encode(chunk.texts))
-        } else {
-          controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk.texts)}\n`))
+        if (streamProtocol === 'data') {
+          controller.enqueue(
+            `d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":${count}}}\n`,
+          )
         }
+      } finally {
+        controller.close()
       }
-
-      if (streamProtocol === 'data') {
-        controller.enqueue(
-          `d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":${chunks.length}}}\n`,
-        )
-      }
-
-      controller.close()
     },
   })
 }

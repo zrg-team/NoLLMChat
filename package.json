@@ -24,7 +24,6 @@
     "@assistant-ui/react-syntax-highlighter": "^0.0.9",
     "@ebay/nice-modal-react": "^1.2.13",
     "@electric-sql/pglite": "^0.2.13",
-    "@faker-js/faker": "^9.2.0",
     "@huggingface/transformers": "^3.0.2",
     "@langchain/community": "^0.3.3",
     "@langchain/core": "^0.3.3",

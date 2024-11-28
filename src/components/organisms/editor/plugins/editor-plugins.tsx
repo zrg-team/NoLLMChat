@@ -24,7 +24,6 @@ import { TrailingBlockPlugin } from '@udecode/plate-trailing-block'
 import { FixedToolbarPlugin } from 'src/components/organisms/editor/plugins/fixed-toolbar-plugin'
 import { FloatingToolbarPlugin } from 'src/components/organisms/editor/plugins/floating-toolbar-plugin'
 
-import { aiPlugins } from './ai-plugins'
 import { alignPlugin } from './align-plugin'
 import { autoformatPlugin } from './autoformat-plugin'
 import { basicNodesPlugins } from './basic-nodes-plugins'
@@ -70,9 +69,6 @@ export const viewPlugins = [
 ] as const
 
 export const editorPlugins = [
-  // AI
-  ...aiPlugins,
-
   // Nodes
   ...viewPlugins,
 

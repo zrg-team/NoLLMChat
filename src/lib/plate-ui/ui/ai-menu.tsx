@@ -27,8 +27,16 @@ import { AIChatEditor } from './ai-chat-editor'
 import { AIMenuItems } from './ai-menu-items'
 import { Command, CommandList, InputCommand } from './command'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
+import { BaseMessage } from '@langchain/core/messages'
 
-export function AIMenu() {
+export function AIMenu({
+  copilotStream,
+}: {
+  copilotStream?: (
+    message: string | BaseMessage[],
+    onMessageUpdate: (chunk: string) => void,
+  ) => void
+}) {
   const { api, editor, useOption } = useEditorPlugin(AIChatPlugin)
   const open = useOption('open')
   const mode = useOption('mode')
@@ -37,7 +45,9 @@ export function AIMenu() {
   const aiEditorRef = React.useRef<PlateEditor | null>(null)
   const [value, setValue] = React.useState('')
 
-  const chat = useChat()
+  const chat = useChat({
+    copilotStream,
+  })
 
   const { input, isLoading, messages, setInput } = chat
   const [anchorElement, setAnchorElement] = React.useState<HTMLElement | null>(null)

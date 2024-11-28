@@ -14,7 +14,7 @@ const PlateEditor = lazy(() => import('src/components/organisms/editor/plate-edi
 export const EditorAppNode = memo((props: EditorAppNodeProps) => {
   const { id, data, selected, isConnectable } = props
   useConnectionToHandler(id)
-  const { updateEditorContent } = useActions(id)
+  const { createMessage, updateEditorContent } = useActions(id)
 
   const handleChangeContent = useCallback(
     (value: unknown[]) => {
@@ -38,7 +38,11 @@ export const EditorAppNode = memo((props: EditorAppNodeProps) => {
           }
         >
           <div className="h-full w-full bg-white rounded-lg" data-registry="plate">
-            <PlateEditor defaultValue={data?.flowNode?.data} onValueChange={handleChangeContent} />
+            <PlateEditor
+              defaultValue={data?.flowNode?.data}
+              onValueChange={handleChangeContent}
+              copilotStream={createMessage}
+            />
           </div>
         </Suspense>
       </div>

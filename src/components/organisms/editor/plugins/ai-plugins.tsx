@@ -1,5 +1,6 @@
 'use client'
 
+import { BaseMessage } from '@langchain/core/messages'
 import { withProps } from '@udecode/cn'
 import { AIChatPlugin, AIPlugin } from '@udecode/plate-ai/react'
 import {
@@ -150,28 +151,37 @@ export const PROMPT_TEMPLATES = {
   userSelecting,
 }
 
-export const aiPlugins = [
-  cursorOverlayPlugin,
-  MarkdownPlugin.configure({ options: { indentList: true } }),
-  AIPlugin,
-  AIChatPlugin.configure({
-    options: {
-      createAIEditor,
-      promptTemplate: ({ isBlockSelecting, isSelecting }) => {
-        return isBlockSelecting
-          ? PROMPT_TEMPLATES.userBlockSelecting
-          : isSelecting
-            ? PROMPT_TEMPLATES.userSelecting
-            : PROMPT_TEMPLATES.userDefault
+export const buildAIPlugins = ({
+  copilotStream,
+}: {
+  copilotStream?: (
+    message: string | BaseMessage[],
+    onMessageUpdate: (chunk: string) => void,
+  ) => void
+}) => {
+  return [
+    cursorOverlayPlugin,
+    MarkdownPlugin.configure({ options: { indentList: true } }),
+    AIPlugin,
+    AIChatPlugin.configure({
+      options: {
+        createAIEditor,
+        promptTemplate: ({ isBlockSelecting, isSelecting }) => {
+          return isBlockSelecting
+            ? PROMPT_TEMPLATES.userBlockSelecting
+            : isSelecting
+              ? PROMPT_TEMPLATES.userSelecting
+              : PROMPT_TEMPLATES.userDefault
+        },
+        systemTemplate: ({ isBlockSelecting, isSelecting }) => {
+          return isBlockSelecting
+            ? PROMPT_TEMPLATES.systemBlockSelecting
+            : isSelecting
+              ? PROMPT_TEMPLATES.systemSelecting
+              : PROMPT_TEMPLATES.systemDefault
+        },
       },
-      systemTemplate: ({ isBlockSelecting, isSelecting }) => {
-        return isBlockSelecting
-          ? PROMPT_TEMPLATES.systemBlockSelecting
-          : isSelecting
-            ? PROMPT_TEMPLATES.systemSelecting
-            : PROMPT_TEMPLATES.systemDefault
-      },
-    },
-    render: { afterEditable: () => <AIMenu /> },
-  }),
-] as const
+      render: { afterEditable: () => <AIMenu copilotStream={copilotStream} /> },
+    }),
+  ] as const
+}

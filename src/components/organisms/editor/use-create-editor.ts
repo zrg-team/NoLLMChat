@@ -1,4 +1,6 @@
+import { useMemo } from 'react'
 import { withProps } from '@udecode/cn'
+import { BaseMessage } from '@langchain/core/messages'
 import { AIPlugin } from '@udecode/plate-ai/react'
 import {
   BoldPlugin,
@@ -63,7 +65,25 @@ import { TocElement } from 'src/lib/plate-ui/ui/toc-element'
 import { ToggleElement } from 'src/lib/plate-ui/ui/toggle-element'
 import { withDraggables } from 'src/lib/plate-ui/ui/with-draggables'
 
-export const useCreateEditor = ({ defaultValue }: { defaultValue: Value }) => {
+import { buildAIPlugins } from './plugins/ai-plugins'
+
+export const useCreateEditor = ({
+  defaultValue,
+  copilotStream,
+}: {
+  defaultValue: Value
+  copilotStream?: (
+    message: string | BaseMessage[],
+    onMessageUpdate: (chunk: string) => void,
+  ) => void
+}) => {
+  const inputAIPlugins = useMemo(
+    () =>
+      buildAIPlugins({
+        copilotStream,
+      }),
+    [copilotStream],
+  )
   return usePlateEditor({
     override: {
       components: withDraggables(
@@ -109,6 +129,7 @@ export const useCreateEditor = ({ defaultValue }: { defaultValue: Value }) => {
     plugins: [
       ...copilotPlugins,
       ...editorPlugins,
+      ...inputAIPlugins,
       FixedToolbarPlugin,
       FloatingToolbarPlugin,
       MarkdownPlugin,

@@ -185,6 +185,13 @@
       "errors": {
         "add_node_failed": "Failed to add node."
       }
+    },
+    "editor_node": {
+      "errors": {
+        "llm_not_found": "LLM not found.",
+        "llm_not_loaded_yet":"LLM not loaded yet.",
+        "stream_message_failed": "Failed to stream message."
+      }
     }
   },
   "components": {
