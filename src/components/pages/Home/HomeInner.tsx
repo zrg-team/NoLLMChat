@@ -10,11 +10,14 @@ import {
   Edge,
   EdgeChange,
   Connection,
+  PanOnScrollMode,
 } from '@xyflow/react'
 import { nodeTypes } from 'src/components/flows/Nodes'
 import { HomePageContext } from 'src/contexts/HomePage/context'
 import { useFlowState } from 'src/states/flow'
 import { useAppState } from 'src/states/app'
+import { DevTools } from 'src/lib/shadcn/devtools'
+import { isDev } from 'src/constants/dev'
 
 export default function HomeInner() {
   const theme = useAppState((state) => state.theme)
@@ -44,20 +47,22 @@ export default function HomeInner() {
   )
 
   return (
-    <div className="w-full h-full">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        colorMode={theme}
-      >
-        <Controls />
-        <MiniMap />
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1} />
-      </ReactFlow>
-    </div>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      nodeTypes={nodeTypes}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      panOnScroll
+      panOnScrollMode={PanOnScrollMode.Free}
+      colorMode={theme}
+      fitView
+    >
+      <Background variant={BackgroundVariant.Dots} gap={24} size={1} />
+      <Controls />
+      <MiniMap />
+      {isDev ? <DevTools /> : undefined}
+    </ReactFlow>
   )
 }

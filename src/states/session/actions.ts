@@ -48,11 +48,14 @@ export const getSessionStateActions = (
     getLatestSessions: async () => {
       try {
         if (get().ready) return
+
+        console.log('getLatestSessions')
         const sessions = await getRepository('Session').find({
           where: { status: SessionStatusEnum.Started },
           order: { updated_at: 'DESC' },
           take: 7,
         })
+        console.log('sessions', sessions)
         if (sessions?.length) {
           const selectedSessionId = useAppState.getState().selectedSessionId
           const existed = sessions.find((s) => s.id === selectedSessionId)
@@ -61,12 +64,14 @@ export const getSessionStateActions = (
             set({ currentSession: existed || sessions?.[0], sessions, ready: true })
             return
           }
+          console.log('selectedSessionId', selectedSessionId)
           const selectedSession = await getRepository('Session')
             .findOne({
               where: { id: selectedSessionId },
             })
             .catch(() => undefined)
 
+          console.log('selectedSession', selectedSession)
           set({
             currentSession: selectedSession || sessions?.[0],
             sessions: selectedSession ? [selectedSession, ...sessions] : sessions,

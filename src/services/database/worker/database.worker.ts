@@ -99,10 +99,10 @@ type DatabasePayload = (
 
 async function handlePayload(data: DatabasePayload) {
   const messageId = data.messageId
-  if (!messageId) {
+  if (!messageId || !Object.keys(data).length) {
     return
   }
-  logDebug('Database worker received message:', data)
+  logDebug('Database worker received message:', data, data.type)
   switch (data.type) {
     case WorkerExecutionType.INIT: {
       if (appDataSource || initProcess) {
