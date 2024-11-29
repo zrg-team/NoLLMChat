@@ -1,14 +1,15 @@
-import { useMemo } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { cn } from 'src/lib/utils'
-import MarkdownPreview from '@uiw/react-markdown-preview'
 import { useTranslation } from 'react-i18next'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 import { Button } from 'src/lib/shadcn/ui/button'
 
 import { MessageNodeData } from '../type'
+
+const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
 export function AIMessageComponent({
   data,
@@ -41,10 +42,18 @@ export function AIMessageComponent({
         <AlertTitle>
           {t(`message_node.message_roles.${data.entity?.role?.toLowerCase()}`)}
         </AlertTitle>
-        <MarkdownPreview
-          className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !text-inherit !font-sans"
-          source={`${data.content || data.entity?.content || ''}`}
-        />
+        <Suspense
+          fallback={
+            <div className="h-full w-ful rounded-lg flex justify-center items-center">
+              <LazyIcon name="loader-circle" className="animate-spin" />
+            </div>
+          }
+        >
+          <MarkdownPreview
+            className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !text-inherit !font-sans"
+            source={`${data.content || data.entity?.content || ''}`}
+          />
+        </Suspense>
         {Array.isArray(messageMetadata?.message?.tool_calls) &&
         messageMetadata?.message?.tool_calls?.length
           ? messageMetadata?.message?.tool_calls.map((item, index) => {
