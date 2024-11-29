@@ -3,7 +3,7 @@ import { Position } from '@xyflow/react'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 import { DefaultNodeResizer } from 'src/components/flows/DefaultNodeResizer'
-import { Skeleton } from 'src/lib/shadcn/ui/skeleton'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { useActions } from './hooks/use-actions'
@@ -27,17 +27,16 @@ export const EditorAppNode = memo((props: EditorAppNodeProps) => {
     <div className="w-full min-w-[1240px] h-full">
       <DefaultNodeResizer isVisible={!!selected} minWidth={1240} minHeight={400} />
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div className="min-w-10 min-h-10 w-full h-full rounded-lg border">
+      <div className="min-w-10 min-h-10 w-full h-full rounded-lg border bg-background">
         <NodeHeader id={id} />
         <Suspense
           fallback={
-            <div className="bg-white flex gap-4 w-full h-full flex-col">
-              <Skeleton className="h-6 max-w-full !rounded-none" />
-              <Skeleton className="flex-1 max-w-full !rounded-none" />
+            <div className="h-full w-ful rounded-lg flex justify-center items-center">
+              <LazyIcon name="loader-circle" className="animate-spin" />
             </div>
           }
         >
-          <div className="h-full w-full bg-white rounded-lg" data-registry="plate">
+          <div className="h-full w-ful rounded-lg" data-registry="plate">
             <PlateEditor
               defaultValue={data?.flowNode?.data}
               onValueChange={handleChangeContent}
