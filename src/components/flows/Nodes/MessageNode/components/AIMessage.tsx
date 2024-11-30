@@ -35,7 +35,7 @@ export function AIMessageComponent({
       <LazyIcon
         className={cn(data.loading ? 'animate-spin' : undefined)}
         size={24}
-        name={data.loading ? 'loader' : 'bot'}
+        name={data.loading ? 'loader-circle' : 'bot'}
       />
       <LazyIcon name={!showThread ? 'plus' : 'minus'} size={24} />
       <div className="ml-2 w-full max-w-full">

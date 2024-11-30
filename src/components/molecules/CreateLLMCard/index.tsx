@@ -7,6 +7,8 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { Popover, PopoverContent } from 'src/lib/shadcn/ui/popover'
 import { PopoverTrigger } from '@radix-ui/react-popover'
+import LLMIcon from 'src/components/atoms/LLMIcon'
+import type { ModelRecord } from '@mlc-ai/web-llm'
 import {
   Command,
   CommandEmpty,
@@ -27,9 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
-import { SUPPORTED_PROVIDERS } from './constants'
 import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
-import { ModelRecord } from '@mlc-ai/web-llm'
+
+import { SUPPORTED_PROVIDERS } from './constants'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -180,6 +182,56 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     }
   }
 
+  const modelItems = useMemo(() => {
+    return modelList.map((model) => (
+      <CommandItem
+        key={model.model_id}
+        value={model.model_id}
+        onSelect={handleOnchange}
+      >
+        {input === model.model_id ? (
+          <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
+        ) : (
+          <div className="mr-2 h-4 w-4" />
+        )}
+        <span className='max-w-md'>
+          <div className="flex gap-2 mb-2">
+            <LLMIcon name={model.model_id} />
+            {model.model_id}
+          </div>
+          <Badge className="ml-1 mb-1">{t(modelTypeToString(model.model_type))}</Badge>
+          {cachedLLMURLs.some((item) => item.includes(model.model_id)) ? (
+            <Badge className="ml-1 mb-1" variant="outline">
+              {t('add_llm_card.cached')}
+            </Badge>
+          ) : null}
+          {RECOMMENDATION_LOCAL_LLMS.some((item) =>
+            item.includes(model.model_id),
+          ) ? (
+            <Badge className="ml-1 mb-1" variant="outline">
+              {t('add_llm_card.recommended')}
+            </Badge>
+          ) : null}
+          {llmsInfo?.functionCallingModelIds?.includes(model.model_id) ? (
+            <Badge className="ml-1 mb-1" variant="outline">
+              {t('add_llm_card.function_calling')}
+            </Badge>
+          ) : null}
+          {model.low_resource_required ? (
+            <Badge className="ml-1" variant="outline">
+              {t('add_llm_card.low_resource_required')}
+            </Badge>
+          ) : null}
+          {model.vram_required_MB ? (
+            <Badge className="ml-1" variant="outline">
+              VRAM: {model.vram_required_MB.toLocaleString('en-US')} MB
+            </Badge>
+          ) : null}
+        </span>
+      </CommandItem>
+    ))
+  }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList, modelTypeToString, t])
+
   return (
     <Card className="w-f">
       <CardHeader>
@@ -224,50 +276,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 <CommandList>
                   <CommandEmpty>{t('add_llm_card.no_model')}</CommandEmpty>
                   <CommandGroup>
-                    {modelList.map((model) => (
-                      <CommandItem
-                        key={model.model_id}
-                        value={model.model_id}
-                        onSelect={handleOnchange}
-                      >
-                        {input === model.model_id ? (
-                          <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
-                        ) : (
-                          <div className="mr-2 h-4 w-4" />
-                        )}
-                        <span>
-                          <Badge className="mr-1">{t(modelTypeToString(model.model_type))}</Badge>
-                          {model.model_id}
-                          {cachedLLMURLs.some((item) => item.includes(model.model_id)) ? (
-                            <Badge className="ml-1 mb-1" variant="outline">
-                              {t('add_llm_card.cached')}
-                            </Badge>
-                          ) : null}
-                          {RECOMMENDATION_LOCAL_LLMS.some((item) =>
-                            item.includes(model.model_id),
-                          ) ? (
-                            <Badge className="ml-1 mb-1" variant="outline">
-                              {t('add_llm_card.recommended')}
-                            </Badge>
-                          ) : null}
-                          {llmsInfo?.functionCallingModelIds?.includes(model.model_id) ? (
-                            <Badge className="ml-1 mb-1" variant="outline">
-                              {t('add_llm_card.function_calling')}
-                            </Badge>
-                          ) : null}
-                          {model.low_resource_required ? (
-                            <Badge className="ml-1" variant="outline">
-                              {t('add_llm_card.low_resource_required')}
-                            </Badge>
-                          ) : null}
-                          {model.vram_required_MB ? (
-                            <Badge className="ml-1" variant="outline">
-                              VRAM: {model.vram_required_MB.toLocaleString('en-US')} MB
-                            </Badge>
-                          ) : null}
-                        </span>
-                      </CommandItem>
-                    ))}
+                    {modelItems}
                   </CommandGroup>
                 </CommandList>
               </Command>
@@ -277,6 +286,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         {selectedModel ? (
           <div className="mt-4">
             <div className="mt-4 text-sm text-muted-foreground center flex gap-1">
+              <LLMIcon name={selectedModel.model_id} className='mr-2' />
               {hasCache ? (
                 <Badge className="mb-1" variant="default">
                   {t('add_llm_card.has_model_cache')}
