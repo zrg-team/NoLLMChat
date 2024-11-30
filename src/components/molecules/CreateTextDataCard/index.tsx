@@ -6,7 +6,8 @@ import { Label } from 'src/lib/shadcn/ui/label'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import { useCreateCSVData } from 'src/hooks/mutations/use-create-csv-data'
-import LazyIcon from 'src/components/atoms/LazyIcon'
+import LoadingButton from 'src/components/atoms/LoadingButton'
+
 import { DataTable } from './DataTable'
 
 const CreateTextDataCard = memo((props: NodeProps) => {
@@ -52,17 +53,14 @@ const CreateTextDataCard = memo((props: NodeProps) => {
         <DataTable data={data || []} />
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button
+        <LoadingButton
+          loading={loading}
+          disabled={!data?.length}
           onClick={handleCreateCSVData}
-          disabled={loading || !data?.length}
           className="w-full"
         >
-          {loading ? (
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          ) : (
-            t('add_text_data.create')
-          )}
-        </Button>
+          {t('add_text_data.create')}
+        </LoadingButton>
       </CardFooter>
     </Card>
   )

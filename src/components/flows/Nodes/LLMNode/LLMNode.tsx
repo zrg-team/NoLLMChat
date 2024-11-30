@@ -5,17 +5,17 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
-import { cn } from 'src/lib/utils'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 import type { ModelRecord } from '@mlc-ai/web-llm'
+import LLMIcon from 'src/components/atoms/LLMIcon'
+import { LLMInfo } from 'src/components/atoms/LLMInfo'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
-import LLMIcon from 'src/components/atoms/LLMIcon'
-import { LLMInfo } from 'src/components/atoms/LLMInfo'
 
 export const LLMNode = memo((props: LLMNodeProps) => {
   const { id, data, isConnectable } = props
@@ -82,15 +82,12 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     return (
       <div className="flex gap-2 mt-4">
         {llmInfo?.hasCache ? (
-          <Button disabled={queringThreads} onClick={queryThreads} className="">
-            {
-              <LazyIcon
-                size={24}
-                className={cn(queringThreads ? 'animate-spin' : undefined)}
-                name={queringThreads ? 'loader-circle' : 'message-square-more'}
-              />
-            }
-          </Button>
+          <LoadingButton loading={queringThreads} onClick={queryThreads}>
+            <LazyIcon
+              size={24}
+              name={'message-square-more'}
+            />
+          </LoadingButton>
         ) : null}
         <Button disabled={loadingModel} onClick={loadModel} className="w-full">
           {t(llmInfo?.hasCache ? 'llm_node.load_model_button' : 'llm_node.download_model_button')}

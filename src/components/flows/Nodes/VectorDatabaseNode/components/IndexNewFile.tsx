@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import LazyIcon from 'src/components/atoms/LazyIcon'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 import FileUploadInput from 'src/lib/kokonutui/file-upload-input'
 import { UseFileInputOptions } from 'src/lib/kokonutui/use-file-input'
-import { Button } from 'src/lib/shadcn/ui/button'
 
 export default function IndexNewFile({
   onFileSubmit,
@@ -39,13 +38,9 @@ export default function IndexNewFile({
           file={file}
         />
       </div>
-      <Button disabled={!file || loading} onClick={handleFileSubmit} className="w-full mt-4">
-        {loading || !!(progress && progress < 1) ? (
-          <LazyIcon name="loader-circle" className="animate-spin" />
-        ) : (
-          t('vector_database_node.add_file.upload')
-        )}
-      </Button>
+      <LoadingButton loading={loading} disabled={!file} onClick={handleFileSubmit} className="w-full mt-4">
+        {t('vector_database_node.add_file.upload')}
+      </LoadingButton>
     </div>
   )
 }

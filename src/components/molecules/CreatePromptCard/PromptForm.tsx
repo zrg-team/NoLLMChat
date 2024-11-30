@@ -11,9 +11,9 @@ import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import { PROMPT_ROLES, PROMPT_TYPES } from './constants'
-import { Button } from 'src/lib/shadcn/ui/button'
 
 const PromptForm = memo(
   ({
@@ -144,13 +144,9 @@ const PromptForm = memo(
           />
         </div>
         <div>
-          <Button onClick={handleSubmit} disabled={!input?.length} className="w-full mt-4">
-            {loading ? (
-              <LazyIcon name="loader-circle" className="animate-spin" />
-            ) : (
-              t('add_prompt_card.button')
-            )}
-          </Button>
+          <LoadingButton loading={loading} disabled={!input?.length} onClick={handleSubmit} className="w-full mt-4">
+            {t('add_prompt_card.button')}
+          </LoadingButton>
         </div>
       </div>
     )

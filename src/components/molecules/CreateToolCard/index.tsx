@@ -1,14 +1,13 @@
 import { memo, useState } from 'react'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
-import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { useCreateTool } from 'src/hooks/mutations/use-create-tool'
-import LazyIcon from 'src/components/atoms/LazyIcon'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 const CreateToolCard = memo((props: NodeProps) => {
   const { t } = useTranslation('components')
@@ -66,13 +65,13 @@ const CreateToolCard = memo((props: NodeProps) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
-          {loading ? (
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          ) : (
-            t('add_tool_card.create')
-          )}
-        </Button>
+        <LoadingButton
+          loading={loading}
+          onClick={handleSubmit}
+          className="w-full"
+        >
+          {t('add_tool_card.create')}
+        </LoadingButton>
       </CardFooter>
     </Card>
   )

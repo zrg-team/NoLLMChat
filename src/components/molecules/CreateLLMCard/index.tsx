@@ -30,6 +30,7 @@ import {
 } from 'src/lib/shadcn/ui/select'
 import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
 import { LLMInfo } from 'src/components/atoms/LLMInfo'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import { SUPPORTED_PROVIDERS } from './constants'
 
@@ -280,15 +281,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         ) : null}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button onClick={hanldeSubmit} disabled={!input || creatingLLM} className="w-full">
-          {creatingLLM ? (
-            <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
-          ) : hasCache ? (
+        <LoadingButton loading={creatingLLM} disabled={!input?.length} onClick={hanldeSubmit} className="w-full">
+          {hasCache ? (
             t('add_llm_card.button_add')
           ) : (
             t('add_llm_card.button_download_and_add')
           )}
-        </Button>
+        </LoadingButton>
       </CardFooter>
     </Card>
   )

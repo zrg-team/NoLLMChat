@@ -1,10 +1,9 @@
 import { memo, useState } from 'react'
-import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
-import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Input } from 'src/lib/shadcn/ui/input'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 const IndexNewText = memo(
   ({
@@ -50,13 +49,9 @@ const IndexNewText = memo(
           />
         </div>
         <div className="flex justify-between mt-6">
-          <Button onClick={handleIndexText} disabled={loading || !text?.length} className="w-full">
-            {loading ? (
-              <LazyIcon name="loader-circle" className="animate-spin" />
-            ) : (
-              t('vector_database_node.add_text.add')
-            )}
-          </Button>
+          <LoadingButton loading={loading} disabled={!text?.length} onClick={handleIndexText} className="w-full">
+            {t('vector_database_node.add_text.add')}
+          </LoadingButton>
         </div>
       </div>
     )
