@@ -54,11 +54,11 @@ export const LLMNode = memo((props: LLMNodeProps) => {
       case LLMStatusEnum.Downloading:
         return <LazyIcon className={'animate-spin w-7 h-7'} name={'arrow-big-down-dash'} />
       case LLMStatusEnum.Loaded:
-        return <LLMIcon name={data.entity?.name || 'brain'} className='w-7 h-7' />
+        return <LLMIcon name={data.entity?.name || 'brain'} className="w-7 h-7" />
       case LLMStatusEnum.Loading:
         return <LazyIcon className={'animate-spin w-7 h-7'} name={'loader-circle'} />
       default:
-        return <LLMIcon name={data.entity?.name || 'brain'} className='w-7 h-7' />
+        return <LLMIcon name={data.entity?.name || 'brain'} className="w-7 h-7" />
     }
   }, [data.entity?.name, data.status])
 

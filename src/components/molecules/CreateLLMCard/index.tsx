@@ -184,17 +184,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
 
   const modelItems = useMemo(() => {
     return modelList.map((model) => (
-      <CommandItem
-        key={model.model_id}
-        value={model.model_id}
-        onSelect={handleOnchange}
-      >
+      <CommandItem key={model.model_id} value={model.model_id} onSelect={handleOnchange}>
         {input === model.model_id ? (
           <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
         ) : (
           <div className="mr-2 h-4 w-4" />
         )}
-        <span className='max-w-md'>
+        <span className="max-w-md">
           <div className="flex gap-2 mb-2">
             <LLMIcon name={model.model_id} />
             {model.model_id}
@@ -205,9 +201,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               {t('add_llm_card.cached')}
             </Badge>
           ) : null}
-          {RECOMMENDATION_LOCAL_LLMS.some((item) =>
-            item.includes(model.model_id),
-          ) ? (
+          {RECOMMENDATION_LOCAL_LLMS.some((item) => item.includes(model.model_id)) ? (
             <Badge className="ml-1 mb-1" variant="outline">
               {t('add_llm_card.recommended')}
             </Badge>
@@ -230,7 +224,15 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         </span>
       </CommandItem>
     ))
-  }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList, modelTypeToString, t])
+  }, [
+    cachedLLMURLs,
+    handleOnchange,
+    input,
+    llmsInfo?.functionCallingModelIds,
+    modelList,
+    modelTypeToString,
+    t,
+  ])
 
   return (
     <Card className="w-f">
@@ -275,9 +277,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 />
                 <CommandList>
                   <CommandEmpty>{t('add_llm_card.no_model')}</CommandEmpty>
-                  <CommandGroup>
-                    {modelItems}
-                  </CommandGroup>
+                  <CommandGroup>{modelItems}</CommandGroup>
                 </CommandList>
               </Command>
             </PopoverContent>
@@ -286,7 +286,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         {selectedModel ? (
           <div className="mt-4">
             <div className="mt-4 text-sm text-muted-foreground center flex gap-1">
-              <LLMIcon name={selectedModel.model_id} className='mr-2' />
+              <LLMIcon name={selectedModel.model_id} className="mr-2" />
               {hasCache ? (
                 <Badge className="mb-1" variant="default">
                   {t('add_llm_card.has_model_cache')}

@@ -17,7 +17,7 @@ export const EmbeddingNode = memo((props: EmbeddingNodeProps) => {
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
         <Alert className="flex justify-center max-w-80" variant="default">
-          <LLMIcon name={data.model || 'brain'} className='w-7 h-7' />
+          <LLMIcon name={data.model || 'brain'} className="w-7 h-7" />
           <div className="ml-2 pr-4 flex items-center">
             <AlertTitle>{`${data.model || ''}`}</AlertTitle>
           </div>
