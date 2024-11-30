@@ -24,6 +24,7 @@ import { formatBytes } from 'src/utils/bytes-format'
 import { Button } from 'src/lib/shadcn/ui/button'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useLocalLLMState } from 'src/services/local-llm'
+import { LLMInfo } from 'src/components/atoms/LLMInfo'
 
 export const SessionInfoNode = memo(() => {
   const { t } = useTranslation('flows')
@@ -97,10 +98,14 @@ export const SessionInfoNode = memo(() => {
   }, [t])
 
   useEffect(() => {
+    console.log('cachedLLMURLs', cachedLLMURLs)
     import('@mlc-ai/web-llm').then(({ functionCallingModelIds, prebuiltAppConfig }) => {
+      console.log('cachedLLMURLs')
       setCachedModels(
         cachedLLMURLs?.map((url) => {
+          console.log('url', url)
           const item = prebuiltAppConfig.model_list.find((model) => url.includes(model.model))
+          console.log('item', item)
           if (!item) {
             return
           }
@@ -112,7 +117,7 @@ export const SessionInfoNode = memo(() => {
         }) as { model_id: string; info: ModelRecord; isFunctionCalling: boolean }[],
       )
     })
-  }, [cachedLLMURLs])
+  }, [cachedLLMURLs, currentSession?.id])
 
   const fetchSessionInfo = useCallback(async () => {
     navigator.storage.estimate().then((estimate) => {
@@ -234,75 +239,63 @@ export const SessionInfoNode = memo(() => {
     fetchSessionInfo()
   }, [fetchSessionInfo])
   return (
-    <div>
-      <div>
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>{t('session_info_node.title')}</CardTitle>
-            <CardDescription>
-              {latestUpdate || currentSession?.updated_at
-                ? dayjs(latestUpdate || currentSession?.updated_at).fromNow()
-                : ''}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="flex items-center space-x-4 rounded-md border p-4">
-              <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  {t('session_info_node.disk_size')}
-                </p>
-                <p className="text-sm text-muted-foreground">{usedBytes}</p>
-              </div>
+    <Card className="w-96">
+      <CardHeader>
+        <CardTitle>{t('session_info_node.title')}</CardTitle>
+        <CardDescription>
+          {latestUpdate || currentSession?.updated_at
+            ? dayjs(latestUpdate || currentSession?.updated_at).fromNow()
+            : ''}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="flex items-center space-x-4 rounded-md border p-4">
+          <div className="flex-1 space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {t('session_info_node.disk_size')}
+            </p>
+            <p className="text-sm text-muted-foreground">{usedBytes}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4 rounded-md border p-4">
+          <div className="flex-1 space-y-1">
+            <div className="text-sm font-medium leading-none">
+              {t('session_info_node.cached_llms')}
+              <Badge className="ml-2">{cachedModdels?.length || 0}</Badge>
             </div>
-            <div className="flex items-center space-x-4 rounded-md border p-4">
-              <div className="flex-1 space-y-1">
-                <div className="text-sm font-medium leading-none">
-                  {t('session_info_node.cached_llms')}
-                  <Badge className="ml-2">{cachedModdels?.length || 0}</Badge>
+            {cachedModdels?.map((llm) => (
+              <div key={llm?.model_id} className="text-sm text-muted-foreground gap-1">
+                {llm?.model_id}
+                <div className="max-w-full gap-1 flex flex-wrap mt-1">
+                  <LLMInfo
+                    model={llm?.info}
+                    isFunctionCalling={llm?.isFunctionCalling || false}
+                    isCached={true}
+                  />
                 </div>
-                {cachedModdels?.map((llm) => (
-                  <div key={llm?.model_id} className="text-sm text-muted-foreground gap-1">
-                    {llm?.model_id}
-                    {llm?.model_id && llm?.isFunctionCalling ? (
-                      <Badge className="ml-1" variant="outline">
-                        {t('session_info_node.function_calling')}
-                      </Badge>
-                    ) : null}
-                    {llm?.info?.vram_required_MB ? (
-                      <Badge className="ml-1" variant="outline">
-                        VRAM: {llm.info.vram_required_MB.toLocaleString('en-US')} MB
-                      </Badge>
-                    ) : null}
-                    {llm.info?.low_resource_required ? (
-                      <Badge className="ml-1" variant="default">
-                        {t('session_info_node.low_resource_required')}
-                      </Badge>
-                    ) : null}
-                  </div>
-                ))}
               </div>
-            </div>
-            <div>
-              <ChartContainer config={chartConfig} className="min-h-28 w-full">
-                <BarChart accessibilityLayer data={countInfo}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  {Object.entries(chartConfig).map(([key, item]) => (
-                    <Bar key={key} dataKey={key} fill={item.color} radius={4} />
-                  ))}
-                </BarChart>
-              </ChartContainer>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" onClick={handleReload}>
-              <LazyIcon size={24} name={'refresh-ccw'} />
-              {t('session_info_node.reload')}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <ChartContainer config={chartConfig} className="min-h-28 w-full">
+            <BarChart accessibilityLayer data={countInfo}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              {Object.entries(chartConfig).map(([key, item]) => (
+                <Bar key={key} dataKey={key} fill={item.color} radius={4} />
+              ))}
+            </BarChart>
+          </ChartContainer>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full" onClick={handleReload}>
+          <LazyIcon size={24} name={'refresh-ccw'} />
+          {t('session_info_node.reload')}
+        </Button>
+      </CardFooter>
+    </Card>
   )
 })
