@@ -93,7 +93,6 @@ export const Editor = React.forwardRef<HTMLDivElement, EditorProps>(
       <PlateContent
         ref={ref}
         className={cn(
-          'nodrag nowheel',
           editorVariants({
             disabled,
             focused,

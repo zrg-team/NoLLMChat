@@ -98,14 +98,10 @@ export const SessionInfoNode = memo(() => {
   }, [t])
 
   useEffect(() => {
-    console.log('cachedLLMURLs', cachedLLMURLs)
     import('@mlc-ai/web-llm').then(({ functionCallingModelIds, prebuiltAppConfig }) => {
-      console.log('cachedLLMURLs')
       setCachedModels(
         cachedLLMURLs?.map((url) => {
-          console.log('url', url)
           const item = prebuiltAppConfig.model_list.find((model) => url.includes(model.model))
-          console.log('item', item)
           if (!item) {
             return
           }

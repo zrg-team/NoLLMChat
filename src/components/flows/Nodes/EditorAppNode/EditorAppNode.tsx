@@ -9,7 +9,7 @@ import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { useActions } from './hooks/use-actions'
 import { EditorAppNodeProps } from './type'
 
-const PlateEditor = lazy(() => import('src/components/organisms/editor/plate-editor'))
+const PlateAppEditor = lazy(() => import('src/components/organisms/editor/plate-editor'))
 
 export const EditorAppNode = memo((props: EditorAppNodeProps) => {
   const { id, data, selected, isConnectable } = props
@@ -37,10 +37,11 @@ export const EditorAppNode = memo((props: EditorAppNodeProps) => {
           }
         >
           <div className="h-full w-ful rounded-lg" data-registry="plate">
-            <PlateEditor
+            <PlateAppEditor
               defaultValue={data?.flowNode?.data}
               onValueChange={handleChangeContent}
               copilotStream={createMessage}
+              selected={selected}
             />
           </div>
         </Suspense>
