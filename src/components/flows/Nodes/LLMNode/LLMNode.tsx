@@ -119,7 +119,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
               {`${data?.entity?.name || ''}`}
             </AlertTitle>
             <AlertDescription className="max-w-full">{`${data.label || ''}`}</AlertDescription>
-            <div className='max-w-full mt-2 flex-wrap flex gap-1'>
+            <div className="max-w-full mt-2 flex-wrap flex gap-1">
               <LLMInfo
                 model={llmInfo?.info}
                 isFunctionCalling={llmInfo?.isFunctionCalling || false}

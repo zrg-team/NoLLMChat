@@ -185,10 +185,12 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             <LLMIcon name={model.model_id} />
             {model.model_id}
           </div>
-          <div className='flex max-w-full flex-wrap gap-1'>
+          <div className="flex max-w-full flex-wrap gap-1">
             <LLMInfo
               model={model}
-              isFunctionCalling={llmsInfo?.functionCallingModelIds?.includes(model.model_id) || false}
+              isFunctionCalling={
+                llmsInfo?.functionCallingModelIds?.includes(model.model_id) || false
+              }
               name={model.model_id}
               isCached={cachedLLMURLs.some((item) => item.includes(model.model_id)) || false}
             />
@@ -253,9 +255,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               <LLMIcon name={selectedModel.model_id} className="mr-2" />
               <LLMInfo
                 model={selectedModel}
-                isFunctionCalling={llmsInfo?.functionCallingModelIds?.includes(selectedModel.model_id) || false}
+                isFunctionCalling={
+                  llmsInfo?.functionCallingModelIds?.includes(selectedModel.model_id) || false
+                }
                 name={selectedModel.model_id}
-                isCached={cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)) || false}
+                isCached={
+                  cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)) || false
+                }
               />
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
