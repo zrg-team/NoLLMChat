@@ -68,7 +68,9 @@ export function AIMenu({
   useEditorChat({
     chat,
     onOpenBlockSelection: (blocks: TNodeEntry[]) => {
-      show(toDOMNode(editor, blocks.at(-1)![0])!)
+      if ('at' in blocks && typeof blocks.at === 'function') {
+        show(toDOMNode(editor, blocks.at(-1)![0])!)
+      }
     },
     onOpenChange: (open) => {
       if (!open) {
@@ -86,7 +88,10 @@ export function AIMenu({
       show(toDOMNode(editor, ancestor)!)
     },
     onOpenSelection: () => {
-      show(toDOMNode(editor, getBlocks(editor).at(-1)![0])!)
+      const blocks = getBlocks(editor)
+      if ('at' in blocks && typeof blocks.at === 'function') {
+        show(toDOMNode(editor, blocks.at(-1)![0])!)
+      }
     },
   })
 

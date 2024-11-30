@@ -1,5 +1,5 @@
 import { AIMessage, BaseMessage } from '@langchain/core/messages'
-import { ChatCompletionMessageParam, MLCEngine } from '@mlc-ai/web-llm'
+import type { ChatCompletionMessageParam, MLCEngine } from '@mlc-ai/web-llm'
 
 const STRUCTURED_RESPONSE_SYSTEM_PROMPT = `
 # Response Instructions

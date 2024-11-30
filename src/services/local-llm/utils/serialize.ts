@@ -10,7 +10,7 @@ import {
   MessageContentComplex,
   SystemMessage,
 } from '@langchain/core/messages'
-import { ChatCompletionRequest } from '@mlc-ai/web-llm'
+import type { ChatCompletionRequest } from '@mlc-ai/web-llm'
 
 const parseLLMInputItemToBridgeJSON = (
   input: Exclude<BaseLanguageModelInput, BaseMessageLike[]> | BaseMessageLike,

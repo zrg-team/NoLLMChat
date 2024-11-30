@@ -2,15 +2,15 @@ import { SetState, GetState } from 'src/utils/zustand'
 
 import { sendToWorker, workerMessagesHandler } from 'src/utils/worker-base'
 import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
-import { InitProgressReport } from '@mlc-ai/web-llm'
+import type { InitProgressReport } from '@mlc-ai/web-llm'
 import { nanoid } from 'nanoid'
 import { parseLLMInputToBridgeJSON } from 'src/services/local-llm'
 import { SchemaItem } from 'src/services/database/types'
+import { streamingPromise } from 'src/utils/streaming-promise'
+import { getEmptyPromise } from 'src/utils/promise'
 
 import { LocalLLMState } from './state'
 import { worker } from '../worker'
-import { streamingPromise } from 'src/utils/streaming-promise'
-import { getEmptyPromise } from 'src/utils/promise'
 
 export interface LocalLLMStateActions {
   init: () => void

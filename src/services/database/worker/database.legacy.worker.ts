@@ -1,6 +1,7 @@
 // import 'reflect-metadata'
 import './database-polyfill.worker'
 import { DataSource, FindManyOptions, ObjectLiteral } from 'typeorm'
+// @ts-expect-error - This is legacy
 import initSqlJs from 'sql.js'
 import wasm from 'sql.js/dist/sql-wasm.wasm?url'
 import localforage from 'localforage'
