@@ -17,7 +17,6 @@ import {
   CommandItem,
   CommandList,
 } from 'src/lib/shadcn/ui/command'
-import { Badge } from 'src/lib/shadcn/ui/badge'
 import { LLMModelTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { useLocalLLMState } from 'src/services/local-llm'
 import { useToast } from 'src/lib/hooks/use-toast'
@@ -30,6 +29,8 @@ import {
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
 import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
+import { LLMInfo } from 'src/components/atoms/LLMInfo'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import { SUPPORTED_PROVIDERS } from './constants'
 
@@ -132,16 +133,6 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     setHasCache(cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)))
   }, [cachedLLMURLs, selectedModel?.model_id])
 
-  const modelTypeToString = useCallback((modelType?: unknown) => {
-    if (modelType === 1) {
-      return 'add_llm_card.model_types.embedding'
-    }
-    if (modelType === 2) {
-      return 'add_llm_card.model_types.vlm'
-    }
-    return 'add_llm_card.model_types.llm'
-  }, [])
-
   const modelTypeToLLMType = useCallback((modelType?: unknown) => {
     if (modelType === 1) {
       return LLMModelTypeEnum.embedding
@@ -195,47 +186,23 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             <LLMIcon name={model.model_id} />
             {model.model_id}
           </div>
-          <Badge className="ml-1 mb-1">{t(modelTypeToString(model.model_type))}</Badge>
-          {cachedLLMURLs.some((item) => item.includes(model.model_id)) ? (
-            <Badge className="ml-1 mb-1" variant="outline">
-              {t('add_llm_card.cached')}
-            </Badge>
-          ) : null}
-          {RECOMMENDATION_LOCAL_LLMS.some((item) => item.includes(model.model_id)) ? (
-            <Badge className="ml-1 mb-1" variant="outline">
-              {t('add_llm_card.recommended')}
-            </Badge>
-          ) : null}
-          {llmsInfo?.functionCallingModelIds?.includes(model.model_id) ? (
-            <Badge className="ml-1 mb-1" variant="outline">
-              {t('add_llm_card.function_calling')}
-            </Badge>
-          ) : null}
-          {model.low_resource_required ? (
-            <Badge className="ml-1" variant="outline">
-              {t('add_llm_card.low_resource_required')}
-            </Badge>
-          ) : null}
-          {model.vram_required_MB ? (
-            <Badge className="ml-1" variant="outline">
-              VRAM: {model.vram_required_MB.toLocaleString('en-US')} MB
-            </Badge>
-          ) : null}
+          <div className="flex max-w-full flex-wrap gap-1">
+            <LLMInfo
+              model={model}
+              isFunctionCalling={
+                llmsInfo?.functionCallingModelIds?.includes(model.model_id) || false
+              }
+              name={model.model_id}
+              isCached={cachedLLMURLs.some((item) => item.includes(model.model_id)) || false}
+            />
+          </div>
         </span>
       </CommandItem>
     ))
-  }, [
-    cachedLLMURLs,
-    handleOnchange,
-    input,
-    llmsInfo?.functionCallingModelIds,
-    modelList,
-    modelTypeToString,
-    t,
-  ])
+  }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList])
 
   return (
-    <Card className="w-f">
+    <Card className="max-w-lg">
       <CardHeader>
         <CardTitle>{t('add_llm_card.title')}</CardTitle>
       </CardHeader>
@@ -285,59 +252,43 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         </div>
         {selectedModel ? (
           <div className="mt-4">
-            <div className="mt-4 text-sm text-muted-foreground center flex gap-1">
+            <div className="mt-4 text-sm text-muted-foreground center flex max-w-full flex-wrap gap-1">
               <LLMIcon name={selectedModel.model_id} className="mr-2" />
-              {hasCache ? (
-                <Badge className="mb-1" variant="default">
-                  {t('add_llm_card.has_model_cache')}
-                </Badge>
-              ) : null}
-              {llmsInfo?.functionCallingModelIds?.includes(selectedModel.model_id) ? (
-                <Badge className="mb-1" variant="default">
-                  {t('add_llm_card.function_calling')}
-                </Badge>
-              ) : null}
-              {selectedModel.low_resource_required ? (
-                <Badge className="mb-1" variant="default">
-                  {t('add_llm_card.low_resource_required')}
-                </Badge>
-              ) : null}
-            </div>
-            <div className="mt-2 text-sm text-muted-foreground center flex">
-              <span className="font-bold mr-2">{t('add_llm_card.model_type')}</span>
-              {t(modelTypeToString(selectedModel.model_type))}
+              <LLMInfo
+                model={selectedModel}
+                isFunctionCalling={
+                  llmsInfo?.functionCallingModelIds?.includes(selectedModel.model_id) || false
+                }
+                name={selectedModel.model_id}
+                isCached={
+                  cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)) || false
+                }
+              />
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
               <span className="font-bold mr-2">{t('add_llm_card.model_url')}</span>
               {selectedModel.model}
             </div>
-            {selectedModel.vram_required_MB ? (
-              <div className="mt-2 text-sm text-muted-foreground">
-                <span className="font-bold mr-2">{t('add_llm_card.model_vram')}</span>
-                {selectedModel.vram_required_MB?.toLocaleString('en-US')} MB
-              </div>
-            ) : null}
-            {selectedModel.overrides?.context_window_size ? (
-              <div className="mt-2 text-sm text-muted-foreground">
-                <span className="font-bold mr-2">
-                  {t('add_llm_card.model_context_window_size')}
-                </span>
-                {selectedModel.overrides.context_window_size?.toLocaleString('en-US')}
-              </div>
-            ) : null}
+            <div className="mt-2 text-sm text-muted-foreground center flex">
+              <span className="font-bold mr-2">{t('add_llm_card.model_lib_url')}</span>
+              {selectedModel.model_lib}
+            </div>
+            <div className="mt-2 text-sm text-muted-foreground center flex">
+              <span className="font-bold mr-2">{t('add_llm_card.metadata')}</span>
+              {JSON.stringify(selectedModel.overrides)}
+            </div>
           </div>
         ) : null}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button onClick={hanldeSubmit} disabled={!input || creatingLLM} className="w-full">
-          {creatingLLM ? (
-            <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
-          ) : hasCache ? (
-            t('add_llm_card.button_add')
-          ) : (
-            t('add_llm_card.button_download_and_add')
-          )}
-        </Button>
+        <LoadingButton
+          loading={creatingLLM}
+          disabled={!input?.length}
+          onClick={hanldeSubmit}
+          className="w-full"
+        >
+          {hasCache ? t('add_llm_card.button_add') : t('add_llm_card.button_download_and_add')}
+        </LoadingButton>
       </CardFooter>
     </Card>
   )

@@ -7,7 +7,8 @@ import { Input } from 'src/lib/shadcn/ui/input'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import { useCreateCSVData } from 'src/hooks/mutations/use-create-csv-data'
-import LazyIcon from 'src/components/atoms/LazyIcon'
+import LoadingButton from 'src/components/atoms/LoadingButton'
+
 import { ExampleTable } from './ExampleTable'
 
 const CreateFewShotExampleCard = memo((props: NodeProps) => {
@@ -64,17 +65,14 @@ const CreateFewShotExampleCard = memo((props: NodeProps) => {
         <ExampleTable data={data || []} />
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button
+        <LoadingButton
+          loading={loading}
+          disabled={!data?.length}
           onClick={handleCreateCSVData}
-          disabled={loading || !data?.length}
           className="w-full"
         >
-          {loading ? (
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          ) : (
-            t('add_few_shot_example_card.create')
-          )}
-        </Button>
+          {t('add_few_shot_example_card.create')}
+        </LoadingButton>
       </CardFooter>
     </Card>
   )

@@ -68,9 +68,6 @@
       "create_thread_button": "Create Thread",
       "load_model_button": "Load Model",
       "download_model_button": "Download and Load Model",
-      "function_calling": "Function Calling",
-      "recommended": "Recommended",
-      "low_resource_required": "Low resource required",
       "errors": {
         "loading_model": "Failed to load model."
       }
@@ -127,10 +124,7 @@
       "disk_size": "Disk Size",
       "reload": "Reload",
       "cached_llms": "Cached LLM",
-      "cached": "Cached",
       "used_bytes": "Used {{used}} out of {{total}}.",
-      "function_calling": "Function Calling",
-      "low_resource_required": "Low resource required",
       "count_info": {
         "nodes": "Number of Nodes: {{count}}",
         "threads": "Number of Threads: {{count}}",
@@ -203,14 +197,6 @@
       "select_model_placeholder": "Select a model",
       "search_placeholder": "Search model...",
       "no_model": "No model found",
-      "function_calling": "Function Calling",
-      "cached": "Cached",
-      "recommended": "Recommended",
-      "model_types": {
-        "llm": "LLM",
-        "embedding": "Embedding",
-        "vlm": "Vision"
-      },
       "providers": {
         "webllm": "WebLLM",
         "openai": "OpenAI"
@@ -218,12 +204,10 @@
       "provider": "Provider",
       "provider_select_placeholder": "Select a provider",
       "has_model_cache": "Has Model Cache",
-      "model_type": "Type:",
+      "model_lib_url": "Library URL:",
       "low_resource_required": "Low resource required",
       "model_url": "URL:",
-      "model_vram": "Required VRAM: ",
-      "model_context_window_size": "Context window size:",
-      "model_function_calling": "Function Calling:",
+      "metadata": "Metadata: ",
       "errors": {
         "failed_to_create": "Failed to create LLM."
       }
@@ -373,6 +357,17 @@
       "previous": "Previous",
       "next": "Next",
       "more_pages": "More pages"
+    },
+    "llm_info": {
+      "function_calling": "Function Calling",
+      "low_resource_required": "Low resource required",
+      "cached": "Cached",
+      "recommended": "Recommended",
+      "model_types": {
+        "llm": "LLM",
+        "embedding": "Embedding",
+        "vlm": "Vision"
+      }
     }
   }
 }

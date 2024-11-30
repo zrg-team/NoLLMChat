@@ -10,17 +10,17 @@ import {
 } from 'src/lib/shadcn/ui/select'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { VectorDatabaseProviderEnum, VectorDatabaseStorageEnum } from 'src/services/database/types'
-import { Button } from 'src/lib/shadcn/ui/button'
-import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
+import { Input } from 'src/lib/shadcn/ui/input'
+import { useCreateVectorDatabase } from 'src/hooks/mutations/use-create-vector-database'
+import LoadingButton from 'src/components/atoms/LoadingButton'
+
 import {
   SUPPORTED_TEXT_SPLITTERS,
   SUPPORTED_VECTOR_DATABASE_PROVIDERS,
   SUPPORTED_VECTOR_DATABASE_SOURCE_TYPE,
 } from './constants'
-import { Input } from 'src/lib/shadcn/ui/input'
-import { useCreateVectorDatabase } from 'src/hooks/mutations/use-create-vector-database'
 
 const CreateVectorDatabaseCard = memo((props: NodeProps) => {
   const { t } = useTranslation('components')
@@ -190,13 +190,14 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button disabled={!textSplitter.type || !name} onClick={handleSubmit} className="w-full">
-          {loading ? (
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          ) : (
-            t('create_vector_database_card.create')
-          )}
-        </Button>
+        <LoadingButton
+          disabled={!textSplitter.type || !name}
+          loading={loading}
+          onClick={handleSubmit}
+          className="w-full"
+        >
+          {t('create_vector_database_card.create')}
+        </LoadingButton>
       </CardFooter>
     </Card>
   )
