@@ -144,7 +144,12 @@ const PromptForm = memo(
           />
         </div>
         <div>
-          <LoadingButton loading={loading} disabled={!input?.length} onClick={handleSubmit} className="w-full mt-4">
+          <LoadingButton
+            loading={loading}
+            disabled={!input?.length}
+            onClick={handleSubmit}
+            className="w-full mt-4"
+          >
             {t('add_prompt_card.button')}
           </LoadingButton>
         </div>

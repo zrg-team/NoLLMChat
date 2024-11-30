@@ -65,11 +65,7 @@ const CreateToolCard = memo((props: NodeProps) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <LoadingButton
-          loading={loading}
-          onClick={handleSubmit}
-          className="w-full"
-        >
+        <LoadingButton loading={loading} onClick={handleSubmit} className="w-full">
           {t('add_tool_card.create')}
         </LoadingButton>
       </CardFooter>

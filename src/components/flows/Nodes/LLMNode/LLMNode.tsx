@@ -83,10 +83,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
       <div className="flex gap-2 mt-4">
         {llmInfo?.hasCache ? (
           <LoadingButton loading={queringThreads} onClick={queryThreads}>
-            <LazyIcon
-              size={24}
-              name={'message-square-more'}
-            />
+            <LazyIcon size={24} name={'message-square-more'} />
           </LoadingButton>
         ) : null}
         <Button disabled={loadingModel} onClick={loadModel} className="w-full">

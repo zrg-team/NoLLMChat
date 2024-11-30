@@ -39,7 +39,12 @@ const CreateSchemaCard = memo((props: NodeProps) => {
         <FieldList setData={setData} data={data} />
       </CardContent>
       <CardFooter className="flex justify-between">
-        <LoadingButton loading={loading} disabled={!data?.length} onClick={handleSubmit} className="w-full">
+        <LoadingButton
+          loading={loading}
+          disabled={!data?.length}
+          onClick={handleSubmit}
+          className="w-full"
+        >
           {t('add_schema_card.create')}
         </LoadingButton>
       </CardFooter>

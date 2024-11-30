@@ -38,7 +38,12 @@ export default function IndexNewFile({
           file={file}
         />
       </div>
-      <LoadingButton loading={loading} disabled={!file} onClick={handleFileSubmit} className="w-full mt-4">
+      <LoadingButton
+        loading={loading}
+        disabled={!file}
+        onClick={handleFileSubmit}
+        className="w-full mt-4"
+      >
         {t('vector_database_node.add_file.upload')}
       </LoadingButton>
     </div>

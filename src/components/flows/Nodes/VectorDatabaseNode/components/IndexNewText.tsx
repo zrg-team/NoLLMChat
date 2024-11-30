@@ -49,7 +49,12 @@ const IndexNewText = memo(
           />
         </div>
         <div className="flex justify-between mt-6">
-          <LoadingButton loading={loading} disabled={!text?.length} onClick={handleIndexText} className="w-full">
+          <LoadingButton
+            loading={loading}
+            disabled={!text?.length}
+            onClick={handleIndexText}
+            className="w-full"
+          >
             {t('vector_database_node.add_text.add')}
           </LoadingButton>
         </div>

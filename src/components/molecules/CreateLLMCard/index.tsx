@@ -281,12 +281,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         ) : null}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <LoadingButton loading={creatingLLM} disabled={!input?.length} onClick={hanldeSubmit} className="w-full">
-          {hasCache ? (
-            t('add_llm_card.button_add')
-          ) : (
-            t('add_llm_card.button_download_and_add')
-          )}
+        <LoadingButton
+          loading={creatingLLM}
+          disabled={!input?.length}
+          onClick={hanldeSubmit}
+          className="w-full"
+        >
+          {hasCache ? t('add_llm_card.button_add') : t('add_llm_card.button_download_and_add')}
         </LoadingButton>
       </CardFooter>
     </Card>

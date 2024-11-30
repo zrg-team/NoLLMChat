@@ -65,7 +65,12 @@ const CreateFewShotExampleCard = memo((props: NodeProps) => {
         <ExampleTable data={data || []} />
       </CardContent>
       <CardFooter className="flex justify-between">
-        <LoadingButton loading={loading} disabled={!data?.length} onClick={handleCreateCSVData} className="w-full">
+        <LoadingButton
+          loading={loading}
+          disabled={!data?.length}
+          onClick={handleCreateCSVData}
+          className="w-full"
+        >
           {t('add_few_shot_example_card.create')}
         </LoadingButton>
       </CardFooter>
