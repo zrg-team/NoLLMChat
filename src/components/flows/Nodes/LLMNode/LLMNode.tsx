@@ -16,6 +16,7 @@ import type { ModelRecord } from '@mlc-ai/web-llm'
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
+import LLMIcon from 'src/components/atoms/LLMIcon'
 
 export const LLMNode = memo((props: LLMNodeProps) => {
   const { id, data, isConnectable } = props
@@ -51,15 +52,15 @@ export const LLMNode = memo((props: LLMNodeProps) => {
   const llmIcon = useMemo(() => {
     switch (data.status) {
       case LLMStatusEnum.Downloading:
-        return <LazyIcon className={'animate-spin'} size={24} name={'arrow-big-down-dash'} />
+        return <LazyIcon className={'animate-spin w-7 h-7'} name={'arrow-big-down-dash'} />
       case LLMStatusEnum.Loaded:
-        return <LazyIcon size={24} name={'brain'} />
+        return <LLMIcon name={data.entity?.name || 'brain'} className='w-7 h-7' />
       case LLMStatusEnum.Loading:
-        return <LazyIcon className={'animate-spin'} size={24} name={'loader-circle'} />
+        return <LazyIcon className={'animate-spin w-7 h-7'} name={'loader-circle'} />
       default:
-        return <LazyIcon size={24} name={'brain'} />
+        return <LLMIcon name={data.entity?.name || 'brain'} className='w-7 h-7' />
     }
-  }, [data.status])
+  }, [data.entity?.name, data.status])
 
   const actions = useMemo(() => {
     if (isLoading) {

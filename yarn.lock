@@ -1148,10 +1148,10 @@
   dependencies:
     js-tiktoken "^1.0.12"
 
-"@mlc-ai/web-llm@^0.2.71":
-  version "0.2.71"
-  resolved "https://registry.yarnpkg.com/@mlc-ai/web-llm/-/web-llm-0.2.71.tgz#6e0533fc6ad643a852f9c79d650506ea96061924"
-  integrity sha512-VRo+yZFnHsQeI/a0DLNnnUdWtDGiIwL7vYN4YdYXMZMKXGT+rcXRRUIVlH3/AVUbQx/TKHyKl1wxenXg6Bpx1w==
+"@mlc-ai/web-llm@^0.2.77":
+  version "0.2.77"
+  resolved "https://registry.yarnpkg.com/@mlc-ai/web-llm/-/web-llm-0.2.77.tgz#59b5a950369bd15d8e15c354bb67fd9fbe03796e"
+  integrity sha512-AD3uQNfB+Pjti2h+DAQ2IDOG3TDkfn8ily1kn1wKij7+Dtv1LBeq6XnT3nsHwrLci9opvxejVXWPzlyA7E6dEw==
   dependencies:
     loglevel "^1.9.1"
 
@@ -2383,11 +2383,6 @@
   resolved "https://registry.yarnpkg.com/@types/diff-match-patch/-/diff-match-patch-1.0.36.tgz#dcef10a69d357fe9d43ac4ff2eca6b85dbf466af"
   integrity sha512-xFdR6tkm0MWvBfO8xXCSsinYxHcqkQUlcHeSpMC2ukzOb6lwQAfDmW+Qt0AvlGd8HpsS28qKsB+oPeJn9I39jg==
 
-"@types/emscripten@*":
-  version "1.39.13"
-  resolved "https://registry.yarnpkg.com/@types/emscripten/-/emscripten-1.39.13.tgz#afeb1648648dc096efe57983e20387627306e2aa"
-  integrity sha512-cFq+fO/isvhvmuP/+Sl4K4jtU6E23DoivtbO4r50e3odaxAiVdbfSYRDdJ4gCdxx+3aRjhphS5ZMwIH4hFy/Cw==
-
 "@types/estree-jsx@^1.0.0":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@types/estree-jsx/-/estree-jsx-1.0.5.tgz#858a88ea20f34fe65111f005a689fa1ebf70dc18"
@@ -2523,14 +2518,6 @@
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@types/retry/-/retry-0.12.0.tgz#2b35eccfcee7d38cd72ad99232fbd58bffb3c84d"
   integrity sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==
-
-"@types/sql.js@^1.4.9":
-  version "1.4.9"
-  resolved "https://registry.yarnpkg.com/@types/sql.js/-/sql.js-1.4.9.tgz#31d2bed39aa63e56ada7a4469aa6f19ee2c74b94"
-  integrity sha512-ep8b36RKHlgWPqjNG9ToUrPiwkhwh0AEzy883mO5Xnd+cL6VBH1EvSjBAAuxLUFF2Vn/moE3Me6v9E1Lo+48GQ==
-  dependencies:
-    "@types/emscripten" "*"
-    "@types/node" "*"
 
 "@types/unist@*", "@types/unist@^3.0.0":
   version "3.0.3"
