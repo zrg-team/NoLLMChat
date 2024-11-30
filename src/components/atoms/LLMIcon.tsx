@@ -36,11 +36,32 @@ const LLMIcon = memo(({ name, className, ...props }: LLMIconProps) => {
   } else if (name?.includes('snowflake')) {
     return <SnowflakeIcon className={cn('w-5 h-5 rounded-full', className)} {...props} />
   } else if (name?.includes('stablelm')) {
-    return <img className={cn('w-5 h-5 rounded-full', className)} src={stablelmImage} alt="stablelm" {...props} />
+    return (
+      <img
+        className={cn('w-5 h-5 rounded-full', className)}
+        src={stablelmImage}
+        alt="stablelm"
+        {...props}
+      />
+    )
   } else if (name?.includes('nomic')) {
-    return <img className={cn('w-5 h-5 rounded-full', className)} src={nomicImage} alt="nomic" {...props} />
+    return (
+      <img
+        className={cn('w-5 h-5 rounded-full', className)}
+        src={nomicImage}
+        alt="nomic"
+        {...props}
+      />
+    )
   } else if (name?.includes('Xenova') || name?.includes('janus')) {
-    return <img className={cn('w-5 h-5 rounded-full', className)} src={joshuaImage} alt="Xenova" {...props} />
+    return (
+      <img
+        className={cn('w-5 h-5 rounded-full', className)}
+        src={joshuaImage}
+        alt="Xenova"
+        {...props}
+      />
+    )
   }
 
   return <LazyIcon className={cn('w-5 h-5', className)} name={'brain'} />
