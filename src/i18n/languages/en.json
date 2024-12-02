@@ -180,7 +180,8 @@
       "triangle": "Add Triangle",
       "errors": {
         "add_node_failed": "Failed to add node."
-      }
+      },
+      "code_editor": "Code Container Editor"
     },
     "editor_node": {
       "errors": {
