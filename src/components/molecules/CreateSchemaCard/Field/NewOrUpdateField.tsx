@@ -8,13 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
-import { nanoid } from 'nanoid'
 import { Label } from 'src/lib/shadcn/ui/label'
 import { Checkbox } from 'src/lib/shadcn/ui/checkbox'
 import { Button } from 'src/lib/shadcn/ui/button'
 import FieldList from './FieldList'
 import { SchemaItemType } from './type'
 import { toast } from 'src/lib/hooks/use-toast'
+import { generateUUID } from 'src/utils/uuid'
 
 const NewOrUpdateField = memo(
   ({
@@ -159,7 +159,7 @@ const NewOrUpdateField = memo(
           content: 'Name already exists',
         })
       }
-      empty.id = nanoid()
+      empty.id = generateUUID()
       setData((items) => {
         return [...items, { ...empty }]
       })
@@ -168,7 +168,7 @@ const NewOrUpdateField = memo(
         description: '',
         type: 'string',
         required: false,
-        id: nanoid(),
+        id: generateUUID(),
         parent: id || undefined,
         data: [],
       })

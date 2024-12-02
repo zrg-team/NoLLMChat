@@ -6,11 +6,12 @@ import type { InitProgressReport } from '@mlc-ai/web-llm'
 import { nanoid } from 'nanoid'
 import { parseLLMInputToBridgeJSON } from 'src/services/local-llm'
 import { SchemaItem } from 'src/services/database/types'
-import { streamingPromise } from 'src/utils/streaming-promise'
+import { fakeStreaming } from 'src/services/local-llm/utils/fake-streaming'
 import { getEmptyPromise } from 'src/utils/promise'
 
 import { LocalLLMState } from './state'
 import { worker } from '../worker'
+import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 
 export interface LocalLLMStateActions {
   init: () => void
@@ -21,11 +22,11 @@ export interface LocalLLMStateActions {
   invoke: (...args: Parameters<ChatWebLLM['invoke']>) => ReturnType<ChatWebLLM['invoke']>
   stream: (
     ...args: Parameters<ChatWebLLM['stream']>
-  ) => AsyncGenerator<unknown, Awaited<ReturnType<ChatWebLLM['stream']>>, unknown>
+  ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
   structuredStream: (
     schemaItems: SchemaItem[],
     ...args: Parameters<ChatWebLLM['stream']>
-  ) => AsyncGenerator<unknown, Awaited<ReturnType<ChatWebLLM['stream']>>, unknown>
+  ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
   toolsCallingStream: (
     tools: {
       name: string
@@ -33,7 +34,7 @@ export interface LocalLLMStateActions {
       schemaItems: SchemaItem[]
     }[],
     ...args: Parameters<ChatWebLLM['stream']>
-  ) => AsyncGenerator<unknown, Awaited<ReturnType<ChatWebLLM['stream']>>, unknown>
+  ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
   getCurrentModelInfo: () => Promise<{
     model: string
     chatOptions: ChatWebLLM['chatOptions']
@@ -77,9 +78,14 @@ async function load(
     processInfo: { type: 'load', data: [], lastIndex: 0 },
   })
 
-  return streamingPromise(promiseInfo.promise, options.messageId, refProcesses, {
-    lastChunkOnly: true,
-  })
+  return fakeStreaming(
+    promiseInfo.promise as ReturnType<ChatWebLLM['stream']>,
+    options.messageId,
+    refProcesses,
+    {
+      lastChunkOnly: true,
+    },
+  )
 }
 
 export const getLocalLLMStateActions = (
@@ -189,7 +195,7 @@ export const getLocalLLMStateActions = (
         reject: promiseInfo.reject,
         processInfo: { type: 'invoke', data: [], lastIndex: 0 },
       })
-      return promiseInfo.promise as Promise<Awaited<ReturnType<ChatWebLLM['invoke']>>>
+      return promiseInfo.promise as ReturnType<ChatWebLLM['invoke']>
     },
     stream: (...args) => {
       const refProcesses = get().refProcesses
@@ -208,9 +214,9 @@ export const getLocalLLMStateActions = (
         reject: promiseInfo.reject,
         processInfo: { type: 'invoke', data: [], lastIndex: 0 },
       })
-      const promise = promiseInfo.promise as Promise<Awaited<ReturnType<ChatWebLLM['stream']>>>
+      const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
 
-      return streamingPromise(promise, messageId, refProcesses)
+      return fakeStreaming(promise, messageId, refProcesses)
     },
     structuredStream: (schemaItems, ...args) => {
       const refProcesses = get().refProcesses
@@ -234,9 +240,9 @@ export const getLocalLLMStateActions = (
         processInfo: { type: 'invoke', data: [], lastIndex: 0 },
       })
 
-      const promise = promiseInfo.promise as Promise<Awaited<ReturnType<ChatWebLLM['stream']>>>
+      const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
 
-      return streamingPromise(promise, messageId, refProcesses)
+      return fakeStreaming(promise, messageId, refProcesses)
     },
     toolsCallingStream: (tools, ...args) => {
       const refProcesses = get().refProcesses
@@ -260,9 +266,9 @@ export const getLocalLLMStateActions = (
         processInfo: { type: 'invoke', data: [], lastIndex: 0 },
       })
 
-      const promise = promiseInfo.promise as Promise<Awaited<ReturnType<ChatWebLLM['stream']>>>
+      const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
 
-      return streamingPromise(promise, messageId, refProcesses)
+      return fakeStreaming(promise, messageId, refProcesses)
     },
     getCurrentModelInfo: async () => {
       const refProcesses = get().refProcesses

@@ -7,6 +7,7 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useCreatePrompt } from 'src/hooks/mutations/use-create-prompt'
 import { Prompt } from 'src/services/database/types'
 import PromptForm from 'src/components/molecules/CreatePromptCard/PromptForm'
+import { useToast } from 'src/lib/hooks/use-toast'
 
 const DEFAULT_PROMPT = `Use the following pieces of context to answer the question at the end.
 If you don't know the answer, just say that you don't know, don't try to make up an answer.
@@ -24,22 +25,36 @@ type CreateVectorDatabasePromptProps = {
 const CreateVectorDatabasePromptDialog = create<CreateVectorDatabasePromptProps>((props) => {
   const { source, documents } = props
   const currentModal = useModal()
+  const { toast } = useToast()
   const { t } = useTranslation('dialogs')
   const { loading, createPrompt } = useCreatePrompt()
 
   const handleSubmit = async (data: Partial<Prompt>) => {
-    if (!data.content) {
-      return
+    try {
+      if (!data.content || !data.content.includes(`{context}`)) {
+        toast({
+          title: t('create_vector_database_prompt.errors.fill_context'),
+          variant: 'destructive',
+        })
+        return
+      }
+      // NOTE: No need to use Prompt template because it will automatically added role prefix
+      const content = data.content.replace(
+        '{context}',
+        documents.map((doc) => `<document>${doc.pageContent}</document>`).join('\n'),
+      )
+      await createPrompt(source, {
+        ...data,
+        content,
+      })
+      currentModal.hide()
+      return true
+    } catch {
+      toast({
+        title: t('create_vector_database_prompt.errors.create_failed'),
+        variant: 'destructive',
+      })
     }
-    // NOTE: No need to use Prompt template because it will automatically added role prefix
-    const content = data.content.replace(
-      '{context}',
-      documents.map((doc) => `<document>${doc.pageContent}</document>`).join('\n'),
-    )
-    await createPrompt(source, {
-      ...data,
-      content,
-    })
   }
 
   return (

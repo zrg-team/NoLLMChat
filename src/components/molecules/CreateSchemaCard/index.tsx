@@ -25,6 +25,7 @@ const CreateSchemaCard = memo((props: NodeProps) => {
         setData([])
       } catch (error) {
         toast({
+          variant: 'destructive',
           title: `${error}`,
         })
       }

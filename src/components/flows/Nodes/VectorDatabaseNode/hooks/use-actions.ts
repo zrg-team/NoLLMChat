@@ -29,6 +29,7 @@ export const useActions = (id: string) => {
         const entity = node?.data?.entity as VectorDatabase
         if (!entity) {
           toast({
+            variant: 'destructive',
             title: t('vector_database_node.errors.vector_database_not_found'),
           })
           return
@@ -49,6 +50,7 @@ export const useActions = (id: string) => {
         const dataSource = dataSourceNode?.data?.entity as CSVData | JSONData | JSONLData
         if (!dataSource && entity.storage === 'DataNode') {
           toast({
+            variant: 'destructive',
             title: t('vector_database_node.errors.data_node_not_found'),
           })
           return
@@ -106,6 +108,7 @@ export const useActions = (id: string) => {
 
         if (!documents?.length) {
           toast({
+            variant: 'destructive',
             title: t('vector_database_node.errors.content_not_found'),
           })
           return
@@ -114,6 +117,7 @@ export const useActions = (id: string) => {
         const entity = node?.data?.entity as VectorDatabase
         if (!entity) {
           toast({
+            variant: 'destructive',
             title: t('vector_database_node.errors.vector_database_not_found'),
           })
           return
@@ -135,6 +139,7 @@ export const useActions = (id: string) => {
         const dataSource = dataSourceNode?.data?.entity as CSVData | JSONData | JSONLData
         if (!dataSource && entity.storage === 'DataNode') {
           toast({
+            variant: 'destructive',
             title: t('vector_database_node.errors.data_node_not_found'),
           })
           return

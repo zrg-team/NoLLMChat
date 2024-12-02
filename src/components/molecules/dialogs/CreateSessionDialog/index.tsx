@@ -39,6 +39,7 @@ const CreateSessionDialog = create<CreateSessionProps>(() => {
       currentModal.hide()
     } catch {
       toast({
+        variant: 'destructive',
         description: t('create_session.errors.create_failed'),
       })
     }

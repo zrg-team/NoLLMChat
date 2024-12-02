@@ -3,11 +3,9 @@ import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'src/lib/hooks/use-toast'
-import { useInternalNode, useReactFlow, Node } from '@xyflow/react'
+import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
-import { FlowNodeTypeEnum, LLM, LLMStatusEnum, Thread } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
-import { threadNodesTraveling } from 'src/utils/thread-nodes-traveling'
 
 import { MessageNodeData } from '../type'
 
@@ -16,8 +14,11 @@ export const useActions = (id: string) => {
   const node = useInternalNode(id)
 
   const updateNodes = useFlowState((state) => state.updateNodes)
-  const { getNode, getHandleConnections, getNodes } = useReactFlow()
-  const { createMessage: createMessageFunction, loading } = useCreateMessage()
+  const { getNode, getHandleConnections } = useReactFlow()
+  const { createMessage: createMessageFunction, loading } = useCreateMessage({
+    getNode,
+    getHandleConnections,
+  })
 
   const onMessageUpdate = useCallback(
     (info: { id?: string; nodeData: Partial<MessageNodeData> }) => {
@@ -47,39 +48,15 @@ export const useActions = (id: string) => {
 
   const createMessage = useCallback(
     async (input: string) => {
-      const { nodes: connectedNodes, connections } = threadNodesTraveling([id], [], [], [], {
-        getNode,
-        getHandleConnections,
-      })
-      const threadNode = connectedNodes.find((node) => node.type === FlowNodeTypeEnum.Thread)
-      const thread = threadNode?.data?.entity as Thread
-      if (thread && node) {
-        const llmNode = getNodes().find((node) => {
-          const entity = node.data?.entity as LLM
-          return node.type === FlowNodeTypeEnum.LLM && entity.id === thread.initial_llm_id
-        }) as Node & { data: { status: LLMStatusEnum; entity: LLM } }
-        if (!llmNode) {
-          return toast({
-            variant: 'destructive',
-            description: t('message_node.errors.llm_not_found'),
-          })
-        } else if (llmNode.data.status !== LLMStatusEnum.Loaded) {
-          return toast({
-            variant: 'destructive',
-            description: t('message_node.errors.llm_not_loaded', {
-              name: llmNode.data.entity.name,
-            }),
-          })
-        }
+      if (node) {
         try {
-          await createMessageFunction(node, thread, input, {
-            connectedNodes,
-            connections,
+          await createMessageFunction(node, input, {
             onMessageUpdate,
           })
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             return toast({
+              variant: 'destructive',
               title: t('message_node.errors.llm_not_loaded_yet'),
             })
           }
@@ -90,7 +67,7 @@ export const useActions = (id: string) => {
         }
       }
     },
-    [id, getNode, getHandleConnections, node, getNodes, t, createMessageFunction, onMessageUpdate],
+    [node, t, createMessageFunction, onMessageUpdate],
   )
 
   return {

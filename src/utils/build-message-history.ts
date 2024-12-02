@@ -62,3 +62,26 @@ export const buildHistories = (nodes: { node: Node; connectedNodes: Node[] }[]) 
   })
   return histories
 }
+
+export const prepareThreadHistory = (
+  connectedNodes: Node[],
+  threadPromptNodes: { node: Node; connectedNodes?: Node[] }[],
+) => {
+  const messageNodes =
+    connectedNodes
+      ?.filter((node) => node.type === FlowNodeTypeEnum.Message)
+      .map((node) => ({ node: node, connectedNodes: [] as Node[] }))
+      .reverse() || []
+
+  const systems: { node: Node; connectedNodes: Node[] }[] = []
+  threadPromptNodes.forEach(async (threadPromptNode) => {
+    systems.unshift({
+      node: threadPromptNode.node,
+      connectedNodes: threadPromptNode.connectedNodes || [],
+    })
+  })
+  return {
+    history: buildHistories(messageNodes),
+    systems: buildHistories(systems),
+  }
+}

@@ -23,6 +23,7 @@ const K_RANGE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 export const VectorSearch = memo(
   (props: {
     loading: boolean
+    onCreateRetriever?: () => Promise<void>
     onCreatePrompt?: (content: [Document, number][]) => void
     onSimilaritySearch: (input: string, k?: number) => Promise<[Document, number][] | undefined>
   }) => {
@@ -30,7 +31,7 @@ export const VectorSearch = memo(
     const [value, setValue] = useState('')
     const [documents, setDocuments] = useState<[Document, number][] | undefined>([])
     const [k, setK] = useState(`${1}`)
-    const { loading, onSimilaritySearch, onCreatePrompt } = props
+    const { loading, onSimilaritySearch, onCreatePrompt, onCreateRetriever } = props
 
     const handleSeach = async () => {
       setDocuments(await onSimilaritySearch(value, +k))
@@ -44,7 +45,7 @@ export const VectorSearch = memo(
     }
 
     return (
-      <div className="mt-4">
+      <div className="mt-4 max-w-full">
         <div className="bg-black/5 dark:bg-white/5 rounded-xl relative">
           <div className="relative px-2 py-1 pb-2">
             <Select value={`${k}`} onValueChange={(newValue) => setK(newValue)}>
@@ -98,18 +99,21 @@ export const VectorSearch = memo(
                 <AccordionTrigger>
                   {`[${score.toFixed(2)}] ${row.pageContent}`.substring(0, 32)}...
                 </AccordionTrigger>
-                <AccordionContent>
-                  <pre>{row.pageContent}</pre>
-                </AccordionContent>
+                <AccordionContent>{row.pageContent}</AccordionContent>
               </AccordionItem>
             )
           })}
         </Accordion>
-        {documents?.length && onCreatePrompt ? (
-          <Button disabled={loading} onClick={() => onCreatePrompt(documents)} className="w-full">
-            {t('vector_database_node.create_prompt')}
+        <div className="w-full mt-4 flex flex-col gap-1">
+          <Button disabled={loading} onClick={onCreateRetriever} className="w-full">
+            {t('vector_database_node.to_retriever')}
           </Button>
-        ) : undefined}
+          {documents?.length && onCreatePrompt ? (
+            <Button disabled={loading} onClick={() => onCreatePrompt(documents)} className="w-full">
+              {t('vector_database_node.create_prompt')}
+            </Button>
+          ) : undefined}
+        </div>
       </div>
     )
   },

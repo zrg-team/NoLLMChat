@@ -44,7 +44,7 @@ export default function IndexNewFile({
         onClick={handleFileSubmit}
         className="w-full mt-4"
       >
-        {t('vector_database_node.add_file.upload')}
+        {t('vector_database_node.add_file.index')}
       </LoadingButton>
     </div>
   )

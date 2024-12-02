@@ -37,6 +37,7 @@ const CreatePromptCard = memo(
           setDialog?.(false)
         } catch (error) {
           toast({
+            variant: 'destructive',
             title: `${error}`,
           })
         }

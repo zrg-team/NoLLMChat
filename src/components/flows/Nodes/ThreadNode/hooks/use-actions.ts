@@ -6,7 +6,6 @@ import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { toast } from 'src/lib/hooks/use-toast'
 import { useFlowState } from 'src/states/flow'
-import { threadNodesTraveling } from 'src/utils/thread-nodes-traveling'
 import { MessageNodeData } from 'src/components/flows/Nodes/MessageNode/type'
 
 import { ThreadNodeData } from '../type'
@@ -16,7 +15,10 @@ export const useActions = (id: string, data: ThreadNodeData) => {
   const { t } = useTranslation('flows')
   const { getNode, getHandleConnections } = useReactFlow()
   const updateNodes = useFlowState((state) => state.updateNodes)
-  const { createMessage: createMessageFunction, loading } = useCreateMessage()
+  const { createMessage: createMessageFunction, loading } = useCreateMessage({
+    getNode,
+    getHandleConnections,
+  })
 
   const onMessageUpdate = useCallback(
     (info: { id?: string; nodeData: Partial<MessageNodeData> }) => {
@@ -47,38 +49,24 @@ export const useActions = (id: string, data: ThreadNodeData) => {
     async (input: string) => {
       if (node && data.entity) {
         try {
-          const { nodes: connectedNodes, connections } = threadNodesTraveling([id], [], [], [], {
-            getNode,
-            getHandleConnections,
-          })
-
-          await createMessageFunction(node, data.entity, input, {
+          await createMessageFunction(node, input, {
             onMessageUpdate,
-            connectedNodes: connectedNodes,
-            connections,
           })
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             return toast({
+              variant: 'destructive',
               title: t('thread_node.errors.llm_not_loaded_yet'),
             })
           }
           toast({
+            variant: 'destructive',
             title: `${error}`,
           })
         }
       }
     },
-    [
-      node,
-      data.entity,
-      id,
-      getNode,
-      getHandleConnections,
-      createMessageFunction,
-      onMessageUpdate,
-      t,
-    ],
+    [node, data.entity, createMessageFunction, onMessageUpdate, t],
   )
 
   return { loading, createMessage }
