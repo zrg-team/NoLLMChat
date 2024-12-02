@@ -1,1 +1,0 @@
-import{c as a,__tla as r}from"./createLucideIcon-4-LPLJjB.js";import{__tla as _}from"./index-oqBdqq8K.js";let t,l=Promise.all([(()=>{try{return r}catch{}})(),(()=>{try{return _}catch{}})()]).then(async()=>{t=a("Minus",[["path",{d:"M5 12h14",key:"1ays0h"}]])});export{l as __tla,t as default};

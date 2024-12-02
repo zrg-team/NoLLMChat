@@ -1,1 +1,0 @@
-import{c as a,__tla as r}from"./createLucideIcon-4-LPLJjB.js";import{__tla as _}from"./index-oqBdqq8K.js";let t,l=Promise.all([(()=>{try{return r}catch{}})(),(()=>{try{return _}catch{}})()]).then(async()=>{t=a("Slash",[["path",{d:"M22 2 2 22",key:"y4kqgn"}]])});export{l as __tla,t as default};
