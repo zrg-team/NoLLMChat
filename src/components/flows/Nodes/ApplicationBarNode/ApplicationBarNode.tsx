@@ -15,8 +15,13 @@ const DATA = {
   applications: [
     {
       key: FlowNodeTypeEnum.EditorApp,
-      icon: 'sticky-note' as const,
+      icon: 'notebook-text' as const,
       label: 'application_bar.note',
+    },
+    {
+      key: FlowNodeTypeEnum.CodeContainerApp,
+      icon: 'square-terminal' as const,
+      label: 'application_bar.code_editor',
     },
   ],
   shapes: [

@@ -18,6 +18,7 @@ import { CircleNode } from './CircleNode'
 import { TriangleNode } from './TriangleNode'
 import { EditorAppNode } from './EditorAppNode'
 import { PlaceholderNode } from './PlaceholderNode'
+import { CodeContainerAppNode } from './CodeContainerAppNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -38,4 +39,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.TriangleShape]: TriangleNode,
   [FlowNodeTypeEnum.EditorApp]: EditorAppNode,
   [FlowNodeTypeEnum.PlaceHolder]: PlaceholderNode,
+  [FlowNodeTypeEnum.CodeContainerApp]: CodeContainerAppNode,
 }

@@ -7,13 +7,6 @@
   "iconLibrary": "lucide",
   "rsc": false,
   "style": "default",
-  "tailwind": {
-    "baseColor": "neutral",
-    "config": "tailwind.config.js",
-    "css": "src/css/global.css",
-    "cssVariables": true,
-    "prefix": ""
-  },
   "registries": {
     "plate": {
       "aliases": {
@@ -21,6 +14,13 @@
       },
       "url": "https://platejs.org/r"
     }
+  },
+  "tailwind": {
+    "baseColor": "neutral",
+    "config": "tailwind.config.js",
+    "css": "src/css/global.css",
+    "cssVariables": true,
+    "prefix": ""
   },
   "tsx": true
 }
