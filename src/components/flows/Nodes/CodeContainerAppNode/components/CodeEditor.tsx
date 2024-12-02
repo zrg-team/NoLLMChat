@@ -1,8 +1,32 @@
 import { useCallback, memo, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
-import { javascript } from '@codemirror/lang-javascript'
 import { File, Folder, Tree } from 'src/lib/shadcn/ui/file-tree'
 import { ElementTree } from 'src/services/web-container/utils/file-tree'
+
+// Function to map file extensions to language highlighting
+const getLanguageExtension = async (extension?: string) => {
+  switch (extension) {
+    case 'js':
+    case 'jsx':
+      return (await import('@codemirror/lang-javascript')).javascript({ jsx: true })
+    case 'ts':
+    case 'tsx':
+      return (await import('@codemirror/lang-javascript')).javascript({
+        typescript: true,
+        jsx: true,
+      })
+    case 'html':
+      return (await import('@codemirror/lang-html')).html()
+    case 'css':
+      return (await import('@codemirror/lang-css')).css()
+    case 'json':
+      return (await import('@codemirror/lang-json')).json()
+    case 'less':
+      return (await import('@codemirror/lang-css')).css()
+    default:
+      return null
+  }
+}
 
 const FileSystem: React.FC<{
   elements: ElementTree[]
@@ -42,13 +66,20 @@ const ElementRenderer: React.FC<{
     )
   }
 }
+
 const CodeEditor = memo(({ filesystem }: { filesystem: ElementTree[] }) => {
   const [code, setCode] = useState<{ file: string; id: string; code: string; name: string }>()
+  const [languageExtension, setLanguageExtension] =
+    useState<Awaited<ReturnType<typeof getLanguageExtension>>>(null)
+
   const onChangeCode = useCallback((val: string) => {
     setCode((pre) => (pre ? { ...pre, code: val } : pre))
   }, [])
 
-  const handleSelectFile = useCallback((element: ElementTree) => {
+  const handleSelectFile = useCallback(async (element: ElementTree) => {
+    const fileExtension = element.name.split('.').pop()
+    const extension = await getLanguageExtension(fileExtension)
+    setLanguageExtension(extension)
     setCode({
       file: element.file,
       id: element.id,
@@ -69,9 +100,10 @@ const CodeEditor = memo(({ filesystem }: { filesystem: ElementTree[] }) => {
       <CodeMirror
         value={code?.code || ''}
         className="flex-1 rounded-md h-full overflow-y-auto nodrag nowheel"
-        extensions={[javascript({ jsx: true })]}
-        height="400px"
+        extensions={languageExtension ? [languageExtension] : []}
+        height="600px"
         onChange={onChangeCode}
+        maxHeight="600px"
       />
     </div>
   )

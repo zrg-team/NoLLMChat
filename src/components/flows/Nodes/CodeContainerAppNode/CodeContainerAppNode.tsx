@@ -17,7 +17,7 @@ export const CodeContainerAppNode = memo((props: EditorAppNodeProps) => {
   useConnectionToHandler(id)
 
   return (
-    <div className="w-[600px] h-[400px]">
+    <div className="w-[1000px] h-[600px]">
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="w-full h-full rounded-lg border bg-background">
         <NodeHeader id={id} />
