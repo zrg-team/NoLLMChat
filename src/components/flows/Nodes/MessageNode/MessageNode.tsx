@@ -62,6 +62,7 @@ export const MessageNode = memo((props: MessageNodeProps) => {
       await textToSpeech.speak(data.entity?.content || '')
     } catch {
       toast({
+        variant: 'destructive',
         description: t('errors.speech_is_not_supported'),
       })
     } finally {

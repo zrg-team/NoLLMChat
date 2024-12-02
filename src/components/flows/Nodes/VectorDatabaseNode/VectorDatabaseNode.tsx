@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/lib/shadcn/ui/tabs'
 import { useModal } from '@ebay/nice-modal-react'
 import CreatePromptDialog from 'src/components/molecules/dialogs/CreateVectorDatabasePromptDialog'
+import CreateRetrieverDialog from 'src/components/molecules/dialogs/CreateVectorDatabaseRetrieverDialog'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 
 import { VectorDatabaseNodeProps } from './type'
@@ -27,6 +28,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   const { loading, similaritySearchWithScore, indexData } = useActions(id)
 
   const createPromptDialog = useModal(CreatePromptDialog)
+  const createRetrieverDialog = useModal(CreateRetrieverDialog)
 
   useConnectionToHandler(id)
 
@@ -61,9 +63,15 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
     [createPromptDialog, node],
   )
 
+  const handleCreateRetriever = useCallback(async () => {
+    createRetrieverDialog.show({
+      source: node,
+    })
+  }, [createRetrieverDialog, node])
+
   const handleIndexPDF = useCallback(
     async (file: File) => {
-      if (file.type.endsWith('text')) {
+      if (file.type.includes('text') || file.type.includes('txt')) {
         const reader = new FileReader()
         reader.onload = async (e) => {
           const content = e.target?.result as string
@@ -109,6 +117,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
               loading={loading}
               onSimilaritySearch={handleSimilaritySearch}
               onCreatePrompt={handleCreatePrompt}
+              onCreateRetriever={handleCreateRetriever}
             />
           </TabsContent>
         )
@@ -125,7 +134,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
               loading={loading}
               progress={progress}
               onFileSubmit={handleIndexPDF}
-              fileOptions={{ accept: '.pdf,.txt', maxSize: 5 }}
+              fileOptions={{ accept: '.pdf,.txt,.text', maxSize: 1 }}
             />
           </TabsContent>
         )
@@ -133,6 +142,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   }, [
     handleCreateData,
     handleCreatePrompt,
+    handleCreateRetriever,
     handleIndexPDF,
     handleSimilaritySearch,
     loading,
@@ -141,13 +151,13 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
   ])
 
   return (
-    <div className="min-w-64">
+    <div className="min-w-72 max-w-md">
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div>
+      <div className="max-w-full">
         <NodeHeader id={id} />
         <Alert className="flex justify-center" variant="default">
           <LazyIcon size={24} name={'database-zap'} />
-          <div className="ml-2">
+          <div className="ml-2 max-w-full">
             <AlertTitle>{`${data.entity?.name || ''}`}</AlertTitle>
             <Tabs
               value={mode}

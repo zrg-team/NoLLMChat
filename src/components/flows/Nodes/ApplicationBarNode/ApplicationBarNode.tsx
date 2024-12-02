@@ -53,7 +53,7 @@ export const ApplicationBarNode = memo((props: NodeProps) => {
         {DATA.applications.map((item) => (
           <DockIcon key={item.label}>
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <LazyIcon onClick={() => handleAddNode(item.key)} name={item.icon} />
               </TooltipTrigger>
               <TooltipContent>
@@ -66,7 +66,7 @@ export const ApplicationBarNode = memo((props: NodeProps) => {
         {DATA.shapes.map((item) => (
           <DockIcon key={item.label}>
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <LazyIcon onClick={() => handleAddNode(item.key)} name={item.icon} />
               </TooltipTrigger>
               <TooltipContent>

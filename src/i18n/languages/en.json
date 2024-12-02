@@ -86,7 +86,8 @@
         "llm_not_loaded_yet": "LLM not loaded yet."
       },
       "clone": "Clone",
-      "hide": "Hide"
+      "hide": "Hide",
+      "vector_database_retriever": "Vector Database Retriever"
     },
     "message_node": {
       "message_roles": {
@@ -168,8 +169,9 @@
         "add": "Add"
       },
       "add_file": {
-        "upload": "Upload"
-      }
+        "index": "Index File"
+      },
+      "to_retriever": "To Retriever"
     },
     "application_bar": {
       "note": "Add Note",
@@ -186,6 +188,9 @@
         "llm_not_loaded_yet":"LLM not loaded yet.",
         "stream_message_failed": "Failed to stream message."
       }
+    },
+    "placeholder_node": {
+      "vector_database_retriever": "Vector Database Retriever"
     }
   },
   "components": {
@@ -342,7 +347,24 @@
     },
     "create_vector_database_prompt": {
       "title": "Create prompt from search result",
-      "fill_content_note": "Use {content} as similarity result placeholder in the prompt."
+      "fill_content_note": "Use {content} as similarity result placeholder in the prompt.",
+      "errors": {
+        "fill_context": "prompt content is required and must contain '{context}' as placeholder.",
+        "create_failed": "Failed to create prompt."
+      }
+    },
+    "create_vector_database_retriever": {
+      "title": "Create Vector Database Retriever",
+      "fill_content_note": "Use '{context}' as similarity result placeholder in the prompt.",
+      "errors": {
+        "fill_context": "prompt content is required and must contain '{context}' as placeholder.",
+        "create_failed": "Failed to create vector database retriever."
+      },
+      "retriever_settings": "Retriever Settings",
+      "retriever_k": "K (Expected number of results)",
+      "retriever_k_placeholder": "Input K value...",
+      "retriever_minimum_score": "Minimum Score (0-100)",
+      "retriever_minimum_score_placeholder": "Input minimum score..."
     }
   },
   "atoms": {

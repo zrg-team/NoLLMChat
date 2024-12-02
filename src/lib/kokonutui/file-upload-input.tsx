@@ -4,8 +4,10 @@ import { useState, Dispatch, SetStateAction, useMemo, useEffect } from 'react'
 import { cn } from 'src/lib/utils'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
+import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
+import { useToast } from 'src/lib/hooks/use-toast'
+
 import { useFileInput, UseFileInputOptions } from './use-file-input'
-import { BorderBeam } from '../shadcn/ui/border-beam'
 
 export default function FileUploadInput({
   file,
@@ -20,6 +22,7 @@ export default function FileUploadInput({
   setFile: Dispatch<SetStateAction<File | undefined>>
   fileOptions?: UseFileInputOptions
 }) {
+  const { toast } = useToast()
   const { t } = useTranslation('atoms')
   const [isDragging, setIsDragging] = useState(false)
   const { fileName, fileInputRef, clearFile, error, validateAndSetFile, fileSize } = useFileInput({
@@ -32,6 +35,15 @@ export default function FileUploadInput({
       clearFile()
     }
   }, [clearFile, file])
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: error,
+        variant: 'destructive',
+      })
+    }
+  }, [error, toast])
 
   function handleFile(file: File) {
     const result = validateAndSetFile(file)
@@ -117,6 +129,7 @@ export default function FileUploadInput({
         <input
           ref={fileInputRef}
           type="file"
+          disabled={loading || !!(progress && progress < 1)}
           accept={fileOptions?.accept || 'image/*'}
           onChange={handleChange}
           className="hidden"
@@ -170,7 +183,6 @@ export default function FileUploadInput({
           )}
         </div>
       </div>
-      {error ? <p className="text-red-500">{error}</p> : undefined}
     </>
   )
 }

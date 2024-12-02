@@ -7,7 +7,7 @@ import {
 import { EmbeddedResource, Voy } from 'voy-search'
 import localforage from 'localforage'
 import { SetState, GetState } from 'src/utils/zustand'
-import { MemoryVectorStore } from 'langchain/vectorstores/memory'
+import { MemoryVectorStore, MemoryVectorStoreArgs } from 'langchain/vectorstores/memory'
 import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
 import {
   getDatabaseId,
@@ -55,6 +55,14 @@ export interface LocalEmbeddingStateActions {
   ) => ReturnType<
     VoyVectorStore['similaritySearchWithScore'] | MemoryVectorStore['similaritySearchWithScore']
   >
+  getVectorDatabase: (
+    database: {
+      databaseId: string
+      dataSourceId?: string
+      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    },
+    args?: MemoryVectorStoreArgs,
+  ) => Promise<MemoryVectorStore | VoyVectorStore>
 }
 
 const splitterDocuments = (database: VectorDatabase, documents: Document[]) => {
@@ -71,11 +79,20 @@ const splitterDocuments = (database: VectorDatabase, documents: Document[]) => {
     }
     switch (metadata?.textSplitter?.type) {
       case 'TokenTextSplitter':
-        return new TokenTextSplitter(metadata.textSplitter).splitDocuments(documents)
+        return new TokenTextSplitter({
+          chunkOverlap: +metadata.textSplitter.chunkOverlap,
+          chunkSize: +metadata.textSplitter.chunkSize,
+        }).splitDocuments(documents)
       case 'CharacterTextSplitter':
-        return new CharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+        return new CharacterTextSplitter({
+          chunkOverlap: +metadata.textSplitter.chunkOverlap,
+          chunkSize: +metadata.textSplitter.chunkSize,
+        }).splitDocuments(documents)
       case 'RecursiveCharacterTextSplitter':
-        return new RecursiveCharacterTextSplitter(metadata.textSplitter).splitDocuments(documents)
+        return new RecursiveCharacterTextSplitter({
+          chunkOverlap: +metadata.textSplitter.chunkOverlap,
+          chunkSize: +metadata.textSplitter.chunkSize,
+        }).splitDocuments(documents)
       default:
         throw new Error('Invalid text splitter')
     }
@@ -179,6 +196,52 @@ export const getLocalEmbeddingStateActions = (
             })
           }
           break
+      }
+    },
+    getVectorDatabase: async (databaseInfo, ...args) => {
+      const embedding = get().embedding
+      const embeddingStorage = get().embeddingStorage
+      if (!embedding || !embeddingStorage) {
+        throw new Error('Missing embedding model or storage.')
+      }
+      const database = await getRepository('VectorDatabase').findOne({
+        where: { id: databaseInfo.databaseId },
+      })
+      if (!database) {
+        throw new Error('Database not found.')
+      }
+      if (!database.provider) {
+        throw new Error('Database provider not found.')
+      }
+      const dataSource =
+        databaseInfo.dataSourceId && databaseInfo.dataSourceType
+          ? await getRepository(databaseInfo.dataSourceType).findOne({
+              where: { id: databaseInfo.dataSourceId },
+            })
+          : undefined
+
+      const databaseName = getDatabaseId(database.name)
+      const data = await getVectorDatabaseStorage({
+        databaseName,
+        storageType: database.storage || 'IndexedDB',
+        provider: database.provider,
+        storageService: get().embeddingStorage,
+        storageDataNode: dataSource,
+      })
+      switch (database.provider) {
+        case VectorDatabaseProviderEnum.Voy: {
+          const voyClient = new Voy({
+            embeddings: data as EmbeddedResource[],
+          })
+          return new VoyVectorStore(voyClient, embedding)
+        }
+        case VectorDatabaseProviderEnum.Memory: {
+          const store = new MemoryVectorStore(embedding, args as MemoryVectorStoreArgs)
+          store.memoryVectors = data as unknown as MemoryVectorStore['memoryVectors']
+          return store
+        }
+        default:
+          throw new Error('Invalid provider')
       }
     },
     similaritySearch: async (databaseInfo, ...args) => {

@@ -4,7 +4,13 @@ import { useTranslation } from 'react-i18next'
 import NewMessageCard from 'src/components/molecules/NewMessageCard'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { Card, CardTitle } from 'src/lib/shadcn/ui/card'
-import { FlowNodeTypeEnum, Prompt, PromptTypeEnum } from 'src/services/database/types'
+import {
+  FlowNodePlaceholder,
+  FlowNodePlaceholderTypeEnum,
+  FlowNodeTypeEnum,
+  Prompt,
+  PromptTypeEnum,
+} from 'src/services/database/types'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { Button } from 'src/lib/shadcn/ui/button'
 import LazyIcon from 'src/components/atoms/LazyIcon'
@@ -63,6 +69,11 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
               )}
             </Badge>
           )
+        } else if (source?.type === FlowNodeTypeEnum.PlaceHolder) {
+          const entity = source.data.entity as FlowNodePlaceholder
+          if (entity?.placeholder_type === FlowNodePlaceholderTypeEnum.VECTOR_DATABASE_RETREIVER) {
+            return <Badge key={`${index}`}>{t('thread_node.vector_database_retriever')}</Badge>
+          }
         }
         return undefined
       })

@@ -17,6 +17,7 @@ import { ShapeNode } from './ShapeNode'
 import { CircleNode } from './CircleNode'
 import { TriangleNode } from './TriangleNode'
 import { EditorAppNode } from './EditorAppNode'
+import { PlaceholderNode } from './PlaceholderNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -36,4 +37,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.CircleShape]: CircleNode,
   [FlowNodeTypeEnum.TriangleShape]: TriangleNode,
   [FlowNodeTypeEnum.EditorApp]: EditorAppNode,
+  [FlowNodeTypeEnum.PlaceHolder]: PlaceholderNode,
 }

@@ -35,7 +35,7 @@ export function useFileInput({ accept, maxSize }: UseFileInputOptions) {
       const acceptFiles = accept?.split(',').map((a) => a.replace('.', '').trim())
       if (
         accept &&
-        !file.type.match(accept.replace('/*', '/')) &&
+        !file.type.match(accept.replace('/*', '')) &&
         !acceptFiles?.some((item) => file.type.includes(item))
       ) {
         setError(t('file_upload_input.errors.accept', { accept }))

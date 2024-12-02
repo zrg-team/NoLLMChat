@@ -28,6 +28,7 @@ const DeleteSessionDialog = create<DeleteSessionDialogProps>(({ id }) => {
       currentModal.hide()
     } catch {
       toast({
+        variant: 'destructive',
         description: t('delete_session.errors.delete_failed'),
       })
     }

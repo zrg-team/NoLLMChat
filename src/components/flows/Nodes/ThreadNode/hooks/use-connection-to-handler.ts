@@ -1,6 +1,12 @@
 import { useCallback } from 'react'
 import { Node, Connection } from '@xyflow/react'
-import { FlowNodeTypeEnum, Schema, Thread } from 'src/services/database/types'
+import {
+  FlowNodePlaceholder,
+  FlowNodePlaceholderTypeEnum,
+  FlowNodeTypeEnum,
+  Schema,
+  Thread,
+} from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connection-to-handler'
 import { getRepository } from 'src/services/database'
@@ -67,6 +73,33 @@ export const useConnectionToHandler = (id: string) => {
             targetHandle: connection.targetHandle,
           })
           return
+        } else if (
+          source?.type === FlowNodeTypeEnum.VectorDatabase &&
+          target?.type === FlowNodeTypeEnum.Thread
+        ) {
+          await createOrUpdateFlowEdge({
+            source: connection.source,
+            target: connection.target,
+            sourceHandle: connection.sourceHandle,
+            targetHandle: connection.targetHandle,
+          })
+          return
+        } else if (
+          source?.type === FlowNodeTypeEnum.PlaceHolder &&
+          target?.type === FlowNodeTypeEnum.Thread
+        ) {
+          const sourceEntity = source.data.entity as FlowNodePlaceholder
+          if (
+            sourceEntity.placeholder_type === FlowNodePlaceholderTypeEnum.VECTOR_DATABASE_RETREIVER
+          ) {
+            await createOrUpdateFlowEdge({
+              source: connection.source,
+              target: connection.target,
+              sourceHandle: connection.sourceHandle,
+              targetHandle: connection.targetHandle,
+            })
+            return
+          }
         }
 
         return {

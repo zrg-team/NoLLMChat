@@ -1,5 +1,10 @@
-export async function* streamingPromise<T, M extends Map<string, { processInfo: unknown }>>(
-  promise: Promise<T>,
+import { BaseChatModel } from '@langchain/core/language_models/chat_models'
+
+export async function* fakeStreaming<
+  T extends ReturnType<BaseChatModel['stream']>,
+  M extends Map<string, { processInfo: unknown }>,
+>(
+  promise: T,
   itemKey: string,
   refProcesses: M,
   options?: { interval?: number; lastChunkOnly?: boolean },

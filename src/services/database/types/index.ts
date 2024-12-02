@@ -14,6 +14,7 @@ import type { ToolDefinition } from '../entities/tool-definition'
 import type { VectorDatabase } from '../entities/vector-database'
 import type { JSONLData } from '../entities/jsonl-data'
 import type { FlowNodeData } from '../entities/flow-node-data'
+import type { FlowNodePlaceholder } from '../entities/flow-node-placeholder'
 
 export type EntityTypesMap = {
   Thread: Thread
@@ -32,6 +33,7 @@ export type EntityTypesMap = {
   VectorDatabase: VectorDatabase
   JSONLData: JSONLData
   FlowNodeData: FlowNodeData
+  FlowNodePlaceholder: FlowNodePlaceholder
 }
 
 export type EntityArrayTypes = {
@@ -61,6 +63,7 @@ export type {
   VectorDatabase,
   JSONLData,
   FlowNodeData,
+  FlowNodePlaceholder,
 }
 
 export const TABLE_NAMES = {
@@ -80,6 +83,7 @@ export const TABLE_NAMES = {
   VectorDatabase: 'vector_databases',
   JSONLData: 'jsonl_data',
   FlowNodeData: 'flow_node_data',
+  FlowNodePlaceholder: 'flow_node_placeholders',
 }
 
 export * from './flow-node'
@@ -92,3 +96,4 @@ export * from './session'
 export * from './schema'
 export * from './tool-definition'
 export * from './vector-database'
+export * from './flow-node-placeholder'

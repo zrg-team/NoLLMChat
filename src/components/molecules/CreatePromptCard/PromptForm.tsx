@@ -25,7 +25,7 @@ const PromptForm = memo(
     loading,
     onSubmit,
   }: {
-    onSubmit: (prompt: Partial<Prompt>) => Promise<void>
+    onSubmit: (prompt: Partial<Prompt>) => Promise<unknown>
     loading?: boolean
     defaultPromptType?: `${PromptTypeEnum}`
     defaultPromptRole?: `${MessageRoleEnum}`
@@ -64,12 +64,15 @@ const PromptForm = memo(
     }, [])
 
     const handleSubmit = async () => {
-      await onSubmit({
+      const result = await onSubmit({
         content: input,
         role: promptRole,
         prefix: promptPrefix,
         type: promptType,
       })
+      if (!result) {
+        return
+      }
       setInput('')
       setPromptRole(undefined)
       setPromptType('chat')

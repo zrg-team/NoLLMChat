@@ -89,6 +89,7 @@ const CreateVectorDatabaseCard = memo((props: NodeProps) => {
       setTextSplitter({})
     } catch {
       toast({
+        variant: 'destructive',
         description: t('create_vector_database_card.errors.create_failed'),
       })
     }

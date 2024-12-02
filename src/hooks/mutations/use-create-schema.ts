@@ -1,5 +1,4 @@
 import { Node } from '@xyflow/react'
-import { nanoid } from 'nanoid'
 import { useCallback, useState } from 'react'
 import { SchemaItemType } from 'src/components/molecules/CreateSchemaCard/Field/type'
 import { getRepository } from 'src/services/database'
@@ -7,6 +6,7 @@ import { FlowNodeTypeEnum, SchemaItem } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'
 import { EntityType } from 'src/utils/orm-type'
+import { generateUUID } from 'src/utils/uuid'
 
 export const useCreateSchema = () => {
   const sessionId = useSessionState((state) => state.currentSession?.id)
@@ -34,7 +34,7 @@ export const useCreateSchema = () => {
             enum: item.enum ? JSON.stringify(item.enum) : '',
             required: item.required,
             description: item.description,
-            id: item.id || nanoid(),
+            id: item.id || generateUUID(),
             parent_id: parent,
             schema_id: schemaId,
             session_id: sessionId,
