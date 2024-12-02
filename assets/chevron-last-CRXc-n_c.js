@@ -1,0 +1,1 @@
+import{c as a,__tla as r}from"./createLucideIcon-4-LPLJjB.js";import{__tla as e}from"./index-oqBdqq8K.js";let t,_=Promise.all([(()=>{try{return r}catch{}})(),(()=>{try{return e}catch{}})()]).then(async()=>{t=a("ChevronLast",[["path",{d:"m7 18 6-6-6-6",key:"lwmzdw"}],["path",{d:"M17 6v12",key:"1o0aio"}]])});export{_ as __tla,t as default};
