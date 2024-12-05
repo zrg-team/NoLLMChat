@@ -197,7 +197,7 @@ const ContainerTernimal = memo(({ fileSystemTree }: { fileSystemTree?: FileSyste
         try {
           writer = await webContainerShellRef.current?.input.getWriter()
           console.log('writer', writer, command)
-          if (writer && webContainerShellRef.current && await writer.ready) {
+          if (writer && webContainerShellRef.current && (await writer.ready)) {
             // Write command to shell
             await writer.write(`${command}\n`)
             console.log('writer', writer)
