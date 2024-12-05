@@ -9,7 +9,7 @@ import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { useActions } from './hooks/use-actions'
 import { EditorAppNodeProps } from './type'
 
-const PlateAppEditor = lazy(() => import('src/components/organisms/editor/plate-editor'))
+const PlateAppEditor = lazy(() => import('src/components/organisms/editor/PlateEditor'))
 
 export const EditorAppNode = memo((props: EditorAppNodeProps) => {
   const { id, data, selected, isConnectable } = props
@@ -28,7 +28,6 @@ export const EditorAppNode = memo((props: EditorAppNodeProps) => {
       <DefaultNodeResizer isVisible={!!selected} minWidth={1240} minHeight={400} />
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="min-w-10 min-h-10 w-full h-full rounded-lg border bg-background">
-        <NodeHeader id={id} />
         <Suspense
           fallback={
             <div className="h-full w-ful rounded-lg flex justify-center items-center">
@@ -41,10 +40,10 @@ export const EditorAppNode = memo((props: EditorAppNodeProps) => {
               defaultValue={data?.flowNode?.data}
               onValueChange={handleChangeContent}
               copilotStream={createMessage}
-              selected={selected}
             />
           </div>
         </Suspense>
+        <NodeHeader id={id} />
       </div>
       <DefaultHandle type="source" position={Position.Bottom} isConnectable={isConnectable} />
     </div>
