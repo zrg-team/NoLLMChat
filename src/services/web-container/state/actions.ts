@@ -16,10 +16,12 @@ export const getWebContainerStateActions = (
   return {
     init: async () => {
       try {
-        if (get().webcontainerInstance) {
-          return get().webcontainerInstance
+        const currentWebcontainerInstance = get().webcontainerInstance
+        console.log('currentWebcontainerInstance', currentWebcontainerInstance)
+        if (currentWebcontainerInstance) {
+          return currentWebcontainerInstance
         }
-        const webcontainerInstance = await WebContainer.boot()
+        const webcontainerInstance = await WebContainer.boot({ coep: 'credentialless' })
         set({ webcontainerInstance })
         return webcontainerInstance
       } catch (error) {
