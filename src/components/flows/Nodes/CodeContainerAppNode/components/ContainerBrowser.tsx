@@ -29,7 +29,14 @@ const ContainerBrowser = memo(({ iframeRef }: { iframeRef?: RefObject<HTMLIFrame
         </div>
       </div>
       <div className="bg-background w-full flex-1 nowheel nodrag overflow-auto">
-        <iframe src={url} ref={iframeRef} className="min-h-full w-full" />
+        <iframe
+          src={url}
+          ref={iframeRef}
+          className="min-h-full w-full"
+          allow="cross-origin-isolated"
+          // @ts-expect-error no sure why this is not working
+          credentialless
+        />
       </div>
     </div>
   )

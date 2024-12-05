@@ -6,9 +6,9 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { EditorAppNodeProps } from './type'
 
-const CodeContainerApp = lazy(() => import('./CodeContainerApp'))
+const VSLiteApp = lazy(() => import('src/lib/vslite/index'))
 
-export const CodeContainerAppNode = memo((props: EditorAppNodeProps) => {
+export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   const { id, isConnectable } = props
 
   return (
@@ -23,7 +23,7 @@ export const CodeContainerAppNode = memo((props: EditorAppNodeProps) => {
             </div>
           }
         >
-          <CodeContainerApp {...props} />
+          <VSLiteApp />
         </Suspense>
       </div>
       <DefaultHandle type="source" position={Position.Bottom} isConnectable={isConnectable} />

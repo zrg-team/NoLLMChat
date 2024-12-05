@@ -21,4 +21,5 @@ export enum FlowNodeTypeEnum {
   EditorApp = 'EDITOR_APP',
   PlaceHolder = 'PLACEHOLDER',
   CodeContainerApp = 'CODE_CONTAINER_APP',
+  VSLiteApp = 'VSLITE_APP',
 }

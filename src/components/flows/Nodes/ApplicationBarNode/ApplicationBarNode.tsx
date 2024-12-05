@@ -20,8 +20,13 @@ const DATA = {
     },
     {
       key: FlowNodeTypeEnum.CodeContainerApp,
-      icon: 'square-terminal' as const,
+      icon: 'file-code-2' as const,
       label: 'application_bar.code_editor',
+    },
+    {
+      key: FlowNodeTypeEnum.VSLiteApp,
+      icon: 'square-terminal' as const,
+      label: 'application_bar.vslite',
     },
   ],
   shapes: [

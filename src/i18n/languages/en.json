@@ -181,7 +181,8 @@
       "errors": {
         "add_node_failed": "Failed to add node."
       },
-      "code_editor": "Code Container Editor"
+      "code_editor": "Code Container Editor",
+      "vslite": "VS Lite"
     },
     "editor_node": {
       "errors": {
@@ -196,7 +197,8 @@
     "code_container_app": {
       "source_base_select_placeholder": "Select a source base",
       "sourcebases": {
-        "vitevue": "Vite + Vue"
+        "vite-vue": "Vite + Vue",
+        "shadcn-react-vite": "React + Vite + Shadcn UI"
       },
       "update_source": "Update Source"
     }
