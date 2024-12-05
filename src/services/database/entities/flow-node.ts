@@ -42,6 +42,9 @@ export class FlowNode {
   @Column({ type: 'json', nullable: true })
   metadata?: unknown
 
+  @Column({ type: 'text', nullable: true })
+  raw?: string
+
   @CreateDateColumn()
   created_at?: Date
 

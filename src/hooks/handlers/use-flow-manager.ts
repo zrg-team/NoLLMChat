@@ -1,10 +1,10 @@
 import { useCallback, useRef, useState } from 'react'
 import deepmerge from 'deepmerge'
 import { applyNodeChanges, Connection, Edge, EdgeChange, Node, NodeChange } from '@xyflow/react'
-import { FlowNode } from 'src/services/database/types'
+import { FlowNode, FlowNodeTypeEnum } from 'src/services/database/types'
 import { In, type FindManyOptions } from 'src/services/database/typeorm-wrapper'
 import { useFlowState } from 'src/states/flow'
-import { SYSTEM_NODE_IDS } from 'src/constants/nodes'
+import { DISABLED_DELETE_NODE_TYPES, SYSTEM_NODE_IDS } from 'src/constants/nodes'
 import { useSessionState } from 'src/states/session'
 
 export const useFlowManager = () => {
@@ -76,7 +76,11 @@ export const useFlowManager = () => {
   const updateNodeChanges = useCallback(
     async (changes: NodeChange<Node>[]) => {
       for (const change of changes) {
-        if ('id' in change && Object.values(SYSTEM_NODE_IDS).includes(change.id)) {
+        if (
+          'id' in change &&
+          Object.values(SYSTEM_NODE_IDS).includes(change.id) &&
+          change.type !== 'remove'
+        ) {
           updateNodes([change])
         } else if (
           change.type === 'position' &&
@@ -94,6 +98,11 @@ export const useFlowManager = () => {
             { silent: true },
           )
         } else if (change.type === 'remove') {
+          // DISABLED: delete node
+          const node = getNodes([change.id])?.[0]
+          if (!node?.type || DISABLED_DELETE_NODE_TYPES.includes(node.type as FlowNodeTypeEnum)) {
+            return
+          }
           await deleteFlowNode({ id: change.id })
         } else if (
           change.type === 'dimensions' &&
@@ -119,7 +128,7 @@ export const useFlowManager = () => {
         }
       }
     },
-    [updateNodes, updateFlowNode, deleteFlowNode, getNodes],
+    [updateNodes, updateFlowNode, getNodes, deleteFlowNode],
   )
 
   const updateEdgeChanges = useCallback(

@@ -2,16 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
 import { useFlowManager } from 'src/hooks/handlers/use-flow-manager'
 
-import { HomePageContextProvider } from './context'
-import { HomePageContextType } from './type'
 import { useAutomaticallyRenderFlows } from 'src/hooks/handlers/use-automatically-render-flow'
 import { useLocalLLMState } from 'src/services/local-llm'
 
-export interface JNScreenDocumentProviderProps {
-  children: React.ReactNode
-}
-
-const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children }) => {
+export const useHomePage = () => {
   const [initializing, setInitializing] = useState(true)
   const flowManager = useFlowManager()
   const selectedModel = useLocalLLMState((state) => state.selectedModel)
@@ -58,7 +52,7 @@ const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children })
     }
   }, [setInitProgressCallback, updateOrCreateNode])
 
-  const contextValue = useMemo<HomePageContextType>(
+  const contextValue = useMemo(
     () => ({
       updateNodeChanges,
       updateEdgeChanges,
@@ -69,9 +63,5 @@ const HomePageProvider: React.FC<JNScreenDocumentProviderProps> = ({ children })
     [updateNodeChanges, updateEdgeChanges, initializing, setInitializing, updateEdgeConnection],
   )
 
-  return <HomePageContextProvider value={contextValue}>{children}</HomePageContextProvider>
+  return contextValue
 }
-
-HomePageProvider.displayName = 'HomePageProvider'
-
-export { HomePageProvider }

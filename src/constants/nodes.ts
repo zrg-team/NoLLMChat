@@ -58,3 +58,11 @@ export const DEFAULT_SYSTEM_NODES = [
   EMBEDDING_MODEL,
   APPLICATION_BAR_MODEL,
 ]
+
+export const DISABLED_DELETE_NODE_TYPES = [
+  FlowNodeTypeEnum.Toolbox,
+  FlowNodeTypeEnum.SessionInfo,
+  FlowNodeTypeEnum.ApplicationBar,
+  FlowNodeTypeEnum.EditorApp,
+  FlowNodeTypeEnum.CodeContainerApp,
+]

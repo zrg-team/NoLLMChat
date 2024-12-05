@@ -192,6 +192,13 @@
     },
     "placeholder_node": {
       "vector_database_retriever": "Vector Database Retriever"
+    },
+    "code_container_app": {
+      "source_base_select_placeholder": "Select a source base",
+      "sourcebases": {
+        "vitevue": "Vite + Vue"
+      },
+      "update_source": "Update Source"
     }
   },
   "components": {

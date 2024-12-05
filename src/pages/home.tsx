@@ -1,10 +1,5 @@
-import { HomePageProvider } from 'src/contexts/HomePage/Provider'
-import HomeComponent from 'src/components/pages/Home'
+import HomeInner from 'src/components/pages/Home/index'
 
 export default function HomePage() {
-  return (
-    <HomePageProvider>
-      <HomeComponent />
-    </HomePageProvider>
-  )
+  return <HomeInner />
 }

@@ -141,8 +141,6 @@ export function FixedToolbarButtons() {
         </>
       )}
 
-      <div className="grow" />
-
       <ToolbarGroup>
         <ExportToolbarButton>
           <ArrowUpToLineIcon />
@@ -151,6 +149,8 @@ export function FixedToolbarButtons() {
       <ToolbarGroup>
         <ModeDropdownMenu />
       </ToolbarGroup>
+
+      <div className="grow" />
     </div>
   )
 }
