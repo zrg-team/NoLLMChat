@@ -1,6 +1,5 @@
 import { FileSystemTree } from '@webcontainer/api'
 
-export const NAME = 'Vite Vue'
 export const VITE_VUE_BASE: FileSystemTree = {
   public: {
     directory: {

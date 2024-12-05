@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
-import { SOURCE_BASES } from 'src/services/web-container/source-bases'
+import { getSourceBase, SOURCE_BASES } from 'src/services/web-container/source-bases'
 import { Button } from 'src/lib/shadcn/ui/button'
 import type { FileSystemTree } from '@webcontainer/api'
 import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
@@ -142,7 +142,7 @@ const CodeEditor = memo(
               <SelectValue placeholder={t('code_container_app.source_base_select_placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(SOURCE_BASES).map(([key]) => {
+              {SOURCE_BASES.map((key) => {
                 return (
                   <SelectItem key={`${key}`} value={`${key}`}>
                     {t(`code_container_app.sourcebases.${key.toLowerCase()}`)}
@@ -152,9 +152,8 @@ const CodeEditor = memo(
             </SelectContent>
           </Select>
           <Button
-            onClick={() =>
-              sourcebase &&
-              updateCodeContainerData(SOURCE_BASES[sourcebase as keyof typeof SOURCE_BASES])
+            onClick={async () =>
+              sourcebase && updateCodeContainerData(await getSourceBase(sourcebase))
             }
           >
             {t('code_container_app.update_source')}
