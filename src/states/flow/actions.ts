@@ -28,6 +28,7 @@ import {
   flowNodesToNodeChanges,
   flowNodeToNode,
 } from 'src/utils/flow'
+import { logWarn } from 'src/utils/logger'
 
 import { defaultFlowState, FlowState } from './state'
 import { useSessionState } from '../session'
@@ -259,7 +260,7 @@ export const getFlowStateActions = (
             await getRepository(currentNode.source_type)
               .delete(currentNode.source_id)
               .catch((error) => {
-                console.warn(
+                logWarn(
                   'Failed to delete source entity',
                   currentNode.source_type,
                   currentNode.source_id,
@@ -275,7 +276,7 @@ export const getFlowStateActions = (
           })
         }
       } catch (error) {
-        console.warn('Failed to delete flow node', error)
+        logWarn('Failed to delete flow node', error)
       }
     },
     deleteFlowEdge: async (edge) => {
@@ -300,7 +301,7 @@ export const getFlowStateActions = (
           })
         }
       } catch (error) {
-        console.warn('Failed to delete flow edge', error)
+        logWarn('Failed to delete flow edge', error)
       }
     },
     updateFlowNode: async (inputNode, options) => {
@@ -331,7 +332,7 @@ export const getFlowStateActions = (
           flowNodes: options?.silent ? newFlowNodes : [...newFlowNodes],
         })
       } catch (error) {
-        console.warn('Failed to create or update flow node', error, inputNode)
+        logWarn('Failed to create or update flow node', error, inputNode)
       }
     },
     createOrUpdateFlowNode: async (inputNode, options) => {
@@ -411,7 +412,7 @@ export const getFlowStateActions = (
         })
         return flowNode
       } catch (error) {
-        console.warn('Failed to create or update flow node', error, inputNode)
+        logWarn('Failed to create or update flow node', error, inputNode)
       }
     },
     createOrUpdateFlowEdge: async (inputEdge, options) => {
@@ -472,7 +473,7 @@ export const getFlowStateActions = (
         })
         return edge
       } catch (error) {
-        console.warn('Failed to create or update flow node', error)
+        logWarn('Failed to create or update flow node', error)
       }
     },
   }

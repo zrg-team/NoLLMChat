@@ -1,5 +1,6 @@
 import { WebContainer, FileSystemTree } from '@webcontainer/api'
 import { SetState, GetState } from 'src/utils/zustand'
+import { logWarn } from 'src/utils/logger'
 
 import { WebContainerState } from './state'
 
@@ -17,7 +18,6 @@ export const getWebContainerStateActions = (
     init: async () => {
       try {
         const currentWebcontainerInstance = get().webcontainerInstance
-        console.log('currentWebcontainerInstance', currentWebcontainerInstance)
         if (currentWebcontainerInstance) {
           return currentWebcontainerInstance
         }
@@ -25,7 +25,7 @@ export const getWebContainerStateActions = (
         set({ webcontainerInstance })
         return webcontainerInstance
       } catch (error) {
-        console.warn('Failed init:', error)
+        logWarn('Failed init:', error)
       } finally {
         set({ ready: true })
       }
@@ -45,7 +45,7 @@ export const getWebContainerStateActions = (
         }
         await webcontainerInstance.mount(files)
       } catch (error) {
-        console.warn('Failed startContainer:', error)
+        logWarn('Failed startContainer:', error)
       }
     },
   }

@@ -1,10 +1,12 @@
 import type { PretrainedOptions, FeatureExtractionPipelineOptions } from '@huggingface/transformers'
 import { Embeddings, type EmbeddingsParams } from '@langchain/core/embeddings'
 import { chunkArray } from '@langchain/core/utils/chunk_array'
-import { worker } from '../worker'
 import { sendToWorker, WOKER_INIT_MESSAGE_ID } from 'src/utils/worker-base'
 import { nanoid } from 'nanoid'
 import { getEmptyPromise } from 'src/utils/promise'
+import { logWarn } from 'src/utils/logger'
+
+import { worker } from '../worker'
 
 export interface WorkerEmbeddingsParams extends EmbeddingsParams {
   modelName: string
@@ -96,7 +98,7 @@ export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsPara
     } else if (event.data.type === 'inprogress') {
       // do nothing
     } else {
-      console.warn('Unknown message type', event.data)
+      logWarn('Unknown message type', event.data)
     }
   }
 

@@ -8,6 +8,7 @@ import { In } from 'src/services/database/typeorm-wrapper'
 import { useLocalLLMState } from 'src/services/local-llm'
 import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
+import { logWarn } from 'src/utils/logger'
 
 import { LLMNodeData } from '../type'
 
@@ -67,7 +68,7 @@ export const useActions = (id: string, data: LLMNodeData) => {
         await queryThreadsFromModel()
       }
     } catch (error) {
-      console.warn(error)
+      logWarn(error)
       toast({
         variant: 'destructive',
         description: t('llm_node.errors.loading_model'),

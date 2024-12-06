@@ -5,7 +5,7 @@ import {
   pipeline,
 } from '@huggingface/transformers'
 import { init, listenForMessages, type BaseMessagePayload } from 'src/utils/worker-base'
-import { logDebug, logInfo } from 'src/utils/worker-logger'
+import { logDebug, logInfo } from 'src/utils/logger'
 
 let pipe: FeatureExtractionPipeline | undefined
 

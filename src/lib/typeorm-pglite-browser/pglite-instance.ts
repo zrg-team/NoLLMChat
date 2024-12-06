@@ -1,4 +1,5 @@
 import { PGlite, PGliteOptions } from '@electric-sql/pglite'
+import { logWarn } from 'src/utils/logger'
 
 export class PGliteInstance {
   private static instance: PGlite | null = null
@@ -7,7 +8,7 @@ export class PGliteInstance {
   static async getInstance(): Promise<PGlite> {
     if (!PGliteInstance.instance) {
       if (!PGliteInstance.options) {
-        console.warn(
+        logWarn(
           'PGlite constructor options are not provided. Creating instance with default options.',
         )
       }

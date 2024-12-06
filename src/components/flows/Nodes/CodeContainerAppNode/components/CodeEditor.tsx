@@ -1,17 +1,7 @@
-import { useCallback, memo, useState, useMemo, useEffect, useRef } from 'react'
+import { useCallback, memo, useState, useEffect, useRef } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
-import { useTranslation } from 'react-i18next'
 import { File, Folder, Tree } from 'src/lib/shadcn/ui/file-tree'
 import { convertToElementsTree, ElementTree } from 'src/services/web-container/utils/file-tree'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'src/lib/shadcn/ui/select'
-import { getSourceBase, SOURCE_BASES } from 'src/services/web-container/source-bases'
-import { Button } from 'src/lib/shadcn/ui/button'
 import type { FileSystemTree } from '@webcontainer/api'
 import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
 
@@ -83,16 +73,12 @@ const CodeEditor = memo(
   ({
     fileSystemTree,
     updateCodeContainerFile,
-    updateCodeContainerData,
   }: {
     fileSystemTree?: FileSystemTree
-    updateCodeContainerData: (tree: FileSystemTree) => Promise<void>
     updateCodeContainerFile: (file: string, code: string) => Promise<void>
   }) => {
-    const { t } = useTranslation('flows')
     const debouceRef = useRef<number>()
     const [elementTree, setElementTree] = useState<ElementTree[]>([])
-    const [sourcebase, setSourcebase] = useState<string>()
     const [code, setCode] = useState<{ file: string; id: string; code: string; name: string }>()
     const [languageExtension, setLanguageExtension] =
       useState<Awaited<ReturnType<typeof getLanguageExtension>>>(null)
@@ -131,47 +117,14 @@ const CodeEditor = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [!!fileSystemTree])
 
-    const renderSelectDefaultSource = useMemo(() => {
-      if (elementTree?.length) {
-        return undefined
-      }
-      return (
-        <div className="flex items-center justify-center w-full h-full flex-col">
-          <Select onValueChange={(value) => setSourcebase(value)}>
-            <SelectTrigger className="w-full mb-4">
-              <SelectValue placeholder={t('code_container_app.source_base_select_placeholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              {SOURCE_BASES.map((key) => {
-                return (
-                  <SelectItem key={`${key}`} value={`${key}`}>
-                    {t(`code_container_app.sourcebases.${key.toLowerCase()}`)}
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={async () =>
-              sourcebase && updateCodeContainerData(await getSourceBase(sourcebase))
-            }
-          >
-            {t('code_container_app.update_source')}
-          </Button>
-        </div>
-      )
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [!!elementTree?.length, sourcebase])
-
     return (
       <div ref={editorRef} className="flex-1 flex h-full overflow-auto">
         <Tree
-          className="p-2 bg-background w-64"
+          className="p-2 bg-background w-56"
           initialExpandedItems={elementTree.map((item) => item.id)}
           elements={elementTree}
         >
           <FileSystem elements={elementTree} onSelectFile={handleSelectFile} />
-          {renderSelectDefaultSource}
         </Tree>
         <CodeMirror
           value={code?.code || ''}

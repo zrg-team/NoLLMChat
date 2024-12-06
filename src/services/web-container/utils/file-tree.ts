@@ -1,5 +1,6 @@
 import type { DirectoryNode, FileNode, FileSystemTree } from '@webcontainer/api'
 import { nanoid } from 'nanoid'
+import { logWarn } from 'src/utils/logger'
 
 export interface ElementTree {
   id: string
@@ -112,13 +113,13 @@ export function updateFileContentOfFileSystemTree(
       if (part in currentNode && 'file' in currentNode[part]) {
         ;(currentNode[part] as FileNode).file.contents = newContent
       } else {
-        console.warn(`Path "${filePath}" is not a file.`)
+        logWarn(`Path "${filePath}" is not a file.`)
       }
     } else {
       if (part in currentNode && 'directory' in currentNode[part]) {
         currentNode = (currentNode[part] as DirectoryNode).directory
       } else {
-        console.warn(`Path "${filePath}" does not exist.`)
+        logWarn(`Path "${filePath}" does not exist.`)
         return tree // Return the original tree if path is invalid
       }
     }

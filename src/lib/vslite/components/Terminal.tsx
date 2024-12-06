@@ -1,8 +1,12 @@
 import { useRef, useState, useCallback } from 'react'
 
 import type { GridviewPanelApi } from 'dockview'
+import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
+import LoadingButton from 'src/components/atoms/LoadingButton'
+
+import { useMainVSLiteAppContext } from '../contexts/main'
 import type { ShellInstance, ServerReadyHandler } from '../hooks/useShell'
-import { Button } from 'src/lib/shadcn/ui/button'
+import { useTranslation } from 'react-i18next'
 
 interface TerminalProps {
   shell: ShellInstance
@@ -11,23 +15,31 @@ interface TerminalProps {
 }
 
 export function Terminal(props: TerminalProps) {
+  const { t } = useTranslation('components')
   const { shell } = props
-  const [init, setInit] = useState(false)
-  const root = useRef<HTMLDivElement>(null)
+  const { container } = useMainVSLiteAppContext()
+  const [loading, seLoading] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  usePreventPitchZoom(rootRef)
 
   const startShell = useCallback(async () => {
-    shell.start(root.current!, props.panelApi, props.onServerReady)
-    setInit(true)
+    seLoading(true)
+    shell.start(rootRef.current!, props.panelApi, props.onServerReady, () => {
+      seLoading(false)
+    })
   }, [props.onServerReady, props.panelApi, shell])
 
   return (
     <>
-      {!init ? (
+      {!container ? (
         <div className="w-full h-full flex justify-center items-center">
-          <Button onClick={startShell}>Start</Button>
+          <LoadingButton loading={loading} onClick={startShell}>
+            {t('vslite.load_app_container')}
+          </LoadingButton>
         </div>
       ) : undefined}
-      <div ref={root} className="w-full h-full"></div>
+      <div ref={rootRef} className="w-full h-full vslite-xterm-wrapper nodrag nowheel"></div>
     </>
   )
 }

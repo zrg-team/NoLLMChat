@@ -7,6 +7,7 @@ import { useWebContainerState } from 'src/services/web-container/state'
 // import ANSIToHTMLConvert from 'ansi-to-html'
 import { FitAddon } from '@xterm/addon-fit'
 import LazyIcon from 'src/components/atoms/LazyIcon'
+import { logError } from 'src/utils/logger'
 
 const DEFAULT_PROMPT_ICON = '❯'
 const DEFAULT_PROMPT = `${DEFAULT_PROMPT_ICON} `
@@ -196,15 +197,13 @@ const ContainerTernimal = memo(({ fileSystemTree }: { fileSystemTree?: FileSyste
         let writer: WritableStreamDefaultWriter<string> | undefined
         try {
           writer = await webContainerShellRef.current?.input.getWriter()
-          console.log('writer', writer, command)
           if (writer && webContainerShellRef.current && (await writer.ready)) {
             // Write command to shell
             await writer.write(`${command}\n`)
-            console.log('writer', writer)
             await writer.releaseLock()
           }
         } catch (error) {
-          console.warn(error)
+          logError(error)
           updateLine('🛑  Failed to run command')
         } finally {
           await writer?.close()
@@ -277,7 +276,7 @@ const ContainerTernimal = memo(({ fileSystemTree }: { fileSystemTree?: FileSyste
 
         instance?.write(data)
       } catch (error) {
-        console.error(error)
+        logError(error)
       }
     })
     const removeKeyListenter = instance?.onKey((e) => {
