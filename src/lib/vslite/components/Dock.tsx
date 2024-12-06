@@ -47,9 +47,9 @@ const dockComponents: Record<string, FunctionComponent<IDockviewPanelProps>> = {
     <Editor fs={props.params.fs} path={props.params.path} />
   ),
   preview: (props: IDockviewPanelProps<{ url: string }>) => {
-    console.log('props', props)
     return (
       <iframe
+        className='w-full h-full'
         src={props.params.url}
         allow="cross-origin-isolated"
         // @ts-expect-error no sure why this is not working

@@ -55,7 +55,7 @@ export function FixedToolbarButtons() {
       {!readOnly && (
         <>
           <ToolbarGroup>
-            <ToolbarButton className="cursor-move">
+            <ToolbarButton className="cursor-grab">
               <PointerIcon size={24} />
             </ToolbarButton>
           </ToolbarGroup>

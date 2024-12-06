@@ -6,13 +6,13 @@ import { EventEmitter } from 'react-complex-tree/src/EventEmitter'
 import { useAppState } from 'src/states/app'
 import { cn } from 'src/lib/utils'
 import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
+import LazyIcon from 'src/components/atoms/LazyIcon'
+import { Label } from 'src/lib/shadcn/ui/label'
 
 import { getDirAsTree } from '../modules/webcontainer'
 import { debounce } from '../utils/debounce'
 import { getIcon } from '../icons'
 import { useMainVSLiteAppContext } from '../contexts/main'
-import LazyIcon from 'src/components/atoms/LazyIcon'
-import { Label } from 'src/lib/shadcn/ui/label'
 
 interface FileTreeProps {
   fs: FileSystemAPI
@@ -66,9 +66,9 @@ export function FileTree(props: FileTreeProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="w-full p-2 pt-4 flex items-center gap-2 pl-8">
+      <div className="w-full p-2 pt-4 flex items-center gap-2 pl-8 cursor-grab">
         <LazyIcon name="square-terminal" />
-        <Label>VS Lite</Label>
+        <Label className='cursor-grab'>VSLite</Label>
       </div>
       <div
         ref={editorRef}

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useMonaco } from '@monaco-editor/react'
 import { useRef, useEffect } from 'react'
 import { useLaunchQueue } from './useLaunchQueue'
