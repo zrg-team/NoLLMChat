@@ -1,5 +1,13 @@
 // PRODUCTION DEBUG: open console and run `localStorage.setItem('__DEBUG__', 'true')`
-export const isDev = import.meta.env.DEV || localStorage.getItem('__DEBUG__') === 'true'
+export const isDev = (() => {
+  if (typeof import.meta.env !== 'undefined' && import.meta.env.DEV) {
+    return true
+  }
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    return window.localStorage.getItem('__DEBUG__') === 'true'
+  }
+  return false
+})()
 
 export const DATABASE_LOG_CONFIG = isDev
   ? {
