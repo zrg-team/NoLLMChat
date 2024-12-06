@@ -9,6 +9,7 @@ import { Watermark } from './Watermark'
 import { useStartup } from '../hooks/useStartup'
 import * as panels from '../modules/panels'
 
+import type { FileSystemAPI } from '@webcontainer/api'
 import type {
   DockviewApi,
   GridviewApi,
@@ -17,7 +18,6 @@ import type {
   IPaneviewPanelProps,
   IDockviewPanelProps,
 } from 'dockview'
-import type { FileSystemAPI } from '@webcontainer/api'
 import type { ShellInstance } from '../hooks/useShell'
 
 export function Dock() {
@@ -43,17 +43,20 @@ export function Dock() {
 }
 
 const dockComponents: Record<string, FunctionComponent<IDockviewPanelProps>> = {
-  editor: (props: IDockviewPanelProps<{ fs: FileSystemAPI; path: string; isDark: boolean }>) => (
+  editor: (props: IDockviewPanelProps<{ fs: FileSystemAPI; path: string }>) => (
     <Editor fs={props.params.fs} path={props.params.path} />
   ),
-  preview: (props: IDockviewPanelProps<{ url: string }>) => (
-    <iframe
-      src={props.params.url}
-      allow="cross-origin-isolated"
-      // @ts-expect-error no sure why this is not working
-      credentialless
-    />
-  ),
+  preview: (props: IDockviewPanelProps<{ url: string }>) => {
+    console.log('props', props)
+    return (
+      <iframe
+        src={props.params.url}
+        allow="cross-origin-isolated"
+        // @ts-expect-error no sure why this is not working
+        credentialless
+      />
+    )
+  },
 }
 
 const gridComponents: Record<string, FunctionComponent<IGridviewPanelProps>> = {

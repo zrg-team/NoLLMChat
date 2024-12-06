@@ -21,6 +21,7 @@ import {
   VectorDatabaseProviderEnum,
 } from 'src/services/database/types'
 import { DEFAULT_EMBEDDING_MODEL } from 'src/constants/embedding'
+import { logWarn } from 'src/utils/logger'
 
 import { LocalEmbeddingState } from './state'
 import { WorkerEmbeddings } from '../utils/worker-embeddings'
@@ -127,7 +128,7 @@ export const getLocalEmbeddingStateActions = (
           })
         }
       } catch (error) {
-        console.warn('Failed init:', error)
+        logWarn('Failed init:', error)
       } finally {
         set({ ready: true })
       }

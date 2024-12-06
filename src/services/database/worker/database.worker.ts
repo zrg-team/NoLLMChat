@@ -2,7 +2,7 @@ import { DataSource, FindManyOptions, ObjectLiteral } from 'typeorm'
 
 import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp'
 import { DATABASE_LOG_CONFIG } from 'src/constants/dev'
-import { logDebug, logInfo } from 'src/utils/worker-logger'
+import { logDebug, logInfo } from 'src/utils/logger'
 import { PGliteDriver } from 'src/lib/typeorm-pglite-browser'
 import { BaseMessagePayload, init, listenForMessages } from 'src/utils/worker-base'
 

@@ -8,6 +8,7 @@ import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { useCreateTool } from 'src/hooks/mutations/use-create-tool'
 import LoadingButton from 'src/components/atoms/LoadingButton'
+import { logWarn } from 'src/utils/logger'
 
 const CreateToolCard = memo((props: NodeProps) => {
   const { t } = useTranslation('components')
@@ -34,7 +35,7 @@ const CreateToolCard = memo((props: NodeProps) => {
         setName('')
         setDescription('')
       } catch (error) {
-        console.warn(error)
+        logWarn(error)
         toast({
           variant: 'destructive',
           title: t('add_tool_card.errors.create_tool_failed'),

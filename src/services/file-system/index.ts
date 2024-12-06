@@ -1,3 +1,5 @@
+import { logWarn } from 'src/utils/logger'
+
 let appFileSystem: IDBDatabase | undefined
 let process: Promise<IDBDatabase> | undefined
 
@@ -78,7 +80,7 @@ const mkdir = async (_path: string) => {
   try {
     await getBaseStore()
   } catch (error) {
-    console.error('[Error] mkdir', error)
+    logWarn('[Error] mkdir', error)
     throw error
   }
 }
@@ -87,7 +89,7 @@ const writeFile = async (path: string, file: Blob) => {
     const store = await getBaseStore()
     return writeFileInternal(store, path, file)
   } catch (error) {
-    console.error('[Error] writeFile', error)
+    logWarn('[Error] writeFile', error)
     throw error
   }
 }
@@ -96,7 +98,7 @@ const readFile = async (path: string) => {
     const store = await getBaseStore()
     return readFileInternal(store, path)
   } catch (error) {
-    console.error('[Error] readFile', error)
+    logWarn('[Error] readFile', error)
     throw error
   }
 }
@@ -107,7 +109,7 @@ const deleteFileInternal = (store: IDBObjectStore, path: string) => {
       request.onsuccess = () => resolve()
       request.onerror = () => reject(request.error)
     } catch (error) {
-      console.error('[Error] deleteFileInternal', error)
+      logWarn('[Error] deleteFileInternal', error)
       reject(error)
     }
   })
@@ -117,7 +119,7 @@ const unlink = async (path: string) => {
     const store = await getBaseStore()
     return deleteFileInternal(store, path)
   } catch (error) {
-    console.error('[Error] unlink', error)
+    logWarn('[Error] unlink', error)
     throw error
   }
 }
@@ -127,7 +129,7 @@ const exists = async (path: string) => {
     const file = await readFileInternal(store, path)
     return !!file
   } catch (error) {
-    console.error('[Error] exists', error)
+    logWarn('[Error] exists', error)
     throw error
   }
 }
@@ -137,7 +139,7 @@ const stats = async (path: string) => {
     const file = await readFileInternal(store, path)
     return file
   } catch (error) {
-    console.error('[Error] stats', error)
+    logWarn('[Error] stats', error)
     throw error
   }
 }

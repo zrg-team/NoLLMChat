@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import { FlowNodeTypeEnum, Schema, SchemaItem, ToolDefinition } from 'src/services/database/types'
 import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
+import { logWarn } from 'src/utils/logger'
 
 import { handleStream } from '../utils/stream'
 import { useLocalLLMState } from '../state'
@@ -27,7 +28,7 @@ export const useLocalLLM = () => {
       },
     ) => {
       if (schemas && schemas?.length > 1) {
-        console.warn('Multiple schemas are not supported')
+        logWarn('Multiple schemas are not supported')
       }
 
       let streamResponse: ReturnType<typeof stream> | ReturnType<typeof structuredStream>

@@ -336,6 +336,9 @@
         "shadcn-react-vite": "React + Vite + Shadcn UI"
       },
       "update_source": "Update Source"
+    },
+    "vslite": {
+      "load_app_container": "Load Container"
     }
   },
   "dialogs": {

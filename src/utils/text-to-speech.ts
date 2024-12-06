@@ -1,4 +1,5 @@
 import EasySpeech from 'easy-speech'
+import { logWarn } from './logger'
 
 class TextToSpeech {
   private static instance: TextToSpeech
@@ -38,7 +39,7 @@ class TextToSpeech {
       volume: 1,
       voice: EasySpeech.voices()[0], // Use the first available voice
     }).catch((error) => {
-      console.error('Error during speech synthesis:', error)
+      logWarn('Error during speech synthesis:', error)
     })
   }
 

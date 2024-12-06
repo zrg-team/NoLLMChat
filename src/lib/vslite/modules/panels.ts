@@ -79,8 +79,8 @@ export async function openStartFile(
 export function createPreviewOpener(api: DockviewApi) {
   return (serverUrl: string, serverPort: number) => {
     // Storybook can't be loaded immediately
-    if (serverPort !== 6006) return
-    const panel = api.getPanel(serverPort.toString())
+    if (serverPort === 6006) return
+    const panel = api.getPanel(`preview:${serverPort.toString()}`)
     const title = `Port: ${serverPort}`
     const url = `${serverUrl}?${Date.now()}`
     // Update the existing preview panel
@@ -90,7 +90,7 @@ export function createPreviewOpener(api: DockviewApi) {
       // Create the preview panel
     } else {
       api.addPanel({
-        id: serverPort.toString(),
+        id: `preview:${serverPort.toString()}`,
         title: `Port: ${serverPort}`,
         component: 'preview',
         params: { url },

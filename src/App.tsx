@@ -19,13 +19,14 @@ import { useLocalLLMState } from './services/local-llm'
 import { useLocalEmbeddingState } from './services/local-embedding/state'
 import { ThemeProvider } from './components/layout/ThemeProvider'
 import { useAppHydration } from './hooks/handlers/use-app-hydration'
+import { logError } from './utils/logger'
 
 const AppRoute = lazy(() => import('src/routes'))
 
 dayjs.extend(relatedTime)
 
-const logError = (error: Error, info: { componentStack?: string | null }) => {
-  console.error(error, info)
+const logErrorHook = (error: Error, info: { componentStack?: string | null }) => {
+  logError(error, info)
 }
 
 const MainApp = memo(() => {
@@ -50,7 +51,7 @@ const MainApp = memo(() => {
 
   return (
     <Modal.Provider>
-      <ErrorBoundary fallback={<DefaultError />} onError={logError}>
+      <ErrorBoundary fallback={<DefaultError />} onError={logErrorHook}>
         <Suspense fallback={<DefaultLoader />}>
           <AppRoute />
         </Suspense>

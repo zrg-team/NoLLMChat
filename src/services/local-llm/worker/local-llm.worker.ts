@@ -17,7 +17,7 @@ import {
 import { AIMessage, BaseMessage } from '@langchain/core/messages'
 import { convertToJSON, convertToZodSchema } from 'src/utils/schema-format'
 import { safeParseJSON } from 'src/utils/json'
-import { logDebug, logInfo } from 'src/utils/worker-logger'
+import { logDebug, logInfo } from 'src/utils/logger'
 
 import {
   convertToChatCompletionTool,

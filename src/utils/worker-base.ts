@@ -1,4 +1,4 @@
-import { logDebug, logError, logWarn } from 'src/utils/worker-logger'
+import { logDebug, logError, logWarn } from 'src/utils/logger'
 
 const processes = new Map<string, unknown>()
 

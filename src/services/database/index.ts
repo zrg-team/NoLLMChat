@@ -7,14 +7,15 @@ import type {
 } from './typeorm-wrapper'
 import { nanoid } from 'nanoid'
 import { EntityType } from 'src/utils/orm-type'
+import { sendToWorker, workerMessagesHandler } from 'src/utils/worker-base'
+import { getEmptyPromise } from 'src/utils/promise'
+import { logWarn } from 'src/utils/logger'
 
 import type { AppEntityNames, EntityTypesMap } from './types'
 import { QueryOptions } from './utils/serialize.base'
 import { transformQueryObjectToBridgeJSON } from './utils/serialize.main'
 import { WorkerExecutionType } from './utils/bridge.base'
 import { worker } from './worker'
-import { sendToWorker, workerMessagesHandler } from 'src/utils/worker-base'
-import { getEmptyPromise } from 'src/utils/promise'
 
 const refProcesses: Map<
   string,
@@ -77,7 +78,7 @@ const repositoryExecute = async <T>(
     sendToWorker(worker, WorkerExecutionType.REPOSITORY_EXECUTE, messageId, [entity, action, data])
     return response.promise
   } catch (err) {
-    console.error(`Error executing ${WorkerExecutionType.REPOSITORY_EXECUTE} action:`, err)
+    logWarn(`Error executing ${WorkerExecutionType.REPOSITORY_EXECUTE} action:`, err)
     if (messageId) {
       refProcesses.delete(messageId)
     }
@@ -97,7 +98,7 @@ export const rawQuery = async (query: string, params?: (string | number | boolea
     sendToWorker(worker, WorkerExecutionType.RAW_QUERY_EXECUTE, messageId, [query, params])
     return response.promise
   } catch (err) {
-    console.error(`Error executing ${WorkerExecutionType.RAW_QUERY_EXECUTE} action:`, err)
+    logWarn(`Error executing ${WorkerExecutionType.RAW_QUERY_EXECUTE} action:`, err)
     if (messageId) {
       refProcesses.delete(messageId)
     }

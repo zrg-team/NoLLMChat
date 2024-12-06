@@ -7,7 +7,7 @@ import wasm from 'sql.js/dist/sql-wasm.wasm?url'
 import localforage from 'localforage'
 
 import { DATABASE_LOG_CONFIG } from 'src/constants/dev'
-import { logDebug, logInfo } from 'src/utils/worker-logger'
+import { logDebug, logInfo } from 'src/utils/logger'
 import { BaseMessagePayload, init, listenForMessages } from 'src/utils/worker-base'
 
 import { entitiesMap } from '../entities'

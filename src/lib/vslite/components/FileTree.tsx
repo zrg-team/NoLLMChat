@@ -5,14 +5,14 @@ import type { FileSystemAPI } from '@webcontainer/api'
 import { EventEmitter } from 'react-complex-tree/src/EventEmitter'
 import { useAppState } from 'src/states/app'
 import { cn } from 'src/lib/utils'
+import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
 
 import { getDirAsTree } from '../modules/webcontainer'
 import { debounce } from '../utils/debounce'
 import { getIcon } from '../icons'
-import Debug from '../utils/debug'
 import { useMainVSLiteAppContext } from '../contexts/main'
-
-const debug = Debug('FileTree')
+import LazyIcon from 'src/components/atoms/LazyIcon'
+import { Label } from 'src/lib/shadcn/ui/label'
 
 interface FileTreeProps {
   fs: FileSystemAPI
@@ -30,13 +30,15 @@ const root: RCT.TreeItem<string> = {
 }
 
 export function FileTree(props: FileTreeProps) {
+  const editorRef = useRef<HTMLDivElement>(null)
   const treeEnv = useRef() as Ref<TreeEnvironmentRef<unknown, never>>
   const provider = useRef<TreeProvider<string>>(new TreeProvider({ root }))
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
   const { fileTreeStateRef } = useMainVSLiteAppContext()
 
+  usePreventPitchZoom(editorRef)
+
   const refresh = async (updateMessage?: unknown) => {
-    debug('refresh updateMessage', updateMessage)
     if (typeof updateMessage === 'string') {
       const data = await getDirAsTree(
         props.fs,
@@ -45,7 +47,6 @@ export function FileTree(props: FileTreeProps) {
         Object.assign({}, root, { children: [] }),
         {},
       )
-      debug('refresh getDirAsTree', data)
       provider.current.updateItems(data)
     }
   }
@@ -64,8 +65,18 @@ export function FileTree(props: FileTreeProps) {
   }
 
   return (
-    <div className="!overflow-scroll">
-      <div className={isDarkTheme ? 'rct-dark' : 'rct-default'}>
+    <div className="flex flex-col">
+      <div className="w-full p-2 pt-4 flex items-center gap-2 pl-8">
+        <LazyIcon name="square-terminal" />
+        <Label>VS Lite</Label>
+      </div>
+      <div
+        ref={editorRef}
+        className={cn(
+          'flex-1 !overflow-scroll max-h-full nowheel nodrag',
+          isDarkTheme ? 'rct-dark' : 'rct-default',
+        )}
+      >
         <UncontrolledTreeEnvironment
           ref={treeEnv}
           canRename
@@ -93,26 +104,21 @@ class TreeProvider<T = unknown> implements RCT.TreeDataProvider {
   private onDidChangeTreeDataEmitter = new EventEmitter<RCT.TreeItemIndex[]>()
 
   constructor(items: Record<RCT.TreeItemIndex, RCT.TreeItem<T>>) {
-    debug('TreeProvider constructor', items)
-    console.log('items', items)
     this.data = { items }
   }
 
   public async updateItems(items: Record<RCT.TreeItemIndex, RCT.TreeItem<T>>) {
-    debug('updateItems items', items)
     this.data = { items }
     this.onDidChangeTreeDataEmitter.emit(Object.keys(items))
   }
 
   public async getTreeItem(itemId: RCT.TreeItemIndex): Promise<RCT.TreeItem> {
-    debug('getTreeItem', itemId, this.data.items[itemId])
     return this.data.items[itemId]
   }
 
   public onDidChangeTreeData(
     listener: (changedItemIds: RCT.TreeItemIndex[]) => void,
   ): RCT.Disposable {
-    debug('onDidChangeTreeData items', this.data.items)
     const handlerId = this.onDidChangeTreeDataEmitter.on((payload) => listener(payload))
     return { dispose: () => this.onDidChangeTreeDataEmitter.off(handlerId) }
   }
