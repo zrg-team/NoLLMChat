@@ -195,12 +195,6 @@
       "vector_database_retriever": "Vector Database Retriever"
     },
     "code_container_app": {
-      "source_base_select_placeholder": "Select a source base",
-      "sourcebases": {
-        "vite-vue": "Vite + Vue",
-        "shadcn-react-vite": "React + Vite + Shadcn UI"
-      },
-      "update_source": "Update Source"
     }
   },
   "components": {
@@ -333,6 +327,15 @@
       "text_placeholder": "Input text here...",
       "add": "Add",
       "create": "Create"
+    },
+    "add_source_base": {
+      "title": "Source Base",
+      "source_base_select_placeholder": "Select a source base",
+      "sourcebases": {
+        "vite-vue": "Vite + Vue",
+        "shadcn-react-vite": "React + Vite + Shadcn UI"
+      },
+      "update_source": "Update Source"
     }
   },
   "dialogs": {

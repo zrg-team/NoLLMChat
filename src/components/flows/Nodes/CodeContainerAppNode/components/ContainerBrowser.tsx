@@ -23,7 +23,7 @@ const ContainerBrowser = memo(({ iframeRef }: { iframeRef?: RefObject<HTMLIFrame
 
   return (
     <div ref={editorRef} className="flex-1 w-full flex relative max-w-full flex-col">
-      <div className="relative flex items-center w-full py-2 px-24 bg-neutral-300">
+      <div className="relative flex items-center w-full py-3 px-24 bg-neutral-300">
         <div className="flex justify-center items-center size-full rounded-lg text-[.25rem] sm:text-[.5rem] bg-neutral-200 text-neutral-400 overflow-hidden">
           {url?.length > 42 ? `${url.substring(0, 42)}...` : 'No URL'}
         </div>

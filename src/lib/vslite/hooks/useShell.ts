@@ -4,7 +4,6 @@ import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { useAppState } from 'src/states/app'
 
-import { FileTreeState } from '../components/FileTree'
 import { startFiles, jshRC } from '../modules/webcontainer'
 import Debug from '../utils/debug'
 
@@ -13,6 +12,7 @@ const debug = Debug('useShell')
 import type { FileSystemAPI, WebContainerProcess } from '@webcontainer/api'
 import type { GridviewPanelApi } from 'dockview'
 import { useWebContainerState } from 'src/services/web-container/state'
+import { useMainVSLiteAppContext } from '../contexts/main'
 
 export interface ShellInstance {
   container: WebContainer | null
@@ -33,6 +33,8 @@ export function useShell(): ShellInstance {
   const theme = isDarkTheme
     ? { background: '#181818' }
     : { background: '#f3f3f3', foreground: '#000', cursor: '#666' }
+
+  const { fileTreeStateRef } = useMainVSLiteAppContext()
 
   useEffect(() => {
     if (terminal) {
@@ -94,7 +96,7 @@ export function useShell(): ShellInstance {
               case 'addDir':
               case 'unlinkDir':
               default:
-                FileTreeState.refresh(data)
+                fileTreeStateRef.current?.refresh(data)
             }
           },
         }),

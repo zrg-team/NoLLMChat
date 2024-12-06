@@ -6,7 +6,13 @@ import { SubscriptPlugin, SuperscriptPlugin } from '@udecode/plate-basic-marks/r
 import { collapseSelection } from '@udecode/plate-common'
 import { focusEditor, useEditorRef } from '@udecode/plate-common/react'
 import { KbdPlugin } from '@udecode/plate-kbd/react'
-import { KeyboardIcon, MoreHorizontalIcon, SubscriptIcon, SuperscriptIcon } from 'lucide-react'
+import {
+  HighlighterIcon,
+  KeyboardIcon,
+  MoreHorizontalIcon,
+  SubscriptIcon,
+  SuperscriptIcon,
+} from 'lucide-react'
 
 import {
   DropdownMenu,
@@ -17,6 +23,7 @@ import {
   useOpenState,
 } from './dropdown-menu'
 import { ToolbarButton } from './toolbar'
+import { HighlightPlugin } from '@udecode/plate-highlight/react'
 
 export function MoreDropdownMenu(props: DropdownMenuProps) {
   const editor = useEditorRef()
@@ -35,6 +42,17 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
         align="start"
       >
         <DropdownMenuGroup>
+          <DropdownMenuItem
+            onSelect={() => {
+              editor.tf.toggle.mark({
+                key: HighlightPlugin.key,
+              })
+              focusEditor(editor)
+            }}
+          >
+            <HighlighterIcon />
+            Highlight
+          </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
               editor.tf.toggle.mark({ key: KbdPlugin.key })

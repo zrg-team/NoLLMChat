@@ -4,13 +4,13 @@ import type * as RCT from 'react-complex-tree'
 import type { FileSystemAPI } from '@webcontainer/api'
 import { EventEmitter } from 'react-complex-tree/src/EventEmitter'
 import { useAppState } from 'src/states/app'
+import { cn } from 'src/lib/utils'
 
 import { getDirAsTree } from '../modules/webcontainer'
 import { debounce } from '../utils/debounce'
 import { getIcon } from '../icons'
-
 import Debug from '../utils/debug'
-import { cn } from 'src/lib/utils'
+import { useMainVSLiteAppContext } from '../contexts/main'
 
 const debug = Debug('FileTree')
 
@@ -29,32 +29,28 @@ const root: RCT.TreeItem<string> = {
   children: [],
 }
 
-export const FileTreeState = {
-  refresh: new Function(),
-  treeEnv: null as Ref<TreeEnvironmentRef<unknown, never>>,
-}
-
 export function FileTree(props: FileTreeProps) {
   const treeEnv = useRef() as Ref<TreeEnvironmentRef<unknown, never>>
   const provider = useRef<TreeProvider<string>>(new TreeProvider({ root }))
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
+  const { fileTreeStateRef } = useMainVSLiteAppContext()
 
-  const refresh = async (updateMessage?: string) => {
+  const refresh = async (updateMessage?: unknown) => {
     debug('refresh updateMessage', updateMessage)
-    const data = await getDirAsTree(
-      props.fs,
-      '.',
-      'root',
-      Object.assign({}, root, { children: [] }),
-      {},
-    )
-    debug('refresh getDirAsTree', data)
-    provider.current.updateItems(data)
+    if (typeof updateMessage === 'string') {
+      const data = await getDirAsTree(
+        props.fs,
+        '.',
+        'root',
+        Object.assign({}, root, { children: [] }),
+        {},
+      )
+      debug('refresh getDirAsTree', data)
+      provider.current.updateItems(data)
+    }
   }
 
-  // TODO: find a better way to call "refresh" outside of component
-  // https://github.com/vitejs/vite-plugin-react-swc#consistent-components-exports
-  Object.assign(FileTreeState, { treeEnv, refresh: debounce(refresh, 300) })
+  fileTreeStateRef.current = { treeEnv, refresh: debounce(refresh, 300) }
 
   const renderItem = (item: RCT.TreeItem<unknown>) => {
     const icon = getIcon(
@@ -98,6 +94,7 @@ class TreeProvider<T = unknown> implements RCT.TreeDataProvider {
 
   constructor(items: Record<RCT.TreeItemIndex, RCT.TreeItem<T>>) {
     debug('TreeProvider constructor', items)
+    console.log('items', items)
     this.data = { items }
   }
 

@@ -9,7 +9,6 @@ import {
 } from '@udecode/plate-basic-marks/react'
 import { useEditorReadOnly } from '@udecode/plate-common/react'
 import { FontBackgroundColorPlugin, FontColorPlugin } from '@udecode/plate-font/react'
-import { HighlightPlugin } from '@udecode/plate-highlight/react'
 import { ListStyleType } from '@udecode/plate-indent-list'
 import { ImagePlugin } from '@udecode/plate-media/react'
 import {
@@ -17,7 +16,6 @@ import {
   BaselineIcon,
   BoldIcon,
   Code2Icon,
-  HighlighterIcon,
   ItalicIcon,
   PaintBucketIcon,
   PointerIcon,
@@ -127,12 +125,6 @@ export function FixedToolbarButtons() {
             <LineHeightDropdownMenu />
             <OutdentToolbarButton />
             <IndentToolbarButton />
-          </ToolbarGroup>
-
-          <ToolbarGroup>
-            <MarkToolbarButton nodeType={HighlightPlugin.key} tooltip="Highlight">
-              <HighlighterIcon />
-            </MarkToolbarButton>
           </ToolbarGroup>
 
           <ToolbarGroup>
