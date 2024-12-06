@@ -68,7 +68,7 @@ export function FileTree(props: FileTreeProps) {
     <div className="flex flex-col">
       <div className="w-full p-2 pt-4 flex items-center gap-2 pl-8 cursor-grab">
         <LazyIcon name="square-terminal" />
-        <Label className='cursor-grab'>VSLite</Label>
+        <Label className="cursor-grab">VSLite</Label>
       </div>
       <div
         ref={editorRef}

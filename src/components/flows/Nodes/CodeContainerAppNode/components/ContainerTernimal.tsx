@@ -148,7 +148,11 @@ const ContainerTernimal = memo(({ fileSystemTree }: { fileSystemTree?: FileSyste
             webContainerRef.current.teardown()
             webContainerRef.current = undefined
           }
-          const containerInstance = await webContainerInit()
+          const containerInstance = await webContainerInit(() => {
+            webContainerRef.current = null
+            webContainerShellRef.current = undefined
+            setTernimal((pre) => ({ ...pre, shellReady: false, containerReady: false }))
+          })
           setTernimal((pre) => ({ ...pre, containerReady: true }))
           if (!containerInstance) {
             updateLine('🛑  Failed to init container')

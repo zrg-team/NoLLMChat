@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { WebContainer } from '@webcontainer/api'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
@@ -10,7 +10,7 @@ import type { FileSystemAPI, WebContainerProcess } from '@webcontainer/api'
 import type { GridviewPanelApi } from 'dockview'
 import { useWebContainerState } from 'src/services/web-container/state'
 import { useMainVSLiteAppContext } from '../contexts/main'
-import { logDebug } from 'src/utils/logger'
+import { logDebug, logWarn } from 'src/utils/logger'
 
 export interface ShellInstance {
   container: WebContainer | null
@@ -39,17 +39,22 @@ export function useShell(): ShellInstance {
     setProcess,
     setContainerInfo,
     containerInfo,
+    clearSession,
   } = useMainVSLiteAppContext()
-  const theme = isDarkTheme
-    ? { background: '#181818' }
-    : { background: '#f3f3f3', foreground: '#000', cursor: '#666' }
+  const theme = useMemo(
+    () =>
+      isDarkTheme
+        ? { background: '#181818' }
+        : { background: '#f3f3f3', foreground: '#000', cursor: '#666' },
+    [isDarkTheme],
+  )
 
   useEffect(() => {
     if (terminal) {
       terminal.options.theme = theme
       terminal.refresh(0, terminal.rows - 1)
     }
-  }, [isDarkTheme])
+  }, [isDarkTheme, terminal, theme])
 
   const start = useCallback(
     async (
@@ -63,7 +68,10 @@ export function useShell(): ShellInstance {
         logDebug('Booting...')
 
         // Setup shell
-        const shell = await webContainerInit()
+        const shell = await webContainerInit(() => {
+          clearSession?.()
+          fileTreeStateRef.current?.refresh([])
+        })
         if (!shell) return
 
         await shell.fs.writeFile('.jshrc', jshRC)
@@ -122,7 +130,11 @@ export function useShell(): ShellInstance {
 
         // Pipe terminal to shell and vice versa
         terminal.onData((data) => {
-          input.write(data)
+          try {
+            input.write(data)
+          } catch (error) {
+            logWarn('Error writing to shell: ', error)
+          }
         })
         jsh.output.pipeTo(
           new WritableStream({
@@ -145,6 +157,10 @@ export function useShell(): ShellInstance {
           } else {
             onServerReady(url, port, shell.fs)
           }
+        })
+        shell.on('error', (error) => {
+          logDebug('Error: ', error)
+          clearSession?.()
         })
 
         // Set state
@@ -170,7 +186,17 @@ export function useShell(): ShellInstance {
         onFinish()
       }
     },
-    [],
+    [
+      clearSession,
+      container,
+      containerInfo,
+      fileTreeStateRef,
+      setContainer,
+      setContainerInfo,
+      setProcess,
+      setTerminal,
+      webContainerInit,
+    ],
   )
 
   return { terminal, container, process, start }

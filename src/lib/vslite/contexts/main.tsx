@@ -8,6 +8,7 @@ import {
   useState,
   Dispatch,
   SetStateAction,
+  useCallback,
 } from 'react'
 import type { TreeEnvironmentRef } from 'react-complex-tree'
 import type { FileSystemTree, WebContainer, WebContainerProcess } from '@webcontainer/api'
@@ -29,6 +30,7 @@ type MainVSLiteContextType = {
   setTerminal?: Dispatch<SetStateAction<Terminal | null>>
   setProcess?: Dispatch<SetStateAction<WebContainerProcess | null>>
   setContainerInfo?: Dispatch<SetStateAction<{ url?: string; port?: number }>>
+  clearSession?: () => void
 }
 
 const MainVSLiteContext = createContext<MainVSLiteContextType | null>(null)
@@ -49,6 +51,13 @@ const MainVSLiteAppProvider = ({
     refresh: () => {},
     treeEnv: null as Ref<TreeEnvironmentRef<unknown, never>>,
   })
+  const clearSession = useCallback(() => {
+    fileSystemTree = undefined
+    setContainer(null)
+    setTerminal(null)
+    setProcess(null)
+    setContainerInfo({ url: undefined, port: undefined })
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -61,6 +70,7 @@ const MainVSLiteAppProvider = ({
       process,
       containerInfo,
       setContainerInfo,
+      clearSession,
     }),
     [container, terminal, process, containerInfo],
   )

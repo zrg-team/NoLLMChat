@@ -5,7 +5,7 @@ import { logWarn } from 'src/utils/logger'
 import { WebContainerState } from './state'
 
 export interface WebContainerStateActions {
-  init: () => Promise<WebContainer | undefined>
+  init: (func: () => void) => Promise<WebContainer | undefined>
   mounts: (files: FileSystemTree) => Promise<void>
   teardown: () => Promise<void>
 }
@@ -15,14 +15,18 @@ export const getWebContainerStateActions = (
   get: GetState<WebContainerState>,
 ): WebContainerStateActions => {
   return {
-    init: async () => {
+    init: async (onWebContainerTeardown) => {
       try {
-        const currentWebcontainerInstance = get().webcontainerInstance
+        let currentWebcontainerInstance = get().webcontainerInstance
         if (currentWebcontainerInstance) {
-          return currentWebcontainerInstance
+          const currentOnWebContainerTeardown = get().onWebContainerTeardown
+          currentWebcontainerInstance.teardown()
+          currentOnWebContainerTeardown?.()
+          currentWebcontainerInstance = undefined
+          await new Promise((resolve) => setTimeout(resolve, 250))
         }
         const webcontainerInstance = await WebContainer.boot({ coep: 'credentialless' })
-        set({ webcontainerInstance })
+        set({ webcontainerInstance, onWebContainerTeardown })
         return webcontainerInstance
       } catch (error) {
         logWarn('Failed init:', error)
