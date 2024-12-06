@@ -2,29 +2,33 @@ import { memo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { useTranslation } from 'react-i18next'
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'src/lib/shadcn/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'src/lib/shadcn/ui/select'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { getSourceBase, SOURCE_BASES } from 'src/services/web-container/source-bases'
 import { cn } from 'src/lib/utils'
 
 const CreateSourcebaseCard = memo(
-  (
-    {
-      className,
-      onUpdateSourceBase,
-    }: {
-      className?: string
-      onUpdateSourceBase: (data: Awaited<ReturnType<typeof getSourceBase>>) => void
-    },
-  ) => {
+  ({
+    className,
+    onUpdateSourceBase,
+  }: {
+    className?: string
+    onUpdateSourceBase: (data: Awaited<ReturnType<typeof getSourceBase>>) => void
+  }) => {
     const { t } = useTranslation('components')
     const [sourcebase, setSourcebase] = useState<string>()
     return (
-      <Card className={cn("mw-full", className)}>
-        <CardHeader className='p-4'>
+      <Card className={cn('mw-full', className)}>
+        <CardHeader className="p-4">
           <CardTitle>{t('add_source_base.title')}</CardTitle>
         </CardHeader>
-        <CardContent className='p-4'>
+        <CardContent className="p-4">
           <div className="flex items-center justify-center w-full h-full flex-col">
             <Select onValueChange={(value) => setSourcebase(value)}>
               <SelectTrigger className="w-full mb-4">

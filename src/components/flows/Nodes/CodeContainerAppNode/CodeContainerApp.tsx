@@ -47,8 +47,8 @@ const CodeContainerApp = memo((props: EditorAppNodeProps) => {
 
   if (!fileSystemTree) {
     return (
-      <div className='h-full flex justify-center items-center'>
-        <CreateSourcebaseCard className='w-64' onUpdateSourceBase={handleUpdateCodeContainerData} />
+      <div className="h-full flex justify-center items-center">
+        <CreateSourcebaseCard className="w-64" onUpdateSourceBase={handleUpdateCodeContainerData} />
       </div>
     )
   }
