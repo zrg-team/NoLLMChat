@@ -9,11 +9,21 @@ const stringify = (...args: unknown[]) =>
 export const logInfo = (...args: unknown[]) =>
   isDev ? log(chalk.blueBright(stringify(...args))) : undefined
 
-export const logError = (...args: unknown[]) =>
-  isDev ? log(chalk.redBright(stringify(...args))) : undefined
+export const logError = (...args: unknown[]) => {
+  if (isDev) {
+    log(chalk.redBright('ERROR:'))
+    console.error(...args)
+    log(chalk.redBright('-'.repeat(10)))
+  }
+}
 
-export const logWarn = (...args: unknown[]) =>
-  isDev ? log(chalk.yellowBright(stringify(...args))) : undefined
+export const logWarn = (...args: unknown[]) => {
+  if (isDev) {
+    log(chalk.yellowBright('WARN:'))
+    console.warn(...args)
+    log(chalk.yellowBright('-'.repeat(10)))
+  }
+}
 
 export const logDebug = (...args: unknown[]) =>
   isDev ? log(chalk.greenBright(stringify(...args))) : undefined

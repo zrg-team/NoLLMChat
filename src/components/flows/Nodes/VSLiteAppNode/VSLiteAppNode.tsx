@@ -38,7 +38,7 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   }
 
   return (
-    <div className="w-[1380px] h-[500px]">
+    <div className="w-[1380px] h-[600px]">
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="w-full h-full rounded-lg border bg-card overflow-hidden">
         <NodeHeader id={id} />
