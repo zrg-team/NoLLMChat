@@ -4,6 +4,7 @@ The project aims to transform AI interaction by developing a platform that impro
 
 ## Intro
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b4cb4550-ecf6-4470-8998-7b0ab2852b44/deploy-status)](https://app.netlify.com/sites/nollm/deploys)
 <p align="center">
     <a href="https://zrg-team.github.io/NoLLMChat/">✨✨✨ DEMO ✨✨✨</a>
 </p>
@@ -12,8 +13,6 @@ The project aims to transform AI interaction by developing a platform that impro
 </p>
 
 ![Intro Image](./public/intro.jpeg)
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/b4cb4550-ecf6-4470-8998-7b0ab2852b44/deploy-status)](https://app.netlify.com/sites/nollm/deploys)
 
 ![Demo](./public/demo.gif)
 
