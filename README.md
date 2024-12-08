@@ -105,13 +105,13 @@ To get started with the Project, follow these steps:
 2. **Install Dependencies**:
    ```bash
    cd NoLLMChat
-   npm install
+   yarn install
    ```
 3. **Run the Development Server**:
    ```bash
-   npm run dev
+   yarn dev
    ```
-4. **Open in Browser**: Visit `http://localhost:3000` to start interacting with the AI assistant.
+4. **Open in Browser**: Visit `http://localhost:PORT` to start interacting with the AI assistant.
 
 ## Contributing
 
