@@ -74,9 +74,10 @@ export function useShell(): ShellInstance {
         })
         if (!shell) return
 
+        await shell.mount({ ...(fileTreeStateRef.current.fileSystemTree || {}), ...startFiles })
+
         await shell.fs.writeFile('.jshrc', jshRC)
         await shell.spawn('mv', ['.jshrc', '/home/.jshrc'])
-        shell.mount({ ...(fileTreeStateRef.current.fileSystemTree || {}), ...startFiles })
 
         // Setup terminal
         const terminal = new Terminal({ convertEol: true, theme })
@@ -189,12 +190,14 @@ export function useShell(): ShellInstance {
     [
       clearSession,
       container,
-      containerInfo,
+      containerInfo.port,
+      containerInfo.url,
       fileTreeStateRef,
       setContainer,
       setContainerInfo,
       setProcess,
       setTerminal,
+      theme,
       webContainerInit,
     ],
   )

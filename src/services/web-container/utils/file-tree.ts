@@ -102,7 +102,8 @@ export function updateFileContentOfFileSystemTree(
   filePath: string,
   newContent: string | Uint8Array,
 ): FileSystemTree {
-  const parts = filePath.split('/')
+  // if filePath starts with './', remove it
+  const parts = filePath.replace(/^\.\//, '').split('/')
   let currentNode: FileSystemTree | FileNode = tree
 
   for (let i = 0; i < parts.length; i++) {
@@ -120,10 +121,10 @@ export function updateFileContentOfFileSystemTree(
         currentNode = (currentNode[part] as DirectoryNode).directory
       } else {
         logWarn(`Path "${filePath}" does not exist.`)
-        return tree // Return the original tree if path is invalid
+        return tree
       }
     }
   }
 
-  return tree // Return the updated tree
+  return tree
 }

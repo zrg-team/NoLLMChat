@@ -1,4 +1,4 @@
-import { AutoTypings, LocalStorageCache } from 'monaco-editor-auto-typings/custom-editor'
+// import { AutoTypings, LocalStorageCache } from 'monaco-editor-auto-typings/custom-editor'
 
 import type * as monaco from 'monaco-editor'
 import type { FileSystemAPI } from '@webcontainer/api'
@@ -7,11 +7,11 @@ import { logWarn } from 'src/utils/logger'
 export type Editor = monaco.editor.IStandaloneCodeEditor
 export type Monaco = typeof monaco
 
-const sourceCache = new LocalStorageCache()
+// const sourceCache = new LocalStorageCache()
 
-export async function initEditor(editor: Editor, monaco: Monaco, fs: FileSystemAPI, path: string) {
+export async function initEditor(editor: Editor, _monaco: Monaco, fs: FileSystemAPI, path: string) {
   // Augment
-  AutoTypings.create(editor, { monaco, sourceCache, fileRootPath: './' })
+  // AutoTypings.create(editor, { monaco, sourceCache, fileRootPath: './' })
   // Load file
   let contents = ''
   try {
@@ -21,6 +21,7 @@ export async function initEditor(editor: Editor, monaco: Monaco, fs: FileSystemA
     // File not found
   }
   editor.setValue(contents)
+  return contents
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

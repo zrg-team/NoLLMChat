@@ -31,14 +31,23 @@ type MainVSLiteContextType = {
   setProcess?: Dispatch<SetStateAction<WebContainerProcess | null>>
   setContainerInfo?: Dispatch<SetStateAction<{ url?: string; port?: number }>>
   clearSession?: () => void
+  onUpdateFileContent: (path: string, content: string) => void
+  ternimalElementRef: React.MutableRefObject<HTMLDivElement | null>
+  previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
 }
 
 const MainVSLiteContext = createContext<MainVSLiteContextType | null>(null)
 
-const MainVSLiteAppProvider = ({
+export const MainVSLiteAppProvider = ({
   children,
   fileSystemTree,
-}: PropsWithChildren & { fileSystemTree?: FileSystemTree }) => {
+  onUpdateFileContent,
+}: PropsWithChildren & {
+  fileSystemTree?: FileSystemTree
+  onUpdateFileContent: (path: string, content: string) => void
+}) => {
+  const previewElementRef = useRef<HTMLIFrameElement>(null)
+  const ternimalElementRef = useRef<HTMLDivElement>(null)
   const [container, setContainer] = useState<WebContainer | null>(null)
   const [terminal, setTerminal] = useState<Terminal | null>(null)
   const [containerInfo, setContainerInfo] = useState<{ url?: string; port?: number }>({
@@ -71,19 +80,20 @@ const MainVSLiteAppProvider = ({
       containerInfo,
       setContainerInfo,
       clearSession,
+      onUpdateFileContent,
+      ternimalElementRef,
+      previewElementRef,
     }),
-    [container, terminal, process, containerInfo],
+    [container, terminal, process, containerInfo, clearSession, onUpdateFileContent],
   )
 
   return <MainVSLiteContext.Provider value={value}>{children}</MainVSLiteContext.Provider>
 }
 
-const useMainVSLiteAppContext = () => {
+export const useMainVSLiteAppContext = () => {
   const context = useContext(MainVSLiteContext)
   if (!context) {
     throw new Error('useMainVSLiteAppContext must be used within a MainVSLiteAppProvider')
   }
   return context
 }
-
-export { MainVSLiteAppProvider, useMainVSLiteAppContext }

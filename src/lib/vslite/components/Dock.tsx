@@ -1,5 +1,5 @@
 import { DockviewReact, GridviewReact, PaneviewReact } from 'dockview'
-import { FunctionComponent, useRef } from 'react'
+import { FunctionComponent, useCallback, useRef, useState } from 'react'
 import { useAppState } from 'src/states/app'
 
 import { Editor } from './Editor'
@@ -19,26 +19,63 @@ import type {
   IDockviewPanelProps,
 } from 'dockview'
 import type { ShellInstance } from '../hooks/useShell'
+import { Preview } from './Preview'
+import { useMainVSLiteAppContext } from '../contexts/main'
+import LoadingButton from 'src/components/atoms/LoadingButton'
+import { useTranslation } from 'react-i18next'
 
 export function Dock() {
+  const { t } = useTranslation('components')
+  const [loading, setLoading] = useState(false)
   const grid = useRef<GridviewApi>()
   const dock = useRef<DockviewApi>()
   const panes = useRef<PaneviewApi>()
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
+  const { container, ternimalElementRef } = useMainVSLiteAppContext()
 
-  useStartup(grid, dock, panes)
+  const { shell } = useStartup(grid, dock, panes)
+  const startShell = useCallback(async () => {
+    const terminalPanel = grid?.current?.getPanel('terminal')?.api
+    if (
+      !dock.current ||
+      !panes.current ||
+      !grid.current ||
+      !ternimalElementRef.current ||
+      !terminalPanel
+    ) {
+      return
+    }
+    setLoading(true)
+    shell.start(
+      ternimalElementRef.current!,
+      terminalPanel,
+      panels.createPreviewOpener(dock.current),
+      () => {
+        setLoading(false)
+      },
+    )
+  }, [dock, panes, grid, shell, ternimalElementRef])
 
   return (
-    <GridviewReact
-      className={isDarkTheme ? 'dockview-theme-dark' : 'dockview-theme-light'}
-      components={gridComponents}
-      proportionalLayout={false}
-      onReady={(event) => {
-        grid.current = event.api
-        panels.openDock(event.api, dock)
-        panels.openPanes(event.api, panes)
-      }}
-    />
+    <>
+      <GridviewReact
+        className={isDarkTheme ? 'dockview-theme-dark' : 'dockview-theme-light'}
+        components={gridComponents}
+        proportionalLayout={false}
+        onReady={(event) => {
+          grid.current = event.api
+          panels.openDock(event.api, dock)
+          panels.openPanes(event.api, panes)
+        }}
+      />
+      {!container ? (
+        <div className="absolute w-full h-full flex justify-center items-center z-40 bg-background top-0 left-0">
+          <LoadingButton onClick={startShell} loading={loading}>
+            {t('vslite.load_app_container')}
+          </LoadingButton>
+        </div>
+      ) : undefined}
+    </>
   )
 }
 
@@ -47,15 +84,7 @@ const dockComponents: Record<string, FunctionComponent<IDockviewPanelProps>> = {
     <Editor fs={props.params.fs} path={props.params.path} />
   ),
   preview: (props: IDockviewPanelProps<{ url: string }>) => {
-    return (
-      <iframe
-        className="w-full h-full"
-        src={props.params.url}
-        allow="cross-origin-isolated"
-        // @ts-expect-error no sure why this is not working
-        credentialless
-      />
-    )
+    return <Preview {...props} />
   },
 }
 
@@ -78,11 +107,7 @@ const gridComponents: Record<string, FunctionComponent<IGridviewPanelProps>> = {
     />
   ),
   terminal: (props: IGridviewPanelProps<{ dock: DockviewApi; shell: ShellInstance }>) => (
-    <Terminal
-      shell={props.params.shell}
-      panelApi={props.api}
-      onServerReady={panels.createPreviewOpener(props.params.dock)}
-    />
+    <Terminal shell={props.params.shell} panelApi={props.api} />
   ),
 }
 
