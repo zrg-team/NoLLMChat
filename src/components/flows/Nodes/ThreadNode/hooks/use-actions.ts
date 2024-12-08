@@ -2,18 +2,20 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
-import { useInternalNode, useReactFlow } from '@xyflow/react'
+import { Node, Connection, useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { toast } from 'src/lib/hooks/use-toast'
 import { useFlowState } from 'src/states/flow'
-import { MessageNodeData } from 'src/components/flows/Nodes/MessageNode/type'
+import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
+import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
 
-import { ThreadNodeData } from '../type'
+import { ThreadNodeProps } from '../type'
+import { DefaultNodeData } from 'src/utils/flow-node'
 
-export const useActions = (id: string, data: ThreadNodeData) => {
+export const useActions = (id: string, data: ThreadNodeProps['data']) => {
   const node = useInternalNode(id)
   const { t } = useTranslation('flows')
-  const { getNode, getHandleConnections } = useReactFlow()
+  const { getNode, getHandleConnections } = useReactFlow<Node<DefaultNodeData>>()
   const updateNodes = useFlowState((state) => state.updateNodes)
   const { createMessage: createMessageFunction, loading } = useCreateMessage({
     getNode,
@@ -21,7 +23,7 @@ export const useActions = (id: string, data: ThreadNodeData) => {
   })
 
   const onMessageUpdate = useCallback(
-    (info: { id?: string; nodeData: Partial<MessageNodeData> }) => {
+    (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => {
       if (!info.id) {
         return
       }
@@ -69,5 +71,68 @@ export const useActions = (id: string, data: ThreadNodeData) => {
     [node, data.entity, createMessageFunction, onMessageUpdate, t],
   )
 
-  return { loading, createMessage }
+  const getLinkedConnections = useCallback(
+    (id: string) => {
+      const currentNode = getNode(id)
+      if (!currentNode) {
+        return []
+      }
+      const linkedConnections: {
+        node: Node<DefaultNodeData>
+        connections: Connection[]
+        connectedNodes?: Node<DefaultNodeData>[]
+      }[] = []
+      const threadConnections = prepareThreadConnections(currentNode as Node<DefaultNodeData>, {
+        getNode,
+        getHandleConnections,
+      })
+      if (threadConnections.thread) {
+        linkedConnections.push({
+          node: threadConnections.thread.node as Node<DefaultNodeData>,
+          connectedNodes: [],
+          connections: threadConnections.thread.connections,
+        })
+      }
+      if (threadConnections.prompts) {
+        linkedConnections.push(
+          ...threadConnections.prompts.map((item) => {
+            return {
+              node: item.node,
+              connectedNodes: item.connectedNodes,
+              connections: item.connections,
+            }
+          }),
+        )
+      }
+      if (threadConnections.schemas) {
+        linkedConnections.push(
+          ...threadConnections.schemas.map((item) => {
+            return {
+              node: item.node,
+              connectedNodes: [],
+              connections: item.connections,
+            }
+          }),
+        )
+      }
+      if (threadConnections.placeholders) {
+        linkedConnections.push(
+          ...threadConnections.placeholders.map((item) => {
+            return {
+              node: item.node,
+              connectedNodes: [],
+              connections: item.connections,
+            }
+          }),
+        )
+      }
+      if (threadConnections.llm) {
+        linkedConnections.push(threadConnections.llm)
+      }
+      return linkedConnections
+    },
+    [getHandleConnections, getNode],
+  )
+
+  return { loading, createMessage, getLinkedConnections }
 }

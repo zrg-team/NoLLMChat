@@ -1,7 +1,4 @@
-import { NodeProps } from '@xyflow/react'
 import { CSVData } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type CSVDataNodeData = { entity: CSVData }
-export type CSVDataNodeProps = Omit<NodeProps, 'data'> & {
-  data: CSVDataNodeData
-}
+export type CSVDataNodeProps = DefaultNodeProps<{ entity: CSVData }>

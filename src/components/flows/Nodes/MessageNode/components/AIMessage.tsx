@@ -7,7 +7,7 @@ import { Badge } from 'src/lib/shadcn/ui/badge'
 import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 import { Button } from 'src/lib/shadcn/ui/button'
 
-import { MessageNodeData } from '../type'
+import { MessageNodeProps } from '../type'
 
 const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
@@ -17,7 +17,7 @@ export function AIMessageComponent({
   loading,
   showThread,
 }: {
-  data: MessageNodeData
+  data: MessageNodeProps['data']
   onNewThread?: () => void
   loading?: boolean
   showThread: boolean

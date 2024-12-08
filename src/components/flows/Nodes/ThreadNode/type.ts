@@ -1,5 +1,4 @@
-import { NodeProps } from '@xyflow/react'
 import { Thread } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type ThreadNodeData = { entity: Thread }
-export type ThreadNodeProps = Omit<NodeProps, 'data'> & { data: ThreadNodeData }
+export type ThreadNodeProps = DefaultNodeProps<{ entity: Thread }>

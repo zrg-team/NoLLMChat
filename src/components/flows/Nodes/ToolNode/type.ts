@@ -1,5 +1,4 @@
-import { NodeProps } from '@xyflow/react'
 import { ToolDefinition } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type ToolNodeData = { entity: ToolDefinition }
-export type ToolNodeProps = Omit<NodeProps, 'data'> & { data: ToolNodeData }
+export type ToolNodeProps = DefaultNodeProps<{ entity: ToolDefinition }>

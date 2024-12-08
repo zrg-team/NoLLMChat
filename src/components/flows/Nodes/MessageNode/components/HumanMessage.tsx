@@ -3,7 +3,7 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 
-import { MessageNodeData } from '../type'
+import { MessageNodeProps } from '../type'
 
 export function HumanMessageComponent({
   data,
@@ -11,7 +11,7 @@ export function HumanMessageComponent({
   loading,
   showThread,
 }: {
-  data: MessageNodeData
+  data: MessageNodeProps['data']
   onNewThread?: () => void
   loading?: boolean
   showThread: boolean

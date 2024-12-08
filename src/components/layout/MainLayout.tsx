@@ -16,6 +16,7 @@ export function MainLayout() {
   const theme = useAppState((state) => state.theme)
   const currentSession = useSessionState((state) => state.currentSession)
   const sessions = useSessionState((state) => state.sessions)
+  const applications = useSessionState((state) => state.applications)
   const setCurrentSession = useSessionState((state) => state.setCurrentSession)
 
   const handleChangeTheme = useCallback(() => {
@@ -26,6 +27,7 @@ export function MainLayout() {
     <SidebarProvider defaultOpen={false}>
       <AppSidebar
         sessions={sessions}
+        applications={applications}
         currentSession={currentSession}
         setCurrentSession={setCurrentSession}
       />

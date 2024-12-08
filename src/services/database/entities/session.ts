@@ -19,7 +19,7 @@ import {
   JSONLData,
   ToolDefinition,
 } from './index'
-import { TABLE_NAMES, type SessionStatusEnum } from '../types'
+import { AppEntityNames, SessionTypeEnum, TABLE_NAMES, type SessionStatusEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Session })
 export class Session {
@@ -32,6 +32,9 @@ export class Session {
   @Column({ type: 'text' })
   status: `${SessionStatusEnum}`
 
+  @Column({ type: 'text', default: SessionTypeEnum.Whiteboard })
+  type: `${SessionTypeEnum}`
+
   @Column({ type: 'text', nullable: true })
   metadata?: string
 
@@ -40,6 +43,15 @@ export class Session {
 
   @UpdateDateColumn()
   updated_at?: Date
+
+  @Column({ type: 'text', nullable: true })
+  main_node_id?: string
+
+  @Column({ type: 'text', nullable: true })
+  main_source_id?: string
+
+  @Column({ type: 'text', nullable: true })
+  main_source_type?: `${AppEntityNames}`
 
   @OneToMany(() => Prompt, (entity: Prompt) => entity.session, { onDelete: 'CASCADE' })
   prompts?: Prompt[]

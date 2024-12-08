@@ -4,7 +4,12 @@
     "something_went_wrong": "Something went wrong",
     "copied": "Copied",
     "deleted": "Deleted",
-    "whiteboard": "Whiteboard"
+    "whiteboard": "Whiteboard",
+    "errors": {
+      "delete_failed": "Delete node failed.",
+      "create_standalone_session_failed": "Failed to create standalone session."
+    },
+    "standalone_session_created": "Standalone session created."
   },
   "errors": {
     "speech_is_not_supported": "Speech is not supported in this browser."
@@ -14,7 +19,11 @@
     "contact": "Contact",
     "sessions": "Sessions",
     "new_session": "New Session",
-    "more_session": "More"
+    "more_session": "More",
+    "applications": "Applications",
+    "application_types": {
+      "chat": "Chat"
+    }
   },
   "documents": {
     "title": "Documents",
