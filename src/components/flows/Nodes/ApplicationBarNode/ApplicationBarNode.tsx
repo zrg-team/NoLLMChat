@@ -39,7 +39,7 @@ const DATA = {
       icon: 'file-code-2' as const,
       label: 'application_bar.code_editor',
     },
-  ]
+  ],
 }
 
 export const ApplicationBarNode = memo((props: NodeProps) => {
