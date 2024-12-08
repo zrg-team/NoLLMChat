@@ -34,11 +34,12 @@ export function useStartup(
   // Open file tree when FS is ready
   useEffect(() => {
     if (initFileTree.current) return
+
     if (shell.container?.fs && panes.current && dock.current) {
       initFileTree.current = true
       panels.openFileTree(shell.container.fs, panes.current, dock.current)
     }
-  }, [shell])
+  }, [shell.container?.fs, panes.current, dock.current])
 
   // PWA launch queue
   useEffect(() => {
@@ -65,4 +66,6 @@ export function useStartup(
     }
     initLaunch.current = true
   }, [monaco, launch, shell])
+
+  return { shell }
 }
