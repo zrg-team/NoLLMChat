@@ -1,7 +1,8 @@
-import { NodeProps } from '@xyflow/react'
 import { Message } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type MessageNodeData = { entity: Message; content: string; loading: boolean }
-export type MessageNodeProps = Omit<NodeProps, 'data'> & {
-  data: MessageNodeData
-}
+export type MessageNodeProps = DefaultNodeProps<{
+  entity: Message
+  content: string
+  loading: boolean
+}>

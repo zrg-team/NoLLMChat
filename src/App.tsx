@@ -30,7 +30,7 @@ const logErrorHook = (error: Error, info: { componentStack?: string | null }) =>
 }
 
 const MainApp = memo(() => {
-  const initSessionState = useSessionState((state) => state.getLatestSessions)
+  const initSessionState = useSessionState((state) => state.init)
   const initLocalLLMState = useLocalLLMState((state) => state.init)
   const initLocalEmbeddingState = useLocalEmbeddingState((state) => state.init)
   const ready = useSessionState((state) => state.ready)

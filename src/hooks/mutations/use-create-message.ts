@@ -2,7 +2,7 @@ import { Node, useReactFlow } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PromptTemplate } from '@langchain/core/prompts'
-import { MessageNodeData } from 'src/components/flows/Nodes/MessageNode/type'
+import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
 import { getRepository } from 'src/services/database'
 import {
   CSVData,
@@ -28,14 +28,18 @@ import { useLocalLLM } from 'src/services/local-llm/hooks/use-llm'
 import { prepareThreadHistory } from 'src/utils/build-message-history'
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
+import { DefaultNodeData } from 'src/utils/flow-node'
 
 type CreateMessageOption = {
-  onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeData> }) => void
+  onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
 }
 export const useCreateMessage = ({
   getNode,
   getHandleConnections,
-}: Pick<ReturnType<typeof useReactFlow>, 'getNode' | 'getHandleConnections'>) => {
+}: Pick<
+  ReturnType<typeof useReactFlow<Node<DefaultNodeData>>>,
+  'getNode' | 'getHandleConnections'
+>) => {
   const { t } = useTranslation('create_new_message')
   const [loading, setLoading] = useState(false)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)

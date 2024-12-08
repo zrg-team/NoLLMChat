@@ -1,5 +1,4 @@
-import { NodeProps } from '@xyflow/react'
 import { Schema } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type SchemaNodeData = { entity: Schema; loaded?: boolean }
-export type SchemaNodeProps = Omit<NodeProps, 'data'> & { data: SchemaNodeData }
+export type SchemaNodeProps = DefaultNodeProps<{ entity: Schema; loaded?: boolean }>

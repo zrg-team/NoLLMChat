@@ -31,7 +31,7 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
     type: 'target',
   })
   const { getNode } = useReactFlow()
-  const { loading, createMessage } = useActions(id, data)
+  const { loading, createMessage, getLinkedConnections } = useActions(id, data)
 
   useConnectionToHandler(id)
 
@@ -121,7 +121,7 @@ export const ThreadNode = memo((props: ThreadNodeProps) => {
     <div>
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div>
-        <NodeHeader id={id} />
+        <NodeHeader id={id} enableToStandalone getLinkedConnections={getLinkedConnections} />
         {inner}
         {showThread ? (
           <>

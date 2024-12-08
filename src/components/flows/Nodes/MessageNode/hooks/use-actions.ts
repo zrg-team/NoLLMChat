@@ -3,25 +3,25 @@ import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'src/lib/hooks/use-toast'
-import { useInternalNode, useReactFlow } from '@xyflow/react'
+import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
 import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
 import { useFlowState } from 'src/states/flow'
 
-import { MessageNodeData } from '../type'
+import { MessageNodeProps } from '../type'
 
 export const useActions = (id: string) => {
   const { t } = useTranslation('flows')
   const node = useInternalNode(id)
 
   const updateNodes = useFlowState((state) => state.updateNodes)
-  const { getNode, getHandleConnections } = useReactFlow()
+  const { getNode, getHandleConnections } = useReactFlow<Node<MessageNodeProps['data']>>()
   const { createMessage: createMessageFunction, loading } = useCreateMessage({
     getNode,
     getHandleConnections,
   })
 
   const onMessageUpdate = useCallback(
-    (info: { id?: string; nodeData: Partial<MessageNodeData> }) => {
+    (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => {
       if (!info.id) {
         return
       }

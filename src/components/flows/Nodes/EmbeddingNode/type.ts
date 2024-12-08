@@ -1,4 +1,3 @@
-import { NodeProps } from '@xyflow/react'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type EmbeddingNodeData = { model: string }
-export type EmbeddingNodeProps = Omit<NodeProps, 'data'> & { data: EmbeddingNodeData }
+export type EmbeddingNodeProps = DefaultNodeProps<{ model: string }>

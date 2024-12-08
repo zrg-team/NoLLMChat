@@ -11,28 +11,22 @@ import {
 } from 'src/lib/shadcn/ui/sidebar'
 import { Session } from 'src/services/database/types'
 import { SessionStateActions } from 'src/states/session/actions'
-import NewSessionButton from 'src/components/layout/AppSidebar/NewSessionButton'
-import CreateSessionDialog from 'src/components/molecules/dialogs/CreateSessionDialog'
 import DeleteSessionDialog from 'src/components/molecules/dialogs/DeleteSessionDialog'
+import { Badge } from 'src/lib/shadcn/ui/badge'
 
-export function NavSessions({
-  sessions,
+export function NavStandaloneApp({
+  applications,
   currentSession,
   setCurrentSession,
 }: {
-  sessions: Session[]
+  applications: Session[]
   currentSession?: {
     id: string
   }
   setCurrentSession: SessionStateActions['setCurrentSession']
 }) {
   const { t } = useTranslation('sidebar')
-  const createSessionDialog = useModal(CreateSessionDialog)
   const deleteSessionDialog = useModal(DeleteSessionDialog)
-
-  const handleNewSession = useCallback(() => {
-    createSessionDialog.show({})
-  }, [createSessionDialog])
 
   const handleDeleteSession = useCallback(
     (e: React.MouseEvent<SVGSVGElement>, id: string) => {
@@ -46,17 +40,22 @@ export function NavSessions({
   const handleSetCurrentSession = (session: Session) => {
     setCurrentSession(session)
   }
+  const renderBadge = (session: Session) => {
+    switch (session.main_source_type) {
+      case 'Thread':
+        return <Badge color="blue">{t('application_types.chat')}</Badge>
+      default:
+        return null
+    }
+  }
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden pt-0">
       <SidebarGroupLabel>
-        <div className="text-sm">{t('sessions')}</div>
+        <div className="text-sm">{t('applications')}</div>
       </SidebarGroupLabel>
       <SidebarMenu>
-        <SidebarMenuItem>
-          <NewSessionButton onClick={handleNewSession} className="w-full" />
-        </SidebarMenuItem>
-        {sessions.map((item) => (
+        {applications?.map((item) => (
           <SidebarMenuItem className="cursor-pointer" key={item.id}>
             <SidebarMenuButton asChild onClick={() => handleSetCurrentSession(item)}>
               <div className="flex flex-row justify-between items-center">
@@ -67,6 +66,7 @@ export function NavSessions({
                     <LazyIcon size={16} name="chevron-right" />
                   )}
                   <span>{item.name}</span>
+                  {renderBadge(item)}
                 </div>
                 <LazyIcon
                   onClick={(e) => handleDeleteSession(e, item.id)}
@@ -77,7 +77,7 @@ export function NavSessions({
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
-        {sessions?.length ? (
+        {applications ? (
           <SidebarMenuItem>
             <SidebarMenuButton className="text-sidebar-foreground/70">
               <LazyIcon name="ellipsis" className="text-sidebar-foreground/70" />

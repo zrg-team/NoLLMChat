@@ -10,9 +10,9 @@ import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { logWarn } from 'src/utils/logger'
 
-import { LLMNodeData } from '../type'
+import { LLMNodeProps } from '../type'
 
-export const useActions = (id: string, data: LLMNodeData) => {
+export const useActions = (id: string, data: LLMNodeProps['data']) => {
   const { t } = useTranslation('flows')
   const { toast } = useToast()
   const [loadingModel, setLoadingModel] = useState(false)

@@ -1,5 +1,4 @@
-import { NodeProps } from '@xyflow/react'
 import { FlowNodePlaceholder } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type PlaceholderNodeData = { entity: FlowNodePlaceholder }
-export type PlaceholderNodeProps = Omit<NodeProps, 'data'> & { data: PlaceholderNodeData }
+export type PlaceholderNodeProps = DefaultNodeProps<{ entity: FlowNodePlaceholder }>

@@ -1,35 +1,93 @@
 import { memo, useCallback } from 'react'
+import { Node, Connection, useReactFlow } from '@xyflow/react'
 import { useTranslation } from 'react-i18next'
 import LazyIcon from 'src/components/atoms/LazyIcon'
+import LoadingButton from 'src/components/atoms/LoadingButton'
+import { useCreateStandaloneSession } from 'src/hooks/mutations/use-create-standalone-session'
+import { useDeleteNodeFlow } from 'src/hooks/mutations/use-delete-node-flow'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { cn } from 'src/lib/utils'
-import { getRepository } from 'src/services/database'
-import { useFlowState } from 'src/states/flow'
+import { DefaultNodeData, DefaultNodeProps } from 'src/utils/flow-node'
+import { EntityType } from 'src/utils/orm-type'
+import { logError } from 'src/utils/logger'
 
-export const NodeHeader = memo(({ id, className }: { id: string; className?: string }) => {
-  const { t } = useTranslation('common')
-  const updateNode = useFlowState((state) => state.updateNodes)
-  const updateEdges = useFlowState((state) => state.updateEdges)
-  const { toast } = useToast()
+export const NodeHeader = memo(
+  ({
+    id,
+    className,
+    enableToStandalone,
+    getLinkedConnections,
+  }: {
+    id: string
+    className?: string
+    enableToStandalone?: boolean
+    getLinkedConnections?: (id: string) => {
+      node: Node<DefaultNodeProps<{ entity: EntityType<unknown> }>['data']>
+      connections: Connection[]
+      connectedNodes?: Node<DefaultNodeProps<{ entity: EntityType<unknown> }>['data']>[]
+    }[]
+  }) => {
+    const { t } = useTranslation('common')
+    const { getNode } = useReactFlow<Node<DefaultNodeData>>()
+    const { loading: deleting, deleteNodeFlow } = useDeleteNodeFlow()
+    const { createStandaloneSession } = useCreateStandaloneSession()
+    const { toast } = useToast()
 
-  const handleDelete = useCallback(async () => {
-    await getRepository('FlowNode').delete(id)
-    const edges = await getRepository('FlowEdge').find({
-      where: [{ source: id }, { target: id }],
-    })
-    await Promise.all(edges.map((edge) => getRepository('FlowEdge').delete(edge.id)))
-    await updateNode([{ id, type: 'remove' as const }])
-    await updateEdges(edges.map((edge) => ({ id: edge.id, type: 'remove' as const })))
-    toast({
-      description: t('deleted'),
-    })
-  }, [id, updateNode, updateEdges, toast, t])
-  return (
-    <div className={cn('absolute z-10 right-0 top-0 w-10 h-10', className)}>
-      <Button className="!rounded-none !px-2" onClick={handleDelete} variant="ghost">
-        <LazyIcon name="trash-2" size={16} />
-      </Button>
-    </div>
-  )
-})
+    const handleDelete = useCallback(async () => {
+      try {
+        await deleteNodeFlow(id)
+        toast({
+          description: t('deleted'),
+        })
+      } catch {
+        toast({
+          description: t('errors.delete_failed'),
+          variant: 'destructive',
+        })
+      }
+    }, [deleteNodeFlow, id, toast, t])
+
+    const handleToStandaloneSession = useCallback(async () => {
+      try {
+        const currentNode = getNode(id)
+        if (!currentNode) {
+          throw new Error('No current node')
+        }
+        const connections = getLinkedConnections?.(id) || []
+        await createStandaloneSession(currentNode, { connections })
+        toast({
+          description: t('standalone_session_created'),
+        })
+      } catch (error) {
+        logError(error)
+        toast({
+          description: t('errors.create_standalone_session_failed'),
+          variant: 'destructive',
+        })
+      }
+    }, [getNode, id, getLinkedConnections, createStandaloneSession, toast, t])
+
+    return (
+      <div className={cn('flex absolute z-[51] right-0 top-0 h-10', className)}>
+        {enableToStandalone ? (
+          <Button
+            className="!rounded-none !px-2"
+            onClick={handleToStandaloneSession}
+            variant="ghost"
+          >
+            <LazyIcon name="package-plus" size={16} />
+          </Button>
+        ) : undefined}
+        <LoadingButton
+          loading={deleting}
+          className="!rounded-none !px-2"
+          onClick={handleDelete}
+          variant="ghost"
+        >
+          <LazyIcon name="trash-2" size={16} />
+        </LoadingButton>
+      </div>
+    )
+  },
+)

@@ -1,4 +1,4 @@
-import type { Thread } from '../entities/thread'
+import { Thread } from '../entities/thread'
 import type { Message } from '../entities/message'
 import type { LLM } from '../entities/llm'
 import type { FlowNode } from '../entities/flow-node'
@@ -15,6 +15,7 @@ import type { VectorDatabase } from '../entities/vector-database'
 import type { JSONLData } from '../entities/jsonl-data'
 import type { FlowNodeData } from '../entities/flow-node-data'
 import type { FlowNodePlaceholder } from '../entities/flow-node-placeholder'
+import { FlowNodeTypeEnum } from './flow-node'
 
 export type EntityTypesMap = {
   Thread: Thread
@@ -97,3 +98,29 @@ export * from './schema'
 export * from './tool-definition'
 export * from './vector-database'
 export * from './flow-node-placeholder'
+
+export const flowNodeTypeToEntity: Record<FlowNodeTypeEnum, AppEntityNames | undefined> = {
+  [FlowNodeTypeEnum.Toolbox]: undefined,
+  [FlowNodeTypeEnum.SessionInfo]: undefined,
+  [FlowNodeTypeEnum.DefaultEmbeddingModel]: undefined,
+  [FlowNodeTypeEnum.ApplicationBar]: undefined,
+  [FlowNodeTypeEnum.Shape]: undefined,
+  [FlowNodeTypeEnum.CircleShape]: undefined,
+  [FlowNodeTypeEnum.TriangleShape]: undefined,
+  [FlowNodeTypeEnum.EditorApp]: undefined,
+  [FlowNodeTypeEnum.CodeContainerApp]: undefined,
+  [FlowNodeTypeEnum.VSLiteApp]: undefined,
+  [FlowNodeTypeEnum.NewMessage]: undefined,
+  [FlowNodeTypeEnum.ToolHandler]: undefined,
+  [FlowNodeTypeEnum.FewShotExample]: undefined,
+  [FlowNodeTypeEnum.LLM]: 'LLM',
+  [FlowNodeTypeEnum.Thread]: 'Thread',
+  [FlowNodeTypeEnum.Message]: 'Message',
+  [FlowNodeTypeEnum.Prompt]: 'Prompt',
+  [FlowNodeTypeEnum.Schema]: 'Schema',
+  [FlowNodeTypeEnum.CSVData]: 'CSVData',
+  [FlowNodeTypeEnum.ToolDefinition]: 'ToolDefinition',
+  [FlowNodeTypeEnum.VectorDatabase]: 'VectorDatabase',
+  [FlowNodeTypeEnum.JSONLData]: 'JSONLData',
+  [FlowNodeTypeEnum.PlaceHolder]: 'FlowNodePlaceholder',
+}

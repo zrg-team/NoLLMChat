@@ -1,5 +1,4 @@
-import { NodeProps } from '@xyflow/react'
 import { Prompt } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type PromptNodeData = { entity: Prompt }
-export type PromptNodeProps = Omit<NodeProps, 'data'> & { data: PromptNodeData }
+export type PromptNodeProps = DefaultNodeProps<{ entity: Prompt }>

@@ -4,3 +4,8 @@ export enum SessionStatusEnum {
   Achieved = 'Achieved',
   Deleted = 'deleted',
 }
+
+export enum SessionTypeEnum {
+  Whiteboard = 'Whiteboard',
+  StandaloneApp = 'StandaloneApp',
+}

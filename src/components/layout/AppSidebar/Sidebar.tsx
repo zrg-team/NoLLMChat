@@ -7,6 +7,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from 'src/lib/sha
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { SessionStateActions } from 'src/states/session/actions'
 import { Session } from 'src/services/database/types'
+import { NavStandaloneApp } from './NavStandaloneApp'
 
 const data = {
   navMain: [
@@ -77,11 +78,13 @@ const data = {
 
 export function AppSidebar({
   sessions,
+  applications,
   currentSession,
   setCurrentSession,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   sessions?: Session[]
+  applications?: Session[]
   currentSession?: {
     id: string
   }
@@ -93,6 +96,11 @@ export function AppSidebar({
       <SidebarContent>
         <NavSessions
           sessions={sessions || []}
+          currentSession={currentSession}
+          setCurrentSession={setCurrentSession}
+        />
+        <NavStandaloneApp
+          applications={applications || []}
           currentSession={currentSession}
           setCurrentSession={setCurrentSession}
         />

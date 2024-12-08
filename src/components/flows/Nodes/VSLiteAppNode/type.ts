@@ -1,7 +1,3 @@
-import { NodeProps } from '@xyflow/react'
-import { FlowNode } from 'src/services/database/types'
+import { DefaultNodeProps } from 'src/utils/flow-node'
 
-export type EditorAppNodeData = { flowNode: FlowNode }
-export type EditorAppNodeProps = Omit<NodeProps, 'data'> & {
-  data: EditorAppNodeData
-}
+export type EditorAppNodeProps = DefaultNodeProps<unknown>
