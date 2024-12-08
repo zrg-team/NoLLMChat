@@ -34,6 +34,8 @@ type MainVSLiteContextType = {
   onUpdateFileContent: (path: string, content: string) => void
   ternimalElementRef: React.MutableRefObject<HTMLDivElement | null>
   previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
+  setLayoutReady?: Dispatch<SetStateAction<boolean>>
+  layoutReady?: boolean
 }
 
 const MainVSLiteContext = createContext<MainVSLiteContextType | null>(null)
@@ -46,6 +48,7 @@ export const MainVSLiteAppProvider = ({
   fileSystemTree?: FileSystemTree
   onUpdateFileContent: (path: string, content: string) => void
 }) => {
+  const [layoutReady, setLayoutReady] = useState(false)
   const previewElementRef = useRef<HTMLIFrameElement>(null)
   const ternimalElementRef = useRef<HTMLDivElement>(null)
   const [container, setContainer] = useState<WebContainer | null>(null)
@@ -83,8 +86,10 @@ export const MainVSLiteAppProvider = ({
       onUpdateFileContent,
       ternimalElementRef,
       previewElementRef,
+      layoutReady,
+      setLayoutReady,
     }),
-    [container, terminal, process, containerInfo, clearSession, onUpdateFileContent],
+    [container, terminal, process, containerInfo, clearSession, onUpdateFileContent, layoutReady],
   )
 
   return <MainVSLiteContext.Provider value={value}>{children}</MainVSLiteContext.Provider>

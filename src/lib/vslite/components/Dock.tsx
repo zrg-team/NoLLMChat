@@ -31,9 +31,9 @@ export function Dock() {
   const dock = useRef<DockviewApi>()
   const panes = useRef<PaneviewApi>()
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
-  const { container, ternimalElementRef } = useMainVSLiteAppContext()
+  const { container, ternimalElementRef, layoutReady, setLayoutReady } = useMainVSLiteAppContext()
 
-  const { shell } = useStartup(grid, dock, panes)
+  const { shell } = useStartup(layoutReady, grid, dock, panes)
   const startShell = useCallback(async () => {
     const terminalPanel = grid?.current?.getPanel('terminal')?.api
     if (
@@ -66,6 +66,7 @@ export function Dock() {
           grid.current = event.api
           panels.openDock(event.api, dock)
           panels.openPanes(event.api, panes)
+          setLayoutReady?.(true)
         }}
       />
       {!container ? (
