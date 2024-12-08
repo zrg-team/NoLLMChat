@@ -19,11 +19,6 @@ const DATA = {
       label: 'application_bar.note',
     },
     {
-      key: FlowNodeTypeEnum.CodeContainerApp,
-      icon: 'file-code-2' as const,
-      label: 'application_bar.code_editor',
-    },
-    {
       key: FlowNodeTypeEnum.VSLiteApp,
       icon: 'square-terminal' as const,
       label: 'application_bar.vslite',
@@ -38,6 +33,13 @@ const DATA = {
       label: 'application_bar.triangle',
     },
   ],
+  old: [
+    {
+      key: FlowNodeTypeEnum.CodeContainerApp,
+      icon: 'file-code-2' as const,
+      label: 'application_bar.code_editor',
+    },
+  ]
 }
 
 export const ApplicationBarNode = memo((props: NodeProps) => {
@@ -74,6 +76,19 @@ export const ApplicationBarNode = memo((props: NodeProps) => {
         ))}
         <Separator orientation="vertical" className="h-full" />
         {DATA.shapes.map((item) => (
+          <DockIcon key={item.label}>
+            <Tooltip>
+              <TooltipTrigger>
+                <LazyIcon onClick={() => handleAddNode(item.key)} name={item.icon} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t(item.label)}</p>
+              </TooltipContent>
+            </Tooltip>
+          </DockIcon>
+        ))}
+        <Separator orientation="vertical" className="h-full" />
+        {DATA.old.map((item) => (
           <DockIcon key={item.label}>
             <Tooltip>
               <TooltipTrigger>

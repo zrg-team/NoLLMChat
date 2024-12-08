@@ -10,6 +10,7 @@ import type { MutableRefObject } from 'react'
 import type { DockviewApi, GridviewApi, PaneviewApi } from 'dockview'
 
 export function useStartup(
+  layoutReady: boolean | undefined,
   grid: MutableRefObject<GridviewApi | undefined>,
   dock: MutableRefObject<DockviewApi | undefined>,
   panes: MutableRefObject<PaneviewApi | undefined>,
@@ -24,12 +25,13 @@ export function useStartup(
 
   // Open terminal when shell is ready
   useEffect(() => {
-    if (initTerm.current) return
-    if (shell && grid.current && dock.current) {
+    if (initTerm.current || !layoutReady) return
+
+    if (grid.current && dock.current) {
       initTerm.current = true
       panels.openTerminal(shell, grid.current, dock.current)
     }
-  }, [shell])
+  }, [layoutReady, shell])
 
   // Open file tree when FS is ready
   useEffect(() => {

@@ -16,11 +16,9 @@ export function Terminal(_props: TerminalProps) {
   usePreventPitchZoom(ternimalElementRef)
 
   return (
-    <>
-      <div
-        ref={ternimalElementRef}
-        className="w-full h-full vslite-xterm-wrapper nodrag nowheel"
-      ></div>
-    </>
+    <div
+      ref={ternimalElementRef}
+      className="w-full h-full vslite-xterm-wrapper nodrag nowheel"
+    ></div>
   )
 }
