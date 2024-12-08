@@ -13,6 +13,8 @@ The project aims to transform AI interaction by developing a platform that impro
 
 ![Intro Image](./public/intro.jpeg)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b4cb4550-ecf6-4470-8998-7b0ab2852b44/deploy-status)](https://app.netlify.com/sites/nollm/deploys)
+
 ![Demo](./public/demo.gif)
 
 ## Vision
