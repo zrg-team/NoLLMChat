@@ -11,7 +11,6 @@ export const VSLiteApp = memo(
     fileSystemTree?: FileSystemTree
     onUpdateFileContent: (path: string, content: string) => void
   }) => {
-    console.log('fileSystemTree', fileSystemTree)
     return (
       <MainVSLiteAppProvider
         fileSystemTree={fileSystemTree}

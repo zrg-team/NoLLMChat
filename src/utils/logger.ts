@@ -10,19 +10,15 @@ export const logInfo = (...args: unknown[]) =>
   isDev ? log(chalk.blueBright(stringify(...args))) : undefined
 
 export const logError = (...args: unknown[]) => {
-  if (isDev) {
-    log(chalk.redBright('ERROR:'))
-    console.error(...args)
-    log(chalk.redBright('-'.repeat(10)))
-  }
+  log(chalk.redBright('ERROR:'))
+  console.error(...args)
+  log(chalk.redBright('-'.repeat(10)))
 }
 
 export const logWarn = (...args: unknown[]) => {
-  if (isDev) {
-    log(chalk.yellowBright('WARN:'))
-    console.warn(...args)
-    log(chalk.yellowBright('-'.repeat(10)))
-  }
+  log(chalk.yellowBright('WARN:'))
+  console.warn(...args)
+  log(chalk.yellowBright('-'.repeat(10)))
 }
 
 export const logDebug = (...args: unknown[]) =>
