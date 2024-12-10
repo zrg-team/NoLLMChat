@@ -23,11 +23,12 @@ import { CopyIcon, RefreshCcw, Volume2 } from 'lucide-react'
 import { Message, useChat } from 'ai/react'
 import AIInput from 'src/lib/kokonutui/ai-input'
 import { LLMStatusEnum } from 'src/services/database/types'
+import textToSpeech from 'src/utils/text-to-speech'
+import MessageLoading from 'src/lib/shadcn/chat/message-loading'
+import { SidebarInset, SidebarProvider } from 'src/lib/shadcn/ui/sidebar'
 
 import { useChatApplicationData } from './hooks/use-chat-application-data'
 import { useSendMessage } from './hooks/use-send-message'
-import MessageLoading from 'src/lib/shadcn/chat/message-loading'
-import { SidebarInset, SidebarProvider } from 'src/lib/shadcn/ui/sidebar'
 import { ChatPanel } from './components/ChatPanel'
 
 const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
@@ -154,6 +155,13 @@ const ChatApplication = memo(() => {
       const message = messages[messageIndex]
       if (message && message.role === 'assistant') {
         navigator.clipboard.writeText(message.content)
+      }
+    }
+
+    if (action === 'Volume') {
+      const message = messages[messageIndex]
+      if (message?.content) {
+        await textToSpeech.speak(message?.content || '')
       }
     }
   }
