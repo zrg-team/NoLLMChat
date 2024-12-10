@@ -6,7 +6,7 @@ The project aims to revolutionize AI interaction by creating a platform that enh
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/b4cb4550-ecf6-4470-8998-7b0ab2852b44/deploy-status)](https://app.netlify.com/sites/nollm/deploys)
 <p align="center">
-    <a href="https://nollm.netlify.app/">✨✨✨ DEMO ✨✨✨</a>
+    <a href="https://nollm.netlify.app/NoLLMChat">✨✨✨ DEMO ✨✨✨</a>
 </p>
 <p align="center">
     [■■■□□□□□□□] 25%
