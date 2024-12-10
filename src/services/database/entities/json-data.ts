@@ -23,7 +23,7 @@ export class JSONData {
   json: string
 
   @Column({ type: 'jsonb', nullable: true })
-  data: unknown
+  data?: unknown
 
   @Column({ type: 'text', nullable: true })
   metadata?: string

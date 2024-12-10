@@ -23,7 +23,7 @@ export class JSONLData {
   jsonl: string
 
   @Column({ type: 'jsonb', nullable: true })
-  data: Record<string, unknown> | Record<string, unknown>[]
+  data?: Record<string, unknown> | Record<string, unknown>[]
 
   @Column({ type: 'text', nullable: true })
   metadata?: string
