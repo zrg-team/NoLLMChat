@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppSidebar } from 'src/components/layout/AppSidebar/Sidebar'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from 'src/lib/shadcn/ui//sidebar'
 import { Label } from 'src/lib/shadcn/ui/label'
@@ -9,15 +9,53 @@ import { useSessionState } from 'src/states/session'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useAppState } from 'src/states/app'
+import { getRouteURL } from 'src/utils/routes'
 
 export function MainLayout() {
   const { t } = useTranslation('common')
+  const params = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const setTheme = useAppState((state) => state.setTheme)
   const theme = useAppState((state) => state.theme)
   const currentSession = useSessionState((state) => state.currentSession)
   const sessions = useSessionState((state) => state.sessions)
   const applications = useSessionState((state) => state.applications)
   const setCurrentSession = useSessionState((state) => state.setCurrentSession)
+
+  useEffect(() => {
+    if (!currentSession?.id) {
+      return
+    }
+
+    switch (location.pathname) {
+      case getRouteURL('whiteboard'):
+        if (!params.sessionId) {
+          navigate(getRouteURL('whiteboard', { sessionId: currentSession?.id }))
+        } else if (params.sessionId && params.sessionId !== currentSession?.id) {
+          setCurrentSession(params.sessionId)
+        }
+        break
+      case getRouteURL('application'):
+        if (!params.applicationId) {
+          navigate(getRouteURL('application', { applicationId: currentSession?.id }))
+        } else if (params.applicationId && params.applicationId !== currentSession?.id) {
+          setCurrentSession(params.applicationId)
+        }
+        break
+    }
+  }, [
+    currentSession?.id,
+    location.pathname,
+    navigate,
+    params.applicationId,
+    params.sessionId,
+    setCurrentSession,
+  ])
+
+  useEffect(() => {
+    setCurrentSession(params.sessionId || params.applicationId)
+  }, [params.applicationId, params.sessionId, setCurrentSession])
 
   const handleChangeTheme = useCallback(() => {
     setTheme(theme === 'dark' ? 'light' : 'dark')

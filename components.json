@@ -7,14 +7,6 @@
   "iconLibrary": "lucide",
   "rsc": false,
   "style": "default",
-  "registries": {
-    "plate": {
-      "aliases": {
-        "ui": "src/lib/plate-ui"
-      },
-      "url": "https://platejs.org/r"
-    }
-  },
   "tailwind": {
     "baseColor": "neutral",
     "config": "tailwind.config.js",

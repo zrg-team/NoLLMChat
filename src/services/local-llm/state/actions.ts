@@ -19,7 +19,10 @@ export interface LocalLLMStateActions {
   setInitializing: (initializing: Partial<LocalLLMState['initializing']>) => void
   setSelectedModel: (selectedModel: string) => void
   setInitProgressCallback: (callback: (initProgress: InitProgressReport) => void) => () => void
-  loadModel: (modelName: string) => Promise<void>
+  loadModel: (
+    modelName: string,
+    callback?: (initProgress: InitProgressReport) => void,
+  ) => Promise<void>
   invoke: (...args: Parameters<ChatWebLLM['invoke']>) => ReturnType<ChatWebLLM['invoke']>
   stream: (
     ...args: Parameters<ChatWebLLM['stream']>
@@ -126,7 +129,7 @@ export const getLocalLLMStateActions = (
           return urls
         })
     },
-    loadModel: async (modelName: string) => {
+    loadModel: async (modelName, callback) => {
       let currentLoadModelMessageId = get().currentLoadModelMessageId
       const initProgressCallbacks = get().initProgressCallbacks
       const initializing = get().initializing
@@ -158,6 +161,7 @@ export const getLocalLLMStateActions = (
       for await (const data of generator) {
         if (data) {
           initProgressCallbacks.forEach((callback) => callback(data as InitProgressReport))
+          callback?.(data as InitProgressReport)
         }
       }
       setTimeout(() => {

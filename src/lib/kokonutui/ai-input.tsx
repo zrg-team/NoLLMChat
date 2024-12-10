@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { ChangeEvent, KeyboardEvent, useState, MouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from 'src/lib/utils'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
@@ -17,38 +17,54 @@ export default function AIInput({
   enableTool,
   enableFile,
   placeholder,
+  minHeight,
+  maxHeight,
+  className,
+  onChange,
+  value,
 }: {
+  className?: string
+  value?: string
   disabled?: boolean
   placeholder?: string
   enableTool?: boolean
   enableFile?: boolean
-  onSubmit: (input: string, selectedItem?: string[]) => Promise<boolean>
+  minHeight?: number
+  maxHeight?: number
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  onSubmit: (
+    input: string,
+    e: KeyboardEvent<HTMLTextAreaElement> | MouseEvent<HTMLButtonElement>,
+    selectedItem?: string[],
+  ) => Promise<boolean>
 }) {
   const [loading, setLoading] = useState(false)
-  const [value, setValue] = useState('')
+  const [innerValue, setInnerValue] = useState(value || '')
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
-    minHeight: MIN_HEIGHT,
-    maxHeight: MAX_HEIGHT,
+    minHeight: minHeight || MIN_HEIGHT,
+    maxHeight: maxHeight || MAX_HEIGHT,
   })
   const [showSearch, setShowSearch] = useState(true)
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (
+    e: KeyboardEvent<HTMLTextAreaElement> | MouseEvent<HTMLButtonElement>,
+  ) => {
     try {
       setLoading(true)
-      await onSubmit(value)
+      await onSubmit(innerValue, e)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="w-full py-4">
-      <div className="relative max-w-xl w-full mx-auto">
+    <div className={cn('w-full py-4 max-w-xl', className)}>
+      <div className="relative w-full mx-auto">
         <div className="relative flex flex-col">
-          <div className="overflow-y-auto" style={{ maxHeight: `${MAX_HEIGHT}px` }}>
+          <div className="overflow-y-auto" style={{ maxHeight: `${maxHeight || MAX_HEIGHT}px` }}>
             <Textarea
               id="ai-input-04"
-              value={value}
+              value={value || innerValue}
               disabled={disabled || loading}
               placeholder={placeholder}
               className="w-full rounded-xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white placeholder:text-black/70 dark:placeholder:text-white/70 resize-none focus-visible:ring-0 leading-[1.2]"
@@ -56,12 +72,13 @@ export default function AIInput({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  handleSubmit()
+                  handleSubmit(e)
                 }
               }}
               onChange={(e) => {
-                setValue(e.target.value)
+                setInnerValue(e.target.value)
                 adjustHeight()
+                onChange?.(e)
               }}
             />
           </div>
@@ -141,7 +158,9 @@ export default function AIInput({
               <button
                 type="button"
                 disabled={disabled || loading}
-                onClick={handleSubmit}
+                onClick={(e) => {
+                  handleSubmit(e)
+                }}
                 className={cn(
                   'rounded-lg p-2',
                   value

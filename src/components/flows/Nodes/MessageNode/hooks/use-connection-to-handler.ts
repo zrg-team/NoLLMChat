@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { Node } from '@xyflow/react'
 import { FlowNodeTypeEnum, Message, Prompt, ThreadStatusEnum } from 'src/services/database/types'
 
-import { useCreateIdieMessage } from 'src/hooks/mutations/use-create-idie-message'
+import { useCreateIdieMessage } from 'src/hooks/flows/use-create-idie-message'
 import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connection-to-handler'
 
 export const useConnectionToHandler = (id: string) => {

@@ -22,6 +22,9 @@ export class JSONLData {
   @Column({ type: 'text' })
   jsonl: string
 
+  @Column({ type: 'jsonb', nullable: true })
+  data: Record<string, unknown> | Record<string, unknown>[]
+
   @Column({ type: 'text', nullable: true })
   metadata?: string
 

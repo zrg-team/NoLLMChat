@@ -1,6 +1,8 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModal } from '@ebay/nice-modal-react'
+import { useNavigate } from 'react-router-dom'
+import { getRouteURL } from 'src/utils/routes'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import {
   SidebarGroup,
@@ -26,6 +28,7 @@ export function NavStandaloneApp({
   setCurrentSession: SessionStateActions['setCurrentSession']
 }) {
   const { t } = useTranslation('sidebar')
+  const navigate = useNavigate()
   const deleteSessionDialog = useModal(DeleteSessionDialog)
 
   const handleDeleteSession = useCallback(
@@ -39,6 +42,7 @@ export function NavStandaloneApp({
   )
   const handleSetCurrentSession = (session: Session) => {
     setCurrentSession(session)
+    navigate(getRouteURL('application', { applicationId: session.id }))
   }
   const renderBadge = (session: Session) => {
     switch (session.main_source_type) {

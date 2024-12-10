@@ -6,7 +6,7 @@ import { Label } from 'src/lib/shadcn/ui/label'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { useCreateTool } from 'src/hooks/mutations/use-create-tool'
+import { useCreateTool } from 'src/hooks/flows/use-create-tool'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { logWarn } from 'src/utils/logger'
 

@@ -4,7 +4,7 @@ import isUndefined from 'lodash/isUndefined'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'src/lib/hooks/use-toast'
 import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
-import { useCreateMessage } from 'src/hooks/mutations/use-create-message'
+import { useCreateMessage } from 'src/hooks/flows/use-create-message'
 import { useFlowState } from 'src/states/flow'
 
 import { MessageNodeProps } from '../type'

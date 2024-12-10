@@ -72,6 +72,36 @@ export interface FlowStateActions {
   getNodes: (nodeIds: string[]) => Node[]
 }
 
+export const findFlowNodesWithSource = async (query: FindManyOptions<FlowNode>) => {
+  const flowNodes = await getRepository('FlowNode').find(query)
+  const entityGroups = flowNodes.reduce(
+    (all: Partial<Record<`${AppEntityNames}`, FlowNode[]>>, node) => {
+      if (!all[node.source_type]) {
+        all[node.source_type] = []
+      }
+      all[node.source_type]?.push(node)
+      return all
+    },
+    {},
+  )
+  const flowNodeDatas: Partial<Record<`${AppEntityNames}`, EntityArrayTypes>> = {}
+  await Promise.all(
+    Object.entries(entityGroups).map(async ([key, groupNodes]) => {
+      const entityName = key as AppEntityNames
+      flowNodeDatas[entityName] = (await getRepository(entityName).find({
+        where: {
+          id: In(groupNodes.map((node) => node.source_id)),
+        },
+      })) as EntityArrayTypes
+    }),
+  )
+  return {
+    flowNodes,
+    entityGroups,
+    flowNodeDatas,
+  }
+}
+
 export const getFlowStateActions = (
   set: SetState<FlowState>,
   get: GetState<FlowState>,
@@ -167,28 +197,7 @@ export const getFlowStateActions = (
     findFlowNodesWithSource: async (query, option) => {
       try {
         set({ flowNodeLoading: true })
-        const flowNodes = await getRepository('FlowNode').find(query)
-        const entityGroups = flowNodes.reduce(
-          (all: Partial<Record<`${AppEntityNames}`, FlowNode[]>>, node) => {
-            if (!all[node.source_type]) {
-              all[node.source_type] = []
-            }
-            all[node.source_type]?.push(node)
-            return all
-          },
-          {},
-        )
-        const flowNodeDatas: Partial<Record<`${AppEntityNames}`, EntityArrayTypes>> = {}
-        await Promise.all(
-          Object.entries(entityGroups).map(async ([key, groupNodes]) => {
-            const entityName = key as AppEntityNames
-            flowNodeDatas[entityName] = (await getRepository(entityName).find({
-              where: {
-                id: In(groupNodes.map((node) => node.source_id)),
-              },
-            })) as EntityArrayTypes
-          }),
-        )
+        const { flowNodes, flowNodeDatas } = await findFlowNodesWithSource(query)
 
         if (option?.clean) {
           set({
