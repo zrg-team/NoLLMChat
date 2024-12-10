@@ -1,0 +1,66 @@
+import { c as createLucideIcon, __tla as __tla_0 } from "./createLucideIcon-DZXM6zSt.js";
+import { __tla as __tla_1 } from "./index-Bs2EL0Mm.js";
+let CigaretteOff;
+let __tla = Promise.all([
+  (() => {
+    try {
+      return __tla_0;
+    } catch {
+    }
+  })(),
+  (() => {
+    try {
+      return __tla_1;
+    } catch {
+    }
+  })()
+]).then(async () => {
+  CigaretteOff = createLucideIcon("CigaretteOff", [
+    [
+      "path",
+      {
+        d: "M12 12H3a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h13",
+        key: "1gdiyg"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M18 8c0-2.5-2-2.5-2-5",
+        key: "1il607"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "m2 2 20 20",
+        key: "1ooewy"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M21 12a1 1 0 0 1 1 1v2a1 1 0 0 1-.5.866",
+        key: "166zjj"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M22 8c0-2.5-2-2.5-2-5",
+        key: "1gah44"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M7 12v4",
+        key: "jqww69"
+      }
+    ]
+  ]);
+});
+export {
+  __tla,
+  CigaretteOff as default
+};
