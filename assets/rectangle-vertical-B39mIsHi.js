@@ -1,1 +1,0 @@
-import{c as a,__tla as r}from"./createLucideIcon-B7i4w5K4.js";import{__tla as e}from"./index-D0m4YwRW.js";let t,l=Promise.all([(()=>{try{return r}catch{}})(),(()=>{try{return e}catch{}})()]).then(async()=>{t=a("RectangleVertical",[["rect",{width:"12",height:"20",x:"6",y:"2",rx:"2",key:"1oxtiu"}]])});export{l as __tla,t as default};

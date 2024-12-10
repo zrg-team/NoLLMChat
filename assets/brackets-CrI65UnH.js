@@ -1,1 +1,0 @@
-import{c as a,__tla as r}from"./createLucideIcon-B7i4w5K4.js";import{__tla as _}from"./index-D0m4YwRW.js";let t,e=Promise.all([(()=>{try{return r}catch{}})(),(()=>{try{return _}catch{}})()]).then(async()=>{t=a("Brackets",[["path",{d:"M16 3h3v18h-3",key:"1yor1f"}],["path",{d:"M8 21H5V3h3",key:"1qrfwo"}]])});export{e as __tla,t as default};
