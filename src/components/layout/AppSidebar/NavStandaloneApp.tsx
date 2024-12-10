@@ -47,7 +47,11 @@ export function NavStandaloneApp({
   const renderBadge = (session: Session) => {
     switch (session.main_source_type) {
       case 'Thread':
-        return <Badge color="blue">{t('application_types.chat')}</Badge>
+        return (
+          <Badge className="ml-1" color="blue">
+            {t('application_types.chat')}
+          </Badge>
+        )
       default:
         return null
     }
@@ -62,15 +66,17 @@ export function NavStandaloneApp({
         {applications?.map((item) => (
           <SidebarMenuItem className="cursor-pointer" key={item.id}>
             <SidebarMenuButton asChild onClick={() => handleSetCurrentSession(item)}>
-              <div className="flex flex-row justify-between items-center">
+              <div className="flex flex-row justify-between items-center !h-auto">
                 <div className="flex gap-2">
                   {currentSession?.id === item.id ? (
                     <LazyIcon size={16} color="green" name="check" />
                   ) : (
                     <LazyIcon size={16} name="chevron-right" />
                   )}
-                  <span>{item.name}</span>
-                  {renderBadge(item)}
+                  <span>
+                    {item.name}
+                    {renderBadge(item)}
+                  </span>
                 </div>
                 <LazyIcon
                   onClick={(e) => handleDeleteSession(e, item.id)}

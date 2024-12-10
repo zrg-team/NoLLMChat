@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
-import { useCreateDatabaseLLM } from 'src/hooks/flows/use-create-database-llm'
+import { useCreateDatabaseLLM } from 'src/hooks/flows/mutations/use-create-database-llm'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'

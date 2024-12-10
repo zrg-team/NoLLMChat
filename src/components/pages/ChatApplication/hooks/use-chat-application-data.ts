@@ -17,10 +17,10 @@ import { Message } from 'ai/react'
 
 export const useChatApplicationData = () => {
   const [chatInfo, setChatInfo] = useState<{
-    thread: Thread
     prompts?: Prompt[]
     schema?: Schema
   }>()
+  const [threadInfo, setThreadInfo] = useState<{ thread: Thread; threadNode: FlowNode }>()
   const [mainLLMInfo, setLLMInfo] = useState<{
     llm: LLM
     status: LLMStatusEnum
@@ -142,15 +142,17 @@ export const useChatApplicationData = () => {
           enity: jsonData,
         })
       }
-      console.log('here')
 
       setLLMInfo({
         llm: llmInfo.entity as LLM,
         status: LLMStatusEnum.Started,
         progress: '',
       })
-      setChatInfo({
+      setThreadInfo({
         thread,
+        threadNode,
+      })
+      setChatInfo({
         prompts: promptInfo?.map((info) => info.entity as Prompt) || [],
         schema: schemaInfo?.entity as Schema,
       })
@@ -209,6 +211,7 @@ export const useChatApplicationData = () => {
   return {
     ...chatInfo,
     loadLLM,
+    threadInfo,
     mainLLMInfo,
     currentDataNode,
     updateMessagesData,

@@ -8,8 +8,8 @@ import {
   PromptTypeEnum,
   ThreadStatusEnum,
 } from 'src/services/database/types'
-import { useCreateIdieMessage } from 'src/hooks/flows/use-create-idie-message'
-import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connection-to-handler'
+import { useCreateIdieMessage } from 'src/hooks/flows/mutations/use-create-idie-message'
+import { useBaseConnectionToHandler } from 'src/hooks/flows/handlers/use-base-connection-to-handler'
 import { useFlowState } from 'src/states/flow'
 
 export const useConnectionToHandler = (id: string) => {

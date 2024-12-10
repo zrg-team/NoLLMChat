@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Node, Connection } from '@xyflow/react'
-import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connection-to-handler'
+import { useBaseConnectionToHandler } from 'src/hooks/flows/handlers/use-base-connection-to-handler'
 
 export const useConnectionToHandler = (id: string) => {
   const connectionHandler = useCallback(

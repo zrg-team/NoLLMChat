@@ -22,7 +22,7 @@ export class JSONData {
   @Column({ type: 'text' })
   json: string
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'json', nullable: true })
   data?: unknown
 
   @Column({ type: 'text', nullable: true })

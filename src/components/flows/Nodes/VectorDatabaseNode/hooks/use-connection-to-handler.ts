@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Node } from '@xyflow/react'
-import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connection-to-handler'
+import { useBaseConnectionToHandler } from 'src/hooks/flows/handlers/use-base-connection-to-handler'
 import { useFlowState } from 'src/states/flow'
 import { CSVData, FlowNodeTypeEnum, VectorDatabase } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'

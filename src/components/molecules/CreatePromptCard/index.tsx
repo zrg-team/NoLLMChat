@@ -4,7 +4,7 @@ import { useToast } from 'src/lib/hooks/use-toast'
 import { Card, CardContent, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Prompt, Thread } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
-import { useCreatePrompt } from 'src/hooks/flows/use-create-prompt'
+import { useCreatePrompt } from 'src/hooks/flows/mutations/use-create-prompt'
 
 import PromptForm from './PromptForm'
 

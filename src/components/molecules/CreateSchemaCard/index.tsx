@@ -2,7 +2,7 @@ import { memo, useState } from 'react'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { useTranslation } from 'react-i18next'
-import { useCreateSchema } from 'src/hooks/flows/use-create-schema'
+import { useCreateSchema } from 'src/hooks/flows/mutations/use-create-schema'
 import { toast } from 'src/lib/hooks/use-toast'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 

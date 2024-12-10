@@ -13,7 +13,7 @@ import { VectorDatabaseProviderEnum, VectorDatabaseStorageEnum } from 'src/servi
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
 import { Input } from 'src/lib/shadcn/ui/input'
-import { useCreateVectorDatabase } from 'src/hooks/flows/use-create-vector-database'
+import { useCreateVectorDatabase } from 'src/hooks/flows/mutations/use-create-vector-database'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import {

@@ -113,7 +113,7 @@ export const flowNodeTypeToEntity: Record<FlowNodeTypeEnum, AppEntityNames | und
   [FlowNodeTypeEnum.NewMessage]: undefined,
   [FlowNodeTypeEnum.ToolHandler]: undefined,
   [FlowNodeTypeEnum.FewShotExample]: undefined,
-  [FlowNodeTypeEnum.JSONData]: undefined,
+  [FlowNodeTypeEnum.JSONData]: 'JSONData',
   [FlowNodeTypeEnum.LLM]: 'LLM',
   [FlowNodeTypeEnum.Thread]: 'Thread',
   [FlowNodeTypeEnum.Message]: 'Message',

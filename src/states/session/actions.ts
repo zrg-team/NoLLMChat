@@ -8,7 +8,7 @@ import { SessionState } from './state'
 export interface SessionStateActions {
   getLatestApplications: () => Promise<void>
   getLatestSessions: () => Promise<void>
-  setCurrentSession: (session: Session | string | undefined) => Promise<void>
+  setCurrentSession: (session: Session | string | undefined) => Promise<Session>
   deleteSession: (id: string) => Promise<void>
   createSession: (session: Partial<Session>) => Promise<Session>
   init: () => void
@@ -59,6 +59,7 @@ export const getSessionStateActions = (
           sessions: isExist ? sessions : [session, ...get().sessions],
         })
       }
+      return session
     },
     createSession: async (data) => {
       const session = await getRepository('Session').save({

@@ -10,6 +10,7 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useAppState } from 'src/states/app'
 import { getRouteURL } from 'src/utils/routes'
+import { SessionTypeEnum } from 'src/services/database/types'
 
 export function MainLayout() {
   const { t } = useTranslation('common')
@@ -28,21 +29,18 @@ export function MainLayout() {
       return
     }
 
-    switch (location.pathname) {
-      case getRouteURL('whiteboard'):
-        if (!params.sessionId) {
-          navigate(getRouteURL('whiteboard', { sessionId: currentSession?.id }))
-        } else if (params.sessionId && params.sessionId !== currentSession?.id) {
-          setCurrentSession(params.sessionId)
-        }
-        break
-      case getRouteURL('application'):
-        if (!params.applicationId) {
-          navigate(getRouteURL('application', { applicationId: currentSession?.id }))
-        } else if (params.applicationId && params.applicationId !== currentSession?.id) {
-          setCurrentSession(params.applicationId)
-        }
-        break
+    if (location.pathname.includes(getRouteURL('whiteboard'))) {
+      if (!params.sessionId) {
+        navigate(getRouteURL('whiteboard', { sessionId: currentSession?.id }))
+      } else if (params.sessionId && params.sessionId !== currentSession?.id) {
+        setCurrentSession(params.sessionId)
+      }
+    } else if (location.pathname.includes(getRouteURL('application'))) {
+      if (!params.applicationId) {
+        navigate(getRouteURL('application', { applicationId: currentSession?.id }))
+      } else if (params.applicationId && params.applicationId !== currentSession?.id) {
+        setCurrentSession(params.applicationId)
+      }
     }
   }, [
     currentSession?.id,
@@ -54,8 +52,20 @@ export function MainLayout() {
   ])
 
   useEffect(() => {
-    setCurrentSession(params.sessionId || params.applicationId)
-  }, [params.applicationId, params.sessionId, setCurrentSession])
+    setCurrentSession(params.sessionId || params.applicationId).then((item) => {
+      if (
+        item.type === SessionTypeEnum.StandaloneApp &&
+        window.location.pathname.includes(getRouteURL('whiteboard'))
+      ) {
+        navigate(getRouteURL('application', { applicationId: item.id }))
+      } else if (
+        item.type === SessionTypeEnum.Whiteboard &&
+        window.location.pathname.includes(getRouteURL('application'))
+      ) {
+        navigate(getRouteURL('whiteboard', { sessionId: item.id }))
+      }
+    })
+  }, [navigate, params.applicationId, params.sessionId, setCurrentSession])
 
   const handleChangeTheme = useCallback(() => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
@@ -69,7 +79,7 @@ export function MainLayout() {
         currentSession={currentSession}
         setCurrentSession={setCurrentSession}
       />
-      <SidebarInset>
+      <SidebarInset className="max-h-screen overflow-hidden">
         <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear justify-between">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger />
@@ -88,8 +98,8 @@ export function MainLayout() {
             </a>
           </div>
         </header>
-        <Separator />
-        <div className="flex flex-1 flex-col p-0 m-0">
+        <Separator className="shrink-0" />
+        <div className="flex flex-1 flex-col p-0 m-0 overflow-y-auto">
           <Outlet />
         </div>
       </SidebarInset>

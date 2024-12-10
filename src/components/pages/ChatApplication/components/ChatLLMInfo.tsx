@@ -58,10 +58,12 @@ export const ChatLLMInfo = memo(
       }
     }, [llm?.name, status])
     return (
-      <Alert className="flex justify-center max-w-xl">
-        {llmIcon}
-        <div className="ml-2 pt-1 max-w-lg">
-          <AlertTitle className="flex gap-2 items-center pr-6">{`${llm?.name || ''}`}</AlertTitle>
+      <Alert className="flex justify-center !border-none !bg-inherit !p-2 max-w-full overflow-y-hidden mb-2">
+        <div className="ml-2 pt-1 max-w-full">
+          <AlertTitle className="flex gap-2 items-center pr-6">
+            {llmIcon}
+            {`${llm?.name || ''}`}
+          </AlertTitle>
           <div className="max-w-full mt-2 flex-wrap flex gap-1">
             <LLMInfo
               model={llmInfo?.info}
@@ -70,19 +72,21 @@ export const ChatLLMInfo = memo(
               isCached={llmInfo?.hasCache || false}
             />
             {status !== LLMStatusEnum.Loaded ? (
-              <Button
-                variant={progress ? 'ghost' : 'default'}
-                disabled={status === LLMStatusEnum.Loading}
-                onClick={handleLoadLLM}
-                className="mt-4 w-full"
-              >
-                {progress ||
-                  t(
+              progress ? (
+                <div className="text-sm break-words flex-wrap">{progress}</div>
+              ) : (
+                <Button
+                  disabled={status === LLMStatusEnum.Loading}
+                  onClick={handleLoadLLM}
+                  className="mt-4 w-full"
+                >
+                  {t(
                     llmInfo?.hasCache
                       ? 'llm_node.load_model_button'
                       : 'llm_node.download_model_button',
                   )}
-              </Button>
+                </Button>
+              )
             ) : undefined}
           </div>
         </div>
