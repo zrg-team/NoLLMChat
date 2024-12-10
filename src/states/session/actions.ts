@@ -8,7 +8,7 @@ import { SessionState } from './state'
 export interface SessionStateActions {
   getLatestApplications: () => Promise<void>
   getLatestSessions: () => Promise<void>
-  setCurrentSession: (session: Session) => void
+  setCurrentSession: (session: Session | string | undefined) => Promise<void>
   deleteSession: (id: string) => Promise<void>
   createSession: (session: Partial<Session>) => Promise<Session>
   init: () => void
@@ -19,9 +19,46 @@ export const getSessionStateActions = (
   get: GetState<SessionState & SessionStateActions>,
 ): SessionStateActions => {
   return {
-    setCurrentSession: (session) => {
+    setCurrentSession: async (session) => {
+      if (typeof session === 'string' || !session) {
+        session = session || useAppState.getState().selectedSessionId
+        let selectedSession = await getRepository('Session').findOne({
+          where: { id: session },
+        })
+        if (!selectedSession) {
+          selectedSession = (await getRepository('Session').findOne({
+            order: { updated_at: 'DESC' },
+          })) as Session
+        }
+        session = selectedSession
+      }
       useAppState.setState({ selectedSessionId: session.id })
-      set({ currentSession: session })
+      let isExist = false
+      if (session.type === SessionTypeEnum.StandaloneApp) {
+        const applications = get().applications.map((item) => {
+          if (item.id === session.id) {
+            isExist = true
+            return session
+          }
+          return item
+        })
+        set({
+          currentSession: session,
+          applications: isExist ? applications : [session, ...get().applications],
+        })
+      } else {
+        const sessions = get().sessions.map((item) => {
+          if (item.id === session.id) {
+            isExist = true
+            return session
+          }
+          return item
+        })
+        set({
+          currentSession: session,
+          sessions: isExist ? sessions : [session, ...get().sessions],
+        })
+      }
     },
     createSession: async (data) => {
       const session = await getRepository('Session').save({
@@ -88,20 +125,8 @@ export const getSessionStateActions = (
           take: 7,
         })
         if (sessions?.length) {
-          const selectedSessionId = useAppState.getState().selectedSessionId
-          const selectedSession = selectedSessionId
-            ? await getRepository('Session')
-                .findOne({
-                  where: { id: selectedSessionId },
-                })
-                .catch(() => undefined)
-            : undefined
-
           set({
-            currentSession: selectedSession || sessions?.[0],
-            sessions: selectedSession
-              ? [selectedSession, ...sessions.filter((item) => item.id !== selectedSession.id)]
-              : sessions,
+            sessions,
             ready: true,
           })
         } else {

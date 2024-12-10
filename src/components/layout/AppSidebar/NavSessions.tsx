@@ -1,6 +1,8 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { useModal } from '@ebay/nice-modal-react'
+import { getRouteURL } from 'src/utils/routes'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import {
   SidebarGroup,
@@ -27,6 +29,7 @@ export function NavSessions({
   setCurrentSession: SessionStateActions['setCurrentSession']
 }) {
   const { t } = useTranslation('sidebar')
+  const navigate = useNavigate()
   const createSessionDialog = useModal(CreateSessionDialog)
   const deleteSessionDialog = useModal(DeleteSessionDialog)
 
@@ -45,6 +48,7 @@ export function NavSessions({
   )
   const handleSetCurrentSession = (session: Session) => {
     setCurrentSession(session)
+    navigate(getRouteURL('whiteboard', { sessionId: session.id }))
   }
 
   return (

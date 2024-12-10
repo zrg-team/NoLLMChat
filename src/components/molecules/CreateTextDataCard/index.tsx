@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
 import { NodeProps, useInternalNode } from '@xyflow/react'
-import { useCreateCSVData } from 'src/hooks/mutations/use-create-csv-data'
+import { useCreateCSVData } from 'src/hooks/flows/use-create-csv-data'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import { DataTable } from './DataTable'

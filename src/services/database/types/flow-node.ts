@@ -22,4 +22,5 @@ export enum FlowNodeTypeEnum {
   PlaceHolder = 'PLACEHOLDER',
   CodeContainerApp = 'CODE_CONTAINER_APP',
   VSLiteApp = 'VSLITE_APP',
+  JSONData = 'JSON_DATA',
 }
