@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { withProps } from '@udecode/cn'
-import { BaseMessage } from '@langchain/core/messages'
+import type { BaseMessage } from '@langchain/core/messages'
 import { AIPlugin } from '@udecode/plate-ai/react'
 import {
   BoldPlugin,

@@ -1,4 +1,4 @@
-import { type Embeddings } from '@langchain/core/embeddings'
+import type { Embeddings } from '@langchain/core/embeddings'
 import localforage from 'localforage'
 
 export interface LocalEmbeddingState {

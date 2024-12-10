@@ -21,7 +21,9 @@ export default defineConfig({
     }),
   ],
   build: {
-    chunkSizeWarningLimit: 5000,
+    chunkSizeWarningLimit: 2000,
+    sourcemap: false,
+    minify: true,
   },
   resolve: {
     alias: {
@@ -34,7 +36,7 @@ export default defineConfig({
   worker: {
     format: 'es',
   },
-  base: '/NoLLMChat/',
+  base: process.env.VITE_BASE_URL || '/NoLLMChat/',
   server: {
     headers: {
       'Cross-Origin-Embedder-Policy': 'require-corp',

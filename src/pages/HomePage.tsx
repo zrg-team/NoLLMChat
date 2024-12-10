@@ -1,5 +1,5 @@
-import HomeInner from 'src/components/pages/Home/index'
+import Home from 'src/components/pages/Home/Home'
 
 export default function HomePage() {
-  return <HomeInner />
+  return <Home />
 }

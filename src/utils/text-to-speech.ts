@@ -1,7 +1,7 @@
 import EasySpeech from 'easy-speech'
 import { logWarn } from './logger'
 
-class TextToSpeech {
+export class TextToSpeech {
   private static instance: TextToSpeech
   private static promise?: Promise<boolean>
 
@@ -18,36 +18,44 @@ class TextToSpeech {
     try {
       TextToSpeech.promise = EasySpeech.init({ maxTimeout: 5000, interval: 100 })
       await TextToSpeech.promise
+    } catch (error) {
+      logWarn('Error during speech synthesis initialization', error)
     } finally {
       TextToSpeech.promise = undefined
     }
   }
 
   async speak(text: string) {
-    if (TextToSpeech.promise) {
-      await TextToSpeech.promise
-    }
-    const status = EasySpeech.status()
-    if (!('initialized' in status) || !status.initialized) {
-      throw new Error('EasySpeech is not ready')
-    }
+    try {
+      if (TextToSpeech.promise) {
+        await TextToSpeech.promise
+      }
+      const status = EasySpeech.status()
+      if (!('initialized' in status) || !status.initialized) {
+        throw new Error('EasySpeech is not ready')
+      }
 
-    return EasySpeech.speak({
-      text,
-      pitch: 1,
-      rate: 1,
-      volume: 1,
-      voice: EasySpeech.voices()[0], // Use the first available voice
-    }).catch((error) => {
+      return EasySpeech.speak({
+        text,
+        pitch: 1,
+        rate: 1,
+        volume: 1,
+        voice: EasySpeech.voices()[0], // Use the first available voice
+      }).catch((error) => {
+        logWarn('Error during speech synthesis:', error)
+      })
+    } catch (error) {
       logWarn('Error during speech synthesis:', error)
-    })
+    }
   }
 
   async stop() {
-    return EasySpeech.cancel()
+    try {
+      return EasySpeech?.cancel()
+    } catch (error) {
+      logWarn('Error during speech synthesis:', error)
+    }
   }
 }
-
-TextToSpeech.init()
 
 export default TextToSpeech.getInstance()

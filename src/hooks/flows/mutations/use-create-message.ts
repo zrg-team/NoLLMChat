@@ -24,7 +24,7 @@ import {
   prepareThreadConnections,
   threadConversationTraveling,
 } from 'src/utils/thread-conversation-traveling'
-import { useLocalLLM } from 'src/services/local-llm/hooks/use-llm'
+import { useLocalLLM } from 'src/services/local-llm/hooks/use-local-llm'
 import { prepareThreadHistory } from 'src/utils/build-message-history'
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'

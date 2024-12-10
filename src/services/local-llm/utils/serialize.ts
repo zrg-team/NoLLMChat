@@ -1,5 +1,5 @@
-import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
-import { BaseLanguageModelInput } from '@langchain/core/language_models/base'
+import type { ChatWebLLM } from '@langchain/community/chat_models/webllm'
+import type { BaseLanguageModelInput } from '@langchain/core/language_models/base'
 import {
   AIMessage,
   BaseMessage,

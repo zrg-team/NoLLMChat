@@ -1,5 +1,5 @@
-import { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import { BaseMessageChunk } from '@langchain/core/messages'
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
+import type { BaseMessageChunk } from '@langchain/core/messages'
 
 export const handleStream = async (
   streamResponse:

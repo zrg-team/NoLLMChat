@@ -11,19 +11,21 @@ import { Toaster } from 'src/lib/shadcn/ui/toaster'
 import Modal from '@ebay/nice-modal-react'
 
 import { FileSystemProvider } from 'src/services/file-system/provider'
-import { useSessionState } from 'src/states/session'
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
+import { ThemeProvider } from 'src/components/layout/ThemeProvider'
 
-import { useLocalLLMState } from './services/local-llm'
-import { useLocalEmbeddingState } from './services/local-embedding/state'
-import { ThemeProvider } from './components/layout/ThemeProvider'
-import { useAppHydration } from './hooks/handlers/use-app-hydration'
-import { logError } from './utils/logger'
+import { TextToSpeech } from 'src/utils/text-to-speech'
+import { useSessionState } from 'src/states/session'
+import { useLocalLLMState } from 'src/services/local-llm'
+import { useLocalEmbeddingState } from 'src/services/local-embedding/state'
+import { useAppHydration } from 'src/hooks/handlers/use-app-hydration'
+import { logError } from 'src/utils/logger'
 
 const AppRoute = lazy(() => import('src/routes'))
 
 dayjs.extend(relatedTime)
+TextToSpeech.init()
 
 const logErrorHook = (error: Error, info: { componentStack?: string | null }) => {
   logError(error, info)

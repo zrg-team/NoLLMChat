@@ -1,5 +1,5 @@
 import { memo, useState } from 'react'
-import { Document } from '@langchain/core/documents'
+import type { Document } from '@langchain/core/documents'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import {
   Select,

@@ -1,5 +1,5 @@
 import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
-import { BaseMessageChunk } from '@langchain/core/messages'
+import type { BaseMessageChunk } from '@langchain/core/messages'
 import type { InitProgressReport } from '@mlc-ai/web-llm'
 
 type ProcessResolveType =

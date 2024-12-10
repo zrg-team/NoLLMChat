@@ -11,7 +11,7 @@ import {
 } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
-import { useLocalLLM } from 'src/services/local-llm/hooks/use-llm'
+import { useLocalLLM } from 'src/services/local-llm/hooks/use-local-llm'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
 import { Message } from 'ai/react'

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { BaseMessage } from '@langchain/core/messages'
+import type { BaseMessage } from '@langchain/core/messages'
 import { useLocalLLMState } from 'src/services/local-llm'
 import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { getRepository } from 'src/services/database'

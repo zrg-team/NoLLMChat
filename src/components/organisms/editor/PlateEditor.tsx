@@ -3,7 +3,7 @@
 import { useCallback, useRef } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { BaseMessage } from '@langchain/core/messages'
+import type { BaseMessage } from '@langchain/core/messages'
 
 import { Plate } from '@udecode/plate-common/react'
 

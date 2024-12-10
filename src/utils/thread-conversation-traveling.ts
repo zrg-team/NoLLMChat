@@ -1,6 +1,7 @@
-import { Node, Connection } from '@xyflow/react'
-import { FlowNodeTypeEnum } from 'src/services/database/types'
-import { DefaultNodeData } from './flow-node'
+import type { Node, Connection } from '@xyflow/react'
+import { FlowNodeTypeEnum } from 'src/services/database/types/flow-node'
+
+import type { DefaultNodeData } from './flow-node'
 
 export const threadConversationTraveling = (
   list: string[],

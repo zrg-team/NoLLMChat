@@ -1,6 +1,6 @@
 import { create, useModal } from '@ebay/nice-modal-react'
 import { Node } from '@xyflow/react'
-import { Document } from '@langchain/core/documents'
+import type { Document } from '@langchain/core/documents'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from 'src/lib/shadcn/ui/dialog'
 import LazyIcon from 'src/components/atoms/LazyIcon'

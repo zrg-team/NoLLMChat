@@ -1,4 +1,4 @@
-import { BaseChatModel } from '@langchain/core/language_models/chat_models'
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 
 export async function* fakeStreaming<
   T extends ReturnType<BaseChatModel['stream']>,

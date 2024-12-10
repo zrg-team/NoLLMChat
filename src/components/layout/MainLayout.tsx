@@ -55,12 +55,12 @@ export function MainLayout() {
     setCurrentSession(params.sessionId || params.applicationId).then((item) => {
       if (
         item.type === SessionTypeEnum.StandaloneApp &&
-        window.location.pathname.includes(getRouteURL('whiteboard'))
+        window.location.pathname.includes(getRouteURL('whiteboard').replace('/', ''))
       ) {
         navigate(getRouteURL('application', { applicationId: item.id }))
       } else if (
         item.type === SessionTypeEnum.Whiteboard &&
-        window.location.pathname.includes(getRouteURL('application'))
+        window.location.pathname.includes(getRouteURL('application').replace('/', ''))
       ) {
         navigate(getRouteURL('whiteboard', { sessionId: item.id }))
       }

@@ -1,5 +1,5 @@
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
-import ChatApplication from 'src/components/pages/ChatApplication'
+import ChatApplication from 'src/components/pages/ChatApplication/ChatApplication'
 import { useSessionState } from 'src/states/session'
 
 export default function ApplicationPage() {

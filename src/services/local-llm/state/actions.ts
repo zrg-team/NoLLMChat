@@ -8,7 +8,7 @@ import { parseLLMInputToBridgeJSON } from 'src/services/local-llm'
 import { SchemaItem } from 'src/services/database/types'
 import { fakeStreaming } from 'src/services/local-llm/utils/fake-streaming'
 import { getEmptyPromise } from 'src/utils/promise'
-import { BaseChatModel } from '@langchain/core/language_models/chat_models'
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { logWarn } from 'src/utils/logger'
 
 import { LocalLLMState } from './state'

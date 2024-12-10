@@ -27,7 +27,7 @@ import { AIChatEditor } from './ai-chat-editor'
 import { AIMenuItems } from './ai-menu-items'
 import { Command, CommandList, InputCommand } from './command'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
-import { BaseMessage } from '@langchain/core/messages'
+import type { BaseMessage } from '@langchain/core/messages'
 
 export function AIMenu({
   copilotStream,

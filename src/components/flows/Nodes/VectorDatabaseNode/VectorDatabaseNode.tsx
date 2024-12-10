@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
-import { Document } from '@langchain/core/documents'
+import type { Document } from '@langchain/core/documents'
 import { Position, useInternalNode } from '@xyflow/react'
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import LazyIcon from 'src/components/atoms/LazyIcon'
