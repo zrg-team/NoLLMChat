@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react'
-import { useFlowManager } from 'src/hooks/handlers/use-flow-manager'
+import { useFlowManager } from 'src/hooks/flows/handlers/use-flow-manager'
 import { getRepository } from 'src/services/database'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { useFlowState } from 'src/states/flow'

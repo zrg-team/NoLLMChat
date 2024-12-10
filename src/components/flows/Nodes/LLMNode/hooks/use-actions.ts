@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
 import { FlowNodeTypeEnum, LLMStatusEnum } from 'src/services/database/types'
-import { useCreateThread } from 'src/hooks/flows/use-create-thread'
+import { useCreateThread } from 'src/hooks/flows/mutations/use-create-thread'
 import { useFlowState } from 'src/states/flow'
 import { getRepository } from 'src/services/database'
 import { In } from 'src/services/database/typeorm-wrapper'

@@ -8,6 +8,9 @@ import { DISABLED_DELETE_NODE_TYPES, SYSTEM_NODE_IDS } from 'src/constants/nodes
 import { useSessionState } from 'src/states/session'
 
 export const useFlowManager = () => {
+  const updatePositionRef = useRef<Record<string, number | undefined>>({})
+  const updateDimensionsRef = useRef<Record<string, number>>({})
+
   const flowEdges = useFlowState((state) => state.flowEdges)
   const currentSession = useSessionState((state) => state.currentSession)
   const setNodes = useFlowState((state) => state.setNodes)
@@ -89,14 +92,21 @@ export const useFlowManager = () => {
           !isNaN(change.position.y)
         ) {
           updateNodes([change])
-          await updateFlowNode(
-            {
-              id: change.id,
-              x: change.position.x,
-              y: change.position.y,
-            },
-            { silent: true },
-          )
+
+          const x = change.position.x
+          const y = change.position.y
+          clearTimeout(updatePositionRef.current[change.id])
+          updatePositionRef.current[change.id] = setTimeout(async () => {
+            updatePositionRef.current[change.id] = undefined
+            await updateFlowNode(
+              {
+                id: change.id,
+                x,
+                y,
+              },
+              { silent: true },
+            )
+          }, 200)
         } else if (change.type === 'remove') {
           // DISABLED: delete node
           const node = getNodes([change.id])?.[0]
@@ -115,14 +125,20 @@ export const useFlowManager = () => {
             return
           }
           updateNodes([change])
-          await updateFlowNode(
-            {
-              id: change.id,
-              width: change.dimensions.width,
-              height: change.dimensions.height,
-            },
-            { silent: true },
-          )
+
+          clearTimeout(updateDimensionsRef.current[change.id])
+          const width = change.dimensions.width
+          const height = change.dimensions.height
+          updateDimensionsRef.current[change.id] = setTimeout(async () => {
+            await updateFlowNode(
+              {
+                id: change.id,
+                width,
+                height,
+              },
+              { silent: true },
+            )
+          }, 200)
         } else if (change.type === 'select') {
           updateNodes([change])
         }

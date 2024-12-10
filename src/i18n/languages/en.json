@@ -361,6 +361,16 @@
         "create_failed": "Failed to create session."
       }
     },
+    "create_standalone_application": {
+      "title": "Create Application",
+      "description": "Create a standalone application from current node.",
+      "name": "Name",
+      "name_placeholder": "Input application name...",
+      "create": "Create",
+      "errors": {
+        "create_failed": "Failed to create application."
+      }
+    },
     "delete_session": {
       "title": "Are you sure to delete this session?",
       "description": "Deleting this session will remove all the data in this session.",

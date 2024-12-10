@@ -39,7 +39,7 @@ export default function AIInput({
   ) => Promise<boolean>
 }) {
   const [loading, setLoading] = useState(false)
-  const [innerValue, setInnerValue] = useState(value || '')
+  const [innerValue, setInnerValue] = useState('')
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: minHeight || MIN_HEIGHT,
     maxHeight: maxHeight || MAX_HEIGHT,
@@ -64,7 +64,7 @@ export default function AIInput({
           <div className="overflow-y-auto" style={{ maxHeight: `${maxHeight || MAX_HEIGHT}px` }}>
             <Textarea
               id="ai-input-04"
-              value={value || innerValue}
+              value={(onChange ? value : innerValue) || ''}
               disabled={disabled || loading}
               placeholder={placeholder}
               className="w-full rounded-xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white placeholder:text-black/70 dark:placeholder:text-white/70 resize-none focus-visible:ring-0 leading-[1.2]"
@@ -76,7 +76,9 @@ export default function AIInput({
                 }
               }}
               onChange={(e) => {
-                setInnerValue(e.target.value)
+                if (!onChange) {
+                  setInnerValue(e.target.value)
+                }
                 adjustHeight()
                 onChange?.(e)
               }}
@@ -163,7 +165,7 @@ export default function AIInput({
                 }}
                 className={cn(
                   'rounded-lg p-2',
-                  value
+                  (onChange && value) || innerValue
                     ? 'bg-sky-500/15 text-sky-500'
                     : 'bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white',
                 )}

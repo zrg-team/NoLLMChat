@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
-import { useFlowManager } from 'src/hooks/handlers/use-flow-manager'
+import { useFlowManager } from 'src/hooks/flows/handlers/use-flow-manager'
 
-import { useAutomaticallyRenderFlows } from 'src/hooks/handlers/use-automatically-render-flow'
+import { useAutomaticallyRenderFlows } from 'src/hooks/flows/handlers/use-automatically-render-flow'
 import { useLocalLLMState } from 'src/services/local-llm'
 
 export const useHomePage = () => {

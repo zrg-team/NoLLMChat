@@ -8,7 +8,7 @@ import {
   Thread,
 } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
-import { useBaseConnectionToHandler } from 'src/hooks/handlers/use-base-connection-to-handler'
+import { useBaseConnectionToHandler } from 'src/hooks/flows/handlers/use-base-connection-to-handler'
 import { getRepository } from 'src/services/database'
 
 export const useConnectionToHandler = (id: string) => {

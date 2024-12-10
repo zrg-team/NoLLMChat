@@ -12,9 +12,9 @@ import {
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
 import { useLocalLLM } from 'src/services/local-llm/hooks/use-llm'
-import { prepareThreadHistory } from 'src/utils/build-message-history'
-import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages'
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
+import { Message } from 'ai/react'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -106,11 +106,12 @@ export const useSendMessage = () => {
   const sendMessage = useCallback(
     async (
       message: string,
+      messages: Message[],
       threadConnection: ReturnType<typeof prepareThreadConnections> | undefined,
-      threadConversionNodes: Node[],
+      _threadConversionNodes: Node[],
       { onMessageUpdate }: CreateMessageOption,
     ) => {
-      const { prompts, tools, schemas, placeholders } = threadConnection || {}
+      const { tools, schemas, placeholders } = threadConnection || {}
 
       const injectedMessages: BaseMessage[] = []
 
@@ -118,18 +119,17 @@ export const useSendMessage = () => {
         injectedMessages.push(...(await handlePlaceholders(message, threadConnection)))
       }
 
-      const { history: MessageHistory, systems } = prepareThreadHistory(
-        threadConversionNodes,
-        prompts || [],
-      )
-      const messages = [
-        ...systems,
-        ...injectedMessages,
-        ...MessageHistory,
-        new HumanMessage(message),
-      ]
+      const formatedMessages = messages.map((message) => {
+        if (message.role === 'system') {
+          return new SystemMessage(message.content)
+        }
+        if (message.role === 'user') {
+          return new HumanMessage(message.content)
+        }
+        return new AIMessage(message.content)
+      })
 
-      const { content } = await stream(messages, {
+      const { content } = await stream(formatedMessages, {
         tools,
         schemas,
         onMessageUpdate: ({ content }) => {

@@ -65,6 +65,7 @@ export const useCreateStandaloneSession = () => {
     async (
       node: Node<DefaultNodeData>,
       options: {
+        name?: string
         connections: {
           node: Node<DefaultNodeData>
           connections: Connection[]
@@ -79,7 +80,7 @@ export const useCreateStandaloneSession = () => {
         setLoading(true)
         const standaloneSession = await getRepository('Session').save({
           type: SessionTypeEnum.StandaloneApp,
-          name: currentSession?.name ? `${currentSession.name}` : 'Standalone',
+          name: options.name || (currentSession?.name ? `${currentSession.name}` : 'Standalone'),
           status: SessionStatusEnum.Started,
         })
         if (!standaloneSession) {
