@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppSidebar } from 'src/components/layout/AppSidebar/Sidebar'
@@ -17,12 +17,15 @@ export function MainLayout() {
   const params = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  const locationRef = useRef(location)
   const setTheme = useAppState((state) => state.setTheme)
   const theme = useAppState((state) => state.theme)
   const currentSession = useSessionState((state) => state.currentSession)
   const sessions = useSessionState((state) => state.sessions)
   const applications = useSessionState((state) => state.applications)
   const setCurrentSession = useSessionState((state) => state.setCurrentSession)
+
+  locationRef.current = location
 
   useEffect(() => {
     if (!currentSession?.id) {
@@ -55,12 +58,12 @@ export function MainLayout() {
     setCurrentSession(params.sessionId || params.applicationId).then((item) => {
       if (
         item.type === SessionTypeEnum.StandaloneApp &&
-        window.location.pathname.includes(getRouteURL('whiteboard').replace('/', ''))
+        locationRef.current.pathname.includes(getRouteURL('whiteboard').replace('/', ''))
       ) {
         navigate(getRouteURL('application', { applicationId: item.id }))
       } else if (
         item.type === SessionTypeEnum.Whiteboard &&
-        window.location.pathname.includes(getRouteURL('application').replace('/', ''))
+        locationRef.current.pathname.includes(getRouteURL('application').replace('/', ''))
       ) {
         navigate(getRouteURL('whiteboard', { sessionId: item.id }))
       }
