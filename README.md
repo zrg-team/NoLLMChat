@@ -1,6 +1,6 @@
 # NoLLM Chat
 
-The project aims to transform AI interaction by developing a platform that improves on typical LLM experiences. It seeks to make exploring AI technologies easy directly in web browsers, offering a flexible and visual interface. The goal is for users to engage with language models in a way that enhances creativity and experience, moving beyond simple chat interactions.
+The project aims to revolutionize AI interaction by creating a platform that enhances traditional LLM experiences. It strives to simplify the exploration of AI technologies directly within web browsers, providing a versatile and visual interface. The objective is to enable users to interact with language models in a manner that boosts creativity and enriches their experience, going beyond basic chat interactions.
 
 ## Intro
 
@@ -9,7 +9,7 @@ The project aims to transform AI interaction by developing a platform that impro
     <a href="https://nollm.netlify.app/">✨✨✨ DEMO ✨✨✨</a>
 </p>
 <p align="center">
-    [■■□□□□□□□□] 20%
+    [■■■□□□□□□□] 25%
 </p>
 
 ![Intro Image](./public/intro.jpeg)
@@ -61,17 +61,16 @@ The architecture of the application is designed to efficiently handle different 
 ```mermaid
 graph LR
     A[Main Thread] <--> C[Database Worker Thread]
-    C -->|Uses| I((TypeORM))
-    I -->|Interacts with| D((PGLite))
+    C -->|uses| I((TypeORM))
+    I -->|Wraps| D((PGLite))
     A <--> E[LLM Thread]
-    E -->|Interacts with| J((Langchain))
+    E -->|Uses| J((Langchain))
     J -->|Wraps| F((WebLLM))
     A <--> G[(Memory Vector database)]
-    G <--> |Uses| H((Langchain))
-    H --> K[Embedding thread]
+    G --> K[Embedding thread]
     K -->|Use| L((Embedding Model))
     
-    A -->|Interacts with| B((UI Application Logic))
+    A -->|Handle| B((UI Application Logic))
 ```
 
 ## Libraries and Tools
