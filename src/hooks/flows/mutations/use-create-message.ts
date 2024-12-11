@@ -14,6 +14,7 @@ import {
   MessageRoleEnum,
   MessageStatusEnum,
   Prompt,
+  Schema,
   Thread,
   VectorDatabase,
 } from 'src/services/database/types'
@@ -29,6 +30,7 @@ import { prepareThreadHistory } from 'src/utils/build-message-history'
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
 import { DefaultNodeData } from 'src/utils/flow-node'
+import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -243,9 +245,12 @@ export const useCreateMessage = ({
         new HumanMessage(messagesInfo.humanMessage.content),
       ]
 
+      const schemaEntities = schemas
+        .map((schemaNode) => schemaNode.node.data?.entity as Schema)
+        .filter(Boolean) as Schema[]
       const { lastChunk, content } = await stream(messages, {
-        tools,
-        schemas,
+        tools: toLocalLLMToolCallingInput(tools),
+        schemas: schemaEntities,
         onMessageUpdate: ({ content }) => {
           onMessageUpdate?.({
             id: messagesInfo.aiMessageNode.id,

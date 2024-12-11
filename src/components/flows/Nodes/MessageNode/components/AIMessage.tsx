@@ -50,8 +50,11 @@ export function AIMessageComponent({
           }
         >
           <MarkdownPreview
-            className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !text-inherit !font-sans"
+            className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans"
             source={`${data.content || data.entity?.content || ''}`}
+            style={{
+              color: 'unset !important',
+            }}
           />
         </Suspense>
         {Array.isArray(messageMetadata?.message?.tool_calls) &&

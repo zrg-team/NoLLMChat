@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { LLMStatusEnum } from 'src/services/database/types/llm'
 import type { ModelRecord } from '@mlc-ai/web-llm'
@@ -9,6 +8,7 @@ import { LLMInfo } from 'src/components/atoms/LLMInfo'
 import { LLM } from 'src/services/database/types'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
+import { Card } from 'src/lib/shadcn/ui/card'
 
 export const ChatLLMInfo = memo(
   ({
@@ -58,12 +58,12 @@ export const ChatLLMInfo = memo(
       }
     }, [llm?.name, status])
     return (
-      <Alert className="flex justify-center !border-none !bg-inherit !p-2 max-w-full overflow-y-hidden mb-2">
+      <Card className="flex justify-center !bg-inherit !p-2 max-w-full overflow-y-hidden !mb-2 m-2 !mt-0">
         <div className="ml-2 pt-1 max-w-full">
-          <AlertTitle className="flex gap-2 items-center pr-6">
+          <p className="flex gap-2 items-center pr-6 !text-sm font-semibold">
             {llmIcon}
             {`${llm?.name || ''}`}
-          </AlertTitle>
+          </p>
           <div className="max-w-full mt-2 flex-wrap flex gap-1">
             <LLMInfo
               model={llmInfo?.info}
@@ -90,7 +90,7 @@ export const ChatLLMInfo = memo(
             ) : undefined}
           </div>
         </div>
-      </Alert>
+      </Card>
     )
   },
 )
