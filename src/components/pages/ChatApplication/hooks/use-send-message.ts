@@ -7,6 +7,7 @@ import {
   FlowNodePlaceholderTypeEnum,
   FlowNodeTypeEnum,
   Prompt,
+  Schema,
   VectorDatabase,
 } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
@@ -15,8 +16,10 @@ import { useLocalLLM } from 'src/services/local-llm/hooks/use-local-llm'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
 import { Message } from 'ai/react'
+import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
 
 type CreateMessageOption = {
+  schema?: Schema
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
 }
 export const useSendMessage = () => {
@@ -109,9 +112,9 @@ export const useSendMessage = () => {
       messages: Message[],
       threadConnection: ReturnType<typeof prepareThreadConnections> | undefined,
       _threadConversionNodes: Node[],
-      { onMessageUpdate }: CreateMessageOption,
+      { schema, onMessageUpdate }: CreateMessageOption,
     ) => {
-      const { tools, schemas, placeholders } = threadConnection || {}
+      const { tools, placeholders } = threadConnection || {}
 
       const injectedMessages: BaseMessage[] = []
 
@@ -130,8 +133,8 @@ export const useSendMessage = () => {
       })
 
       const { content } = await stream(formatedMessages, {
-        tools,
-        schemas,
+        tools: toLocalLLMToolCallingInput(tools),
+        schemas: schema ? [schema] : undefined,
         onMessageUpdate: ({ content }) => {
           onMessageUpdate?.({
             nodeData: {

@@ -1,8 +1,7 @@
 import { useCallback } from 'react'
 import type { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
-import type { Schema, SchemaItem, ToolDefinition } from 'src/services/database/types'
-import { FlowNodeTypeEnum } from 'src/services/database/types/flow-node'
-import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
+import type { Schema, SchemaItem } from 'src/services/database/types'
+import { logWarn } from 'src/utils/logger'
 
 import { handleStream } from '../utils/stream'
 import { useLocalLLMState } from '../state'
@@ -21,44 +20,25 @@ export const useLocalLLM = () => {
         onMessageUpdate,
         onMessageFinish,
       }: {
-        schemas?: ReturnType<typeof prepareThreadConnections>['schemas']
-        tools?: ReturnType<typeof prepareThreadConnections>['tools']
+        schemas?: Schema[]
+        tools?: {
+          name: string
+          description: string
+          schemaItems: SchemaItem[]
+        }[]
         onMessageUpdate?: (data: { content: string; chunk: BaseMessageChunk }) => void
         onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
       },
     ) => {
-      if (schemas && schemas?.length > 1) {
-        // Not supported
-      }
-
       let streamResponse: ReturnType<typeof stream> | ReturnType<typeof structuredStream>
       if (schemas?.length) {
-        const schema = schemas?.[0]?.node?.data?.entity as Schema
-        if (!schema?.schema_items?.length) {
-          throw new Error('Schema is not found')
+        if (schemas && schemas?.length > 1) {
+          // Not supported
+          logWarn('Multiple schemas are not supported. Only the first schema will be used.')
         }
-        streamResponse = structuredStream(schema.schema_items, messages)
+        streamResponse = structuredStream(schemas?.[0]?.schema_items || [], messages)
       } else if (tools?.length) {
-        streamResponse = toolsCallingStream(
-          tools.reduce(
-            (all: { name: string; description: string; schemaItems: SchemaItem[] }[], item) => {
-              const toolEntity = item.node.data?.entity as ToolDefinition
-              const toolSchemaEnity = item?.connectedNodes?.find(
-                (node) => node.type === FlowNodeTypeEnum.Schema,
-              )?.data?.entity as Schema
-              if (toolEntity && toolSchemaEnity?.schema_items?.length) {
-                all.push({
-                  name: toolEntity.name,
-                  description: toolEntity.description,
-                  schemaItems: toolSchemaEnity.schema_items,
-                })
-              }
-              return all
-            },
-            [],
-          ),
-          messages,
-        )
+        streamResponse = toolsCallingStream(tools, messages)
       } else {
         streamResponse = stream(messages)
       }

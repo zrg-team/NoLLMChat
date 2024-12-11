@@ -8,6 +8,7 @@ import { findFlowNodesWithSource } from 'src/states/flow/actions'
 export const useChatList = (threadNode?: FlowNode) => {
   const [chatList, setChatList] = useState<{ node: FlowNode; entity: JSONData }[]>([])
   const currentSession = useSessionState((state) => state.currentSession)
+
   const getChatList = useCallback(async () => {
     if (!threadNode || !currentSession?.id) {
       return
@@ -38,6 +39,23 @@ export const useChatList = (threadNode?: FlowNode) => {
       }, []),
     )
   }, [currentSession?.id, threadNode])
+  const deleteChat = useCallback(
+    async (node: FlowNode) => {
+      await getRepository('FlowNode').delete(node.id)
+      await getRepository('JSONData').delete(node.source_id)
+      const allEdges = await getRepository('FlowEdge').find({
+        where: [{ source: node.id }, { target: node.id }],
+      })
+      await Promise.all(
+        allEdges.map((edge) => {
+          return getRepository('FlowEdge').delete(edge.id)
+        }),
+      )
+
+      getChatList()
+    },
+    [getChatList],
+  )
 
   useEffect(() => {
     if (!threadNode) {
@@ -48,6 +66,7 @@ export const useChatList = (threadNode?: FlowNode) => {
 
   return {
     chatList,
+    deleteChat,
     getChatList,
   }
 }

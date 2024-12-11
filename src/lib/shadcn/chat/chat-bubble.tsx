@@ -25,7 +25,9 @@ const chatBubbleVariant = cva('flex gap-2 max-w-[60%] items-end relative group',
 
 interface ChatBubbleProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof chatBubbleVariant> {}
+    VariantProps<typeof chatBubbleVariant> {
+  innerclassname?: string
+}
 
 const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
   ({ className, variant, layout, children, ...props }, ref) => (
@@ -39,6 +41,7 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
           ? React.cloneElement(child, {
               variant,
               layout,
+              className: props?.innerclassname,
             } as React.ComponentProps<typeof child.type>)
           : child,
       )}

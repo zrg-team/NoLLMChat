@@ -10,6 +10,7 @@ import {
   lazy,
   Suspense,
   useCallback,
+  useMemo,
 } from 'react'
 import {
   ChatBubble,
@@ -18,6 +19,9 @@ import {
   ChatBubbleMessage,
 } from 'src/lib/shadcn/chat/chat-bubble'
 import { nanoid } from 'nanoid'
+import { useTranslation } from 'react-i18next'
+import { cn } from 'src/lib/utils'
+import { Badge } from 'src/lib/shadcn/ui/badge'
 import { ChatMessageList } from 'src/lib/shadcn/chat/chat-message-list'
 import { CopyIcon, RefreshCcw, Volume2 } from 'lucide-react'
 import { Message, useChat } from 'ai/react'
@@ -49,6 +53,7 @@ const ChatAiIcons = [
 ]
 
 const ChatApplication = memo(() => {
+  const { t } = useTranslation('applications')
   const isScrolling = useRef(false)
   const [isGenerating, setIsGenerating] = useState(false)
 
@@ -61,60 +66,68 @@ const ChatApplication = memo(() => {
   }, [])
 
   const {
+    schema,
     threadInfo,
     mainLLMInfo,
     currentDataNode,
     loadLLM,
+    addNewDataNode,
+    selectDataNode,
     updateMessagesData,
     onThreadMessagesLoaded,
   } = useChatApplicationData()
   const { sendMessage } = useSendMessage()
   const {
     input,
-    setInput,
     messages,
-    handleSubmit,
-    handleInputChange,
     isLoading,
     reload,
+    setInput,
+    handleSubmit,
+    handleInputChange,
     setMessages,
   } = useChat({
     fetch: async (_input: RequestInfo | URL, init?: RequestInit) => {
-      const body = JSON.parse(init?.body as string) as { messages: Message[] }
-      const newMessageId = nanoid()
-      const lastMessage = body.messages[body.messages.length - 1]
-      isScrolling.current = true
-      setMessages((messages) => [
-        ...messages,
-        { id: nanoid(), content: lastMessage.content, role: 'user' },
-        { id: newMessageId, content: 'Thinking...', role: 'assistant' },
-      ])
-      await sendMessage(lastMessage.content, body.messages || [], undefined, [], {
-        onMessageUpdate(info) {
-          setMessages((messages) => {
-            const newMessages = [...messages]
-            const index = newMessages.findIndex((message) => message.id === newMessageId)
-            if (index !== -1) {
-              newMessages[index] = { ...newMessages[index], content: info.nodeData.content || '' }
+      try {
+        setIsGenerating(true)
+        const body = JSON.parse(init?.body as string) as { messages: Message[] }
+        const newMessageId = nanoid()
+        const lastMessage = body.messages[body.messages.length - 1]
+        isScrolling.current = true
+        setMessages((messages) => [
+          ...messages,
+          { id: nanoid(), content: lastMessage.content, role: 'user' },
+          { id: newMessageId, content: '', role: 'assistant' },
+        ])
+        await sendMessage(lastMessage.content, body.messages || [], undefined, [], {
+          schema,
+          onMessageUpdate(info) {
+            setMessages((messages) => {
+              const newMessages = [...messages]
+              const index = newMessages.findIndex((message) => message.id === newMessageId)
+              if (index !== -1) {
+                newMessages[index] = { ...newMessages[index], content: info.nodeData.content || '' }
+              }
+              return newMessages
+            })
+            if (isScrolling.current) {
+              scrollToBottom()
             }
-            return newMessages
-          })
-          if (isScrolling.current) {
-            scrollToBottom()
-          }
-        },
-      })
-      // Update messages data
-      setMessages((messages) => {
-        updateMessagesData(messages)
-        return messages
-      })
-      setIsGenerating(false)
-      setInput('')
-      if (isScrolling.current) {
-        scrollToBottom()
+          },
+        })
+        setMessages((messages) => {
+          updateMessagesData(messages)
+          return messages
+        })
+        setIsGenerating(false)
+        setInput('')
+        if (isScrolling.current) {
+          scrollToBottom()
+        }
+        return new Response()
+      } finally {
+        setIsGenerating(false)
       }
-      return new Response()
     },
   })
 
@@ -139,34 +152,102 @@ const ChatApplication = memo(() => {
     return true
   }
 
-  const handleActionClick = async (action: string, messageIndex: number) => {
-    if (action === 'Refresh') {
-      setIsGenerating(true)
-      try {
-        await reload()
-      } catch (error) {
-        console.error('Error reloading:', error)
-      } finally {
-        setIsGenerating(false)
+  const handleActionClick = useCallback(
+    async (action: string, messageIndex: number, messages: Message[]) => {
+      if (action === 'Refresh') {
+        setIsGenerating(true)
+        try {
+          await reload()
+        } catch (error) {
+          console.error('Error reloading:', error)
+        } finally {
+          setIsGenerating(false)
+        }
       }
-    }
 
-    if (action === 'Copy') {
-      const message = messages[messageIndex]
-      if (message && message.role === 'assistant') {
-        navigator.clipboard.writeText(message.content)
+      if (action === 'Copy') {
+        const message = messages[messageIndex]
+        if (message && message.role === 'assistant') {
+          navigator.clipboard.writeText(message.content)
+        }
       }
-    }
 
-    if (action === 'Volume') {
-      const message = messages[messageIndex]
-      if (message?.content) {
-        await textToSpeech.speak(message?.content || '')
+      if (action === 'Volume') {
+        const message = messages[messageIndex]
+        if (message?.content) {
+          await textToSpeech.speak(message?.content || '')
+        }
       }
-    }
-  }
+    },
+    [reload],
+  )
 
   const handleStopScroll = useCallback(() => (isScrolling.current = false), [])
+
+  const messageList = useMemo(() => {
+    return (
+      messages &&
+      messages.map((message, index) => (
+        <ChatBubble
+          innerclassname={message.role == 'system' ? '!bg-transparent font-semibold' : undefined}
+          key={index}
+          variant={message.role == 'user' ? 'sent' : 'received'}
+        >
+          {message.role === 'system' ? (
+            <div className="w-10 h-10" />
+          ) : message.role === 'assistant' ? (
+            <ChatBubbleAvatar src="" fallback={'🤖'} />
+          ) : undefined}
+          <ChatBubbleMessage>
+            {isGenerating && messages.length - 1 === index && (!message.content || schema) ? (
+              <MessageLoading />
+            ) : (
+              <Suspense fallback={<MessageLoading />}>
+                {message.role === 'system' ? (
+                  <Badge className="!text-sm mb-1">System</Badge>
+                ) : undefined}
+                <MarkdownPreview
+                  className={cn(
+                    '[&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans !text-sm',
+                  )}
+                  style={{
+                    color: 'unset !important',
+                  }}
+                  source={
+                    message.content
+                      ? schema
+                        ? `\`\`\`json\n${message.content}\n\`\`\``
+                        : message.content
+                      : ''
+                  }
+                />
+              </Suspense>
+            )}
+            {message.role === 'assistant' && messages.length - 1 === index && (
+              <div className="flex items-center mt-1.5 gap-1">
+                {!isGenerating && (
+                  <>
+                    {ChatAiIcons.map((icon, iconIndex) => {
+                      const Icon = icon.icon
+                      return (
+                        <ChatBubbleAction
+                          variant="ghost"
+                          className="size-5"
+                          key={iconIndex}
+                          icon={<Icon className="size-3" />}
+                          onClick={() => handleActionClick(icon.label, index, messages)}
+                        />
+                      )
+                    })}
+                  </>
+                )}
+              </div>
+            )}
+          </ChatBubbleMessage>
+        </ChatBubble>
+      ))
+    )
+  }, [messages, isGenerating, schema, handleActionClick])
 
   return (
     <SidebarProvider
@@ -179,50 +260,14 @@ const ChatApplication = memo(() => {
         <main className="flex h-full w-full max-w-2xl flex-col items-center mx-auto overflow-hidden">
           <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-full">
             <ChatMessageList className="!max-h-full" ref={messagesRef}>
-              {messages &&
-                messages.map((message, index) => (
-                  <ChatBubble key={index} variant={message.role == 'user' ? 'sent' : 'received'}>
-                    {message.role !== 'user' ? (
-                      <ChatBubbleAvatar src="" fallback={'🤖'} />
-                    ) : undefined}
-                    <ChatBubbleMessage>
-                      <Suspense fallback={<MessageLoading />}>
-                        <MarkdownPreview
-                          className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !text-inherit !font-sans"
-                          source={message.content || ''}
-                        />
-                      </Suspense>
-
-                      {message.role === 'assistant' && messages.length - 1 === index && (
-                        <div className="flex items-center mt-1.5 gap-1">
-                          {!isGenerating && (
-                            <>
-                              {ChatAiIcons.map((icon, iconIndex) => {
-                                const Icon = icon.icon
-                                return (
-                                  <ChatBubbleAction
-                                    variant="ghost"
-                                    className="size-5"
-                                    key={iconIndex}
-                                    icon={<Icon className="size-3" />}
-                                    onClick={() => handleActionClick(icon.label, index)}
-                                  />
-                                )
-                              })}
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </ChatBubbleMessage>
-                  </ChatBubble>
-                ))}
+              {messageList}
             </ChatMessageList>
           </div>
           <AIInput
             className="!max-w-2xl px-4"
             onSubmit={onSubmit}
             disabled={isLoading || isGenerating || mainLLMInfo?.status !== LLMStatusEnum.Loaded}
-            placeholder="Type your message here..."
+            placeholder={t('chat.input_message_placeholder')}
             maxHeight={72}
             value={input}
             onChange={handleInputChange}
@@ -230,10 +275,13 @@ const ChatApplication = memo(() => {
         </main>
       </SidebarInset>
       <ChatPanel
+        schema={schema}
         currentDataNode={currentDataNode}
         threadNode={threadInfo?.threadNode}
         loadLLM={loadLLM}
         mainLLMInfo={mainLLMInfo}
+        onAddNewThread={addNewDataNode}
+        onSelectThread={selectDataNode}
       />
     </SidebarProvider>
   )

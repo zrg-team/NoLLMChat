@@ -380,6 +380,15 @@
         "delete_failed": "Failed to delete session."
       }
     },
+    "delete_chat_data_node": {
+      "title": "Are you sure to delete this chat?",
+      "description": "Deleting this chat will remove all the messages in this chat.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "errors": {
+        "delete_failed": "Failed to delete chat."
+      }
+    },
     "create_vector_database_prompt": {
       "title": "Create prompt from search result",
       "fill_content_note": "Use {content} as similarity result placeholder in the prompt.",
@@ -425,6 +434,12 @@
         "embedding": "Embedding",
         "vlm": "Vision"
       }
+    }
+  },
+  "applications": {
+    "chat": {
+      "history": "History",
+      "input_message_placeholder": "Type your message here..."
     }
   }
 }

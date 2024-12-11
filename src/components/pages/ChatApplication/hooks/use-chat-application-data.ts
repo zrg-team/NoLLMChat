@@ -31,6 +31,105 @@ export const useChatApplicationData = () => {
   const sessionHandleStatus = useRef<{ handling?: string; handled?: string }>({})
   const currentSession = useSessionState((state) => state.currentSession)
   const loadModel = useLocalLLMState((state) => state.loadModel)
+
+  const selectDataNode = useCallback(
+    async (dataNode: FlowNode) => {
+      if (!currentSession) {
+        return
+      }
+      const jsonData = await getRepository('JSONData').findOne({
+        where: { id: dataNode.source_id, session_id: currentSession?.id },
+      })
+      if (!jsonData) {
+        return
+      }
+      onThreadMessagesLoadedRef.current?.(
+        jsonData.data ? (jsonData.data as unknown as Message[]) : [],
+      )
+      setCurrentDataNode({
+        node: dataNode,
+        enity: jsonData,
+      })
+    },
+    [currentSession],
+  )
+
+  const addNewDataNode = useCallback(
+    async (input?: { sessionId?: string; threadNode?: FlowNode; prompts?: Prompt[] }) => {
+      const sessionId = input?.sessionId || currentSession?.id
+      const threadNode = input?.threadNode || threadInfo?.threadNode
+      const systemPrompt = input?.prompts || chatInfo?.prompts
+
+      if (!sessionId || !threadNode?.id) {
+        return
+      }
+      const initialMessages = systemPrompt
+        ?.map((prompt) => {
+          if (prompt.type === 'few_shot_example') {
+            return undefined
+          }
+          switch (prompt.role) {
+            case 'ai':
+            case 'assistant':
+            case 'tool':
+              return {
+                id: prompt.id,
+                content: prompt.content,
+                role: 'assistant',
+              }
+            case 'system':
+              return {
+                id: prompt.id,
+                content: prompt.content,
+                role: 'system',
+              }
+            default:
+              return {
+                id: prompt.id,
+                content: prompt.content,
+                role: 'user',
+              }
+          }
+        })
+        .filter(Boolean) as Message[]
+      const jsonData = await getRepository('JSONData').save({
+        headers: 'item',
+        session_id: sessionId,
+        json: '',
+        data: initialMessages,
+      })
+      if (!jsonData) {
+        return
+      }
+      const jsonDataNode = await getRepository('FlowNode').save({
+        session_id: sessionId,
+        source_id: jsonData.id,
+        source_type: 'JSONData',
+        node_type: 'JSON_DATA',
+        x: 0,
+        y: 0,
+      })
+      if (!jsonDataNode) {
+        return
+      }
+      await getRepository('FlowEdge').save({
+        session_id: sessionId,
+        source: threadNode.id,
+        target: jsonDataNode.id,
+      })
+      onThreadMessagesLoadedRef.current?.(initialMessages)
+      setCurrentDataNode({
+        node: jsonDataNode,
+        enity: jsonData,
+      })
+      return {
+        jsonData,
+        jsonDataNode,
+      }
+    },
+    [chatInfo?.prompts, currentSession?.id, threadInfo?.threadNode],
+  )
+
   const getChatApplicationData = useCallback(async () => {
     try {
       sessionHandleStatus.current.handling = currentSession?.id
@@ -93,36 +192,14 @@ export const useChatApplicationData = () => {
         order: { id: 'DESC' },
       })
       if (!threadData) {
-        const jsonData = await getRepository('JSONData').save({
-          headers: 'item',
-          session_id: currentSession.id,
-          json: '',
-          data: [],
+        const result = await addNewDataNode({
+          sessionId: currentSession.id,
+          threadNode,
+          prompts: promptInfo?.map((info) => info.entity as Prompt) || [],
         })
-        if (!jsonData) {
+        if (!result) {
           return
         }
-        const jsonDataNode = await getRepository('FlowNode').save({
-          session_id: currentSession.id,
-          source_id: jsonData.id,
-          source_type: 'JSONData',
-          node_type: 'JSON_DATA',
-          x: 0,
-          y: 0,
-        })
-        if (!jsonDataNode) {
-          return
-        }
-        await getRepository('FlowEdge').save({
-          session_id: currentSession.id,
-          source: threadNode.id,
-          target: jsonDataNode.id,
-        })
-        onThreadMessagesLoadedRef.current?.([])
-        setCurrentDataNode({
-          node: jsonDataNode,
-          enity: jsonData,
-        })
       } else {
         const dataNode = await getRepository('FlowNode').findOne({
           where: { id: threadData.target, session_id: currentSession.id },
@@ -130,17 +207,7 @@ export const useChatApplicationData = () => {
         if (!dataNode) {
           return
         }
-        const jsonData = await getRepository('JSONData').findOne({
-          where: { id: dataNode.source_id, session_id: currentSession.id },
-        })
-        if (!jsonData) {
-          return
-        }
-        onThreadMessagesLoadedRef.current?.(jsonData.data as unknown as Message[])
-        setCurrentDataNode({
-          node: dataNode,
-          enity: jsonData,
-        })
+        await selectDataNode(dataNode)
       }
 
       setLLMInfo({
@@ -152,16 +219,30 @@ export const useChatApplicationData = () => {
         thread,
         threadNode,
       })
+      const schemaEntity = schemaInfo?.entity as Schema
+      if (schemaEntity) {
+        const schemaItems = await getRepository('SchemaItem').find({
+          where: { schema_id: schemaEntity.id },
+        })
+        schemaEntity.schema_items = schemaItems || []
+      }
+
       setChatInfo({
         prompts: promptInfo?.map((info) => info.entity as Prompt) || [],
-        schema: schemaInfo?.entity as Schema,
+        schema: schemaEntity,
       })
 
       sessionHandleStatus.current.handled = currentSession.id
     } finally {
       sessionHandleStatus.current.handling = undefined
     }
-  }, [currentSession?.id, currentSession?.main_source_id, currentSession?.main_source_type])
+  }, [
+    addNewDataNode,
+    currentSession?.id,
+    currentSession?.main_source_id,
+    currentSession?.main_source_type,
+    selectDataNode,
+  ])
 
   const loadLLM = useCallback(async () => {
     if (!mainLLMInfo?.llm.name) {
@@ -215,6 +296,8 @@ export const useChatApplicationData = () => {
     mainLLMInfo,
     currentDataNode,
     updateMessagesData,
+    addNewDataNode,
+    selectDataNode,
     onThreadMessagesLoaded,
   }
 }

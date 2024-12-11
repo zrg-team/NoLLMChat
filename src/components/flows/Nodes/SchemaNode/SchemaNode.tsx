@@ -68,12 +68,16 @@ export const SchemaNode = memo((props: SchemaNodeProps) => {
           </TabsList>
           <TabsContent value="account">
             <Card className="p-4">
-              <pre>{convertToTypeScriptInterface(data?.entity?.schema_items || [])}</pre>
+              <pre className="overflow-hidden break-words whitespace-pre-wrap">
+                {convertToTypeScriptInterface(data?.entity?.schema_items || [])}
+              </pre>
             </Card>
           </TabsContent>
           <TabsContent value="password">
-            <Card className="p-4">
-              <pre>{convertToZodSchemaString(data?.entity?.schema_items || [])}</pre>
+            <Card className="p-4 max-w-full">
+              <pre className="overflow-hidden break-words whitespace-pre-wrap">
+                {convertToZodSchemaString(data?.entity?.schema_items || [])}
+              </pre>
             </Card>
           </TabsContent>
         </Tabs>
