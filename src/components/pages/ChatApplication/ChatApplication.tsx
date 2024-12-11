@@ -258,7 +258,7 @@ const ChatApplication = memo(() => {
     >
       <SidebarInset className="!max-h-full !overflow-hidden" style={{ minHeight: 'unset' }}>
         <main className="flex h-full w-full max-w-2xl flex-col items-center mx-auto overflow-hidden">
-          <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-full">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-full max-w-full">
             <ChatMessageList className="!max-h-full" ref={messagesRef}>
               {messageList}
             </ChatMessageList>
