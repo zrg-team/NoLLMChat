@@ -12,6 +12,7 @@ import type { FileSystemTree } from '@webcontainer/api'
 
 import { EditorAppNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
+import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 
 const VSLiteApp = lazy(() => import('src/lib/vslite/index'))
 
@@ -20,7 +21,8 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   const [fileSystemTree, setFileSystemTree] = useState(
     data?.flowNode?.raw ? parseJSONLToFileSystemTree(data.flowNode.raw) : undefined,
   )
-  const { updateCodeContainerData } = useActions(id)
+  const { updateCodeContainerData, getLinkedConnections } = useActions()
+  useConnectionToHandler(id)
 
   const handleUpdateCodeContainerData = useCallback(
     async (tree: FileSystemTree) => {
@@ -35,8 +37,7 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   const handleUpdateCodeContainerFile = useCallback(
     async (filePath: string, code: string) => {
       setFileSystemTree((prev) => {
-        if (!prev) return prev
-        const result = updateFileContentOfFileSystemTree(prev, filePath, code)
+        const result = updateFileContentOfFileSystemTree(prev || {}, filePath, code)
         updateCodeContainerData(data?.flowNode?.id, result)
         return result
       })
@@ -53,10 +54,15 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   }
 
   return (
-    <div className="w-[1380px] h-[600px]">
+    <div className="w-[1380px] h-[600px] rounded-lg border overflow-hidden shadow-sm">
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="w-full h-full rounded-lg border bg-card overflow-hidden">
-        <NodeHeader id={id} className="z-50" />
+        <NodeHeader
+          id={id}
+          className="z-50"
+          enableToStandalone
+          getLinkedConnections={getLinkedConnections}
+        />
         <Suspense
           fallback={
             <div className="h-full w-full flex justify-center items-center">

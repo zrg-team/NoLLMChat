@@ -14,6 +14,9 @@ export function useStartup(
   grid: MutableRefObject<GridviewApi | undefined>,
   dock: MutableRefObject<DockviewApi | undefined>,
   panes: MutableRefObject<PaneviewApi | undefined>,
+  options?: {
+    hideAppName?: boolean
+  },
 ) {
   const shell = useShell()
   const monaco = useMonaco()
@@ -39,7 +42,7 @@ export function useStartup(
 
     if (shell.container?.fs && panes.current && dock.current) {
       initFileTree.current = true
-      panels.openFileTree(shell.container.fs, panes.current, dock.current)
+      panels.openFileTree(shell.container.fs, panes.current, dock.current, options?.hideAppName)
     }
   }, [shell.container?.fs, panes.current, dock.current])
 

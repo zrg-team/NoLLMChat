@@ -12,7 +12,7 @@ export const CodeContainerAppNode = memo((props: EditorAppNodeProps) => {
   const { id, isConnectable } = props
 
   return (
-    <div className="w-[1380px] h-[600px]">
+    <div className="w-[1380px] h-[600px] rounded-lg border overflow-hidden shadow-sm">
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="w-full h-full rounded-lg border bg-card overflow-hidden">
         <NodeHeader id={id} />

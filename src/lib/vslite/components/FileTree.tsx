@@ -15,6 +15,7 @@ import { getIcon } from '../icons'
 import { useMainVSLiteAppContext } from '../contexts/main'
 
 interface FileTreeProps {
+  hideAppName?: boolean
   fs: FileSystemAPI
   onRenameItem: (path: string, name: string) => void
   onTriggerItem: (path: string, name: string) => void
@@ -66,10 +67,12 @@ export function FileTree(props: FileTreeProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="w-full p-2 pt-4 flex items-center gap-2 pl-8 cursor-grab">
-        <LazyIcon name="square-terminal" />
-        <Label className="cursor-grab">VSLite</Label>
-      </div>
+      {!props?.hideAppName ? (
+        <div className="w-full p-2 pt-4 flex items-center gap-2 pl-8 cursor-grab">
+          <LazyIcon name="square-terminal" />
+          <Label className="cursor-grab">VSLite</Label>
+        </div>
+      ) : undefined}
       <div
         ref={editorRef}
         className={cn(
