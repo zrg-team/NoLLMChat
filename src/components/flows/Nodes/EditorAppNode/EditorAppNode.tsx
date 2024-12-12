@@ -14,7 +14,7 @@ const PlateAppEditor = lazy(() => import('src/components/organisms/editor/PlateE
 export const EditorAppNode = memo((props: EditorAppNodeProps) => {
   const { id, data, selected, isConnectable } = props
   useConnectionToHandler(id)
-  const { createMessage, updateEditorContent } = useActions(id)
+  const { createMessage, updateEditorContent, getLinkedConnections } = useActions(id)
 
   const handleChangeContent = useCallback(
     (value: unknown[]) => {
@@ -28,7 +28,12 @@ export const EditorAppNode = memo((props: EditorAppNodeProps) => {
       <DefaultNodeResizer isVisible={!!selected} minWidth={1240} minHeight={400} />
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="min-w-10 min-h-10 w-full h-full rounded-lg border bg-background">
-        <NodeHeader className="!z-[100]" id={id} />
+        <NodeHeader
+          className="!z-[100]"
+          id={id}
+          enableToStandalone
+          getLinkedConnections={getLinkedConnections}
+        />
         <Suspense
           fallback={
             <div className="h-full w-ful rounded-lg flex justify-center items-center">

@@ -1,11 +1,12 @@
 import { useCallback, useRef } from 'react'
 import type { BaseMessage } from '@langchain/core/messages'
 import { useLocalLLMState } from 'src/services/local-llm'
-import { useInternalNode, useReactFlow } from '@xyflow/react'
+import { Connection, useInternalNode, useReactFlow } from '@xyflow/react'
 import { getRepository } from 'src/services/database'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { FlowNodeTypeEnum, LLMStatusEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
+import { DefaultNode } from 'src/utils/flow-node'
 
 export const useActions = (id: string) => {
   const node = useInternalNode(id)
@@ -85,8 +86,39 @@ export const useActions = (id: string) => {
     [node, getHandleConnections, id, getNode, toast, t, stream],
   )
 
+  const getLinkedConnections = useCallback(
+    (id: string) => {
+      const currentNode = getNode(id)
+      if (!currentNode) {
+        return []
+      }
+      const linkedConnections: {
+        node: DefaultNode
+        connections: Connection[]
+        connectedNodes?: DefaultNode[]
+      }[] = []
+      const connections = getHandleConnections({
+        nodeId: id,
+        type: 'target',
+      })
+      connections.forEach((connection) => {
+        const node = getNode(connection.source)
+        if (!node || node.type !== FlowNodeTypeEnum.LLM) {
+          return
+        }
+        linkedConnections.push({
+          node: node as DefaultNode,
+          connections: [connection],
+        })
+      })
+      return linkedConnections
+    },
+    [getHandleConnections, getNode],
+  )
+
   return {
     createMessage,
     updateEditorContent,
+    getLinkedConnections,
   }
 }

@@ -5,6 +5,7 @@
     "copied": "Copied",
     "deleted": "Deleted",
     "whiteboard": "Whiteboard",
+    "apllication": "Application",
     "errors": {
       "delete_failed": "Delete node failed.",
       "create_standalone_session_failed": "Failed to create standalone session."

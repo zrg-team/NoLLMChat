@@ -20,6 +20,7 @@ export const getSessionStateActions = (
 ): SessionStateActions => {
   return {
     setCurrentSession: async (session) => {
+      set({ currentSession: undefined })
       if (typeof session === 'string' || !session) {
         session = session || useAppState.getState().selectedSessionId
         let selectedSession = await getRepository('Session').findOne({
@@ -33,6 +34,12 @@ export const getSessionStateActions = (
         session = selectedSession
       }
       useAppState.setState({ selectedSessionId: session.id })
+
+      const mainNode = await getRepository('FlowNode').findOne({
+        where: { id: session.main_node_id },
+      })
+      session.main_node = mainNode
+
       let isExist = false
       if (session.type === SessionTypeEnum.StandaloneApp) {
         const applications = get().applications.map((item) => {

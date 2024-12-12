@@ -158,8 +158,6 @@ const ChatApplication = memo(() => {
         setIsGenerating(true)
         try {
           await reload()
-        } catch (error) {
-          console.error('Error reloading:', error)
         } finally {
           setIsGenerating(false)
         }

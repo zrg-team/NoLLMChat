@@ -56,6 +56,17 @@ export const useCreateStandaloneSession = () => {
           entity: cloneEntity,
           node: cloneFlowNode,
         }
+      } else {
+        const cloneFlowNode = await getRepository('FlowNode').save({
+          ...node.data.flowNode,
+          node_type: node.type as FlowNodeTypeEnum,
+          session_id: newSession.id,
+          id: undefined,
+        })
+        newFlowNodeIDMap.set(`${node.id}`, cloneFlowNode.id)
+        return {
+          node: cloneFlowNode,
+        }
       }
     },
     [],
@@ -100,8 +111,8 @@ export const useCreateStandaloneSession = () => {
         }
         await getRepository('Session').update(standaloneSession.id, {
           main_node_id: mainNodeInfo.node.id,
-          main_source_id: mainNodeInfo.entity.id,
-          main_source_type: mainNodeInfo.entityName,
+          main_source_id: mainNodeInfo?.entity ? mainNodeInfo.entity.id : undefined,
+          main_source_type: mainNodeInfo.entityName ? mainNodeInfo.entityName : undefined,
         })
         // Clone connected nodes
         for (const { node, connectedNodes } of options.connections) {
