@@ -39,12 +39,17 @@ export function openTerminal(shell: ShellInstance, grid: GridviewApi, dock: Dock
   })
 }
 
-export function openFileTree(fs: FileSystemAPI, grid: PaneviewApi, dock: DockviewApi) {
+export function openFileTree(
+  fs: FileSystemAPI,
+  grid: PaneviewApi,
+  dock: DockviewApi,
+  hideAppName?: boolean,
+) {
   const filetree = grid.addPanel({
     id: 'filetree',
     title: 'Explorer',
     component: 'filetree',
-    params: { dock, fs },
+    params: { dock, fs, hideAppName },
     isExpanded: true,
   })
   filetree.headerVisible = false

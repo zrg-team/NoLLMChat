@@ -1,5 +1,5 @@
 import { DockviewReact, GridviewReact, PaneviewReact } from 'dockview'
-import { FunctionComponent, useCallback, useRef, useState } from 'react'
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react'
 import { useAppState } from 'src/states/app'
 
 import { Editor } from './Editor'
@@ -24,16 +24,19 @@ import { useMainVSLiteAppContext } from '../contexts/main'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { useTranslation } from 'react-i18next'
 
-export function Dock() {
+export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppName?: boolean }) {
   const { t } = useTranslation('components')
   const [loading, setLoading] = useState(false)
+  const loadingRef = useRef(loading)
   const grid = useRef<GridviewApi>()
   const dock = useRef<DockviewApi>()
   const panes = useRef<PaneviewApi>()
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
   const { container, ternimalElementRef, layoutReady, setLayoutReady } = useMainVSLiteAppContext()
 
-  const { shell } = useStartup(layoutReady, grid, dock, panes)
+  loadingRef.current = loading
+
+  const { shell } = useStartup(layoutReady, grid, dock, panes, { hideAppName })
   const startShell = useCallback(async () => {
     const terminalPanel = grid?.current?.getPanel('terminal')?.api
     if (
@@ -41,7 +44,8 @@ export function Dock() {
       !panes.current ||
       !grid.current ||
       !ternimalElementRef.current ||
-      !terminalPanel
+      !terminalPanel ||
+      loadingRef.current
     ) {
       return
     }
@@ -56,6 +60,12 @@ export function Dock() {
     )
   }, [dock, panes, grid, shell, ternimalElementRef])
 
+  useEffect(() => {
+    if (autoLoad) {
+      startShell()
+    }
+  }, [autoLoad, startShell])
+
   return (
     <>
       <GridviewReact
@@ -69,7 +79,7 @@ export function Dock() {
           setLayoutReady?.(true)
         }}
       />
-      {!container ? (
+      {!container && !autoLoad ? (
         <div className="absolute w-full h-full flex justify-center items-center z-40 bg-background top-0 left-0">
           <LoadingButton onClick={startShell} loading={loading}>
             {t('vslite.load_app_container')}
@@ -113,9 +123,12 @@ const gridComponents: Record<string, FunctionComponent<IGridviewPanelProps>> = {
 }
 
 const paneComponents: Record<string, FunctionComponent<IPaneviewPanelProps>> = {
-  filetree: (props: IPaneviewPanelProps<{ dock: DockviewApi; fs: FileSystemAPI }>) => (
+  filetree: (
+    props: IPaneviewPanelProps<{ dock: DockviewApi; fs: FileSystemAPI; hideAppName?: boolean }>,
+  ) => (
     <FileTree
       fs={props.params.fs}
+      hideAppName={props.params.hideAppName}
       onRenameItem={panels.createFileRenameHandler(props.params.dock, props.params.fs)}
       onTriggerItem={panels.createFileOpener(props.params.dock, props.params.fs)}
     />

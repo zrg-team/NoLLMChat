@@ -5,9 +5,13 @@ import { Dock } from './components/Dock'
 
 export const VSLiteApp = memo(
   ({
+    autoLoad,
+    hideAppName,
     fileSystemTree,
     onUpdateFileContent,
   }: {
+    autoLoad?: boolean
+    hideAppName?: boolean
     fileSystemTree?: FileSystemTree
     onUpdateFileContent: (path: string, content: string) => void
   }) => {
@@ -16,7 +20,7 @@ export const VSLiteApp = memo(
         fileSystemTree={fileSystemTree}
         onUpdateFileContent={onUpdateFileContent}
       >
-        <Dock />
+        <Dock autoLoad={autoLoad} hideAppName={hideAppName} />
       </MainVSLiteAppProvider>
     )
   },
