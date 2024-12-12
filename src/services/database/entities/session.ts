@@ -5,6 +5,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm'
 import {
   FlowEdge,
@@ -44,8 +46,13 @@ export class Session {
   @UpdateDateColumn()
   updated_at?: Date
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   main_node_id?: string
+  @OneToOne(() => FlowNode, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'main_node_id' })
+  main_node?: FlowNode
 
   @Column({ type: 'text', nullable: true })
   main_source_id?: string

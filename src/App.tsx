@@ -48,13 +48,13 @@ const MainApp = memo(() => {
   if (error) {
     return <DefaultError error={error} />
   } else if (!ready || !hydrated) {
-    return <DefaultLoader className="w-screen h-screen" />
+    return <DefaultLoader className="w-screen h-screen" enableLogo typing />
   }
 
   return (
     <Modal.Provider>
       <ErrorBoundary fallback={<DefaultError />} onError={logErrorHook}>
-        <Suspense fallback={<DefaultLoader className="w-screen h-screen" />}>
+        <Suspense fallback={<DefaultLoader className="w-screen h-screen" enableLogo typing />}>
           <AppRoute />
         </Suspense>
       </ErrorBoundary>

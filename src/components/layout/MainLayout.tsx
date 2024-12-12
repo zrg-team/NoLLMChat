@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppSidebar } from 'src/components/layout/AppSidebar/Sidebar'
@@ -74,6 +74,14 @@ export function MainLayout() {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }, [theme, setTheme])
 
+  const title = useMemo(() => {
+    if (location.pathname.includes(getRouteURL('whiteboard'))) {
+      return t('whiteboard')
+    } else if (location.pathname.includes(getRouteURL('application'))) {
+      return t('apllication')
+    }
+  }, [location.pathname, t])
+
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar
@@ -86,7 +94,7 @@ export function MainLayout() {
         <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear justify-between">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger />
-            <Label>{t('whiteboard')}</Label>
+            <Label>{title}</Label>
           </div>
           <div className="flex items-center gap-2 px-4">
             <Button onClick={handleChangeTheme} variant="link">

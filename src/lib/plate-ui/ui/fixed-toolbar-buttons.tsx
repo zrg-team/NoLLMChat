@@ -31,7 +31,7 @@ import { AlignDropdownMenu } from './align-dropdown-menu'
 import { ColorDropdownMenu } from './color-dropdown-menu'
 import { EmojiDropdownMenu } from './emoji-dropdown-menu'
 import { ExportToolbarButton } from './export-toolbar-button'
-import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button'
+// import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button'
 import { IndentListToolbarButton } from './indent-list-toolbar-button'
 import { IndentTodoToolbarButton } from './indent-todo-toolbar-button'
 import { IndentToolbarButton } from './indent-toolbar-button'
@@ -59,10 +59,10 @@ export function FixedToolbarButtons() {
               <PointerIcon size={24} />
             </ToolbarButton>
           </ToolbarGroup>
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <UndoToolbarButton />
             <RedoToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           <ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
