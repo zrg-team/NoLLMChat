@@ -1,6 +1,6 @@
 import { FileSystemTree } from '@webcontainer/api'
 
-export const SHADCN_REACT_VITE_BASE: FileSystemTree = {
+export const BASE: FileSystemTree = {
   'package.json': {
     file: {
       contents: `{

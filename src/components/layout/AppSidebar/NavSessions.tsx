@@ -39,10 +39,11 @@ export function NavSessions({
 
   const handleDeleteSession = useCallback(
     (e: React.MouseEvent<SVGSVGElement>, id: string) => {
+      e.preventDefault()
+      e.stopPropagation()
       deleteSessionDialog.show({
         id,
       })
-      e.preventDefault()
     },
     [deleteSessionDialog],
   )
@@ -76,6 +77,7 @@ export function NavSessions({
                   onClick={(e) => handleDeleteSession(e, item.id)}
                   size={16}
                   name="trash-2"
+                  className="!z-50"
                 />
               </div>
             </SidebarMenuButton>

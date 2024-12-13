@@ -1,5 +1,5 @@
 import { DockviewReact, GridviewReact, PaneviewReact } from 'dockview'
-import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react'
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppState } from 'src/states/app'
 
 import { Editor } from './Editor'
@@ -23,6 +23,7 @@ import { Preview } from './Preview'
 import { useMainVSLiteAppContext } from '../contexts/main'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { useTranslation } from 'react-i18next'
+import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 
 export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppName?: boolean }) {
   const { t } = useTranslation('components')
@@ -66,8 +67,8 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
     }
   }, [autoLoad, startShell])
 
-  return (
-    <>
+  const mainDock = useMemo(() => {
+    return (
       <GridviewReact
         className={isDarkTheme ? 'dockview-theme-dark' : 'dockview-theme-light'}
         components={gridComponents}
@@ -79,6 +80,22 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
           setLayoutReady?.(true)
         }}
       />
+    )
+  }, [isDarkTheme, setLayoutReady])
+
+  console.log('Dock render')
+
+  return (
+    <>
+      {mainDock}
+      {loading ? (
+        <DefaultLoader
+          blurBackground
+          typing
+          text={t('vslite.loading_vm_container')}
+          className="!absolute !w-full !h-full !z-40 top-0 left-0 !bg-transparent"
+        />
+      ) : undefined}
       {!container && !autoLoad ? (
         <div className="absolute w-full h-full flex justify-center items-center z-40 bg-background top-0 left-0">
           <LoadingButton onClick={startShell} loading={loading}>

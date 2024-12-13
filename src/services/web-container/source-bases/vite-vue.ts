@@ -1,6 +1,6 @@
 import { FileSystemTree } from '@webcontainer/api'
 
-export const VITE_VUE_BASE: FileSystemTree = {
+export const BASE: FileSystemTree = {
   public: {
     directory: {
       'vite.svg': {

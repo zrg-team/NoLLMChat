@@ -33,10 +33,11 @@ export function NavStandaloneApp({
 
   const handleDeleteSession = useCallback(
     (e: React.MouseEvent<SVGSVGElement>, id: string) => {
+      e.preventDefault()
+      e.stopPropagation()
       deleteSessionDialog.show({
         id,
       })
-      e.preventDefault()
     },
     [deleteSessionDialog],
   )
@@ -81,6 +82,7 @@ export function NavStandaloneApp({
                 <LazyIcon
                   onClick={(e) => handleDeleteSession(e, item.id)}
                   size={16}
+                  className="!z-50"
                   name="trash-2"
                 />
               </div>

@@ -43,8 +43,13 @@ export const useCreateStandaloneSession = () => {
             : {}),
         } as EntityType<unknown>)
         newEntityIDMap.set(`${entity.id}`, cloneEntity.id)
+        const currentFlowNode = await getRepository('FlowNode').findOne({
+          where: {
+            id: node.data.flowNode.id,
+          },
+        })
         const cloneFlowNode = await getRepository('FlowNode').save({
-          ...node.data.flowNode,
+          ...(currentFlowNode || node.data.flowNode),
           session_id: newSession.id,
           id: undefined,
           source_type: entityName,
@@ -57,8 +62,13 @@ export const useCreateStandaloneSession = () => {
           node: cloneFlowNode,
         }
       } else {
+        const currentFlowNode = await getRepository('FlowNode').findOne({
+          where: {
+            id: node.data.flowNode.id,
+          },
+        })
         const cloneFlowNode = await getRepository('FlowNode').save({
-          ...node.data.flowNode,
+          ...(currentFlowNode || node.data.flowNode),
           node_type: node.type as FlowNodeTypeEnum,
           session_id: newSession.id,
           id: undefined,
