@@ -53,6 +53,8 @@ const CreateVectorDatabaseRetrieverDialog = create<CreateVectorDatabaseRetriever
             minimalScore,
           },
         })
+        setK(1)
+        setMinimalScore(undefined)
         currentModal.hide()
         return true
       } catch {

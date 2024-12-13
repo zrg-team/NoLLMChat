@@ -35,6 +35,7 @@ const CreateStandaloneApplicationDialog = create<CreateSessionProps>(
       try {
         currentModal.hide()
         await cloneStandaloneSession(name)
+        setName('')
       } catch {
         toast({
           variant: 'destructive',

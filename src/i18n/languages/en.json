@@ -342,13 +342,16 @@
       "title": "Source Base",
       "source_base_select_placeholder": "Select a source base",
       "sourcebases": {
-        "vite-vue": "Vite + Vue",
-        "shadcn-react-vite": "React + Vite + Shadcn UI"
+        "vite-vue": "Base [Vite + Vue]",
+        "shadcn-react-vite": "Base [React + Vite + Shadcn]",
+        "todo-app-react-vite": "Todo App [Vue + Vite + Shadcn]",
+        "porfolio-nextjs": "Portfolio [Next.js + Shadcn]"
       },
       "update_source": "Update Source"
     },
     "vslite": {
-      "load_app_container": "Load Container"
+      "load_app_container": "Load Container",
+      "loading_vm_container": "Initializing container..."
     }
   },
   "dialogs": {

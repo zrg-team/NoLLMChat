@@ -36,6 +36,7 @@ const CreateSessionDialog = create<CreateSessionProps>(() => {
       await createSession({
         name,
       })
+      setName('')
       currentModal.hide()
     } catch {
       toast({

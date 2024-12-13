@@ -82,28 +82,30 @@ export const getSessionStateActions = (
       return session
     },
     deleteSession: async (id) => {
-      const session = await getRepository('Session').delete(id)
+      const session = await getRepository('Session').findOne({
+        where: { id },
+      })
       if (!session) {
         throw new Error('Failed delete.')
       }
-      const currentSession = get().currentSession
+      const updated = await getRepository('Session').delete(id)
+      if (!updated) {
+        throw new Error('Failed delete.')
+      }
+
       const sessions = get().sessions
       const applications = get().applications
-      if (currentSession?.type === SessionTypeEnum.Whiteboard) {
+      if (session?.type === SessionTypeEnum.Whiteboard) {
         const newSessions = sessions.filter((s) => s.id !== id)
         set({
           sessions: newSessions,
-          ...(currentSession?.id === id
-            ? { currentSession: newSessions?.[0] || applications?.[0] }
-            : {}),
+          ...(session?.id === id ? { currentSession: newSessions?.[0] || applications?.[0] } : {}),
         })
       } else {
         const newApplications = applications.filter((s) => s.id !== id)
         set({
           applications: newApplications,
-          ...(currentSession?.id === id
-            ? { currentSession: newApplications?.[0] || sessions?.[0] }
-            : {}),
+          ...(session?.id === id ? { currentSession: newApplications?.[0] || sessions?.[0] } : {}),
         })
       }
     },
