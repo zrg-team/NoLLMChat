@@ -37,7 +37,7 @@ import { TogglePlugin } from '@udecode/plate-toggle/react'
 
 import { copilotPlugins } from 'src/components/organisms/editor/plugins/copilot-plugins'
 import { editorPlugins } from 'src/components/organisms/editor/plugins/editor-plugins'
-import { FixedToolbarPlugin } from 'src/components/organisms/editor/plugins/fixed-toolbar-plugin'
+import { createFixedToolbarPlugin } from 'src/components/organisms/editor/plugins/fixed-toolbar-plugin'
 import { FloatingToolbarPlugin } from 'src/components/organisms/editor/plugins/floating-toolbar-plugin'
 import { AILeaf } from 'src/lib/plate-ui/ui/ai-leaf'
 import { BlockquoteElement } from 'src/lib/plate-ui/ui/blockquote-element'
@@ -70,7 +70,11 @@ import { buildAIPlugins } from './plugins/ai-plugins'
 export const useCreateEditor = ({
   defaultValue,
   copilotStream,
+  hideDragIcon,
+  enableHistoryControl,
 }: {
+  enableHistoryControl?: boolean
+  hideDragIcon?: boolean
   defaultValue: Value
   copilotStream?: (
     message: string | BaseMessage[],
@@ -83,6 +87,10 @@ export const useCreateEditor = ({
         copilotStream,
       }),
     [copilotStream],
+  )
+  const FixedToolbarPlugin = useMemo(
+    () => createFixedToolbarPlugin({ hideDragIcon, enableHistoryControl }),
+    [hideDragIcon, enableHistoryControl],
   )
   return usePlateEditor({
     override: {

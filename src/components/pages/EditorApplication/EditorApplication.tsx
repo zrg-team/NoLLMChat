@@ -29,7 +29,7 @@ const EditorApplication = memo(() => {
         <Tooltip>
           <div
             className={cn(
-              'flex absolute !z-[51] right-1 top-0 max-w-28 h-9 text-foreground items-center justify-center flex-row',
+              'flex absolute !z-[51] right-1 top-0 max-w-28 h-9 items-center justify-center flex-row',
             )}
           >
             {mainLLMInfo?.status === LLMStatusEnum.Loaded && mainLLMInfo?.llm?.name ? (
@@ -61,6 +61,8 @@ const EditorApplication = memo(() => {
           onValueChange={handleChangeContent}
           copilotStream={createMessage}
           key={mainLLMInfo?.llm?.name || 'default'}
+          hideDragIcon
+          enableHistoryControl
         />
       </Suspense>
     </div>

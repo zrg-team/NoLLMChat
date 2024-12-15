@@ -36,6 +36,12 @@ export class VectorDatabase {
   @Column({ type: 'text', nullable: true })
   metadata?: string
 
+  @Column({ type: 'text', nullable: true })
+  raw?: string
+
+  @Column({ type: 'json', nullable: true })
+  data?: unknown
+
   @CreateDateColumn()
   created_at?: Date
 

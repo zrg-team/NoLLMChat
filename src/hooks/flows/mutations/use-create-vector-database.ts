@@ -37,38 +37,21 @@ export const useCreateVectorDatabase = () => {
         const initialX = source.position?.x || 0
         const initialY = (source.position?.y || 0) + (source.measured?.height || 0)
 
-        // Default JSONLData source
-        const databaseSource = await getRepository('JSONLData').save({
-          headers: encodeSplitter(['content', 'embedding', 'metadata']),
-          jsonl: '',
-          session_id: sessionId,
-        })
-        if (!databaseSource) {
-          throw new Error('Failed to save databaseSource')
-        }
-        const databaseSourceNode = await createOrUpdateFlowNode({
-          source_id: databaseSource.id,
-          source_type: 'JSONLData',
-          node_type: FlowNodeTypeEnum.JSONLData,
-          x: initialX + 80,
-          y: initialY + 30,
-        })
-        if (!databaseSourceNode) {
-          throw new Error('Failed to save databaseSource node')
-        }
-
         const vectorDatabase = await getRepository('VectorDatabase').save({
           ...data,
           name: `${data.name}`,
           type: data.type || VectorDatabaseTypeEnum.Local,
-          storage: data.storage || VectorDatabaseStorageEnum.DataNode,
+          storage: data.storage || VectorDatabaseStorageEnum.DatabaseNode,
+          raw: '',
           provider: data.provider || VectorDatabaseProviderEnum.Memory,
           session_id: sessionId,
           metadata: textSplitter ? JSON.stringify({ textSplitter }) : undefined,
         })
+
         if (!vectorDatabase) {
           throw new Error('Failed to save vectorDatabase')
         }
+
         const vectorDatabaseNode = await createOrUpdateFlowNode({
           source_id: vectorDatabase.id,
           source_type: 'VectorDatabase',
@@ -79,10 +62,33 @@ export const useCreateVectorDatabase = () => {
         if (!vectorDatabaseNode) {
           throw new Error('Failed to save vectorDatabase node')
         }
-        await createOrUpdateFlowEdge({
-          source: databaseSourceNode.id,
-          target: vectorDatabaseNode.id,
-        })
+
+        if (data.storage === VectorDatabaseStorageEnum.DataNode) {
+          // Default JSONLData source
+          const databaseSource = await getRepository('JSONLData').save({
+            headers: encodeSplitter(['content', 'embedding', 'metadata']),
+            jsonl: '',
+            session_id: sessionId,
+          })
+          if (!databaseSource) {
+            throw new Error('Failed to save databaseSource')
+          }
+          const databaseSourceNode = await createOrUpdateFlowNode({
+            source_id: databaseSource.id,
+            source_type: 'JSONLData',
+            node_type: FlowNodeTypeEnum.JSONLData,
+            x: initialX + 80,
+            y: initialY + 30,
+          })
+          if (!databaseSourceNode) {
+            throw new Error('Failed to save databaseSource node')
+          }
+
+          await createOrUpdateFlowEdge({
+            source: databaseSourceNode.id,
+            target: vectorDatabaseNode.id,
+          })
+        }
 
         return {
           vectorDatabase,

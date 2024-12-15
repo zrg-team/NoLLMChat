@@ -20,18 +20,24 @@ export const getSessionStateActions = (
 ): SessionStateActions => {
   return {
     setCurrentSession: async (session) => {
+      const currentSession = get().currentSession
       set({ currentSession: undefined })
       if (typeof session === 'string' || !session) {
         session = session || useAppState.getState().selectedSessionId
-        let selectedSession = await getRepository('Session').findOne({
-          where: { id: session },
-        })
-        if (!selectedSession) {
-          selectedSession = (await getRepository('Session').findOne({
-            order: { updated_at: 'DESC' },
-          })) as Session
+
+        if (session === currentSession?.id && currentSession) {
+          session = currentSession
+        } else {
+          let selectedSession = await getRepository('Session').findOne({
+            where: { id: session },
+          })
+          if (!selectedSession) {
+            selectedSession = (await getRepository('Session').findOne({
+              order: { updated_at: 'DESC' },
+            })) as Session
+          }
+          session = selectedSession
         }
-        session = selectedSession
       }
       useAppState.setState({ selectedSessionId: session.id })
 

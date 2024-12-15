@@ -8,9 +8,9 @@ import { toast } from 'src/lib/hooks/use-toast'
 import { useFlowState } from 'src/states/flow'
 import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
 import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
+import { DefaultNodeData } from 'src/utils/flow-node'
 
 import { ThreadNodeProps } from '../type'
-import { DefaultNodeData } from 'src/utils/flow-node'
 
 export const useActions = (id: string, data: ThreadNodeProps['data']) => {
   const node = useInternalNode(id)
@@ -116,15 +116,13 @@ export const useActions = (id: string, data: ThreadNodeProps['data']) => {
         )
       }
       if (threadConnections.placeholders) {
-        linkedConnections.push(
-          ...threadConnections.placeholders.map((item) => {
-            return {
-              node: item.node,
-              connectedNodes: [],
-              connections: item.connections,
-            }
-          }),
-        )
+        threadConnections.placeholders.forEach((item) => {
+          linkedConnections.push({
+            node: item.node,
+            connectedNodes: [],
+            connections: item.connections,
+          })
+        })
       }
       if (threadConnections.llm) {
         linkedConnections.push(threadConnections.llm)

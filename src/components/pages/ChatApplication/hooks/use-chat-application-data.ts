@@ -146,9 +146,7 @@ export const useChatApplicationData = () => {
         }),
         getRepository('FlowNode').findOne({
           where: {
-            source_id: currentSession.main_source_id,
-            source_type: 'Thread',
-            session_id: currentSession.id,
+            id: currentSession.main_node_id,
           },
         }),
       ])
@@ -180,6 +178,7 @@ export const useChatApplicationData = () => {
             ),
           }
         })
+
       const llmInfo = threadConnectedNodes.find((node) => node.source.source_type === 'LLM')
       const promptInfo = threadConnectedNodes.filter((node) => node.source.source_type === 'Prompt')
       const schemaInfo = threadConnectedNodes.find((node) => node.source.source_type === 'Schema')
@@ -239,6 +238,7 @@ export const useChatApplicationData = () => {
   }, [
     addNewDataNode,
     currentSession?.id,
+    currentSession?.main_node_id,
     currentSession?.main_source_id,
     currentSession?.main_source_type,
     selectDataNode,

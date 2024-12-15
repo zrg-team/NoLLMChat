@@ -17,8 +17,12 @@ export default function PlateEditor({
   defaultValue,
   onValueChange,
   copilotStream,
+  hideDragIcon,
+  enableHistoryControl,
 }: {
   selected?: boolean
+  hideDragIcon?: boolean
+  enableHistoryControl?: boolean
   onValueChange?: (value: Value) => void
   defaultValue?: unknown
   copilotStream?: (
@@ -29,6 +33,8 @@ export default function PlateEditor({
   const editor = useCreateEditor({
     defaultValue: defaultValue as Value,
     copilotStream,
+    hideDragIcon,
+    enableHistoryControl,
   })
 
   const handleOnChange = useCallback(

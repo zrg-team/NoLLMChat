@@ -31,7 +31,7 @@ import { AlignDropdownMenu } from './align-dropdown-menu'
 import { ColorDropdownMenu } from './color-dropdown-menu'
 import { EmojiDropdownMenu } from './emoji-dropdown-menu'
 import { ExportToolbarButton } from './export-toolbar-button'
-// import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button'
+import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button'
 import { IndentListToolbarButton } from './indent-list-toolbar-button'
 import { IndentTodoToolbarButton } from './indent-todo-toolbar-button'
 import { IndentToolbarButton } from './indent-toolbar-button'
@@ -47,22 +47,32 @@ import { ToggleToolbarButton } from './toggle-toolbar-button'
 import { ToolbarButton, ToolbarGroup } from './toolbar'
 import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu'
 
-export function FixedToolbarButtons() {
+export function FixedToolbarButtons({
+  hideDragIcon,
+  enableHistoryControl,
+}: {
+  hideDragIcon?: boolean
+  enableHistoryControl?: boolean
+}) {
   const readOnly = useEditorReadOnly()
 
   return (
     <div className="flex w-full">
       {!readOnly && (
         <>
-          <ToolbarGroup>
-            <ToolbarButton className="cursor-grab">
-              <PointerIcon size={24} />
-            </ToolbarButton>
-          </ToolbarGroup>
-          {/* <ToolbarGroup>
-            <UndoToolbarButton />
-            <RedoToolbarButton />
-          </ToolbarGroup> */}
+          {!hideDragIcon ? (
+            <ToolbarGroup>
+              <ToolbarButton className="cursor-grab">
+                <PointerIcon size={24} />
+              </ToolbarButton>
+            </ToolbarGroup>
+          ) : null}
+          {enableHistoryControl ? (
+            <ToolbarGroup>
+              <UndoToolbarButton />
+              <RedoToolbarButton />
+            </ToolbarGroup>
+          ) : undefined}
 
           <ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
