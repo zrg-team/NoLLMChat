@@ -165,11 +165,13 @@
       "storage_type": "Storage Type",
       "storage_types": {
         "datanode": "DataNode",
-        "indexeddb": "IndexedDB"
+        "indexeddb": "IndexedDB",
+        "datbase": "Database"
       },
       "search": "Search",
       "text": "Text",
       "file": "File",
+      "view": "View",
       "create_prompt": "Create Prompt",
       "add_text": {
         "id": "ID",

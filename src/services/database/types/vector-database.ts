@@ -10,6 +10,7 @@ export enum VectorDatabaseProviderEnum {
 
 export enum VectorDatabaseStorageEnum {
   DataNode = 'DataNode',
+  DatabaseNode = 'DatabaseNode',
   IndexedDB = 'IndexedDB',
 }
 

@@ -162,7 +162,7 @@ export const getLocalEmbeddingStateActions = (
         storageType: database.storage || 'IndexedDB',
         provider: database.provider,
         storageService: embeddingStorage,
-        storageDataNode: dataSource,
+        storageDataNode: database || dataSource,
       })
       switch (database.provider) {
         case VectorDatabaseProviderEnum.Voy:
@@ -178,7 +178,7 @@ export const getLocalEmbeddingStateActions = (
               embeddingStorage,
               docstore: store.docstore,
               storageType: database.storage || 'IndexedDB',
-              storageDataNode: dataSource,
+              storageDataNode: dataSource || database,
             })
           }
           break
@@ -193,7 +193,7 @@ export const getLocalEmbeddingStateActions = (
               embeddingStorage,
               docstore: store.memoryVectors,
               storageType: database.storage || 'IndexedDB',
-              storageDataNode: dataSource,
+              storageDataNode: dataSource || database,
             })
           }
           break
@@ -270,7 +270,7 @@ export const getLocalEmbeddingStateActions = (
       const databaseName = getDatabaseId(database.name)
       const data = await getVectorDatabaseStorage({
         databaseName,
-        storageDataNode: dataSource,
+        storageDataNode: dataSource || database,
         provider: database.provider,
         storageService: embeddingStorage,
         storageType: database.storage || 'IndexedDB',
@@ -324,7 +324,7 @@ export const getLocalEmbeddingStateActions = (
       const data = await getVectorDatabaseStorage({
         databaseName,
         provider: database.provider,
-        storageDataNode: dataSource,
+        storageDataNode: dataSource || database,
         storageService: embeddingStorage,
         storageType: database.storage || 'IndexedDB',
       })

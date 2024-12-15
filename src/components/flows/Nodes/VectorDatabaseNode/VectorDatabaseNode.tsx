@@ -11,6 +11,10 @@ import { useModal } from '@ebay/nice-modal-react'
 import CreatePromptDialog from 'src/components/molecules/dialogs/CreateVectorDatabasePromptDialog'
 import CreateRetrieverDialog from 'src/components/molecules/dialogs/CreateVectorDatabaseRetrieverDialog'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
+import { VectorDatabaseStorageEnum } from 'src/services/database/types'
+import { cn } from 'src/lib/utils'
+import { DataViewer } from 'src/components/molecules/Nodes/DataViewer'
+import { decodeLine } from 'src/utils/string-data'
 
 import { VectorDatabaseNodeProps } from './type'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
@@ -108,6 +112,29 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
     [handleCreateData],
   )
 
+  const vectorDatabaseData = useMemo(() => {
+    if (!data?.entity?.raw) {
+      return {
+        headers: [],
+        rows: [],
+      }
+    }
+
+    const headers = ['content', 'embedding', 'metadata']
+    const lines = decodeLine(data?.entity?.raw)
+    return {
+      headers,
+      rows: lines.map((row) => {
+        try {
+          const data = JSON.parse(row)
+          return data
+        } catch {
+          return []
+        }
+      }),
+    }
+  }, [data?.entity?.raw])
+
   const renderContent = useMemo(() => {
     switch (mode) {
       case 'search':
@@ -138,6 +165,19 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
             />
           </TabsContent>
         )
+      case 'view': {
+        return (
+          <TabsContent value="view">
+            <DataViewer
+              data={vectorDatabaseData.rows}
+              headers={vectorDatabaseData.headers}
+              limitLengthByColumns={{
+                embedding: 32,
+              }}
+            />
+          </TabsContent>
+        )
+      }
     }
   }, [
     handleCreateData,
@@ -148,10 +188,11 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
     loading,
     mode,
     progress,
+    vectorDatabaseData,
   ])
 
   return (
-    <div className="min-w-72 max-w-md">
+    <div className="min-w-72">
       <DefaultHandle type="target" position={Position.Top} isConnectable={isConnectable} />
       <div className="max-w-full">
         <NodeHeader id={id} />
@@ -163,12 +204,22 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
               value={mode}
               onValueChange={setMode}
               defaultValue="search"
-              className="w-full mt-4"
+              className={cn('w-full mt-4')}
             >
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList
+                className={cn(
+                  'grid w-full grid-cols-3',
+                  data.entity?.storage === VectorDatabaseStorageEnum.DatabaseNode
+                    ? 'grid-cols-4'
+                    : 'grid-cols-3',
+                )}
+              >
                 <TabsTrigger value="search">{t('vector_database_node.search')}</TabsTrigger>
                 <TabsTrigger value="new">{t('vector_database_node.text')}</TabsTrigger>
                 <TabsTrigger value="file">{t('vector_database_node.file')}</TabsTrigger>
+                {data.entity?.storage === VectorDatabaseStorageEnum.DatabaseNode ? (
+                  <TabsTrigger value="view">{t('vector_database_node.view')}</TabsTrigger>
+                ) : undefined}
               </TabsList>
               {renderContent}
             </Tabs>

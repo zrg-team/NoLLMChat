@@ -17,6 +17,7 @@ import {
   Schema,
   Thread,
   VectorDatabase,
+  VectorDatabaseStorageEnum,
 } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { useLocalLLMState } from 'src/services/local-llm'
@@ -158,23 +159,7 @@ export const useCreateMessage = ({
               if (!prompt || !vector || !vectorNode) {
                 return
               }
-              const connections = getHandleConnections({
-                nodeId: vectorNode.id,
-                type: 'target',
-              })
-              const dataSourceNode = connections
-                .map((connection) => getNode(connection.source))
-                .find(
-                  (node) =>
-                    node?.type &&
-                    [FlowNodeTypeEnum.JSONLData, FlowNodeTypeEnum.CSVData].includes(
-                      node?.type as FlowNodeTypeEnum,
-                    ),
-                )
-              const dataSource = dataSourceNode?.data?.entity as CSVData | JSONData | JSONLData
-              if (!dataSource) {
-                return
-              }
+
               const k = placeholderRecord.metadata?.k ? +placeholderRecord.metadata?.k : 1
               let minimalScore = placeholderRecord.metadata?.minimalScore
                 ? +placeholderRecord.metadata?.minimalScore
@@ -182,15 +167,49 @@ export const useCreateMessage = ({
               if (minimalScore && minimalScore > 1) {
                 minimalScore = minimalScore / 100
               }
-              const documents = await similaritySearchWithScore(
-                {
-                  databaseId: vector.id,
-                  dataSourceId: dataSource.id,
-                  dataSourceType: getStorageDataSource(dataSource),
-                },
-                messagesInfo.humanMessage.content,
-                k,
-              )
+
+              const documents: Awaited<ReturnType<typeof similaritySearchWithScore>> = []
+
+              if (vector.storage === VectorDatabaseStorageEnum.DataNode) {
+                const connections = getHandleConnections({
+                  nodeId: vectorNode.id,
+                  type: 'target',
+                })
+                const dataSourceNode = connections
+                  .map((connection) => getNode(connection.source))
+                  .find(
+                    (node) =>
+                      node?.type &&
+                      [FlowNodeTypeEnum.JSONLData, FlowNodeTypeEnum.CSVData].includes(
+                        node?.type as FlowNodeTypeEnum,
+                      ),
+                  )
+                const dataSource = dataSourceNode?.data?.entity as CSVData | JSONData | JSONLData
+                if (!dataSource) {
+                  return
+                }
+                documents.push(
+                  ...(await similaritySearchWithScore(
+                    {
+                      databaseId: vector.id,
+                      dataSourceId: dataSource.id,
+                      dataSourceType: getStorageDataSource(dataSource),
+                    },
+                    messagesInfo.humanMessage.content,
+                    k,
+                  )),
+                )
+              } else {
+                documents.push(
+                  ...(await similaritySearchWithScore(
+                    {
+                      databaseId: vector.id,
+                    },
+                    messagesInfo.humanMessage.content,
+                    k,
+                  )),
+                )
+              }
               if (!documents) {
                 return []
               }
@@ -198,6 +217,7 @@ export const useCreateMessage = ({
                 template: prompt.content,
                 inputVariables: ['context'],
               })
+
               injectedMessages.push(
                 new AIMessage(
                   await template.format({

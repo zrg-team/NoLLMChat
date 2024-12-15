@@ -83,8 +83,6 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
     )
   }, [isDarkTheme, setLayoutReady])
 
-  console.log('Dock render')
-
   return (
     <>
       {mainDock}

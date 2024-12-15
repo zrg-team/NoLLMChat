@@ -34,7 +34,12 @@ export const DefaultLoader = memo(
 
     const renderLoaderBackground = () => {
       if (blurBackground) {
-        return <div className="absolute inset-0 backdrop-blur-sm" />
+        return (
+          <>
+            <div className="absolute inset-0 backdrop-blur-sm" />
+            <Meteors number={25} />
+          </>
+        )
       }
 
       if (gridPattern) {

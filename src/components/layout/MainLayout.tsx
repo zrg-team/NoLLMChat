@@ -9,7 +9,7 @@ import { useSessionState } from 'src/states/session'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useAppState } from 'src/states/app'
-import { getRouteURL } from 'src/utils/routes'
+import { getRouteURL, getSearchParams } from 'src/utils/routes'
 import { SessionTypeEnum } from 'src/services/database/types'
 
 export function MainLayout() {
@@ -56,6 +56,10 @@ export function MainLayout() {
 
   useEffect(() => {
     setCurrentSession(params.sessionId || params.applicationId).then((item) => {
+      const searchParams = getSearchParams()
+      if (searchParams.has('flow') && item.type === SessionTypeEnum.StandaloneApp) {
+        return
+      }
       if (
         item.type === SessionTypeEnum.StandaloneApp &&
         locationRef.current.pathname.includes(getRouteURL('whiteboard').replace('/', ''))

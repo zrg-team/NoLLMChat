@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react'
+import { memo, useLayoutEffect } from 'react'
 import {
   createHashRouter,
   createBrowserRouter,
@@ -15,6 +15,8 @@ import { logDebug, logError } from 'src//utils/logger'
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import ApplicationPage from 'src/pages/ApplicationPage'
 import HomePage from 'src/pages/HomePage'
+import { DefaultLoader } from './components/atoms/DefaultLoader'
+
 import { ROUTE_MODE } from './constants/route'
 
 function ErrorBoundary() {
@@ -50,11 +52,17 @@ const router = getRouter(routes, { basename: import.meta.env.VITE_BASE_URL })
 logDebug('[BASE_URL]', import.meta.env.VITE_BASE_URL)
 const AppRoute = memo(
   () => {
-    useEffect(() => {
-      if (!window.location.pathname.includes(import.meta.env.VITE_BASE_URL)) {
+    const invalidBaseURL = !window.location.pathname.includes(import.meta.env.VITE_BASE_URL)
+    useLayoutEffect(() => {
+      if (invalidBaseURL) {
         window.location.href = `${import.meta.env.VITE_BASE_URL}`.replace('//', '/')
       }
-    }, [])
+    }, [invalidBaseURL])
+
+    if (invalidBaseURL) {
+      return <DefaultLoader className="w-screen h-screen" enableLogo typing />
+    }
+
     return <RouterProvider router={router} />
   },
   () => true,
