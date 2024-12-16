@@ -111,5 +111,6 @@ export const ChatItem = memo(
       </ChatBubble>
     )
   },
-  (prev, next) => prev.message.content === next.message.content && prev.isLastMessage === next.isLastMessage,
+  (prev, next) =>
+    prev.message.content === next.message.content && prev.isLastMessage === next.isLastMessage,
 )
