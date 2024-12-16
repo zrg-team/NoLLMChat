@@ -32,6 +32,7 @@ import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
 import { DefaultNodeData } from 'src/utils/flow-node'
 import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
+import { useSessionState } from 'src/states/session'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -45,6 +46,8 @@ export const useCreateMessage = ({
 >) => {
   const { t } = useTranslation('create_new_message')
   const [loading, setLoading] = useState(false)
+
+  const currenSession = useSessionState((state) => state.currentSession)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
   const similaritySearchWithScore = useLocalEmbeddingState(
@@ -70,12 +73,16 @@ export const useCreateMessage = ({
       initialY: number
       initialLLMId: string
     }) => {
+      if (!currenSession) {
+        throw new Error('Session is not found')
+      }
       const humanMessage = await getRepository('Message').save({
         thread_id: threadId,
         content,
         role: MessageRoleEnum.Human,
         status: MessageStatusEnum.Started,
         llm_id: initialLLMId,
+        session_id: currenSession.id,
       })
       if (!humanMessage) {
         throw new Error('Failed to save message')
@@ -102,6 +109,7 @@ export const useCreateMessage = ({
         status: MessageStatusEnum.Inprogress,
         llm_id: initialLLMId,
         parent_message_id: humanMessage.id,
+        session_id: currenSession.id,
       })
       if (!aiMessage) {
         throw new Error('Failed to save message')
@@ -128,7 +136,7 @@ export const useCreateMessage = ({
         humanMessageNode,
       }
     },
-    [createOrUpdateFlowEdge, createOrUpdateFlowNode, t],
+    [createOrUpdateFlowEdge, createOrUpdateFlowNode, currenSession, t],
   )
 
   const handlePlaceholders = useCallback(

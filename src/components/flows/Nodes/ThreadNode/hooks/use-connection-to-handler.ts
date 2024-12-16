@@ -4,12 +4,9 @@ import {
   FlowNodePlaceholder,
   FlowNodePlaceholderTypeEnum,
   FlowNodeTypeEnum,
-  Schema,
-  Thread,
 } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 import { useBaseConnectionToHandler } from 'src/hooks/flows/handlers/use-base-connection-to-handler'
-import { getRepository } from 'src/services/database'
 
 export const useConnectionToHandler = (id: string) => {
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
@@ -55,11 +52,6 @@ export const useConnectionToHandler = (id: string) => {
             target: connection.target,
             sourceHandle: connection.sourceHandle,
             targetHandle: connection.targetHandle,
-          })
-          const thread = target.data.entity as Thread
-          const schema = target.data.entity as Schema
-          await getRepository('Thread').update(thread.id, {
-            schema_id: schema.id,
           })
           return
         } else if (

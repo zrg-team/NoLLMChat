@@ -117,9 +117,14 @@ export const useActions = (id: string, data: ThreadNodeProps['data']) => {
       }
       if (threadConnections.placeholders) {
         threadConnections.placeholders.forEach((item) => {
+          const connectedNodes = item.connections
+            .map((connection) => {
+              return getNode(connection.source)
+            })
+            .filter(Boolean) as Node<DefaultNodeData>[]
           linkedConnections.push({
             node: item.node,
-            connectedNodes: [],
+            connectedNodes: connectedNodes || [],
             connections: item.connections,
           })
         })

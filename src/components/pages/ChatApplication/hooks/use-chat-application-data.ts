@@ -3,13 +3,17 @@ import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 import { findFlowNodesWithSource } from 'src/states/flow/actions'
 import {
+  EntityTypes,
+  FlowEdge,
   FlowNode,
+  FlowNodePlaceholder,
   JSONData,
   LLM,
   LLMStatusEnum,
   Prompt,
   Schema,
   Thread,
+  VectorDatabase,
 } from 'src/services/database/types'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { useLocalLLMState } from 'src/services/local-llm'
@@ -26,6 +30,16 @@ export const useChatApplicationData = () => {
     status: LLMStatusEnum
     progress?: string
   }>()
+  const [retriverInfo, setRetriverInfo] = useState<
+    {
+      promptNode: FlowNode
+      vectorDatabaseNode: FlowNode
+      placeholderNode: FlowNode
+      placeholderEntity: FlowNodePlaceholder
+      promptEntity: Prompt
+      vectorDatabaseEntity: VectorDatabase
+    }[]
+  >([])
   const [currentDataNode, setCurrentDataNode] = useState<{ node: FlowNode; enity: JSONData }>()
   const onThreadMessagesLoadedRef = useRef<(messages: Message[]) => void>()
   const sessionHandleStatus = useRef<{ handling?: string; handled?: string }>({})
@@ -130,6 +144,105 @@ export const useChatApplicationData = () => {
     [chatInfo?.prompts, currentSession?.id, threadInfo?.threadNode],
   )
 
+  const handleThreadData = useCallback(
+    async (threadNode: FlowNode, prompts: Prompt[]) => {
+      if (!currentSession) {
+        return
+      }
+      const threadData = await getRepository('FlowEdge').findOne({
+        where: { session_id: currentSession.id, source: threadNode.id },
+        order: { id: 'DESC' },
+      })
+      if (!threadData) {
+        const result = await addNewDataNode({
+          sessionId: currentSession.id,
+          threadNode,
+          prompts: prompts || [],
+        })
+        if (!result) {
+          return
+        }
+      } else {
+        const dataNode = await getRepository('FlowNode').findOne({
+          where: { id: threadData.target, session_id: currentSession.id },
+        })
+        if (!dataNode) {
+          return
+        }
+        await selectDataNode(dataNode)
+      }
+    },
+    [addNewDataNode, currentSession, selectDataNode],
+  )
+
+  const getRetrieveVectorDatabase = useCallback(
+    async (
+      placeholderInfo: {
+        connection: FlowEdge
+        source: FlowNode
+        entity?: EntityTypes
+      }[],
+    ) => {
+      if (placeholderInfo?.length && currentSession?.id) {
+        const data = await Promise.all(
+          placeholderInfo.map(async (info) => {
+            return getRepository('FlowEdge')
+              .find({
+                where: {
+                  target: info.source.id,
+                },
+              })
+              .then((connections) => {
+                return findFlowNodesWithSource({
+                  where: {
+                    session_id: currentSession.id,
+                    id: In(connections.map((connection) => connection.source)),
+                  },
+                }).then((result) => ({
+                  ...result,
+                  ...info,
+                }))
+              })
+          }),
+        )
+        const retriverInfo = data
+          .map((item) => {
+            const promptNode = item.flowNodes.find((node) => node.source_type === 'Prompt')
+            const vectorDatabaseNode = item.flowNodes.find(
+              (node) => node.source_type === 'VectorDatabase',
+            )
+            if (!vectorDatabaseNode || !promptNode) {
+              return
+            }
+            const promptEntity = item.flowNodeDatas?.Prompt?.find(
+              (nodeData) => nodeData.id === promptNode.source_id,
+            )
+            const vectorDatabaseEntity = item.flowNodeDatas?.VectorDatabase?.find(
+              (nodeData) => nodeData.id === vectorDatabaseNode.source_id,
+            )
+            return {
+              promptNode,
+              vectorDatabaseNode,
+              placeholderNode: item.source,
+              placeholderEntity: item.entity,
+              promptEntity: promptEntity as Prompt,
+              vectorDatabaseEntity: vectorDatabaseEntity as VectorDatabase,
+            }
+          })
+          .filter(Boolean) as {
+          promptNode: FlowNode
+          vectorDatabaseNode: FlowNode
+          placeholderNode: FlowNode
+          placeholderEntity: FlowNodePlaceholder
+          promptEntity: Prompt
+          vectorDatabaseEntity: VectorDatabase
+        }[]
+        setRetriverInfo(retriverInfo)
+      }
+    },
+    [currentSession?.id],
+  )
+
   const getChatApplicationData = useCallback(async () => {
     try {
       sessionHandleStatus.current.handling = currentSession?.id
@@ -186,28 +299,13 @@ export const useChatApplicationData = () => {
       if (!llmInfo?.entity) {
         return
       }
-      const threadData = await getRepository('FlowEdge').findOne({
-        where: { session_id: currentSession.id, source: threadNode.id },
-        order: { id: 'DESC' },
-      })
-      if (!threadData) {
-        const result = await addNewDataNode({
-          sessionId: currentSession.id,
-          threadNode,
-          prompts: promptInfo?.map((info) => info.entity as Prompt) || [],
-        })
-        if (!result) {
-          return
-        }
-      } else {
-        const dataNode = await getRepository('FlowNode').findOne({
-          where: { id: threadData.target, session_id: currentSession.id },
-        })
-        if (!dataNode) {
-          return
-        }
-        await selectDataNode(dataNode)
-      }
+
+      const placeholderInfo = threadConnectedNodes.filter(
+        (node) => node.source.source_type === 'FlowNodePlaceholder',
+      )
+
+      await getRetrieveVectorDatabase(placeholderInfo)
+      await handleThreadData(threadNode, promptInfo?.map((info) => info.entity as Prompt) || [])
 
       setLLMInfo({
         llm: llmInfo.entity as LLM,
@@ -236,12 +334,12 @@ export const useChatApplicationData = () => {
       sessionHandleStatus.current.handling = undefined
     }
   }, [
-    addNewDataNode,
     currentSession?.id,
     currentSession?.main_node_id,
     currentSession?.main_source_id,
     currentSession?.main_source_type,
-    selectDataNode,
+    getRetrieveVectorDatabase,
+    handleThreadData,
   ])
 
   const loadLLM = useCallback(async () => {
@@ -294,6 +392,7 @@ export const useChatApplicationData = () => {
     loadLLM,
     threadInfo,
     mainLLMInfo,
+    retriverInfo,
     currentDataNode,
     updateMessagesData,
     addNewDataNode,

@@ -105,9 +105,11 @@ export const VectorSearch = memo(
           })}
         </Accordion>
         <div className="w-full mt-4 flex flex-col gap-1">
-          <Button disabled={loading} onClick={onCreateRetriever} className="w-full">
-            {t('vector_database_node.to_retriever')}
-          </Button>
+          {onCreateRetriever ? (
+            <Button disabled={loading} onClick={onCreateRetriever} className="w-full">
+              {t('vector_database_node.to_retriever')}
+            </Button>
+          ) : undefined}
           {documents?.length && onCreatePrompt ? (
             <Button disabled={loading} onClick={() => onCreatePrompt(documents)} className="w-full">
               {t('vector_database_node.create_prompt')}

@@ -7,50 +7,22 @@ import {
   useState,
   KeyboardEvent,
   MouseEvent,
-  lazy,
-  Suspense,
   useCallback,
   useMemo,
 } from 'react'
-import {
-  ChatBubble,
-  ChatBubbleAction,
-  ChatBubbleAvatar,
-  ChatBubbleMessage,
-} from 'src/lib/shadcn/chat/chat-bubble'
 import { nanoid } from 'nanoid'
 import { useTranslation } from 'react-i18next'
-import { cn } from 'src/lib/utils'
-import { Badge } from 'src/lib/shadcn/ui/badge'
 import { ChatMessageList } from 'src/lib/shadcn/chat/chat-message-list'
-import { CopyIcon, RefreshCcw, Volume2 } from 'lucide-react'
 import { Message, useChat } from 'ai/react'
 import AIInput from 'src/lib/kokonutui/ai-input'
 import { LLMStatusEnum } from 'src/services/database/types'
 import textToSpeech from 'src/utils/text-to-speech'
-import MessageLoading from 'src/lib/shadcn/chat/message-loading'
 import { SidebarInset, SidebarProvider } from 'src/lib/shadcn/ui/sidebar'
 
 import { useChatApplicationData } from './hooks/use-chat-application-data'
 import { useSendMessage } from './hooks/use-send-message'
 import { ChatPanel } from './components/ChatPanel'
-
-const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
-
-const ChatAiIcons = [
-  {
-    icon: CopyIcon,
-    label: 'Copy',
-  },
-  {
-    icon: RefreshCcw,
-    label: 'Refresh',
-  },
-  {
-    icon: Volume2,
-    label: 'Volume',
-  },
-]
+import { ChatItem } from './components/ChatItem'
 
 const ChatApplication = memo(() => {
   const { t } = useTranslation('applications')
@@ -69,6 +41,7 @@ const ChatApplication = memo(() => {
     schema,
     threadInfo,
     mainLLMInfo,
+    retriverInfo,
     currentDataNode,
     loadLLM,
     addNewDataNode,
@@ -97,24 +70,67 @@ const ChatApplication = memo(() => {
         setMessages((messages) => [
           ...messages,
           { id: nanoid(), content: lastMessage.content, role: 'user' },
-          { id: newMessageId, content: '', role: 'assistant' },
         ])
-        await sendMessage(lastMessage.content, body.messages || [], undefined, [], {
-          schema,
-          onMessageUpdate(info) {
-            setMessages((messages) => {
-              const newMessages = [...messages]
-              const index = newMessages.findIndex((message) => message.id === newMessageId)
-              if (index !== -1) {
-                newMessages[index] = { ...newMessages[index], content: info.nodeData.content || '' }
+        await sendMessage(
+          lastMessage.content,
+          body.messages || [],
+          { retriverInfo },
+          {
+            schema,
+            onInjectedMessages: (injectedMessages) => {
+              if (injectedMessages.length) {
+                setMessages((messages) => [
+                  ...messages,
+                  ...injectedMessages.map((message) => {
+                    if (message._getType() === 'system') {
+                      return {
+                        id: nanoid(),
+                        content: `${message.content}`,
+                        role: 'system' as const,
+                        data: { injectedMessage: true },
+                      }
+                    } else if (message._getType() === 'human') {
+                      return {
+                        id: nanoid(),
+                        content: `${message.content}`,
+                        role: 'user' as const,
+                        data: { injectedMessage: true },
+                      }
+                    }
+                    return {
+                      id: nanoid(),
+                      content: `${message.content}`,
+                      role: 'assistant' as const,
+                      data: { injectedMessage: true },
+                    }
+                  }),
+                ])
               }
-              return newMessages
-            })
-            if (isScrolling.current) {
-              scrollToBottom()
-            }
+            },
+            onResponseMessageCreate: (content) => {
+              setMessages((messages) => [
+                ...messages,
+                { id: newMessageId, content: content || '', role: 'assistant' },
+              ])
+            },
+            onMessageUpdate: (info) => {
+              setMessages((messages) => {
+                const newMessages = [...messages]
+                const index = newMessages.findIndex((message) => message.id === newMessageId)
+                if (index !== -1) {
+                  newMessages[index] = {
+                    ...newMessages[index],
+                    content: info.nodeData.content || '',
+                  }
+                }
+                return newMessages
+              })
+              if (isScrolling.current) {
+                scrollToBottom()
+              }
+            },
           },
-        })
+        )
         setMessages((messages) => {
           updateMessagesData(messages)
           return messages
@@ -153,7 +169,7 @@ const ChatApplication = memo(() => {
   }
 
   const handleActionClick = useCallback(
-    async (action: string, messageIndex: number, messages: Message[]) => {
+    async (action: string, message: Message) => {
       if (action === 'Refresh') {
         setIsGenerating(true)
         try {
@@ -164,14 +180,12 @@ const ChatApplication = memo(() => {
       }
 
       if (action === 'Copy') {
-        const message = messages[messageIndex]
         if (message && message.role === 'assistant') {
           navigator.clipboard.writeText(message.content)
         }
       }
 
       if (action === 'Volume') {
-        const message = messages[messageIndex]
         if (message?.content) {
           await textToSpeech.speak(message?.content || '')
         }
@@ -186,63 +200,15 @@ const ChatApplication = memo(() => {
     return (
       messages &&
       messages.map((message, index) => (
-        <ChatBubble
-          innerclassname={message.role == 'system' ? '!bg-transparent font-semibold' : undefined}
-          key={index}
-          variant={message.role == 'user' ? 'sent' : 'received'}
-        >
-          {message.role === 'system' ? (
-            <div className="w-10 h-10" />
-          ) : message.role === 'assistant' ? (
-            <ChatBubbleAvatar src="" fallback={'🤖'} />
-          ) : undefined}
-          <ChatBubbleMessage>
-            {isGenerating && messages.length - 1 === index && (!message.content || schema) ? (
-              <MessageLoading />
-            ) : (
-              <Suspense fallback={<MessageLoading />}>
-                {message.role === 'system' ? (
-                  <Badge className="!text-sm mb-1">System</Badge>
-                ) : undefined}
-                <MarkdownPreview
-                  className={cn(
-                    '[&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans !text-sm',
-                  )}
-                  style={{
-                    color: 'unset !important',
-                  }}
-                  source={
-                    message.content
-                      ? schema
-                        ? `\`\`\`json\n${message.content}\n\`\`\``
-                        : message.content
-                      : ''
-                  }
-                />
-              </Suspense>
-            )}
-            {message.role === 'assistant' && messages.length - 1 === index && (
-              <div className="flex items-center mt-1.5 gap-1">
-                {!isGenerating && (
-                  <>
-                    {ChatAiIcons.map((icon, iconIndex) => {
-                      const Icon = icon.icon
-                      return (
-                        <ChatBubbleAction
-                          variant="ghost"
-                          className="size-5"
-                          key={iconIndex}
-                          icon={<Icon className="size-3" />}
-                          onClick={() => handleActionClick(icon.label, index, messages)}
-                        />
-                      )
-                    })}
-                  </>
-                )}
-              </div>
-            )}
-          </ChatBubbleMessage>
-        </ChatBubble>
+        <ChatItem
+          key={message.id || `${index}`}
+          message={message}
+          index={index}
+          isLastMessage={index === messages.length - 1}
+          isGenerating={isGenerating}
+          isSchema={schema ? true : false}
+          onActionClick={handleActionClick}
+        />
       ))
     )
   }, [messages, isGenerating, schema, handleActionClick])
@@ -278,6 +244,7 @@ const ChatApplication = memo(() => {
         threadNode={threadInfo?.threadNode}
         loadLLM={loadLLM}
         mainLLMInfo={mainLLMInfo}
+        retriverInfo={retriverInfo}
         onAddNewThread={addNewDataNode}
         onSelectThread={selectDataNode}
       />

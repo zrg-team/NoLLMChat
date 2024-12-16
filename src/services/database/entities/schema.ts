@@ -9,7 +9,7 @@ import {
   JoinColumn,
 } from 'typeorm'
 
-import { SchemaItem, Session, Thread } from './index'
+import { SchemaItem, Session } from './index'
 import { TABLE_NAMES } from '../types'
 
 @Entity({ name: TABLE_NAMES.Schema })
@@ -28,9 +28,6 @@ export class Schema {
 
   @OneToMany(() => SchemaItem, (entity: SchemaItem) => entity.schema, { onDelete: 'CASCADE' })
   schema_items?: SchemaItem[]
-
-  @OneToMany(() => Thread, (entity: Thread) => entity.schema)
-  threads?: Thread[]
 
   @Column('uuid')
   session_id: string

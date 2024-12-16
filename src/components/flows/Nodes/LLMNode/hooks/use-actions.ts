@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
+import { useInternalNode, useReactFlow } from '@xyflow/react'
 import { FlowNodeTypeEnum, LLMStatusEnum } from 'src/services/database/types'
 import { useCreateThread } from 'src/hooks/flows/mutations/use-create-thread'
 import { useFlowState } from 'src/states/flow'
@@ -24,7 +24,7 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
   const updateNodes = useFlowState((state) => state.updateNodes)
   const pushSyncNodeQueue = useFlowState((state) => state.pushSyncNodeQueue)
 
-  const { getNode, getNodes, getHandleConnections } = useReactFlow()
+  const { getNodes } = useReactFlow()
 
   const queryThreadsFromModel = useCallback(async () => {
     try {
@@ -80,17 +80,9 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
 
   const handleCreateThread = useCallback(async () => {
     if (data.entity && node) {
-      const connections = getHandleConnections({
-        type: 'target',
-        nodeId: node.id,
-      })
-        .map((connection) => getNode(connection.source))
-        .filter(Boolean)
-      await createThread?.(node, {
-        connectedNodes: connections as unknown as Node[],
-      })
+      await createThread?.(node)
     }
-  }, [data.entity, node, getHandleConnections, createThread, getNode])
+  }, [data.entity, node, createThread])
 
   return {
     loadingModel,
