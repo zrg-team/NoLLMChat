@@ -20,6 +20,9 @@ import {
   JSONData,
   JSONLData,
   ToolDefinition,
+  SchemaItem,
+  Message,
+  PromptVariable,
 } from './index'
 import { AppEntityNames, SessionTypeEnum, TABLE_NAMES, type SessionStatusEnum } from '../types'
 
@@ -63,8 +66,18 @@ export class Session {
   @OneToMany(() => Prompt, (entity: Prompt) => entity.session, { onDelete: 'CASCADE' })
   prompts?: Prompt[]
 
+  @OneToMany(() => PromptVariable, (entity: PromptVariable) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  prompt_variables?: PromptVariable[]
+
   @OneToMany(() => Thread, (entity: Thread) => entity.session, { onDelete: 'CASCADE' })
   threads?: Thread[]
+
+  @OneToMany(() => Message, (entity: Message) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  messages?: Message[]
 
   @OneToMany(() => LLM, (entity: LLM) => entity.session, { onDelete: 'CASCADE' })
   llms?: LLM[]
@@ -77,6 +90,11 @@ export class Session {
 
   @OneToMany(() => Schema, (entity: Schema) => entity.session, { onDelete: 'CASCADE' })
   schemas?: Schema[]
+
+  @OneToMany(() => SchemaItem, (entity: SchemaItem) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  schema_items?: SchemaItem[]
 
   @OneToMany(() => CSVData, (entity: CSVData) => entity.session, { onDelete: 'CASCADE' })
   csv_datas?: CSVData[]

@@ -1,26 +1,18 @@
-import { Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
-import {
-  FlowNodePlaceholder,
-  FlowNodePlaceholderTypeEnum,
-  FlowNodeTypeEnum,
-  Prompt,
-  Schema,
-  VectorDatabase,
-} from 'src/services/database/types'
+import { FlowNodePlaceholderTypeEnum, Schema } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
-import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
 import { useLocalLLM } from 'src/services/local-llm/hooks/use-local-llm'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
-import { getStorageDataSource } from 'src/utils/vector-storage'
 import { Message } from 'ai/react'
-import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
+import { useChatApplicationData } from './use-chat-application-data'
 
 type CreateMessageOption = {
   schema?: Schema
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
+  onResponseMessageCreate: (message?: string) => void
+  onInjectedMessages: (messages: BaseMessage[]) => void
 }
 export const useSendMessage = () => {
   const [loading] = useState(false)
@@ -33,33 +25,26 @@ export const useSendMessage = () => {
   const handlePlaceholders = useCallback(
     async (
       content: string,
-      threadConnection: ReturnType<typeof prepareThreadConnections> | undefined,
+      retriverInfo: ReturnType<typeof useChatApplicationData>['retriverInfo'],
     ): Promise<BaseMessage[]> => {
-      const { placeholders } = threadConnection || {}
-      if (!placeholders?.length) {
+      if (!retriverInfo?.length) {
         return []
       }
       const injectedMessages: BaseMessage[] = []
       await Promise.all(
-        placeholders.map(async (item) => {
-          const placeholderRecord = item.node.data?.entity as FlowNodePlaceholder
+        retriverInfo.map(async (item) => {
+          const placeholderRecord = item.placeholderEntity
           if (!placeholderRecord) {
             return
           }
           switch (placeholderRecord.placeholder_type) {
             case FlowNodePlaceholderTypeEnum.VECTOR_DATABASE_RETREIVER: {
-              const vectorNode = item.connectedNodes?.find(
-                (node) => node.type === FlowNodeTypeEnum.VectorDatabase,
-              )
-              const vector = vectorNode?.data?.entity as VectorDatabase
-              const prompt = item.connectedNodes?.find(
-                (node) => node.type === FlowNodeTypeEnum.Prompt,
-              )?.data?.entity as Prompt
-              if (!prompt || !vector || !vectorNode) {
-                return
-              }
-              const dataSource = undefined
-              if (!dataSource) {
+              if (
+                !item.promptNode ||
+                !item.promptEntity ||
+                !item.vectorDatabaseNode ||
+                !item.vectorDatabaseEntity
+              ) {
                 return
               }
               const k = placeholderRecord.metadata?.k ? +placeholderRecord.metadata?.k : 1
@@ -71,9 +56,7 @@ export const useSendMessage = () => {
               }
               const documents = await similaritySearchWithScore(
                 {
-                  databaseId: vector.id,
-                  dataSourceId: dataSource,
-                  dataSourceType: getStorageDataSource(dataSource),
+                  databaseId: item.vectorDatabaseEntity.id,
                 },
                 content,
                 k,
@@ -82,7 +65,7 @@ export const useSendMessage = () => {
                 return []
               }
               const template = new PromptTemplate({
-                template: prompt.content,
+                template: item.promptEntity.content,
                 inputVariables: ['context'],
               })
               injectedMessages.push(
@@ -110,16 +93,18 @@ export const useSendMessage = () => {
     async (
       message: string,
       messages: Message[],
-      threadConnection: ReturnType<typeof prepareThreadConnections> | undefined,
-      _threadConversionNodes: Node[],
-      { schema, onMessageUpdate }: CreateMessageOption,
+      {
+        retriverInfo,
+      }: {
+        retriverInfo?: ReturnType<typeof useChatApplicationData>['retriverInfo']
+      },
+      { schema, onMessageUpdate, onResponseMessageCreate, onInjectedMessages }: CreateMessageOption,
     ) => {
-      const { tools, placeholders } = threadConnection || {}
-
       const injectedMessages: BaseMessage[] = []
 
-      if (placeholders?.length) {
-        injectedMessages.push(...(await handlePlaceholders(message, threadConnection)))
+      if (retriverInfo?.length) {
+        injectedMessages.push(...(await handlePlaceholders(message, retriverInfo)))
+        onInjectedMessages?.(injectedMessages)
       }
 
       const formatedMessages = messages.map((message) => {
@@ -132,8 +117,9 @@ export const useSendMessage = () => {
         return new AIMessage(message.content)
       })
 
+      onResponseMessageCreate?.()
+
       const { content } = await stream(formatedMessages, {
-        tools: toLocalLLMToolCallingInput(tools),
         schemas: schema ? [schema] : undefined,
         onMessageUpdate: ({ content }) => {
           onMessageUpdate?.({

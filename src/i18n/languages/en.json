@@ -445,7 +445,12 @@
   "applications": {
     "chat": {
       "history": "History",
-      "input_message_placeholder": "Type your message here..."
+      "input_message_placeholder": "Type your message here...",
+      "vector_database": "Vector Database",
+      "search": "Search",
+      "text": "Text",
+      "file": "File",
+      "view": "View"
     }
   }
 }

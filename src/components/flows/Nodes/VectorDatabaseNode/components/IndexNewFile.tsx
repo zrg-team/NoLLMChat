@@ -28,7 +28,7 @@ export default function IndexNewFile({
   }
 
   return (
-    <div className="w-full max-w-md space-y-2 mt-4">
+    <div className="w-full max-w-full space-y-2 mt-4">
       <div className="mb-6">
         <FileUploadInput
           progress={progress}

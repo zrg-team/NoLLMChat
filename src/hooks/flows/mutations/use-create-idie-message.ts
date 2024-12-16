@@ -9,8 +9,10 @@ import {
   Thread,
 } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
+import { useSessionState } from 'src/states/session'
 
 export const useCreateIdieMessage = () => {
+  const currenSession = useSessionState((state) => state.currentSession)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
 
@@ -23,7 +25,7 @@ export const useCreateIdieMessage = () => {
         promptNode?: Node
       },
     ) => {
-      if (!source || !thread) {
+      if (!source || !thread || !currenSession) {
         return
       }
       const prompt = options?.promptNode?.data?.entity as Prompt
@@ -36,6 +38,7 @@ export const useCreateIdieMessage = () => {
         role: prompt?.role || MessageRoleEnum.Human,
         status: MessageStatusEnum.Started,
         llm_id: thread.initial_llm_id,
+        session_id: currenSession.id,
       })
       if (!newMessage) {
         throw new Error('Failed to save message')

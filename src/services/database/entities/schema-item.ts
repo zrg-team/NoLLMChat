@@ -62,7 +62,7 @@ export class SchemaItem {
 
   @Column('uuid')
   session_id: string
-  @ManyToOne(() => Session, (entity: Session) => entity.schemas, {
+  @ManyToOne(() => Session, (entity: Session) => entity.schema_items, {
     createForeignKeyConstraints: false,
   })
   @JoinColumn({ name: 'session_id' })

@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm'
-import { Session, Message, LLM, Schema } from './index'
+import { Session, Message, LLM } from './index'
 import { TABLE_NAMES, type ThreadStatusEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Thread })
@@ -33,14 +33,6 @@ export class Thread {
 
   @OneToMany(() => Message, (entity: Message) => entity.thread, { onDelete: 'CASCADE' })
   messages?: Message[]
-
-  @Column('uuid', { nullable: true })
-  schema_id?: string
-  @ManyToOne(() => Schema, (entity: Schema) => entity.threads, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: 'schema_id' })
-  schema?: Schema
 
   @Column('uuid')
   initial_llm_id: string

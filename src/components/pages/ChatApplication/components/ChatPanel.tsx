@@ -22,6 +22,9 @@ import { cn } from 'src/lib/utils'
 import { ChatLLMInfo } from './ChatLLMInfo'
 import { useChatApplicationData } from '../hooks/use-chat-application-data'
 import { useChatList } from '../hooks/use-chat-list'
+import { Card } from 'src/lib/shadcn/ui/card'
+import { Button } from 'src/lib/shadcn/ui/button'
+import VectorDatabaseDialog from './VectorDatabaseDialog'
 
 const MarkdownPreview = React.lazy(() => import('@uiw/react-markdown-preview'))
 
@@ -29,6 +32,7 @@ export function ChatPanel({
   schema,
   mainLLMInfo,
   loadLLM,
+  retriverInfo,
   threadNode,
   onSelectThread,
   onAddNewThread,
@@ -39,6 +43,7 @@ export function ChatPanel({
   threadNode?: FlowNode
   onAddNewThread?: () => void
   onSelectThread: (node: FlowNode) => void
+  retriverInfo: ReturnType<typeof useChatApplicationData>['retriverInfo']
   currentDataNode: ReturnType<typeof useChatApplicationData>['currentDataNode']
   loadLLM: ReturnType<typeof useChatApplicationData>['loadLLM']
   mainLLMInfo: ReturnType<typeof useChatApplicationData>['mainLLMInfo']
@@ -46,6 +51,7 @@ export function ChatPanel({
   const { t } = useTranslation('applications')
   const [loading, setLoading] = React.useState(false)
   const deleteChatDataNodeDialog = useModal(DeleteChatDataNodeDialog)
+  const vectorDatabaseDialog = useModal(VectorDatabaseDialog)
   const { chatList, getChatList, deleteChat } = useChatList(threadNode)
 
   const handleAddNewThread = React.useCallback(async () => {
@@ -57,6 +63,12 @@ export function ChatPanel({
       setLoading(false)
     }
   }, [getChatList, onAddNewThread])
+
+  const handleShowVectorDatabase = React.useCallback(() => {
+    vectorDatabaseDialog.show({
+      retriverInfo: retriverInfo[0],
+    })
+  }, [retriverInfo, vectorDatabaseDialog])
 
   const handleDeleteDataNode = React.useCallback(
     async (e: React.MouseEvent, node: FlowNode) => {
@@ -106,6 +118,18 @@ export function ChatPanel({
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        {retriverInfo?.length ? (
+          <Card className="m-2 p-2 max-w-full">
+            <pre className="overflow-auto">
+              {retriverInfo.map((info, key) => (
+                <span key={`${key}`}>{info.promptEntity?.content || ''}</span>
+              ))}
+            </pre>
+            <Button onClick={handleShowVectorDatabase} className="w-full mt-4">
+              {t('chat.vector_database')}
+            </Button>
+          </Card>
+        ) : undefined}
         {schema?.schema_items?.length ? (
           <div className="m-2 !mb-0">
             <React.Suspense fallback={<MessageLoading />}>

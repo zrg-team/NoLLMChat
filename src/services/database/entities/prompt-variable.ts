@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm'
-import { Message, Prompt } from './index'
+import { Message, Prompt, Session } from './index'
 import { TABLE_NAMES, type AppEntityNames, type PromptVariableTypeEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.PromptVariable })
@@ -56,4 +56,12 @@ export class PromptVariable {
   })
   @JoinColumn({ name: 'prompt_id' })
   prompt?: Prompt
+
+  @Column('uuid')
+  session_id: string
+  @ManyToOne(() => Session, (entity: Session) => entity.prompt_variables, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'session_id' })
+  session?: Session
 }

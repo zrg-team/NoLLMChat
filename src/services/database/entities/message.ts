@@ -8,7 +8,7 @@ import {
   JoinColumn,
   OneToOne,
 } from 'typeorm'
-import { LLM, Thread, Prompt } from './index'
+import { LLM, Thread, Prompt, Session } from './index'
 import { TABLE_NAMES, type MessageRoleEnum, type MessageStatusEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Message })
@@ -71,4 +71,12 @@ export class Message {
   })
   @JoinColumn({ name: 'prompt_id' })
   prompt?: Prompt
+
+  @Column('uuid')
+  session_id: string
+  @ManyToOne(() => Session, (entity: Session) => entity.messages, {
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'session_id' })
+  session?: Session
 }
