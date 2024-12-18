@@ -1,25 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect, useRef } from 'react'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppSidebar } from 'src/components/layout/AppSidebar/Sidebar'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from 'src/lib/shadcn/ui//sidebar'
-import { Label } from 'src/lib/shadcn/ui/label'
+import { SidebarInset, SidebarProvider } from 'src/lib/shadcn/ui//sidebar'
 import { Separator } from 'src/lib/shadcn/ui/separator'
 import { useSessionState } from 'src/states/session'
-import LazyIcon from 'src/components/atoms/LazyIcon'
-import { Button } from 'src/lib/shadcn/ui/button'
-import { useAppState } from 'src/states/app'
 import { getRouteURL, getSearchParams } from 'src/utils/routes'
 import { SessionTypeEnum } from 'src/services/database/types'
+import { MainHeader } from './MainHeader'
 
 export function MainLayout() {
-  const { t } = useTranslation('common')
   const params = useParams()
   const navigate = useNavigate()
   const location = useLocation()
   const locationRef = useRef(location)
-  const setTheme = useAppState((state) => state.setTheme)
-  const theme = useAppState((state) => state.theme)
   const currentSession = useSessionState((state) => state.currentSession)
   const sessions = useSessionState((state) => state.sessions)
   const applications = useSessionState((state) => state.applications)
@@ -74,18 +67,6 @@ export function MainLayout() {
     })
   }, [navigate, params.applicationId, params.sessionId, setCurrentSession])
 
-  const handleChangeTheme = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }, [theme, setTheme])
-
-  const title = useMemo(() => {
-    if (location.pathname.includes(getRouteURL('whiteboard'))) {
-      return t('whiteboard')
-    } else if (location.pathname.includes(getRouteURL('application'))) {
-      return t('apllication')
-    }
-  }, [location.pathname, t])
-
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar
@@ -95,24 +76,7 @@ export function MainLayout() {
         setCurrentSession={setCurrentSession}
       />
       <SidebarInset className="max-h-screen overflow-hidden">
-        <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear justify-between">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger />
-            <Label>{title}</Label>
-          </div>
-          <div className="flex items-center gap-2 px-4">
-            <Button onClick={handleChangeTheme} variant="link">
-              <LazyIcon size={18} name={theme === 'dark' ? 'moon' : 'sun'} />
-            </Button>
-            <a
-              referrerPolicy="no-referrer"
-              target="_blank"
-              href="https://github.com/zrg-team/NoLLMChat"
-            >
-              <LazyIcon size={18} name="github" />
-            </a>
-          </div>
-        </header>
+        <MainHeader />
         <Separator className="shrink-0" />
         <div className="flex flex-1 flex-col p-0 m-0 overflow-y-auto">
           <Outlet />

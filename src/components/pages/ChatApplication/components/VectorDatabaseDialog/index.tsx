@@ -7,14 +7,14 @@ import { VectorDatabaseStorageEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
 import { cn } from 'src/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from 'src/lib/shadcn/ui/dialog'
-
-import { useChatApplicationData } from '../../hooks/use-chat-application-data'
 import { VectorSearch } from 'src/components/flows/Nodes/VectorDatabaseNode/components/VectorSearch'
 import IndexNewText from 'src/components/flows/Nodes/VectorDatabaseNode/components/IndexNewText'
 import IndexNewFile from 'src/components/flows/Nodes/VectorDatabaseNode/components/IndexNewFile'
 import { DataViewer } from 'src/components/molecules/Nodes/DataViewer'
 import { decodeLine } from 'src/utils/string-data'
+
 import { useActions } from './use-actions'
+import { useChatApplicationData } from '../../hooks/use-chat-application-data'
 
 type VectorDatabaseDialogProps = {
   retriverInfo: ReturnType<typeof useChatApplicationData>['retriverInfo'][number]
@@ -26,7 +26,6 @@ const VectorDatabaseDialog = create<VectorDatabaseDialogProps>(({ retriverInfo }
 
   const [mode, setMode] = useState('search')
   const [progress, setProgress] = useState(0)
-  console.log('retriverInfo', retriverInfo)
   const currentModal = useModal()
 
   const vectorDatabaseData = useMemo(() => {

@@ -1,7 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react'
 import { useFlowManager } from 'src/hooks/flows/handlers/use-flow-manager'
-import { getRepository } from 'src/services/database'
-import { In } from 'src/services/database/typeorm-wrapper'
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'
 
@@ -50,33 +48,6 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
         )
         if (handlingQueueItems.length) {
           removeSyncNodeQueue(handlingQueueItems.map((item) => item.timestamp))
-          for (const item of handlingQueueItems) {
-            const response = await prepareFlowInfo(item.query)
-            switch (item.syncType) {
-              case 'Thread':
-                {
-                  const threadIds = response?.flowNodes
-                    ?.map((node) => {
-                      if (node.source_id && node.source_type === 'Thread') {
-                        return node.source_id
-                      }
-                    })
-                    .filter(Boolean)
-                  if (threadIds?.length) {
-                    const messages = await getRepository('Message').find({
-                      where: { thread_id: In(threadIds) },
-                    })
-                    await prepareFlowInfo({
-                      where: {
-                        source_type: 'Message',
-                        source_id: In(messages.map((message) => message.id)),
-                      },
-                    })
-                  }
-                }
-                break
-            }
-          }
         }
       },
     )
