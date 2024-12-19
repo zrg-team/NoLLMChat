@@ -44,7 +44,8 @@ const root: RCT.TreeItem<string> = {
 }
 
 export function FileTree(props: FileTreeProps) {
-  const { onAddFile, onTriggerItem, onRenameItem, onDeleteFile, onAddFolder, onRenameFolder } = props
+  const { onAddFile, onTriggerItem, onRenameItem, onDeleteFile, onAddFolder, onRenameFolder } =
+    props
   const { t } = useTranslation('components')
   const [selectedItemIndex, setSelectedItemIndex] = useState<RCT.TreeItemIndex[]>()
   const [, setHoverItem] = useState<RCT.TreeItem<unknown> | undefined>()
@@ -78,25 +79,23 @@ export function FileTree(props: FileTreeProps) {
 
   const selectItems = useMemo<RCT.TreeItem<unknown>[]>(() => {
     if (selectedItemIndex?.length) {
-      return selectedItemIndex.map((index) => treeEnv.current?.items[`${index}`]).filter(Boolean) as RCT.TreeItem<unknown>[]
+      return selectedItemIndex
+        .map((index) => treeEnv.current?.items[`${index}`])
+        .filter(Boolean) as RCT.TreeItem<unknown>[]
     }
     return []
   }, [selectedItemIndex])
 
   const handleAddFile = useCallback(() => {
     onAddFile(
-      selectItems?.[0] && selectItems?.[0].isFolder
-        ? `${selectItems[0].index}`
-        : '/',
+      selectItems?.[0] && selectItems?.[0].isFolder ? `${selectItems[0].index}` : '/',
       'new_file',
     )
   }, [onAddFile, selectItems])
 
   const handleAddFolder = useCallback(() => {
     onAddFolder(
-      selectItems?.[0] && selectItems?.[0].isFolder
-        ? `${selectItems[0].index}`
-        : '/',
+      selectItems?.[0] && selectItems?.[0].isFolder ? `${selectItems[0].index}` : '/',
       'new_folder',
     )
   }, [onAddFolder, selectItems])
@@ -116,18 +115,18 @@ export function FileTree(props: FileTreeProps) {
     }
   }, [selectedItemIndex])
 
-  const handleOnChangeName = useCallback(
-    () => {
-      const item = selectedItemIndex?.[0] ? treeEnv.current?.items[`${selectedItemIndex?.[0]}`] : undefined
+  const handleOnChangeName = useCallback(() => {
+    const item = selectedItemIndex?.[0]
+      ? treeEnv.current?.items[`${selectedItemIndex?.[0]}`]
+      : undefined
 
-      if (renameInputRef.current?.value && item && item?.isFolder) {
-        onRenameFolder(item.index.toString(), renameInputRef.current.value)
-      } else if (renameInputRef.current?.value && item) {
-        onRenameItem(item.index.toString(), renameInputRef.current.value)
-      }
-      setOpenRenamePopover(false)
-    },
-    [onRenameFolder, onRenameItem, selectedItemIndex])
+    if (renameInputRef.current?.value && item && item?.isFolder) {
+      onRenameFolder(item.index.toString(), renameInputRef.current.value)
+    } else if (renameInputRef.current?.value && item) {
+      onRenameItem(item.index.toString(), renameInputRef.current.value)
+    }
+    setOpenRenamePopover(false)
+  }, [onRenameFolder, onRenameItem, selectedItemIndex])
 
   const handleSelectItems = useCallback((items: RCT.TreeItemIndex[]) => {
     setSelectedItemIndex(items)
@@ -169,12 +168,8 @@ export function FileTree(props: FileTreeProps) {
       if (!selectedItemIndex?.includes(props.item.index)) {
         return item
       }
-      
-      return (
-        <PopoverTrigger>
-          {item}
-        </PopoverTrigger>
-      )
+
+      return <PopoverTrigger>{item}</PopoverTrigger>
     },
     [isDarkTheme, selectedItemIndex],
   )
@@ -209,8 +204,7 @@ export function FileTree(props: FileTreeProps) {
     return { filetree: {} }
   }, [])
 
-  const handleOnPopoverOpenChange = useCallback(() => {
-  }, [])
+  const handleOnPopoverOpenChange = useCallback(() => {}, [])
 
   return (
     <Popover open={openRenamePopover} onOpenChange={handleOnPopoverOpenChange}>
@@ -222,39 +216,41 @@ export function FileTree(props: FileTreeProps) {
                 <LazyIcon name="square-terminal" />
                 <Label className="cursor-grab">VSLite</Label>
               </div>
-            ) : <div />}
-            
-              <div
-                ref={editorRef}
-                className={cn(
-                  'flex-1 !overflow-scroll max-h-full nowheel nodrag',
-                  isDarkTheme ? 'rct-dark' : 'rct-default',
-                )}
+            ) : (
+              <div />
+            )}
+
+            <div
+              ref={editorRef}
+              className={cn(
+                'flex-1 !overflow-scroll max-h-full nowheel nodrag',
+                isDarkTheme ? 'rct-dark' : 'rct-default',
+              )}
+            >
+              <UncontrolledTreeEnvironment
+                ref={treeEnv}
+                canRename
+                canSearch
+                canDragAndDrop
+                canDropOnFolder
+                canSearchByStartingTyping
+                onSelectItems={handleSelectItems}
+                dataProvider={provider.current}
+                getItemTitle={handleRenderItemTitle}
+                renderItemTitle={renderItem}
+                onPrimaryAction={handlePrimaryAction}
+                onRenameItem={handleRenameItem}
+                disableMultiselect
+                viewState={viewState}
               >
-                <UncontrolledTreeEnvironment
-                  ref={treeEnv}
-                  canRename
-                  canSearch
-                  canDragAndDrop
-                  canDropOnFolder
-                  canSearchByStartingTyping
-                  onSelectItems={handleSelectItems}
-                  dataProvider={provider.current}
-                  getItemTitle={handleRenderItemTitle}
-                  renderItemTitle={renderItem}
-                  onPrimaryAction={handlePrimaryAction}
-                  onRenameItem={handleRenameItem}
-                  disableMultiselect
-                  viewState={viewState}
-                >
-                  <Tree treeId="filetree" treeLabel="Explorer" rootItem="root" />
-                </UncontrolledTreeEnvironment>
-              </div>
+                <Tree treeId="filetree" treeLabel="Explorer" rootItem="root" />
+              </UncontrolledTreeEnvironment>
+            </div>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem disabled>
-            {(`${selectItems?.[0]?.index || './'}`).replace('./', '')}
+            {`${selectItems?.[0]?.index || './'}`.replace('./', '')}
           </ContextMenuItem>
           <Separator />
           <ContextMenuItem onClick={handleAddFile}>
