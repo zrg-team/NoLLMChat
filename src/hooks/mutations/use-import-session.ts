@@ -9,6 +9,33 @@ export const useImportSession = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
+  const transformData = useCallback(
+    <T extends object>(
+      item: Partial<T>,
+      {
+        idMap,
+        newSessionId,
+        replaceItem,
+      }: { idMap: Record<string, string>; newSessionId?: string; replaceItem?: Partial<T> },
+    ): T => {
+      const inner = item as Record<string, unknown>
+      return {
+        ...Object.keys(inner).reduce((acc: Record<string, unknown>, k) => {
+          if (inner[k] && typeof inner[k] === 'string' && idMap[inner[k]]) {
+            acc[k] = idMap[inner[k]]
+          } else if (k === 'session_id' && newSessionId) {
+            acc[k] = newSessionId
+          } else {
+            acc[k] = inner[k]
+          }
+          return acc
+        }, {}),
+        ...(replaceItem || {}),
+      } as T
+    },
+    [],
+  )
+
   const importSession = useCallback(
     async (json: Record<string, object[]>) => {
       try {
@@ -54,10 +81,13 @@ export const useImportSession = () => {
         })
 
         // All checks passed. Insert to database. key is entity name, value is array of entities
-        const newSession = await getRepository('Session').save({
-          ...session,
-          id: undefined,
-        } as unknown as Session)
+        const newSession = await getRepository('Session').save(
+          transformData<Session>(session, {
+            idMap,
+            newSessionId: '',
+            replaceItem: { id: undefined },
+          }),
+        )
         if (!newSession) {
           throw new Error('Failed to import session')
         }
@@ -67,19 +97,9 @@ export const useImportSession = () => {
             if (!data || !data.length) {
               return Promise.resolve()
             }
-            const records = data.map((item) => {
-              const inner = item as Record<string, unknown>
-              return Object.keys(inner).reduce((acc: Record<string, unknown>, k) => {
-                if (inner[k] && typeof inner[k] === 'string' && ids.includes(inner[k])) {
-                  acc[k] = idMap[inner[k]]
-                } else if (k === 'session_id') {
-                  acc[k] = newSession.id
-                } else {
-                  acc[k] = inner[k]
-                }
-                return acc
-              }, {}) as object
-            })
+            const records = data.map((item) =>
+              transformData(item, { idMap, newSessionId: newSession.id }),
+            )
             return getRepository(key).save(records)
           }),
         )
@@ -93,7 +113,7 @@ export const useImportSession = () => {
         setLoading(false)
       }
     },
-    [navigate],
+    [navigate, transformData],
   )
 
   return { loading, importSession }

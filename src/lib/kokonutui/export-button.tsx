@@ -86,7 +86,7 @@ export default function ExportButton({
         {isSuccess === null ? (
           <>
             <LazyIcon
-              name="hard-drive-download"
+              name="forward"
               className={cn(
                 'w-4 h-4 transition-transform duration-200',
                 'group-hover:scale-110',

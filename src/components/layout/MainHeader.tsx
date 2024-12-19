@@ -96,7 +96,7 @@ export function MainHeader() {
                 variant="ghost"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <LazyIcon size={18} name={'hard-drive-upload'} />
+                <LazyIcon size={18} name={'import'} />
                 <input
                   key={`${Date.now()}`}
                   ref={fileInputRef}
