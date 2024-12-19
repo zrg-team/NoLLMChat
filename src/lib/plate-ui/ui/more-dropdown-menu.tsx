@@ -27,7 +27,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Insert">
-          <LazyIcon name='ellipsis' />
+          <LazyIcon name="ellipsis" />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
@@ -44,7 +44,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <LazyIcon name='highlighter' />
+            <LazyIcon name="highlighter" />
             Highlight
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -54,7 +54,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <LazyIcon name='keyboard' />
+            <LazyIcon name="keyboard" />
             Keyboard input
           </DropdownMenuItem>
 
@@ -67,7 +67,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <LazyIcon name='superscript' />
+            <LazyIcon name="superscript" />
             Superscript
             {/* (⌘+,) */}
           </DropdownMenuItem>
@@ -80,7 +80,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <LazyIcon name='subscript' />
+            <LazyIcon name="subscript" />
             Subscript
             {/* (⌘+.) */}
           </DropdownMenuItem>

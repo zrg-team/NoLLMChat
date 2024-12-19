@@ -43,7 +43,7 @@ export function CommandDialog({ children, ...props }: DialogProps) {
 export const CommandInput = withRef<typeof CommandPrimitive.Input>(
   ({ className, ...props }, ref) => (
     <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-      <LazyIcon name='search' className="mr-2 size-4 shrink-0 opacity-50" />
+      <LazyIcon name="search" className="mr-2 size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
         ref={ref}
         className={cn(

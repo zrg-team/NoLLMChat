@@ -48,52 +48,52 @@ export const emojiCategoryIcons: Record<
   },
 
   custom: {
-    outline: <LazyIcon name='star' className="size-full" />,
-    solid: <LazyIcon name='star' className="size-full" />,
+    outline: <LazyIcon name="star" className="size-full" />,
+    solid: <LazyIcon name="star" className="size-full" />,
   },
 
   flags: {
-    outline: <LazyIcon name='flag' className="size-full" />,
-    solid: <LazyIcon name='flag' className="size-full" />,
+    outline: <LazyIcon name="flag" className="size-full" />,
+    solid: <LazyIcon name="flag" className="size-full" />,
   },
 
   foods: {
-    outline: <LazyIcon name='apple' className="size-full" />,
-    solid: <LazyIcon name='apple' className="size-full" />,
+    outline: <LazyIcon name="apple" className="size-full" />,
+    solid: <LazyIcon name="apple" className="size-full" />,
   },
 
   frequent: {
-    outline: <LazyIcon name='clock' className="size-full" />,
-    solid: <LazyIcon name='clock' className="size-full" />,
+    outline: <LazyIcon name="clock" className="size-full" />,
+    solid: <LazyIcon name="clock" className="size-full" />,
   },
 
   nature: {
-    outline: <LazyIcon name='leaf' className="size-full" />,
-    solid: <LazyIcon name='leaf' className="size-full" />,
+    outline: <LazyIcon name="leaf" className="size-full" />,
+    solid: <LazyIcon name="leaf" className="size-full" />,
   },
 
   objects: {
-    outline: <LazyIcon name='lightbulb' className="size-full" />,
-    solid: <LazyIcon name='lightbulb' className="size-full" />,
+    outline: <LazyIcon name="lightbulb" className="size-full" />,
+    solid: <LazyIcon name="lightbulb" className="size-full" />,
   },
 
   people: {
-    outline: <LazyIcon name='smile' className="size-full" />,
-    solid: <LazyIcon name='smile' className="size-full" />,
+    outline: <LazyIcon name="smile" className="size-full" />,
+    solid: <LazyIcon name="smile" className="size-full" />,
   },
 
   places: {
-    outline: <LazyIcon name='compass' className="size-full" />,
-    solid: <LazyIcon name='compass' className="size-full" />,
+    outline: <LazyIcon name="compass" className="size-full" />,
+    solid: <LazyIcon name="compass" className="size-full" />,
   },
 
   symbols: {
-    outline: <LazyIcon name='music' className="size-full" />,
-    solid: <LazyIcon name='music' className="size-full" />,
+    outline: <LazyIcon name="music" className="size-full" />,
+    solid: <LazyIcon name="music" className="size-full" />,
   },
 }
 
 export const emojiSearchIcons = {
-  delete: <LazyIcon name='x' className="size-4 text-current" />,
-  loupe: <LazyIcon name='search' className="size-4 text-current" />,
+  delete: <LazyIcon name="x" className="size-4 text-current" />,
+  loupe: <LazyIcon name="search" className="size-4 text-current" />,
 }

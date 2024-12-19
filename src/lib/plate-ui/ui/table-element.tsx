@@ -134,7 +134,7 @@ export const TableFloatingToolbar = withRef<typeof PopoverContent>(
         contentEditable={false}
         isMenu
       >
-        <LazyIcon name='combine' />
+        <LazyIcon name="combine" />
         Merge
       </Button>
     )
@@ -146,7 +146,7 @@ export const TableFloatingToolbar = withRef<typeof PopoverContent>(
         contentEditable={false}
         isMenu
       >
-        <LazyIcon name='ungroup' />
+        <LazyIcon name="ungroup" />
         Unmerge
       </Button>
     )
@@ -167,7 +167,7 @@ export const TableFloatingToolbar = withRef<typeof PopoverContent>(
         </DropdownMenu>
 
         <Button variant="ghost" contentEditable={false} isMenu {...buttonProps}>
-          <LazyIcon name='trash-2' />
+          <LazyIcon name="trash-2" />
           Delete
         </Button>
       </>

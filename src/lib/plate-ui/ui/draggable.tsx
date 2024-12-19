@@ -109,7 +109,7 @@ const DragHandle = React.memo(() => {
       <Tooltip>
         <TooltipTrigger type="button">
           <LazyIcon
-            name='grip-vertical'
+            name="grip-vertical"
             className="size-4 text-muted-foreground"
             onClick={(event) => {
               event.stopPropagation()

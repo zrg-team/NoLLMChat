@@ -220,8 +220,8 @@ const Folder = forwardRef<HTMLDivElement, FolderProps & React.HTMLAttributes<HTM
           onClick={() => handleExpand(value)}
         >
           {expandedItems?.includes(value)
-            ? (openIcon ?? <LazyIcon name='folder-open' className="size-4" />)
-            : (closeIcon ?? <LazyIcon name='folder' className="size-4" />)}
+            ? (openIcon ?? <LazyIcon name="folder-open" className="size-4" />)
+            : (closeIcon ?? <LazyIcon name="folder" className="size-4" />)}
           <span>{element}</span>
         </AccordionPrimitive.Trigger>
         <AccordionPrimitive.Content className="text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down relative overflow-hidden h-full">
@@ -283,7 +283,7 @@ const File = forwardRef<
             onClick?.(e)
           }}
         >
-          {fileIcon ?? <LazyIcon name='file' className="size-4" />}
+          {fileIcon ?? <LazyIcon name="file" className="size-4" />}
           {children}
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Item>

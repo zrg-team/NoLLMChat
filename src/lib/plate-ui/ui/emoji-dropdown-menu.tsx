@@ -22,7 +22,7 @@ export function EmojiDropdownMenu({ options, ...props }: EmojiDropdownMenuProps)
     <EmojiToolbarDropdown
       control={
         <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
-          <LazyIcon name='smile' />
+          <LazyIcon name="smile" />
         </ToolbarButton>
       }
       isOpen={isOpen}

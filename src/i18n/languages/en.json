@@ -352,7 +352,8 @@
         "vite-vue": "Base [Vite + Vue]",
         "shadcn-react-vite": "Base [React + Vite + Shadcn]",
         "todo-app-react-vite": "Todo App [Vue + Vite + Shadcn]",
-        "porfolio-nextjs": "Portfolio [Next.js + Shadcn]"
+        "porfolio-nextjs": "Portfolio [Next.js + Shadcn]",
+        "empty-source": "Empty Source"
       },
       "update_source": "Update Source"
     },

@@ -13,7 +13,7 @@ import { useFileSystemTree } from './hooks/use-file-system-tree'
 const VSLiteApp = lazy(() => import('src/lib/vslite/index'))
 
 const VSLiteApplication = memo(() => {
-  const { mainLLMInfo } = useCreateMessage()
+  const { loading, mainLLMInfo, loadCurrentModel } = useCreateMessage()
   const { fileSystemTree, updateCodeContainerFile } = useFileSystemTree()
 
   return (
@@ -33,9 +33,17 @@ const VSLiteApplication = memo(() => {
                 mainLLMInfo.progress
               ) : mainLLMInfo?.status === LLMStatusEnum.Loaded ? (
                 mainLLMInfo?.llm?.name || ''
-              ) : (
+              ) : loading ? (
                 <LazyIcon size={16} name="loader-circle" className="animate-spin ml-2" />
-              )}
+              ) : undefined}
+              {mainLLMInfo?.llm && mainLLMInfo?.status !== LLMStatusEnum.Loaded ? (
+                <LazyIcon
+                  size={16}
+                  name="loader-circle"
+                  onClick={loadCurrentModel}
+                  className="animate-spin ml-2"
+                />
+              ) : undefined}
             </TooltipTrigger>
             <TooltipContent>
               <p>{mainLLMInfo?.progress || mainLLMInfo?.llm?.name || ''}</p>
@@ -54,6 +62,7 @@ const VSLiteApplication = memo(() => {
           <VSLiteApp
             autoLoad
             hideAppName
+            llm={mainLLMInfo?.llm}
             fileSystemTree={fileSystemTree}
             onUpdateFileContent={updateCodeContainerFile}
           />

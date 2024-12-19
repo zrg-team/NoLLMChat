@@ -18,7 +18,7 @@ export type EditorChatState =
 
 export const aiChatItems = {
   accept: {
-    icon: <LazyIcon name='check' />,
+    icon: <LazyIcon name="check" />,
     label: 'Accept',
     value: 'accept',
     onSelect: ({ editor }) => {
@@ -27,7 +27,7 @@ export const aiChatItems = {
     },
   },
   continueWrite: {
-    icon: <LazyIcon name='pen-line' />,
+    icon: <LazyIcon name="pen-line" />,
     label: 'Continue writing',
     value: 'continueWrite',
     onSelect: ({ editor }) => {
@@ -49,7 +49,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   discard: {
-    icon: <LazyIcon name='x' />,
+    icon: <LazyIcon name="x" />,
     label: 'Discard',
     shortcut: 'Escape',
     value: 'discard',
@@ -59,7 +59,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   explain: {
-    icon: <LazyIcon name='badge-help' />,
+    icon: <LazyIcon name="badge-help" />,
     label: 'Explain',
     value: 'explain',
     onSelect: ({ editor }) => {
@@ -72,7 +72,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   fixSpelling: {
-    icon: <LazyIcon name='check' />,
+    icon: <LazyIcon name="check" />,
     label: 'Fix spelling & grammar',
     value: 'fixSpelling',
     onSelect: ({ editor }) => {
@@ -82,7 +82,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   improveWriting: {
-    icon: <LazyIcon name='wand' />,
+    icon: <LazyIcon name="wand" />,
     label: 'Improve writing',
     value: 'improveWriting',
     onSelect: ({ editor }) => {
@@ -92,7 +92,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   insertBelow: {
-    icon: <LazyIcon name='list-end' />,
+    icon: <LazyIcon name="list-end" />,
     label: 'Insert below',
     value: 'insertBelow',
     onSelect: ({ aiEditor, editor }) => {
@@ -100,7 +100,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   makeLonger: {
-    icon: <LazyIcon name='list-plus' />,
+    icon: <LazyIcon name="list-plus" />,
     label: 'Make longer',
     value: 'makeLonger',
     onSelect: ({ editor }) => {
@@ -110,7 +110,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   makeShorter: {
-    icon: <LazyIcon name='list-minus' />,
+    icon: <LazyIcon name="list-minus" />,
     label: 'Make shorter',
     value: 'makeShorter',
     onSelect: ({ editor }) => {
@@ -120,7 +120,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   replace: {
-    icon: <LazyIcon name='check' />,
+    icon: <LazyIcon name="check" />,
     label: 'Replace selection',
     value: 'replace',
     onSelect: ({ aiEditor, editor }) => {
@@ -128,7 +128,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   simplifyLanguage: {
-    icon: <LazyIcon name='feather' />,
+    icon: <LazyIcon name="feather" />,
     label: 'Simplify language',
     value: 'simplifyLanguage',
     onSelect: ({ editor }) => {
@@ -138,7 +138,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   summarize: {
-    icon: <LazyIcon name='album' />,
+    icon: <LazyIcon name="album" />,
     label: 'Add a summary',
     value: 'summarize',
     onSelect: ({ editor }) => {
@@ -152,7 +152,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   tryAgain: {
-    icon: <LazyIcon name='corner-up-left' />,
+    icon: <LazyIcon name="corner-up-left" />,
     label: 'Try again',
     value: 'tryAgain',
     onSelect: ({ editor }) => {

@@ -1,6 +1,7 @@
 import type { FileSystemTree } from '@webcontainer/api'
 
 export const SOURCE_BASES = [
+  'empty-source',
   'vite-vue',
   'shadcn-react-vite',
   'todo-app-react-vite',
@@ -9,6 +10,8 @@ export const SOURCE_BASES = [
 
 export const getSourceBase = async (sourceBase: string): Promise<FileSystemTree> => {
   switch (sourceBase) {
+    case 'empty-source':
+      return import('./empty-source').then((module) => module.BASE)
     case 'vite-vue':
       return import('./vite-vue').then((module) => module.BASE)
     case 'shadcn-react-vite':

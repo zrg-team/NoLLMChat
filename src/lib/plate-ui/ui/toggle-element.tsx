@@ -24,7 +24,7 @@ export const ToggleElement = withRef<typeof PlateElement>(
           {...buttonProps}
         >
           <LazyIcon
-            name='chevron-right'
+            name="chevron-right"
             className={cn('transition-transform duration-75', open ? 'rotate-90' : 'rotate-0')}
           />
         </Button>
