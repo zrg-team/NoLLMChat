@@ -138,6 +138,36 @@ export function createFileOpener(api: DockviewApi, fs: FileSystemAPI) {
   }
 }
 
+export function createFileAdder(api: DockviewApi, fs: FileSystemAPI) {
+  return async (path: string, name: string) => {
+    const newPath = `${path}/${name.includes('.') ? name : `${name}`}`
+    await fs.writeFile(newPath, new Uint8Array())
+    api.addPanel({
+      id: newPath,
+      title: name,
+      component: 'editor',
+      params: { fs, path: newPath },
+    })
+  }
+}
+
+export function createFolderAdder(_api: DockviewApi, fs: FileSystemAPI) {
+  return async (path: string, name: string) => {
+    const newPath = `${path}/${name.includes('.') ? name : `${name}`}`
+    await fs.mkdir(newPath, { recursive: true })
+  }
+}
+
+export function createFileDeleter(api: DockviewApi, fs: FileSystemAPI) {
+  return async (path: string) => {
+    await fs.rm(path, { recursive: true })
+    const panel = api.getPanel(path)
+    if (panel) {
+      panel.api.close()
+    }
+  }
+}
+
 export function createFileRenameHandler(api: DockviewApi, fs: FileSystemAPI) {
   return async (path: string, name: string) => {
     // Get contents of file
@@ -154,5 +184,12 @@ export function createFileRenameHandler(api: DockviewApi, fs: FileSystemAPI) {
       panel.api.updateParameters({ path: newPath })
       panel.api.setTitle(name)
     }
+  }
+}
+
+export function createFolderRenameHandler(_api: DockviewApi, fs: FileSystemAPI) {
+  return async (path: string, name: string) => {
+    const newPath = path.split('/').slice(0, -1).join('/') + '/' + name
+    await fs.rename(path, newPath)
   }
 }

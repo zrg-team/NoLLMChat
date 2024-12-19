@@ -10,7 +10,7 @@ export const BASE: FileSystemTree = {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do Application</title>
+  <title>NOLLM To-Do Application</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     .rounded-border {
@@ -31,7 +31,6 @@ export const BASE: FileSystemTree = {
       content: '';
       display: block;
       position: absolute;
-      background-color: #FFC29F;
       width: 1.25rem; /* 5 * 0.25rem */
       height: 1.25rem; /* 5 * 0.25rem */
       border-radius: 0.125rem; /* rounded-sm */
@@ -57,7 +56,7 @@ export const BASE: FileSystemTree = {
       transition: opacity 0.2s;
     }
     .custom-checkbox:checked::before {
-      background-color: #FF965B;
+      background-color: #F1F2F4;
     }
     .custom-checkbox:checked::after {
       opacity: 1;
@@ -77,18 +76,14 @@ export const BASE: FileSystemTree = {
 </head>
 <body class="bg-gray-100 p-6">
   <div class="max-w-lg mx-auto">
-    <!-- Header -->
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-center">To-Do Application</h1>
     </header>
-    <!-- Input Section -->
     <div class="flex justify-between mb-4">
       <input type="text" id="taskInput" class="w-full border-black border-2 p-2.5 focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-[#FFA6F6] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] rounded-border" placeholder="Add a new task">
       <button onclick="addTask()" class="ml-2 h-12 border-black border-2 p-2.5 bg-[#A6FAFF] hover:bg-[#79F7FF] hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-[#00E1EF] rounded-border">Add</button>
     </div>
-    <!-- To-Do List -->
     <ul id="taskList" class="space-y-4">
-      <!-- More tasks can be added here -->
     </ul>
   </div>
   <script>
@@ -105,15 +100,8 @@ export const BASE: FileSystemTree = {
             <p class="ml-2">\${taskText}</p>
           </div>
           <div class="flex space-x-2">
-            <button class="border-black border-2 bg-[#A6FAFF] hover:bg-[#79F7FF] active:bg-[#53f2fc] w-10 h-10 rounded-border flex justify-center items-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M19.06 3.59L20.41 4.94C21.2 5.72 21.2 6.99 20.41 7.77L7.18 21H3V16.82L13.4 6.41L16.23 3.59C17.01 2.81 18.28 2.81 19.06 3.59ZM5 19L6.41 19.06L16.23 9.23L14.82 7.82L5 17.64V19Z" fill="black"/>
-              </svg>
-            </button>
             <button class="border-black border-2 bg-[#FFA6F6] hover:bg-[#fa8cef] active:bg-[#f774ea] w-10 h-10 rounded-border flex justify-center items-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.8425 24V0H13.1575V24H10.8425ZM0 13.1664V10.8336H24V13.1664H0Z" fill="black"/>
-              </svg>
+              <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 482.428 482.429" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M381.163,57.799h-75.094C302.323,25.316,274.686,0,241.214,0c-33.471,0-61.104,25.315-64.85,57.799h-75.098 c-30.39,0-55.111,24.728-55.111,55.117v2.828c0,23.223,14.46,43.1,34.83,51.199v260.369c0,30.39,24.724,55.117,55.112,55.117 h210.236c30.389,0,55.111-24.729,55.111-55.117V166.944c20.369-8.1,34.83-27.977,34.83-51.199v-2.828 C436.274,82.527,411.551,57.799,381.163,57.799z M241.214,26.139c19.037,0,34.927,13.645,38.443,31.66h-76.879 C206.293,39.783,222.184,26.139,241.214,26.139z M375.305,427.312c0,15.978-13,28.979-28.973,28.979H136.096 c-15.973,0-28.973-13.002-28.973-28.979V170.861h268.182V427.312z M410.135,115.744c0,15.978-13,28.979-28.973,28.979H101.266 c-15.973,0-28.973-13.001-28.973-28.979v-2.828c0-15.978,13-28.979,28.973-28.979h279.897c15.973,0,28.973,13.001,28.973,28.979 V115.744z"></path> <path d="M171.144,422.863c7.218,0,13.069-5.853,13.069-13.068V262.641c0-7.216-5.852-13.07-13.069-13.07 c-7.217,0-13.069,5.854-13.069,13.07v147.154C158.074,417.012,163.926,422.863,171.144,422.863z"></path> <path d="M241.214,422.863c7.218,0,13.07-5.853,13.07-13.068V262.641c0-7.216-5.854-13.07-13.07-13.07 c-7.217,0-13.069,5.854-13.069,13.07v147.154C228.145,417.012,233.996,422.863,241.214,422.863z"></path> <path d="M311.284,422.863c7.217,0,13.068-5.853,13.068-13.068V262.641c0-7.216-5.852-13.07-13.068-13.07 c-7.219,0-13.07,5.854-13.07,13.07v147.154C298.213,417.012,304.067,422.863,311.284,422.863z"></path> </g> </g> </g></svg>
             </button>
           </div>
         \`;
