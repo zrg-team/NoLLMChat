@@ -359,7 +359,13 @@
     },
     "vslite": {
       "load_app_container": "Load Container",
-      "loading_vm_container": "Initializing container..."
+      "loading_vm_container": "Initializing container...",
+      "context_menu": {
+        "new_file": "New File",
+        "new_folder": "New Folder",
+        "rename": "Rename",
+        "delete": "Delete"
+      }
     }
   },
   "dialogs": {

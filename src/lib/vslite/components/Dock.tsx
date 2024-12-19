@@ -158,6 +158,10 @@ const terminalComponents: Record<string, FunctionComponent<IPaneviewPanelProps>>
       hideAppName={props.params.hideAppName}
       onRenameItem={panels.createFileRenameHandler(props.params.dock, props.params.fs)}
       onTriggerItem={panels.createFileOpener(props.params.dock, props.params.fs)}
+      onAddFile={panels.createFileAdder(props.params.dock, props.params.fs)}
+      onDeleteFile={panels.createFileDeleter(props.params.dock, props.params.fs)}
+      onAddFolder={panels.createFolderAdder(props.params.dock, props.params.fs)}
+      onRenameFolder={panels.createFolderRenameHandler(props.params.dock, props.params.fs)}
     />
   ),
 }

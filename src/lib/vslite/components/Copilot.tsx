@@ -25,7 +25,6 @@ export default function Copilot({
   ],
 }: CopilotProps) {
   const { llm } = useMainVSLiteAppContext()
-  console.log('llm', llm)
   if (!llm) {
     return undefined
   }
