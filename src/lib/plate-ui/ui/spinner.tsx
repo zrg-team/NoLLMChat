@@ -1,6 +1,7 @@
 import { cn } from '@udecode/cn'
 import { type VariantProps, cva } from 'class-variance-authority'
-import { type LucideProps, Loader2Icon } from 'lucide-react'
+import type { LucideProps } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 const spinnerVariants = cva('animate-spin text-muted-foreground', {
   defaultVariants: {
@@ -21,5 +22,5 @@ export const Spinner = ({
   size,
   ...props
 }: Partial<LucideProps & VariantProps<typeof spinnerVariants>>) => (
-  <Loader2Icon className={cn(spinnerVariants({ size }), className)} {...props} />
+  <LazyIcon className={cn(spinnerVariants({ size }), className)} {...props} name={'loader'} />
 )

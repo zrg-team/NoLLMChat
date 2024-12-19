@@ -2,7 +2,7 @@
 
 import { withRef } from '@udecode/cn'
 import { useToggleToolbarButton, useToggleToolbarButtonState } from '@udecode/plate-toggle/react'
-import { ListCollapseIcon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { ToolbarButton } from './toolbar'
 
@@ -12,7 +12,7 @@ export const ToggleToolbarButton = withRef<typeof ToolbarButton>((rest, ref) => 
 
   return (
     <ToolbarButton ref={ref} tooltip="Toggle" {...props} {...rest}>
-      <ListCollapseIcon />
+      <LazyIcon name='list-collapse' />
     </ToolbarButton>
   )
 })

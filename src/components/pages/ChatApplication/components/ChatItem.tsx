@@ -1,6 +1,6 @@
 import { cn } from '@udecode/cn'
 import { Message } from 'ai/react'
-import { CopyIcon, RefreshCcw, Volume2 } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 import { lazy, memo, Suspense } from 'react'
 import {
   ChatBubble,
@@ -15,15 +15,15 @@ const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
 const ChatAiIcons = [
   {
-    icon: CopyIcon,
+    icon: 'copy' as const,
     label: 'Copy',
   },
   {
-    icon: RefreshCcw,
+    icon: 'refresh-ccw' as const,
     label: 'Refresh',
   },
   {
-    icon: Volume2,
+    icon: 'volume-2' as const,
     label: 'Volume',
   },
 ]
@@ -92,13 +92,12 @@ export const ChatItem = memo(
               {!isGenerating && (
                 <>
                   {ChatAiIcons.map((icon, iconIndex) => {
-                    const Icon = icon.icon
                     return (
                       <ChatBubbleAction
                         variant="ghost"
                         className="size-5"
                         key={iconIndex}
-                        icon={<Icon className="size-3" />}
+                        icon={<LazyIcon name={icon.icon} className="size-3" />}
                         onClick={() => onActionClick(icon.label, message)}
                       />
                     )

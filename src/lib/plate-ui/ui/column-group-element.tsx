@@ -9,7 +9,8 @@ import {
   useColumnState,
   useDebouncePopoverOpen,
 } from '@udecode/plate-layout/react'
-import { type LucideProps, Trash2Icon } from 'lucide-react'
+import type { LucideProps } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useReadOnly } from 'slate-react'
 
 import { Button } from './button'
@@ -77,7 +78,7 @@ export function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
 
           <Separator orientation="vertical" className="mx-1 h-6" />
           <Button size="icon" variant="ghost" {...buttonProps}>
-            <Trash2Icon />
+            <LazyIcon name='trash-2' />
           </Button>
         </div>
       </PopoverContent>

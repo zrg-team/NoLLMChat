@@ -4,7 +4,7 @@ import * as React from 'react'
 import { DayPicker } from 'react-day-picker'
 
 import { cn } from '@udecode/cn'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { buttonVariants } from './button'
 
@@ -47,8 +47,8 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronLeft className="size-4" />,
-        IconRight: () => <ChevronRight className="size-4" />,
+        IconLeft: () => <LazyIcon name='chevron-left' className="size-4" />,
+        IconRight: () => <LazyIcon name='chevron-right' className="size-4" />,
       }}
       showOutsideDays={showOutsideDays}
       {...props}

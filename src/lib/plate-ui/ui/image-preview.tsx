@@ -9,7 +9,7 @@ import {
   useScaleInputState,
 } from '@udecode/plate-media/react'
 import { cva } from 'class-variance-authority'
-import { ArrowLeft, ArrowRight, Download, Minus, Plus, X } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 const toolButtonVariants = cva('rounded bg-[rgba(0,0,0,0.5)] px-1', {
   defaultVariants: {
@@ -78,7 +78,7 @@ export const ImagePreview = () => {
                 )}
                 type="button"
               >
-                <ArrowLeft />
+                <LazyIcon name='arrow-left' />
               </button>
               {(currentUrlIndex ?? 0) + 1}
               <button
@@ -90,7 +90,7 @@ export const ImagePreview = () => {
                 )}
                 type="button"
               >
-                <ArrowRight />
+                <LazyIcon name='arrow-right' />
               </button>
             </div>
             <div className="flex ">
@@ -103,7 +103,7 @@ export const ImagePreview = () => {
                 {...zommOutProps}
                 type="button"
               >
-                <Minus className="size-4" />
+                <LazyIcon name='minus' className="size-4" />
               </button>
               <div className="mx-px">
                 {state.isEditingScale ? (
@@ -124,15 +124,15 @@ export const ImagePreview = () => {
                 {...zoomInProps}
                 type="button"
               >
-                <Plus className="size-4" />
+                <LazyIcon name='plus' className="size-4" />
               </button>
             </div>
             {/* TODO: downLoad the image */}
             <button className={cn(toolButtonVariants())} type="button">
-              <Download className="size-4" />
+              <LazyIcon name='download' className="size-4" />
             </button>
             <button {...closeProps} className={cn(toolButtonVariants())} type="button">
-              <X className="size-4" />
+              <LazyIcon name='x' className="size-4" />
             </button>
           </div>
         </div>

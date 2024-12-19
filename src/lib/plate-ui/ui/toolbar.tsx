@@ -5,7 +5,7 @@ import * as React from 'react'
 import * as ToolbarPrimitive from '@radix-ui/react-toolbar'
 import { cn, withCn, withRef, withVariants } from '@udecode/cn'
 import { type VariantProps, cva } from 'class-variance-authority'
-import { ChevronDown } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { Separator } from './separator'
 import { withTooltip } from './tooltip'
@@ -98,7 +98,7 @@ const ToolbarButton = withTooltip(
             <>
               <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
               <div>
-                <ChevronDown className="size-3.5 text-muted-foreground" data-icon />
+                <LazyIcon name='chevron-down' className="size-3.5 text-muted-foreground" data-icon />
               </div>
             </>
           ) : (
@@ -185,7 +185,7 @@ export const ToolbarSplitButtonSecondary = React.forwardRef<
       role="button"
       {...props}
     >
-      <ChevronDown className="size-3.5 text-muted-foreground" data-icon />
+      <LazyIcon name='chevron-down' className="size-3.5 text-muted-foreground" data-icon />
     </span>
   )
 })

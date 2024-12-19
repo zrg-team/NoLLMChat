@@ -3,7 +3,7 @@
 import { cn, withRef } from '@udecode/cn'
 import { useElement } from '@udecode/plate-common/react'
 import { useToggleButton, useToggleButtonState } from '@udecode/plate-toggle/react'
-import { ChevronRight } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { Button } from './button'
 import { PlateElement } from './plate-element'
@@ -23,7 +23,8 @@ export const ToggleElement = withRef<typeof PlateElement>(
           contentEditable={false}
           {...buttonProps}
         >
-          <ChevronRight
+          <LazyIcon
+            name='chevron-right'
             className={cn('transition-transform duration-75', open ? 'rotate-90' : 'rotate-0')}
           />
         </Button>

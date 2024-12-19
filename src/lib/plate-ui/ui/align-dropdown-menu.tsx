@@ -3,7 +3,7 @@
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
 import { useAlignDropdownMenu, useAlignDropdownMenuState } from '@udecode/plate-alignment/react'
-import { AlignCenterIcon, AlignJustifyIcon, AlignLeftIcon, AlignRightIcon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import {
   DropdownMenu,
@@ -17,19 +17,19 @@ import { ToolbarButton } from './toolbar'
 
 const items = [
   {
-    icon: AlignLeftIcon,
+    icon: 'align-left' as const,
     value: 'left',
   },
   {
-    icon: AlignCenterIcon,
+    icon: 'align-center' as const,
     value: 'center',
   },
   {
-    icon: AlignRightIcon,
+    icon: 'align-right' as const,
     value: 'right',
   },
   {
-    icon: AlignJustifyIcon,
+    icon: 'align-justify' as const,
     value: 'justify',
   },
 ]
@@ -39,22 +39,22 @@ export function AlignDropdownMenu({ ...props }: DropdownMenuProps) {
   const { radioGroupProps } = useAlignDropdownMenu(state)
 
   const openState = useOpenState()
-  const IconValue =
-    items.find((item) => item.value === radioGroupProps.value)?.icon ?? AlignLeftIcon
+  const iconName =
+    items.find((item) => item.value === radioGroupProps.value)?.icon ?? 'align-left'
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Align" isDropdown>
-          <IconValue />
+          <LazyIcon name={iconName} />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="min-w-0" align="start">
         <DropdownMenuRadioGroup {...radioGroupProps}>
-          {items.map(({ icon: Icon, value: itemValue }) => (
+          {items.map(({ icon, value: itemValue }) => (
             <DropdownMenuRadioItem key={itemValue} value={itemValue} hideIcon>
-              <Icon />
+              <LazyIcon name={icon} />
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>

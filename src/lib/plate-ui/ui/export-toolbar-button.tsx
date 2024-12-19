@@ -3,7 +3,7 @@
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
 import { toDOMNode, useEditorRef } from '@udecode/plate-common/react'
-import { ExternalLink } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { useTranslation } from 'react-i18next'
 
@@ -90,7 +90,7 @@ export function ExportToolbarButton({ ...props }: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Export" isDropdown>
-          <ExternalLink className="size-4" />
+          <LazyIcon name='external-link' className="size-4" />
         </ToolbarButton>
       </DropdownMenuTrigger>
 

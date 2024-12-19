@@ -5,7 +5,7 @@ import type { DialogProps } from '@radix-ui/react-dialog'
 import { Command as CommandPrimitive } from '@udecode/cmdk'
 import { cn, createPrimitiveElement, withCn, withRef, withVariants } from '@udecode/cn'
 import { cva } from 'class-variance-authority'
-import { Search } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { inputVariants } from './input'
@@ -43,7 +43,7 @@ export function CommandDialog({ children, ...props }: DialogProps) {
 export const CommandInput = withRef<typeof CommandPrimitive.Input>(
   ({ className, ...props }, ref) => (
     <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-      <Search className="mr-2 size-4 shrink-0 opacity-50" />
+      <LazyIcon name='search' className="mr-2 size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
         ref={ref}
         className={cn(

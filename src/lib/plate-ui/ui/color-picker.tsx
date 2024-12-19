@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { cn, withRef } from '@udecode/cn'
-import { EraserIcon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { type TColor, ColorDropdownMenuItems } from './color-dropdown-menu-items'
 import { ColorCustom } from './colors-custom'
@@ -55,7 +55,7 @@ export const ColorPickerContent = withRef<
         {color && (
           <DropdownMenuGroup>
             <DropdownMenuItem className="p-2" onClick={clearColor}>
-              <EraserIcon />
+              <LazyIcon name='eraser' />
               <span>Clear</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>

@@ -19,7 +19,7 @@ import {
   useHotkeys,
 } from '@udecode/plate-common/react'
 import { BlockSelectionPlugin, useIsSelecting } from '@udecode/plate-selection/react'
-import { Loader2Icon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { useChat } from 'src/components/organisms/editor/use-chat'
 
@@ -136,7 +136,7 @@ export function AIMenu({
 
           {isLoading ? (
             <div className="flex grow select-none items-center gap-2 p-2 text-sm text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" />
+              <LazyIcon name='loader' className="size-4 animate-spin" />
               {messages.length > 1 ? 'Editing...' : 'Thinking...'}
             </div>
           ) : (

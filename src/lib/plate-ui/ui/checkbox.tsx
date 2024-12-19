@@ -2,7 +2,7 @@
 
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
 import { cn, withRef } from '@udecode/cn'
-import { Check } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 export const Checkbox = withRef<typeof CheckboxPrimitive.Root>(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root
@@ -14,7 +14,7 @@ export const Checkbox = withRef<typeof CheckboxPrimitive.Root>(({ className, ...
     {...props}
   >
     <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
-      <Check className="size-4" />
+      <LazyIcon name='check' className="size-4" />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 ))

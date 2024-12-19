@@ -6,19 +6,7 @@ import { AIChatPlugin, AIPlugin } from '@udecode/plate-ai/react'
 import { getAncestorNode, getEndPoint, getNodeString } from '@udecode/plate-common'
 import { type PlateEditor, focusEditor, useEditorPlugin } from '@udecode/plate-common/react'
 import { useIsSelecting } from '@udecode/plate-selection/react'
-import {
-  Album,
-  BadgeHelp,
-  Check,
-  CornerUpLeft,
-  FeatherIcon,
-  ListEnd,
-  ListMinus,
-  ListPlus,
-  PenLine,
-  Wand,
-  X,
-} from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { CommandGroup, CommandItem } from './command'
 
@@ -30,7 +18,7 @@ export type EditorChatState =
 
 export const aiChatItems = {
   accept: {
-    icon: <Check />,
+    icon: <LazyIcon name='check' />,
     label: 'Accept',
     value: 'accept',
     onSelect: ({ editor }) => {
@@ -39,7 +27,7 @@ export const aiChatItems = {
     },
   },
   continueWrite: {
-    icon: <PenLine />,
+    icon: <LazyIcon name='pen-line' />,
     label: 'Continue writing',
     value: 'continueWrite',
     onSelect: ({ editor }) => {
@@ -61,7 +49,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   discard: {
-    icon: <X />,
+    icon: <LazyIcon name='x' />,
     label: 'Discard',
     shortcut: 'Escape',
     value: 'discard',
@@ -71,7 +59,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   explain: {
-    icon: <BadgeHelp />,
+    icon: <LazyIcon name='badge-help' />,
     label: 'Explain',
     value: 'explain',
     onSelect: ({ editor }) => {
@@ -84,7 +72,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   fixSpelling: {
-    icon: <Check />,
+    icon: <LazyIcon name='check' />,
     label: 'Fix spelling & grammar',
     value: 'fixSpelling',
     onSelect: ({ editor }) => {
@@ -94,7 +82,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   improveWriting: {
-    icon: <Wand />,
+    icon: <LazyIcon name='wand' />,
     label: 'Improve writing',
     value: 'improveWriting',
     onSelect: ({ editor }) => {
@@ -104,7 +92,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   insertBelow: {
-    icon: <ListEnd />,
+    icon: <LazyIcon name='list-end' />,
     label: 'Insert below',
     value: 'insertBelow',
     onSelect: ({ aiEditor, editor }) => {
@@ -112,7 +100,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   makeLonger: {
-    icon: <ListPlus />,
+    icon: <LazyIcon name='list-plus' />,
     label: 'Make longer',
     value: 'makeLonger',
     onSelect: ({ editor }) => {
@@ -122,7 +110,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   makeShorter: {
-    icon: <ListMinus />,
+    icon: <LazyIcon name='list-minus' />,
     label: 'Make shorter',
     value: 'makeShorter',
     onSelect: ({ editor }) => {
@@ -132,7 +120,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   replace: {
-    icon: <Check />,
+    icon: <LazyIcon name='check' />,
     label: 'Replace selection',
     value: 'replace',
     onSelect: ({ aiEditor, editor }) => {
@@ -140,7 +128,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   simplifyLanguage: {
-    icon: <FeatherIcon />,
+    icon: <LazyIcon name='feather' />,
     label: 'Simplify language',
     value: 'simplifyLanguage',
     onSelect: ({ editor }) => {
@@ -150,7 +138,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   summarize: {
-    icon: <Album />,
+    icon: <LazyIcon name='album' />,
     label: 'Add a summary',
     value: 'summarize',
     onSelect: ({ editor }) => {
@@ -164,7 +152,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
   tryAgain: {
-    icon: <CornerUpLeft />,
+    icon: <LazyIcon name='corner-up-left' />,
     label: 'Try again',
     value: 'tryAgain',
     onSelect: ({ editor }) => {

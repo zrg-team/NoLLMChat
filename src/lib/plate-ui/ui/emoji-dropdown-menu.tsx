@@ -4,7 +4,7 @@ import {
   type EmojiDropdownMenuOptions,
   useEmojiDropdownMenuState,
 } from '@udecode/plate-emoji/react'
-import { Smile } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { emojiCategoryIcons, emojiSearchIcons } from './emoji-icons'
 import { EmojiPicker } from './emoji-picker'
@@ -22,7 +22,7 @@ export function EmojiDropdownMenu({ options, ...props }: EmojiDropdownMenuProps)
     <EmojiToolbarDropdown
       control={
         <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
-          <Smile />
+          <LazyIcon name='smile' />
         </ToolbarButton>
       }
       isOpen={isOpen}

@@ -14,19 +14,7 @@ import {
 import { HEADING_KEYS } from '@udecode/plate-heading'
 import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
-import {
-  ChevronRightIcon,
-  Columns3Icon,
-  FileCodeIcon,
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  ListIcon,
-  ListOrderedIcon,
-  PilcrowIcon,
-  QuoteIcon,
-  SquareIcon,
-} from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { getBlockType, setBlockType } from 'src/components/organisms/editor/transforms'
 
@@ -42,67 +30,67 @@ import { ToolbarButton } from './toolbar'
 
 const turnIntoItems = [
   {
-    icon: <PilcrowIcon />,
+    icon: <LazyIcon name='pilcrow' />,
     keywords: ['paragraph'],
     label: 'Text',
     value: ParagraphPlugin.key,
   },
   {
-    icon: <Heading1Icon />,
+    icon: <LazyIcon name='heading-1' />,
     keywords: ['title', 'h1'],
     label: 'Heading 1',
     value: HEADING_KEYS.h1,
   },
   {
-    icon: <Heading2Icon />,
+    icon: <LazyIcon name='heading-2' />,
     keywords: ['subtitle', 'h2'],
     label: 'Heading 2',
     value: HEADING_KEYS.h2,
   },
   {
-    icon: <Heading3Icon />,
+    icon: <LazyIcon name='heading-3' />,
     keywords: ['subtitle', 'h3'],
     label: 'Heading 3',
     value: HEADING_KEYS.h3,
   },
   {
-    icon: <ListIcon />,
+    icon: <LazyIcon name='list' />,
     keywords: ['unordered', 'ul', '-'],
     label: 'Bulleted',
     value: ListStyleType.Disc,
   },
   {
-    icon: <ListOrderedIcon />,
+    icon: <LazyIcon name='list-ordered' />,
     keywords: ['ordered', 'ol', '1'],
     label: 'Numbered ',
     value: ListStyleType.Decimal,
   },
   {
-    icon: <SquareIcon />,
+    icon: <LazyIcon name='square' />,
     keywords: ['checklist', 'task', 'checkbox', '[]'],
     label: 'To-do list',
     value: INDENT_LIST_KEYS.todo,
   },
   {
-    icon: <ChevronRightIcon />,
+    icon: <LazyIcon name='chevron-right' />,
     keywords: ['collapsible', 'expandable'],
     label: 'Toggle list',
     value: TogglePlugin.key,
   },
   {
-    icon: <FileCodeIcon />,
+    icon: <LazyIcon name='file-code' />,
     keywords: ['```'],
     label: 'Code',
     value: CodeBlockPlugin.key,
   },
   {
-    icon: <QuoteIcon />,
+    icon: <LazyIcon name='quote' />,
     keywords: ['citation', 'blockquote', '>'],
     label: 'Quote',
     value: BlockquotePlugin.key,
   },
   {
-    icon: <Columns3Icon />,
+    icon: <LazyIcon name='columns-3' />,
     label: '3 columns',
     value: 'action_three_columns',
   },

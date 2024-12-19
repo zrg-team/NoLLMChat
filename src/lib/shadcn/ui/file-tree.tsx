@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { FileIcon, FolderIcon, FolderOpenIcon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { cn } from 'src/lib/utils'
 import { Button } from 'src/lib/shadcn/ui/button'
@@ -220,8 +220,8 @@ const Folder = forwardRef<HTMLDivElement, FolderProps & React.HTMLAttributes<HTM
           onClick={() => handleExpand(value)}
         >
           {expandedItems?.includes(value)
-            ? (openIcon ?? <FolderOpenIcon className="size-4" />)
-            : (closeIcon ?? <FolderIcon className="size-4" />)}
+            ? (openIcon ?? <LazyIcon name='folder-open' className="size-4" />)
+            : (closeIcon ?? <LazyIcon name='folder' className="size-4" />)}
           <span>{element}</span>
         </AccordionPrimitive.Trigger>
         <AccordionPrimitive.Content className="text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down relative overflow-hidden h-full">
@@ -283,7 +283,7 @@ const File = forwardRef<
             onClick?.(e)
           }}
         >
-          {fileIcon ?? <FileIcon className="size-4" />}
+          {fileIcon ?? <LazyIcon name='file' className="size-4" />}
           {children}
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Item>

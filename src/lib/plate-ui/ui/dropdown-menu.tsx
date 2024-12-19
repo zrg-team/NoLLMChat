@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { cn, createPrimitiveElement, withCn, withProps, withRef, withVariants } from '@udecode/cn'
 import { cva } from 'class-variance-authority'
-import { Check, ChevronRight } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 export const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -92,7 +92,7 @@ export const DropdownMenuSubTrigger = withRef<
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto" />
+    <LazyIcon name='chevron-right' className="ml-auto" />
   </DropdownMenuPrimitive.SubTrigger>
 ))
 
@@ -150,7 +150,7 @@ export const DropdownMenuCheckboxItem = withRef<typeof DropdownMenuPrimitive.Che
     >
       <span className="absolute left-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
-          <Check className="size-4" />
+          <LazyIcon name='check' className="size-4" />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
       {children}
@@ -175,7 +175,7 @@ export const DropdownMenuRadioItem = withRef<
     {!hideIcon && (
       <span className="absolute right-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
-          <Check />
+          <LazyIcon name='check' />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
     )}

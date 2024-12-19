@@ -3,7 +3,7 @@
 import type { DropdownMenuItemProps } from '@radix-ui/react-dropdown-menu'
 
 import { cn } from '@udecode/cn'
-import { Check } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { buttonVariants } from './button'
 import { DropdownMenuItem } from './dropdown-menu'
@@ -51,7 +51,7 @@ export function ColorDropdownMenuItem({
       }}
       {...props}
     >
-      {isSelected ? <Check className="!size-3" /> : null}
+      {isSelected ? <LazyIcon name='check' className="!size-3" /> : null}
     </DropdownMenuItem>
   )
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEditorRef, useEditorSelector, withRef } from '@udecode/plate-common/react'
-import { Redo2Icon, Undo2Icon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { ToolbarButton } from './toolbar'
 
@@ -18,7 +18,7 @@ export const RedoToolbarButton = withRef<typeof ToolbarButton>((props, ref) => {
       tooltip="Redo"
       {...props}
     >
-      <Redo2Icon />
+      <LazyIcon name='redo-2' />
     </ToolbarButton>
   )
 })
@@ -36,7 +36,7 @@ export const UndoToolbarButton = withRef<typeof ToolbarButton>((props, ref) => {
       tooltip="Undo"
       {...props}
     >
-      <Undo2Icon />
+      <LazyIcon name='undo-2' />
     </ToolbarButton>
   )
 })

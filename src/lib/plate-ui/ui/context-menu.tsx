@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu'
 import { cn } from '@udecode/cn'
-import { Check, ChevronRight, Circle } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 const ContextMenu = ContextMenuPrimitive.Root
 
@@ -61,7 +61,7 @@ const ContextMenuSubTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto size-4" />
+    <LazyIcon name='chevron-right' className="ml-auto size-4" />
   </ContextMenuPrimitive.SubTrigger>
 ))
 ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName
@@ -131,7 +131,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2 flex size-3.5 items-center justify-center">
       <ContextMenuPrimitive.ItemIndicator>
-        <Check className="size-4" />
+        <LazyIcon name='check' className="size-4" />
       </ContextMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -153,7 +153,7 @@ const ContextMenuRadioItem = React.forwardRef<
   >
     <span className="absolute left-2 flex size-3.5 items-center justify-center">
       <ContextMenuPrimitive.ItemIndicator>
-        <Circle className="size-2 fill-current" />
+        <LazyIcon name='circle' className="size-2 fill-current" />
       </ContextMenuPrimitive.ItemIndicator>
     </span>
     {children}

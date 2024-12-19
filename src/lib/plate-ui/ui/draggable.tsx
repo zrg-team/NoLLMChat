@@ -21,7 +21,7 @@ import {
   useDropLine,
 } from '@udecode/plate-dnd'
 import { BlockSelectionPlugin } from '@udecode/plate-selection/react'
-import { GripVertical } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useSelected } from 'slate-react'
 
 import { Tooltip, TooltipContent, TooltipPortal, TooltipProvider, TooltipTrigger } from './tooltip'
@@ -108,7 +108,8 @@ const DragHandle = React.memo(() => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger type="button">
-          <GripVertical
+          <LazyIcon
+            name='grip-vertical'
             className="size-4 text-muted-foreground"
             onClick={(event) => {
               event.stopPropagation()

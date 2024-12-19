@@ -4,7 +4,7 @@ import { type ComponentPropsWithoutRef } from 'react'
 
 import { cn } from '@udecode/cn'
 import { useColorsCustom, useColorsCustomState } from '@udecode/plate-font/react'
-import { PlusIcon } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { buttonVariants } from './button'
 import { type TColor, ColorDropdownMenuItems } from './color-dropdown-menu-items'
@@ -54,7 +54,7 @@ export function ColorCustom({
             {...menuItemProps}
           >
             <span className="sr-only">Custom</span>
-            <PlusIcon />
+            <LazyIcon name='plus' />
           </DropdownMenuItem>
         </ColorInput>
       </ColorDropdownMenuItems>

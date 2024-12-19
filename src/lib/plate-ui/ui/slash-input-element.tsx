@@ -11,23 +11,7 @@ import { TocPlugin } from '@udecode/plate-heading/react'
 import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list'
 import { TablePlugin } from '@udecode/plate-table/react'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
-import {
-  CalendarIcon,
-  ChevronRightIcon,
-  Code2,
-  Columns3Icon,
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  ListIcon,
-  ListOrdered,
-  PilcrowIcon,
-  Quote,
-  SparklesIcon,
-  Square,
-  Table,
-  TableOfContentsIcon,
-} from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import { insertBlock, insertInlineElement } from 'src/components/organisms/editor/transforms'
 
@@ -65,7 +49,7 @@ const groups: Group[] = [
     items: [
       {
         focusEditor: false,
-        icon: <SparklesIcon />,
+        icon: <LazyIcon name='sparkles' />,
         value: 'AI',
         onSelect: (editor) => {
           editor.getApi(AIChatPlugin).aiChat.show()
@@ -77,66 +61,66 @@ const groups: Group[] = [
     group: 'Basic blocks',
     items: [
       {
-        icon: <PilcrowIcon />,
+        icon: <LazyIcon name='pilcrow' />,
         keywords: ['paragraph'],
         label: 'Text',
         value: ParagraphPlugin.key,
       },
       {
-        icon: <Heading1Icon />,
+        icon: <LazyIcon name='heading-1' />,
         keywords: ['title', 'h1'],
         label: 'Heading 1',
         value: HEADING_KEYS.h1,
       },
       {
-        icon: <Heading2Icon />,
+        icon: <LazyIcon name='heading-2' />,
         keywords: ['subtitle', 'h2'],
         label: 'Heading 2',
         value: HEADING_KEYS.h2,
       },
       {
-        icon: <Heading3Icon />,
+        icon: <LazyIcon name='heading-3' />,
         keywords: ['subtitle', 'h3'],
         label: 'Heading 3',
         value: HEADING_KEYS.h3,
       },
       {
-        icon: <ListIcon />,
+        icon: <LazyIcon name='list' />,
         keywords: ['unordered', 'ul', '-'],
         label: 'Bulleted',
         value: ListStyleType.Disc,
       },
       {
-        icon: <ListOrdered />,
+        icon: <LazyIcon name='list-ordered' />,
         keywords: ['ordered', 'ol', '1'],
         label: 'Numbered',
         value: ListStyleType.Decimal,
       },
       {
-        icon: <Square />,
+        icon: <LazyIcon name='square' />,
         keywords: ['checklist', 'task', 'checkbox', '[]'],
         label: 'To-do list',
         value: INDENT_LIST_KEYS.todo,
       },
       {
-        icon: <ChevronRightIcon />,
+        icon: <LazyIcon name='chevron-right' />,
         keywords: ['collapsible', 'expandable'],
         label: 'Toggle',
         value: TogglePlugin.key,
       },
       {
-        icon: <Code2 />,
+        icon: <LazyIcon name='code' />,
         keywords: ['```'],
         label: 'Code Block',
         value: CodeBlockPlugin.key,
       },
       {
-        icon: <Table />,
+        icon: <LazyIcon name='table' />,
         label: 'Table',
         value: TablePlugin.key,
       },
       {
-        icon: <Quote />,
+        icon: <LazyIcon name='quote' />,
         keywords: ['citation', 'blockquote', 'quote', '>'],
         label: 'Blockquote',
         value: BlockquotePlugin.key,
@@ -152,13 +136,13 @@ const groups: Group[] = [
     group: 'Advanced blocks',
     items: [
       {
-        icon: <TableOfContentsIcon />,
+        icon: <LazyIcon name='table-of-contents' />,
         keywords: ['toc'],
         label: 'Table of contents',
         value: TocPlugin.key,
       },
       {
-        icon: <Columns3Icon />,
+        icon: <LazyIcon name='columns-3' />,
         label: '3 columns',
         value: 'action_three_columns',
       },
@@ -174,7 +158,7 @@ const groups: Group[] = [
     items: [
       {
         focusEditor: true,
-        icon: <CalendarIcon />,
+        icon: <LazyIcon name='calendar' />,
         keywords: ['time'],
         label: 'Date',
         value: DatePlugin.key,

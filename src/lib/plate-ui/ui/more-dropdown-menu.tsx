@@ -6,13 +6,8 @@ import { SubscriptPlugin, SuperscriptPlugin } from '@udecode/plate-basic-marks/r
 import { collapseSelection } from '@udecode/plate-common'
 import { focusEditor, useEditorRef } from '@udecode/plate-common/react'
 import { KbdPlugin } from '@udecode/plate-kbd/react'
-import {
-  HighlighterIcon,
-  KeyboardIcon,
-  MoreHorizontalIcon,
-  SubscriptIcon,
-  SuperscriptIcon,
-} from 'lucide-react'
+import { HighlightPlugin } from '@udecode/plate-highlight/react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import {
   DropdownMenu,
@@ -23,7 +18,6 @@ import {
   useOpenState,
 } from './dropdown-menu'
 import { ToolbarButton } from './toolbar'
-import { HighlightPlugin } from '@udecode/plate-highlight/react'
 
 export function MoreDropdownMenu(props: DropdownMenuProps) {
   const editor = useEditorRef()
@@ -33,7 +27,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Insert">
-          <MoreHorizontalIcon />
+          <LazyIcon name='ellipsis' />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
@@ -50,7 +44,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <HighlighterIcon />
+            <LazyIcon name='highlighter' />
             Highlight
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -60,7 +54,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <KeyboardIcon />
+            <LazyIcon name='keyboard' />
             Keyboard input
           </DropdownMenuItem>
 
@@ -73,7 +67,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <SuperscriptIcon />
+            <LazyIcon name='superscript' />
             Superscript
             {/* (⌘+,) */}
           </DropdownMenuItem>
@@ -86,7 +80,7 @@ export function MoreDropdownMenu(props: DropdownMenuProps) {
               focusEditor(editor)
             }}
           >
-            <SubscriptIcon />
+            <LazyIcon name='subscript' />
             Subscript
             {/* (⌘+.) */}
           </DropdownMenuItem>

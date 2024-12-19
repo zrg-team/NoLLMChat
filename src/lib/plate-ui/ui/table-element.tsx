@@ -22,7 +22,8 @@ import {
   useTableElementState,
   useTableMergeState,
 } from '@udecode/plate-table/react'
-import { type LucideProps, Combine, Trash2Icon, Ungroup } from 'lucide-react'
+import type { LucideProps } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useReadOnly, useSelected } from 'slate-react'
 
 import { Button } from './button'
@@ -133,7 +134,7 @@ export const TableFloatingToolbar = withRef<typeof PopoverContent>(
         contentEditable={false}
         isMenu
       >
-        <Combine />
+        <LazyIcon name='combine' />
         Merge
       </Button>
     )
@@ -145,7 +146,7 @@ export const TableFloatingToolbar = withRef<typeof PopoverContent>(
         contentEditable={false}
         isMenu
       >
-        <Ungroup />
+        <LazyIcon name='ungroup' />
         Unmerge
       </Button>
     )
@@ -166,7 +167,7 @@ export const TableFloatingToolbar = withRef<typeof PopoverContent>(
         </DropdownMenu>
 
         <Button variant="ghost" contentEditable={false} isMenu {...buttonProps}>
-          <Trash2Icon />
+          <LazyIcon name='trash-2' />
           Delete
         </Button>
       </>

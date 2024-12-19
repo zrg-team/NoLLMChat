@@ -6,7 +6,7 @@ import { someNode } from '@udecode/plate-common'
 import { focusEditor, useEditorPlugin, useEditorSelector } from '@udecode/plate-common/react'
 import { deleteTable, insertTableRow } from '@udecode/plate-table'
 import { TablePlugin, deleteColumn, deleteRow, insertTable } from '@udecode/plate-table/react'
-import { Minus, Plus, RectangleHorizontal, RectangleVertical, Table, Trash } from 'lucide-react'
+import LazyIcon from 'src/components/atoms/LazyIcon'
 
 import {
   DropdownMenu,
@@ -35,7 +35,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Table" isDropdown>
-          <Table />
+          <LazyIcon name='table' />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
@@ -43,7 +43,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Table />
+              <LazyIcon name='table' />
               <span>Table</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
@@ -54,7 +54,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
                   focusEditor(editor)
                 }}
               >
-                <Plus />
+                <LazyIcon name='plus' />
                 Insert table
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -65,7 +65,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
                   focusEditor(editor)
                 }}
               >
-                <Trash />
+                <LazyIcon name='trash' />
                 Delete table
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -73,7 +73,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger disabled={!tableSelected}>
-              <RectangleVertical />
+              <LazyIcon name='rectangle-vertical' />
               <span>Column</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
@@ -85,7 +85,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
                   focusEditor(editor)
                 }}
               >
-                <Plus />
+                <LazyIcon name='plus' />
                 Insert column after
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -96,7 +96,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
                   focusEditor(editor)
                 }}
               >
-                <Minus />
+                <LazyIcon name='minus' />
                 Delete column
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -104,7 +104,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger disabled={!tableSelected}>
-              <RectangleHorizontal />
+              <LazyIcon name='rectangle-horizontal' />
               <span>Row</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
@@ -116,7 +116,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
                   focusEditor(editor)
                 }}
               >
-                <Plus />
+                <LazyIcon name='plug' />
                 Insert row after
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -127,7 +127,7 @@ export function TableDropdownMenu(props: DropdownMenuProps) {
                   focusEditor(editor)
                 }}
               >
-                <Minus />
+                <LazyIcon name='minus' />
                 Delete row
               </DropdownMenuItem>
             </DropdownMenuSubContent>
