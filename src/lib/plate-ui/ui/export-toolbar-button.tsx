@@ -90,7 +90,7 @@ export function ExportToolbarButton({ ...props }: DropdownMenuProps) {
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
         <ToolbarButton pressed={openState.open} tooltip="Export" isDropdown>
-          <LazyIcon name='external-link' className="size-4" />
+          <LazyIcon name="external-link" className="size-4" />
         </ToolbarButton>
       </DropdownMenuTrigger>
 

@@ -3059,7 +3059,7 @@ export default config;
 `,
     },
   },
-  'HOW_TO_USE.md': {
+  'README.md': {
     file: {
       contents: `# How to use
 \`\`\`bash

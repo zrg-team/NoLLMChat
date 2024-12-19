@@ -39,8 +39,7 @@ export function AlignDropdownMenu({ ...props }: DropdownMenuProps) {
   const { radioGroupProps } = useAlignDropdownMenu(state)
 
   const openState = useOpenState()
-  const iconName =
-    items.find((item) => item.value === radioGroupProps.value)?.icon ?? 'align-left'
+  const iconName = items.find((item) => item.value === radioGroupProps.value)?.icon ?? 'align-left'
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>

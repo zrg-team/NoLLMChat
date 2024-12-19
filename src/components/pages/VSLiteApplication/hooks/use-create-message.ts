@@ -9,6 +9,7 @@ import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
 
 export const useCreateMessage = () => {
+  const [loading, setLoading] = useState(false)
   const [mainLLMInfo, setLLMInfo] = useState<{
     llm: LLM
     status: LLMStatusEnum
@@ -79,40 +80,60 @@ export const useCreateMessage = () => {
   )
 
   const init = useCallback(async () => {
-    if (!currentSession?.main_node_id) {
-      return
-    }
+    try {
+      setLoading(true)
+      if (!currentSession?.main_node_id) {
+        return
+      }
 
-    const connections = await getRepository('FlowEdge').find({
-      where: {
-        target: currentSession.main_node_id,
-      },
-    })
-    const connectedNodes = await getRepository('FlowNode').find({
-      where: {
-        id: In(connections.map((connection) => connection.source)),
-      },
-    })
-    const llmNode = connectedNodes.find((node) => node.source_type === FlowNodeTypeEnum.LLM)
-    if (!llmNode) {
-      return
+      const connections = await getRepository('FlowEdge').find({
+        where: {
+          target: currentSession.main_node_id,
+        },
+      })
+      const connectedNodes = await getRepository('FlowNode').find({
+        where: {
+          id: In(connections.map((connection) => connection.source)),
+        },
+      })
+      const llmNode = connectedNodes.find((node) => node.source_type === FlowNodeTypeEnum.LLM)
+      if (!llmNode) {
+        return
+      }
+      const llm = await getRepository('LLM').findOne({
+        where: {
+          id: llmNode.source_id,
+        },
+      })
+      if (!llm) {
+        return
+      }
+      await loadModel(llm.name, (data) => {
+        setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
+      })
+      setLLMInfo({
+        llm,
+        status: LLMStatusEnum.Loaded,
+      })
+    } finally {
+      setLoading(false)
     }
-    const llm = await getRepository('LLM').findOne({
-      where: {
-        id: llmNode.source_id,
-      },
-    })
-    if (!llm) {
-      return
-    }
-    await loadModel(llm.name, (data) => {
-      setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
-    })
-    setLLMInfo({
-      llm,
-      status: LLMStatusEnum.Loaded,
-    })
   }, [currentSession?.main_node_id, loadModel])
+
+  const loadCurrentModel = useCallback(async () => {
+    try {
+      setLoading(true)
+      if (!mainLLMInfo?.llm) {
+        return
+      }
+      await loadModel(mainLLMInfo.llm.name, (data) => {
+        setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
+      })
+      setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
+    } finally {
+      setLoading(false)
+    }
+  }, [loadModel, mainLLMInfo?.llm])
 
   useEffect(() => {
     if (!currentSession?.main_node_id) {
@@ -122,7 +143,9 @@ export const useCreateMessage = () => {
   }, [currentSession?.main_node_id, init])
 
   return {
+    loading,
     mainLLMInfo,
     createMessage,
+    loadCurrentModel,
   }
 }

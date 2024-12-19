@@ -55,7 +55,7 @@ export const ColorPickerContent = withRef<
         {color && (
           <DropdownMenuGroup>
             <DropdownMenuItem className="p-2" onClick={clearColor}>
-              <LazyIcon name='eraser' />
+              <LazyIcon name="eraser" />
               <span>Clear</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>

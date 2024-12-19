@@ -54,7 +54,7 @@ export function ColorCustom({
             {...menuItemProps}
           >
             <span className="sr-only">Custom</span>
-            <LazyIcon name='plus' />
+            <LazyIcon name="plus" />
           </DropdownMenuItem>
         </ColorInput>
       </ColorDropdownMenuItems>

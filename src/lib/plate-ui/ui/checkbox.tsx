@@ -14,7 +14,7 @@ export const Checkbox = withRef<typeof CheckboxPrimitive.Root>(({ className, ...
     {...props}
   >
     <CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
-      <LazyIcon name='check' className="size-4" />
+      <LazyIcon name="check" className="size-4" />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 ))

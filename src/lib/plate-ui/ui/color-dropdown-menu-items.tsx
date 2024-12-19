@@ -51,7 +51,7 @@ export function ColorDropdownMenuItem({
       }}
       {...props}
     >
-      {isSelected ? <LazyIcon name='check' className="!size-3" /> : null}
+      {isSelected ? <LazyIcon name="check" className="!size-3" /> : null}
     </DropdownMenuItem>
   )
 

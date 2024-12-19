@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { METADATA_KEY } from 'src/constants/import-export'
 import { getRepository } from 'src/services/database'
 import { AppEntityNames, Session, SessionTypeEnum, TABLE_NAMES } from 'src/services/database/types'
+import { getRouteURL } from 'src/utils/routes'
 import { generateUUID } from 'src/utils/uuid'
 
 export const useImportSession = () => {
@@ -105,9 +106,9 @@ export const useImportSession = () => {
         )
 
         if (newSession.type === SessionTypeEnum.Whiteboard) {
-          navigate(`/whiteboard/${newSession.id}`)
+          navigate(getRouteURL('whiteboard', { sessionId: newSession.id }))
         } else if (newSession.type === SessionTypeEnum.StandaloneApp) {
-          navigate(`/application/${newSession.id}`)
+          navigate(getRouteURL('application', { applicationId: newSession.id }))
         }
       } finally {
         setLoading(false)

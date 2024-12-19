@@ -12,9 +12,12 @@ import {
 } from 'src/services/database/types'
 import { EntityType } from 'src/utils/orm-type'
 import { DefaultNodeData } from 'src/utils/flow-node'
+import { useNavigate } from 'react-router-dom'
+import { getRouteURL } from 'src/utils/routes'
 
 export const useCreateStandaloneSession = () => {
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
   const currentSession = useSessionState((state) => state.currentSession)
   const getLatestApplications = useSessionState((state) => state.getLatestApplications)
 
@@ -153,12 +156,14 @@ export const useCreateStandaloneSession = () => {
           }
         }
         getLatestApplications()
+
+        navigate(getRouteURL('application', { applicationId: standaloneSession.id }))
         return true
       } finally {
         setLoading(false)
       }
     },
-    [cloneNode, currentSession, getLatestApplications],
+    [cloneNode, currentSession, getLatestApplications, navigate],
   )
 
   return {

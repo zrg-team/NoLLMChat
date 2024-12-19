@@ -136,7 +136,7 @@ export function AIMenu({
 
           {isLoading ? (
             <div className="flex grow select-none items-center gap-2 p-2 text-sm text-muted-foreground">
-              <LazyIcon name='loader' className="size-4 animate-spin" />
+              <LazyIcon name="loader" className="size-4 animate-spin" />
               {messages.length > 1 ? 'Editing...' : 'Thinking...'}
             </div>
           ) : (

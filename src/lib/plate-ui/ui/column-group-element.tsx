@@ -78,7 +78,7 @@ export function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
 
           <Separator orientation="vertical" className="mx-1 h-6" />
           <Button size="icon" variant="ghost" {...buttonProps}>
-            <LazyIcon name='trash-2' />
+            <LazyIcon name="trash-2" />
           </Button>
         </div>
       </PopoverContent>

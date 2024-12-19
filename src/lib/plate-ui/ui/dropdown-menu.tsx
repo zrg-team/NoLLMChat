@@ -92,7 +92,7 @@ export const DropdownMenuSubTrigger = withRef<
     {...props}
   >
     {children}
-    <LazyIcon name='chevron-right' className="ml-auto" />
+    <LazyIcon name="chevron-right" className="ml-auto" />
   </DropdownMenuPrimitive.SubTrigger>
 ))
 
@@ -150,7 +150,7 @@ export const DropdownMenuCheckboxItem = withRef<typeof DropdownMenuPrimitive.Che
     >
       <span className="absolute left-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
-          <LazyIcon name='check' className="size-4" />
+          <LazyIcon name="check" className="size-4" />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
       {children}
@@ -175,7 +175,7 @@ export const DropdownMenuRadioItem = withRef<
     {!hideIcon && (
       <span className="absolute right-2 flex size-3.5 items-center justify-center">
         <DropdownMenuPrimitive.ItemIndicator>
-          <LazyIcon name='check' />
+          <LazyIcon name="check" />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
     )}

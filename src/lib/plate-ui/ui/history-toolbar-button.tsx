@@ -18,7 +18,7 @@ export const RedoToolbarButton = withRef<typeof ToolbarButton>((props, ref) => {
       tooltip="Redo"
       {...props}
     >
-      <LazyIcon name='redo-2' />
+      <LazyIcon name="redo-2" />
     </ToolbarButton>
   )
 })
@@ -36,7 +36,7 @@ export const UndoToolbarButton = withRef<typeof ToolbarButton>((props, ref) => {
       tooltip="Undo"
       {...props}
     >
-      <LazyIcon name='undo-2' />
+      <LazyIcon name="undo-2" />
     </ToolbarButton>
   )
 })

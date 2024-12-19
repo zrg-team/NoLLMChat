@@ -78,7 +78,7 @@ export const ImagePreview = () => {
                 )}
                 type="button"
               >
-                <LazyIcon name='arrow-left' />
+                <LazyIcon name="arrow-left" />
               </button>
               {(currentUrlIndex ?? 0) + 1}
               <button
@@ -90,7 +90,7 @@ export const ImagePreview = () => {
                 )}
                 type="button"
               >
-                <LazyIcon name='arrow-right' />
+                <LazyIcon name="arrow-right" />
               </button>
             </div>
             <div className="flex ">
@@ -103,7 +103,7 @@ export const ImagePreview = () => {
                 {...zommOutProps}
                 type="button"
               >
-                <LazyIcon name='minus' className="size-4" />
+                <LazyIcon name="minus" className="size-4" />
               </button>
               <div className="mx-px">
                 {state.isEditingScale ? (
@@ -124,15 +124,15 @@ export const ImagePreview = () => {
                 {...zoomInProps}
                 type="button"
               >
-                <LazyIcon name='plus' className="size-4" />
+                <LazyIcon name="plus" className="size-4" />
               </button>
             </div>
             {/* TODO: downLoad the image */}
             <button className={cn(toolButtonVariants())} type="button">
-              <LazyIcon name='download' className="size-4" />
+              <LazyIcon name="download" className="size-4" />
             </button>
             <button {...closeProps} className={cn(toolButtonVariants())} type="button">
-              <LazyIcon name='x' className="size-4" />
+              <LazyIcon name="x" className="size-4" />
             </button>
           </div>
         </div>

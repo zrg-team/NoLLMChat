@@ -98,7 +98,11 @@ const ToolbarButton = withTooltip(
             <>
               <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
               <div>
-                <LazyIcon name='chevron-down' className="size-3.5 text-muted-foreground" data-icon />
+                <LazyIcon
+                  name="chevron-down"
+                  className="size-3.5 text-muted-foreground"
+                  data-icon
+                />
               </div>
             </>
           ) : (
@@ -185,7 +189,7 @@ export const ToolbarSplitButtonSecondary = React.forwardRef<
       role="button"
       {...props}
     >
-      <LazyIcon name='chevron-down' className="size-3.5 text-muted-foreground" data-icon />
+      <LazyIcon name="chevron-down" className="size-3.5 text-muted-foreground" data-icon />
     </span>
   )
 })

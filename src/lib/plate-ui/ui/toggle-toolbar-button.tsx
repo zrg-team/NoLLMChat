@@ -12,7 +12,7 @@ export const ToggleToolbarButton = withRef<typeof ToolbarButton>((rest, ref) => 
 
   return (
     <ToolbarButton ref={ref} tooltip="Toggle" {...props} {...rest}>
-      <LazyIcon name='list-collapse' />
+      <LazyIcon name="list-collapse" />
     </ToolbarButton>
   )
 })

@@ -47,8 +47,8 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         ...classNames,
       }}
       components={{
-        IconLeft: () => <LazyIcon name='chevron-left' className="size-4" />,
-        IconRight: () => <LazyIcon name='chevron-right' className="size-4" />,
+        IconLeft: () => <LazyIcon name="chevron-left" className="size-4" />,
+        IconRight: () => <LazyIcon name="chevron-right" className="size-4" />,
       }}
       showOutsideDays={showOutsideDays}
       {...props}

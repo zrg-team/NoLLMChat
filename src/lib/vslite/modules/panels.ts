@@ -25,6 +25,20 @@ export function openPanes(grid: GridviewApi, api: React.MutableRefObject<Panevie
   })
 }
 
+export function openCopilot(shell: ShellInstance, grid: GridviewApi, dock: DockviewApi) {
+  grid.addPanel({
+    id: 'copilot',
+    component: 'copilot',
+    params: { dock, shell },
+    minimumWidth: 250,
+    size: 300,
+    position: {
+      direction: 'right',
+      referencePanel: 'dock',
+    },
+  })
+}
+
 export function openTerminal(shell: ShellInstance, grid: GridviewApi, dock: DockviewApi) {
   grid.addPanel({
     id: 'terminal',

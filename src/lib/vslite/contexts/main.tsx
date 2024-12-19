@@ -13,6 +13,7 @@ import {
 import type { TreeEnvironmentRef } from 'react-complex-tree'
 import type { FileSystemTree, WebContainer, WebContainerProcess } from '@webcontainer/api'
 import type { Terminal } from 'xterm'
+import { LLM } from 'src/services/database/types'
 
 type FileTreeState = {
   fileSystemTree?: FileSystemTree
@@ -36,15 +37,18 @@ type MainVSLiteContextType = {
   previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
   setLayoutReady?: Dispatch<SetStateAction<boolean>>
   layoutReady?: boolean
+  llm?: LLM
 }
 
 const MainVSLiteContext = createContext<MainVSLiteContextType | null>(null)
 
 export const MainVSLiteAppProvider = ({
+  llm,
   children,
   fileSystemTree,
   onUpdateFileContent,
 }: PropsWithChildren & {
+  llm?: LLM
   fileSystemTree?: FileSystemTree
   onUpdateFileContent: (path: string, content: string) => void
 }) => {
@@ -63,6 +67,7 @@ export const MainVSLiteAppProvider = ({
     refresh: () => {},
     treeEnv: null as Ref<TreeEnvironmentRef<unknown, never>>,
   })
+
   const clearSession = useCallback(() => {
     fileSystemTree = undefined
     setContainer(null)
@@ -88,8 +93,18 @@ export const MainVSLiteAppProvider = ({
       previewElementRef,
       layoutReady,
       setLayoutReady,
+      llm,
     }),
-    [container, terminal, process, containerInfo, clearSession, onUpdateFileContent, layoutReady],
+    [
+      container,
+      terminal,
+      process,
+      containerInfo,
+      clearSession,
+      onUpdateFileContent,
+      layoutReady,
+      llm,
+    ],
   )
 
   return <MainVSLiteContext.Provider value={value}>{children}</MainVSLiteContext.Provider>
