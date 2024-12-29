@@ -191,7 +191,7 @@
       "to_retriever": "To Retriever"
     },
     "application_bar": {
-      "note": "Add Note",
+      "editor": "Add Editor",
       "square": "Add Square",
       "circle": "Add Circle",
       "triangle": "Add Triangle",

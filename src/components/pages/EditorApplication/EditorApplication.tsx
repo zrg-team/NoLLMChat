@@ -13,11 +13,12 @@ import { useUpdateEditorContent } from './hooks/use-update-editor-content'
 const PlateAppEditor = lazy(() => import('src/components/organisms/editor/PlateEditor'))
 
 const EditorApplication = memo(() => {
-  const { updateEditorContent } = useUpdateEditorContent()
+  const { flowNode, updateEditorContent } = useUpdateEditorContent()
   const { mainLLMInfo, createMessage } = useCreateMessage()
 
   const handleChangeContent = useCallback(
     (value: unknown[]) => {
+      console.log('value', value)
       updateEditorContent(value)
     },
     [updateEditorContent],
@@ -57,13 +58,20 @@ const EditorApplication = memo(() => {
           </div>
         }
       >
-        <PlateAppEditor
-          onValueChange={handleChangeContent}
-          copilotStream={createMessage}
-          key={mainLLMInfo?.llm?.name || 'default'}
-          hideDragIcon
-          enableHistoryControl
-        />
+        {!flowNode ? (
+          <div className="h-full w-full !rounded-none flex justify-center items-center">
+            <LazyIcon name="loader-circle" className="animate-spin" />
+          </div>
+        ) : (
+          <PlateAppEditor
+            defaultValue={flowNode?.data}
+            onValueChange={handleChangeContent}
+            copilotStream={createMessage}
+            key={mainLLMInfo?.llm?.name || 'default'}
+            hideDragIcon
+            enableHistoryControl
+          />
+        )}
       </Suspense>
     </div>
   )
