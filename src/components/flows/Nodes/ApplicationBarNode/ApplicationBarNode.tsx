@@ -16,7 +16,7 @@ const DATA = {
     {
       key: FlowNodeTypeEnum.EditorApp,
       icon: 'notebook-text' as const,
-      label: 'application_bar.note',
+      label: 'application_bar.editor',
     },
     {
       key: FlowNodeTypeEnum.VSLiteApp,

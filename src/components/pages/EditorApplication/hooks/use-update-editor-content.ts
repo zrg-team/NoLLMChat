@@ -1,10 +1,12 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getRepository } from 'src/services/database'
+import { FlowNode } from 'src/services/database/types'
 import { useSessionState } from 'src/states/session'
 
 export const useUpdateEditorContent = () => {
   const currentSession = useSessionState((state) => state.currentSession)
   const refDebounce = useRef<number | null>(null)
+  const [flowNode, setFlowNode] = useState<FlowNode>()
 
   const updateEditorContent = useCallback(
     async (value: unknown[]) => {
@@ -22,7 +24,20 @@ export const useUpdateEditorContent = () => {
     [currentSession],
   )
 
+  useEffect(() => {
+    if (!currentSession?.main_node_id) return
+
+    getRepository('FlowNode')
+      .findOne({
+        where: { id: currentSession.main_node_id },
+      })
+      .then((node) => {
+        setFlowNode(node)
+      })
+  }, [currentSession])
+
   return {
+    flowNode,
     updateEditorContent,
   }
 }
