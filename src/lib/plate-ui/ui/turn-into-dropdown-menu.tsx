@@ -16,7 +16,7 @@ import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 
-import { getBlockType, setBlockType } from 'src/components/organisms/editor/transforms'
+import { getBlockType, setBlockType } from 'src/lib/plate-ui/utils/transforms'
 
 import {
   DropdownMenu,

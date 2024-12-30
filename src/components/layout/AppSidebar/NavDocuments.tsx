@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from 'src/lib/shadcn/ui/collapsible'
 import {
@@ -13,6 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from 'src/lib/shadcn/ui/sidebar'
+import { getRouteURL } from 'src/utils/routes'
 
 export function NavDocuments({
   items,
@@ -23,6 +25,7 @@ export function NavDocuments({
     isActive?: boolean
     items?: {
       title: string
+      id: string
     }[]
   }[]
 }) {
@@ -57,7 +60,9 @@ export function NavDocuments({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem className="cursor-pointer" key={t(subItem.title)}>
                       <SidebarMenuSubButton asChild>
-                        <span>{t(subItem.title)}</span>
+                        <Link to={getRouteURL('document', { documentId: subItem.id })}>
+                          <span>{t(subItem.title)}</span>
+                        </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

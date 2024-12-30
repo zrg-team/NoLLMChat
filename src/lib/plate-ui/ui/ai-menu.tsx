@@ -20,14 +20,14 @@ import {
 } from '@udecode/plate-common/react'
 import { BlockSelectionPlugin, useIsSelecting } from '@udecode/plate-selection/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
+import type { BaseMessage } from '@langchain/core/messages'
 
-import { useChat } from 'src/components/organisms/editor/use-chat'
+import { useChat } from 'src/lib/plate-ui/hooks/use-chat'
 
 import { AIChatEditor } from './ai-chat-editor'
 import { AIMenuItems } from './ai-menu-items'
 import { Command, CommandList, InputCommand } from './command'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
-import type { BaseMessage } from '@langchain/core/messages'
 
 export function AIMenu({
   copilotStream,

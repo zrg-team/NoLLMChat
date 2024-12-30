@@ -7,6 +7,8 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { FlowNodeTypeEnum } from 'src/services/database/types'
 import { NodeProps } from '@xyflow/react'
+import VisualStudioCodeSvg from 'src/assets/svgs/visual-studio-code.svg?react'
+import PlateEditorSvg from 'src/assets/svgs/plate-editor.svg?react'
 
 import { useActions } from './hooks/use-actions'
 import { useToast } from 'src/lib/hooks/use-toast'
@@ -15,12 +17,12 @@ const DATA = {
   applications: [
     {
       key: FlowNodeTypeEnum.EditorApp,
-      icon: 'notebook-text' as const,
+      icon: PlateEditorSvg,
       label: 'application_bar.editor',
     },
     {
       key: FlowNodeTypeEnum.VSLiteApp,
-      icon: 'square-terminal' as const,
+      icon: VisualStudioCodeSvg,
       label: 'application_bar.vslite',
     },
   ],
@@ -62,18 +64,21 @@ export const ApplicationBarNode = memo((props: NodeProps) => {
   return (
     <TooltipProvider>
       <Dock direction="middle">
-        {DATA.applications.map((item) => (
-          <DockIcon key={item.label}>
-            <Tooltip>
-              <TooltipTrigger>
-                <LazyIcon onClick={() => handleAddNode(item.key)} name={item.icon} />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{t(item.label)}</p>
-              </TooltipContent>
-            </Tooltip>
-          </DockIcon>
-        ))}
+        {DATA.applications.map((item) => {
+          const Icon = item.icon
+          return (
+            <DockIcon key={item.label}>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Icon width={20} height={20} onClick={() => handleAddNode(item.key)} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t(item.label)}</p>
+                </TooltipContent>
+              </Tooltip>
+            </DockIcon>
+          )
+        })}
         <Separator orientation="vertical" className="h-full" />
         {DATA.shapes.map((item) => (
           <DockIcon key={item.label}>

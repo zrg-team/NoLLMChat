@@ -93,7 +93,7 @@ const CodeEditor = memo(
         setCode((pre) => (pre ? { ...pre, code: val } : pre))
         debouceRef.current = setTimeout(() => {
           updateCodeContainerFile(code.file, val || '')
-        }, 500)
+        }, 500) as unknown as number
       },
       [code?.file, updateCodeContainerFile],
     )

@@ -21,9 +21,6 @@ import { SlashPlugin } from '@udecode/plate-slash-command/react'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
 import { TrailingBlockPlugin } from '@udecode/plate-trailing-block'
 
-import { FixedToolbarPlugin } from 'src/components/organisms/editor/plugins/fixed-toolbar-plugin'
-import { FloatingToolbarPlugin } from 'src/components/organisms/editor/plugins/floating-toolbar-plugin'
-
 import { alignPlugin } from './align-plugin'
 import { autoformatPlugin } from './autoformat-plugin'
 import { basicNodesPlugins } from './basic-nodes-plugins'
@@ -40,6 +37,8 @@ import { resetBlockTypePlugin } from './reset-block-type-plugin'
 import { softBreakPlugin } from './soft-break-plugin'
 import { tablePlugin } from './table-plugin'
 import { tocPlugin } from './toc-plugin'
+import { FixedToolbarPlugin } from './fixed-toolbar-plugin'
+import { FloatingToolbarPlugin } from './floating-toolbar-plugin'
 
 export const viewPlugins = [
   ...basicNodesPlugins,

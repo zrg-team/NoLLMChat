@@ -106,7 +106,7 @@ export const useFlowManager = () => {
               },
               { silent: true },
             )
-          }, 200)
+          }, 200) as unknown as number
         } else if (change.type === 'remove') {
           // DISABLED: delete node
           const node = getNodes([change.id])?.[0]
@@ -138,7 +138,7 @@ export const useFlowManager = () => {
               },
               { silent: true },
             )
-          }, 200)
+          }, 200) as unknown as number
         } else if (change.type === 'select') {
           updateNodes([change])
         }

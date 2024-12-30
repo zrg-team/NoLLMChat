@@ -7,7 +7,6 @@ var window = {} as any
 window.global = window
 window.Buffer = Buffer
 self.window = window
-// @ts-expect-error - This is legacy
 self.Buffer = Buffer
 const databaseStore = localforage.createInstance({
   name: 'local_db',

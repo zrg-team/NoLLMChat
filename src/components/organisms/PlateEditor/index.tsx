@@ -6,12 +6,12 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import type { BaseMessage } from '@langchain/core/messages'
 
 import { Plate } from '@udecode/plate-common/react'
-
-import { useCreateEditor } from 'src/components/organisms/editor/use-create-editor'
 import { Editor, EditorContainer } from 'src/lib/plate-ui/ui/editor'
 import { Value } from '@udecode/plate-common'
 import { cn } from 'src/lib/utils'
 import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
+
+import { useCreateEditor } from './use-create-editor'
 
 export default function PlateEditor({
   defaultValue,

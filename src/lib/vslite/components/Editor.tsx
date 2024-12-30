@@ -33,7 +33,7 @@ export const EditorInner = memo(
           currentContentRef.current = value || ''
           props.fs.writeFile(props.path, value || '', 'utf-8')
           props.onUpdateFileContent(props.path, value || '')
-        }, 500)
+        }, 500) as unknown as number
       },
       [props],
     )

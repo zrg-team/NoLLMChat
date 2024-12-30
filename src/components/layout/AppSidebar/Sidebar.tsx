@@ -17,13 +17,12 @@ const data = {
       isActive: true,
       items: [
         {
-          title: 'playground.drag_and_drop',
+          title: 'playground.nodes',
+          id: 'nodes',
         },
         {
-          title: 'playground.node_connections',
-        },
-        {
-          title: 'playground.delete_nodes',
+          title: 'playground.connections',
+          id: 'connections',
         },
       ],
     },
@@ -34,9 +33,11 @@ const data = {
       items: [
         {
           title: 'model.llm',
+          id: 'llm',
         },
         {
           title: 'model.embedding',
+          id: 'embedding',
         },
       ],
     },
@@ -46,21 +47,31 @@ const data = {
       items: [
         {
           title: 'tutorial.get_started',
+          id: 'get-started',
         },
         {
-          title: 'tutorial.chat_with_llm',
+          title: 'tutorial.simple_workflow',
+          id: 'simple-workflow',
         },
         {
           title: 'tutorial.ai_structured_output',
+          id: 'ai-structured-output',
+        },
+        {
+          title: 'tutorial.standalone_chat_application',
+          id: 'chat-application',
+        },
+        {
+          title: 'tutorial.standalone_editor_application',
+          id: 'editor-application',
         },
         {
           title: 'tutorial.tool_calling',
-        },
-        {
-          title: 'tutorial.few_shot_example',
+          id: 'tool-calling',
         },
         {
           title: 'tutorial.vector_database',
+          id: 'vector-database',
         },
       ],
     },
@@ -70,6 +81,7 @@ const data = {
       items: [
         {
           title: 'application.changelog',
+          id: 'changelog',
         },
       ],
     },
