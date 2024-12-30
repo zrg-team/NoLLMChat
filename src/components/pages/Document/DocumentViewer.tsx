@@ -10,6 +10,11 @@ const ConnectionsPage = lazy(() => import('src/docs/playground/connections.mdx')
 const EmbeddingPage = lazy(() => import('src/docs/models/embedding.mdx'))
 const GetStartedPage = lazy(() => import('src/docs/tutorials/get-started.mdx'))
 const StructuredOutputPage = lazy(() => import('src/docs/tutorials/ai-structured-output.mdx'))
+const VectorDatabasePage = lazy(() => import('src/docs/tutorials/vector-database.mdx'))
+const ToolCallingPage = lazy(() => import('src/docs/tutorials/tool-calling.mdx'))
+const ChatApplicationPage = lazy(() => import('src/docs/tutorials/chat-application.mdx'))
+const EditorApplicationPage = lazy(() => import('src/docs/tutorials/editor-application.mdx'))
+const SimpleWorkflowPage = lazy(() => import('src/docs/tutorials/simple-workflow.mdx'))
 
 const DocumentViewer = memo(
   (props: { name: string }) => {
@@ -28,6 +33,16 @@ const DocumentViewer = memo(
           return <GetStartedPage components={components} />
         case 'ai-structured-output':
           return <StructuredOutputPage components={components} />
+        case 'vector-database':
+          return <VectorDatabasePage components={components} />
+        case 'tool-calling':
+          return <ToolCallingPage components={components} />
+        case 'chat-application':
+          return <ChatApplicationPage components={components} />
+        case 'editor-application':
+          return <EditorApplicationPage components={components} />
+        case 'simple-workflow':
+          return <SimpleWorkflowPage components={components} />
         default:
           return <LLMPage components={components} />
       }

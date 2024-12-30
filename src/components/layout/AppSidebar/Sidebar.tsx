@@ -50,8 +50,20 @@ const data = {
           id: 'get-started',
         },
         {
+          title: 'tutorial.simple_workflow',
+          id: 'simple-workflow',
+        },
+        {
           title: 'tutorial.ai_structured_output',
           id: 'ai-structured-output',
+        },
+        {
+          title: 'tutorial.standalone_chat_application',
+          id: 'chat-application',
+        },
+        {
+          title: 'tutorial.standalone_editor_application',
+          id: 'editor-application',
         },
         {
           title: 'tutorial.tool_calling',

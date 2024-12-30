@@ -47,7 +47,10 @@
       "title": "Tutorial",
       "get_started": "Get Started",
       "chat_with_llm": "Chat with LLM",
+      "simple_workflow": "Simple Workflow",
       "ai_structured_output": "AI Structured Output",
+      "standalone_editor_application": "Editor Application",
+      "standalone_chat_application": "Chat Application",
       "tool_calling": "Tool Calling",
       "few_shot_example": "Few Shot Example",
       "vector_database": "Vector Database"
