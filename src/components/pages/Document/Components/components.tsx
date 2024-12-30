@@ -18,6 +18,13 @@ export const components: Record<string, (props: Record<string, unknown>) => JSX.
   hr: (props) => <hr className="my-4" {...props} />,
   blockquote: (props) => <blockquote className="border-l-4 pl-4 my-4 pb-0" {...props} />,
   a: (props) => {
-    return <a target={props.title === '<_self>' ? '_self' : '_blank'} className="text-blue-500 underline" {...props} download={props.title === '<download>'} />
+    return (
+      <a
+        target={props.title === '<_self>' ? '_self' : '_blank'}
+        className="text-blue-500 underline"
+        {...props}
+        download={props.title === '<download>'}
+      />
+    )
   },
 }

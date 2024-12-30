@@ -18,7 +18,6 @@ const SimpleWorkflowPage = lazy(() => import('src/docs/tutorials/simple-workflow
 
 const DocumentViewer = memo(
   (props: { name: string }) => {
-    console.log('props.name', props.name)
     const inner = useMemo(() => {
       switch (props.name) {
         case 'nodes':

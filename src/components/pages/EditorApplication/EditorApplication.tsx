@@ -18,7 +18,6 @@ const EditorApplication = memo(() => {
 
   const handleChangeContent = useCallback(
     (value: unknown[]) => {
-      console.log('value', value)
       updateEditorContent(value)
     },
     [updateEditorContent],
