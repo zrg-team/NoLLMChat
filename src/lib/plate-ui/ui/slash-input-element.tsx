@@ -13,7 +13,7 @@ import { TablePlugin } from '@udecode/plate-table/react'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 
-import { insertBlock, insertInlineElement } from 'src/components/organisms/editor/transforms'
+import { insertBlock, insertInlineElement } from 'src/lib/plate-ui/utils/transforms'
 
 import {
   InlineCombobox,

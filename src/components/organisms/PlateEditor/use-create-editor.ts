@@ -35,10 +35,6 @@ import {
 } from '@udecode/plate-table/react'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
 
-import { copilotPlugins } from 'src/components/organisms/editor/plugins/copilot-plugins'
-import { editorPlugins } from 'src/components/organisms/editor/plugins/editor-plugins'
-import { createFixedToolbarPlugin } from 'src/components/organisms/editor/plugins/fixed-toolbar-plugin'
-import { FloatingToolbarPlugin } from 'src/components/organisms/editor/plugins/floating-toolbar-plugin'
 import { AILeaf } from 'src/lib/plate-ui/ui/ai-leaf'
 import { BlockquoteElement } from 'src/lib/plate-ui/ui/blockquote-element'
 import { CodeBlockElement } from 'src/lib/plate-ui/ui/code-block-element'
@@ -66,6 +62,10 @@ import { ToggleElement } from 'src/lib/plate-ui/ui/toggle-element'
 import { withDraggables } from 'src/lib/plate-ui/ui/with-draggables'
 
 import { buildAIPlugins } from './plugins/ai-plugins'
+import { copilotPlugins } from './plugins/copilot-plugins'
+import { editorPlugins } from './plugins/editor-plugins'
+import { createFixedToolbarPlugin } from './plugins/fixed-toolbar-plugin'
+import { FloatingToolbarPlugin } from './plugins/floating-toolbar-plugin'
 
 export const useCreateEditor = ({
   defaultValue,

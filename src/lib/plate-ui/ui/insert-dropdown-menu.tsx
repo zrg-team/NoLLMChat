@@ -40,7 +40,7 @@ import {
   TableOfContentsIcon,
 } from 'lucide-react'
 
-import { insertBlock, insertInlineElement } from 'src/components/organisms/editor/transforms'
+import { insertBlock, insertInlineElement } from 'src/lib/plate-ui/utils/transforms'
 
 import {
   DropdownMenu,

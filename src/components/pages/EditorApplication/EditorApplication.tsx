@@ -10,7 +10,7 @@ import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from 'src/li
 import { useCreateMessage } from './hooks/use-create-message'
 import { useUpdateEditorContent } from './hooks/use-update-editor-content'
 
-const PlateAppEditor = lazy(() => import('src/components/organisms/editor/PlateEditor'))
+const PlateAppEditor = lazy(() => import('src/components/organisms/PlateEditor'))
 
 const EditorApplication = memo(() => {
   const { flowNode, updateEditorContent } = useUpdateEditorContent()

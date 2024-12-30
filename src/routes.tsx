@@ -13,11 +13,12 @@ import { MainLayout } from 'src/components/layout/MainLayout'
 import { APP_ROUTES, getRouteURL } from 'src/utils/routes'
 import { logDebug, logError } from 'src//utils/logger'
 import { DefaultError } from 'src/components/atoms/DefaultError'
+import { DefaultLoader } from './components/atoms/DefaultLoader'
+import { ROUTE_MODE } from 'src/constants/route'
+
 import ApplicationPage from 'src/pages/ApplicationPage'
 import HomePage from 'src/pages/HomePage'
-import { DefaultLoader } from './components/atoms/DefaultLoader'
-
-import { ROUTE_MODE } from './constants/route'
+import DocumentPage from 'src/pages/DocumentPage'
 
 function ErrorBoundary() {
   const error = useRouteError()
@@ -26,14 +27,19 @@ function ErrorBoundary() {
 }
 
 const routes = createRoutesFromElements(
-  <Route Component={MainLayout} errorElement={<ErrorBoundary />}>
-    <Route path={APP_ROUTES.whiteboard} Component={HomePage} errorElement={<ErrorBoundary />} />
-    <Route
-      path={APP_ROUTES.application}
-      errorElement={<ErrorBoundary />}
-      Component={ApplicationPage}
-    />
-    <Route path="*" element={<Navigate to={getRouteURL('whiteboard')} />} />
+  <Route errorElement={<ErrorBoundary />}>
+    <Route element={<MainLayout requiredSession />}>
+      <Route path={APP_ROUTES.whiteboard} Component={HomePage} errorElement={<ErrorBoundary />} />
+      <Route
+        path={APP_ROUTES.application}
+        errorElement={<ErrorBoundary />}
+        Component={ApplicationPage}
+      />
+      <Route path="*" element={<Navigate to={getRouteURL('whiteboard')} />} />
+    </Route>
+    <Route element={<MainLayout />}>
+      <Route path={APP_ROUTES.document} errorElement={<ErrorBoundary />} Component={DocumentPage} />
+    </Route>
   </Route>,
 )
 

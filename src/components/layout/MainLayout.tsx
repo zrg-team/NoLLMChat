@@ -8,7 +8,7 @@ import { getRouteURL, getSearchParams } from 'src/utils/routes'
 import { SessionTypeEnum } from 'src/services/database/types'
 import { MainHeader } from './MainHeader'
 
-export function MainLayout() {
+export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
   const params = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -21,7 +21,7 @@ export function MainLayout() {
   locationRef.current = location
 
   useEffect(() => {
-    if (!currentSession?.id) {
+    if (!currentSession?.id || !requiredSession) {
       return
     }
 
@@ -44,10 +44,14 @@ export function MainLayout() {
     navigate,
     params.applicationId,
     params.sessionId,
+    requiredSession,
     setCurrentSession,
   ])
 
   useEffect(() => {
+    if (!requiredSession) {
+      return
+    }
     setCurrentSession(params.sessionId || params.applicationId).then((item) => {
       const searchParams = getSearchParams()
       if (searchParams.has('flow') && item.type === SessionTypeEnum.StandaloneApp) {
@@ -65,7 +69,7 @@ export function MainLayout() {
         navigate(getRouteURL('whiteboard', { sessionId: item.id }))
       }
     })
-  }, [navigate, params.applicationId, params.sessionId, setCurrentSession])
+  }, [navigate, params.applicationId, params.sessionId, requiredSession, setCurrentSession])
 
   return (
     <SidebarProvider defaultOpen={false}>

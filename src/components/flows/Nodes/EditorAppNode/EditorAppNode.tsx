@@ -9,7 +9,7 @@ import { useConnectionToHandler } from './hooks/use-connection-to-handler'
 import { useActions } from './hooks/use-actions'
 import { EditorAppNodeProps } from './type'
 
-const PlateAppEditor = lazy(() => import('src/components/organisms/editor/PlateEditor'))
+const PlateAppEditor = lazy(() => import('src/components/organisms/PlateEditor'))
 
 export const EditorAppNode = memo((props: EditorAppNodeProps) => {
   const { id, data, selected, isConnectable } = props

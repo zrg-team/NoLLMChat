@@ -5,7 +5,7 @@ export function debounce<T extends Function>(cb: T, wait = 150) {
   let h: number
   const callable = (...args: unknown[]) => {
     clearTimeout(h)
-    h = setTimeout(() => cb(...args), wait)
+    h = setTimeout(() => cb(...args), wait) as unknown as number
   }
   return <T>(<unknown>callable)
 }

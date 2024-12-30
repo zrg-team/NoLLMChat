@@ -35,9 +35,8 @@
     "title": "Documents",
     "playground": {
       "title": "Playground",
-      "drag_and_drop": "Drag and Drop",
-      "node_connections": "Node Connections",
-      "delete_nodes": "Delete Nodes"
+      "nodes": "Nodes",
+      "connections": "Connections"
     },
     "model": {
       "title": "Models",
@@ -191,7 +190,7 @@
       "to_retriever": "To Retriever"
     },
     "application_bar": {
-      "editor": "Add Editor",
+      "editor": "Plate Editor",
       "square": "Add Square",
       "circle": "Add Circle",
       "triangle": "Add Triangle",
@@ -199,7 +198,8 @@
         "add_node_failed": "Failed to add node."
       },
       "code_editor": "Code Container Editor",
-      "vslite": "VS Lite"
+      "vslite": "VS Lite",
+      "mdx_editor": "MDX Editor"
     },
     "editor_node": {
       "errors": {

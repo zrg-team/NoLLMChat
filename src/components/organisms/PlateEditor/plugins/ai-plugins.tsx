@@ -18,7 +18,6 @@ import { HorizontalRulePlugin } from '@udecode/plate-horizontal-rule/react'
 import { LinkPlugin } from '@udecode/plate-link/react'
 import { MarkdownPlugin } from '@udecode/plate-markdown'
 
-import { cursorOverlayPlugin } from 'src/components/organisms/editor/plugins/cursor-overlay-plugin'
 import { AIMenu } from 'src/lib/plate-ui/ui/ai-menu'
 import { BlockquoteElement } from 'src/lib/plate-ui/ui/blockquote-element'
 import { CodeBlockElement } from 'src/lib/plate-ui/ui/code-block-element'
@@ -34,6 +33,7 @@ import { basicNodesPlugins } from './basic-nodes-plugins'
 import { blockSelectionReadOnlyPlugin } from './block-selection-plugins'
 import { indentListPlugins } from './indent-list-plugins'
 import { linkPlugin } from './link-plugin'
+import { cursorOverlayPlugin } from './cursor-overlay-plugin'
 
 const createAIEditor = () => {
   const editor = createPlateEditor({
