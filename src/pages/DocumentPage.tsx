@@ -1,18 +1,16 @@
-import { lazy, memo, Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import { useParams } from 'react-router-dom'
+import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 
 const DocumentViewer = lazy(() => import('src/components/pages/Document/DocumentViewer'))
 
-const DocumentPage = memo(
-  () => {
-    const { documentId } = useParams()
-    return (
-      <Suspense>
-        <DocumentViewer name={documentId || ''} />
-      </Suspense>
-    )
-  },
-  () => true,
-)
+const DocumentPage = () => {
+  const { documentId } = useParams()
+  return (
+    <Suspense fallback={<DefaultLoader flickeringGrid className="w-full h-full" />}>
+      <DocumentViewer name={documentId || ''} />
+    </Suspense>
+  )
+}
 
 export default DocumentPage

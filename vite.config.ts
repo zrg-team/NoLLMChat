@@ -6,12 +6,15 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vite'
 import mdx from '@mdx-js/rollup'
+import remarkGfm from 'remark-gfm'
 
 export default defineConfig({
   plugins: [
     wasm(),
     topLevelAwait(),
-    mdx(),
+    mdx({
+      remarkPlugins: [remarkGfm],
+    }),
     react(),
     svgr(),
     nodePolyfills({

@@ -50,20 +50,12 @@ const data = {
           id: 'get-started',
         },
         {
-          title: 'tutorial.chat_with_llm',
-          id: 'chat-with-llm',
-        },
-        {
           title: 'tutorial.ai_structured_output',
           id: 'ai-structured-output',
         },
         {
           title: 'tutorial.tool_calling',
           id: 'tool-calling',
-        },
-        {
-          title: 'tutorial.few_shot_example',
-          id: 'few-shot-example',
         },
         {
           title: 'tutorial.vector_database',
