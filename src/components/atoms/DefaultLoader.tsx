@@ -37,7 +37,6 @@ export const DefaultLoader = memo(
         return (
           <>
             <div className="absolute inset-0 backdrop-blur-sm" />
-            <Meteors number={25} />
           </>
         )
       }
