@@ -80,9 +80,17 @@ const data = {
       icon: <LazyIcon name="settings-2" />,
       items: [
         {
-          title: 'application.changelog',
-          id: 'changelog',
+          title: 'application.chat',
+          id: 'chat',
         },
+        {
+          title: 'application.editor',
+          id: 'editor',
+        },
+        {
+          title: 'application.vslite',
+          id: 'vslite',
+        }
       ],
     },
   ],

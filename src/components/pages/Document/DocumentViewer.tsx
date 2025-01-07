@@ -8,13 +8,16 @@ const LLMPage = lazy(() => import('src/docs/models/llm.mdx'))
 const NodesPage = lazy(() => import('src/docs/playground/nodes.mdx'))
 const ConnectionsPage = lazy(() => import('src/docs/playground/connections.mdx'))
 const EmbeddingPage = lazy(() => import('src/docs/models/embedding.mdx'))
-const GetStartedPage = lazy(() => import('src/docs/tutorials/get-started.mdx'))
-const StructuredOutputPage = lazy(() => import('src/docs/tutorials/ai-structured-output.mdx'))
-const VectorDatabasePage = lazy(() => import('src/docs/tutorials/vector-database.mdx'))
-const ToolCallingPage = lazy(() => import('src/docs/tutorials/tool-calling.mdx'))
-const ChatApplicationPage = lazy(() => import('src/docs/tutorials/chat-application.mdx'))
-const EditorApplicationPage = lazy(() => import('src/docs/tutorials/editor-application.mdx'))
-const SimpleWorkflowPage = lazy(() => import('src/docs/tutorials/simple-workflow.mdx'))
+const GetStartedTutorialPage = lazy(() => import('src/docs/tutorials/get-started.mdx'))
+const StructuredOutputTutorialPage = lazy(() => import('src/docs/tutorials/ai-structured-output.mdx'))
+const VectorDatabaseTutorialPage = lazy(() => import('src/docs/tutorials/vector-database.mdx'))
+const ToolCallingTutorialPage = lazy(() => import('src/docs/tutorials/tool-calling.mdx'))
+const ChatApplicationTutorialPage = lazy(() => import('src/docs/tutorials/chat-application.mdx'))
+const EditorApplicationTutorialPage = lazy(() => import('src/docs/tutorials/editor-application.mdx'))
+const SimpleWorkflowTutorialPage = lazy(() => import('src/docs/tutorials/simple-workflow.mdx'))
+const ChatApplicationPage = lazy(() => import('src/docs/applications/chat.mdx'))
+const EditorApplicationPage = lazy(() => import('src/docs/applications/editor.mdx'))
+const VSLiteApplicationPage = lazy(() => import('src/docs/applications/vslite.mdx'))
 
 const DocumentViewer = memo(
   (props: { name: string }) => {
@@ -29,19 +32,25 @@ const DocumentViewer = memo(
         case 'llm':
           return <LLMPage components={components} />
         case 'get-started':
-          return <GetStartedPage components={components} />
+          return <GetStartedTutorialPage components={components} />
         case 'ai-structured-output':
-          return <StructuredOutputPage components={components} />
+          return <StructuredOutputTutorialPage components={components} />
         case 'vector-database':
-          return <VectorDatabasePage components={components} />
+          return <VectorDatabaseTutorialPage components={components} />
         case 'tool-calling':
-          return <ToolCallingPage components={components} />
+          return <ToolCallingTutorialPage components={components} />
         case 'chat-application':
-          return <ChatApplicationPage components={components} />
+          return <ChatApplicationTutorialPage components={components} />
         case 'editor-application':
-          return <EditorApplicationPage components={components} />
+          return <EditorApplicationTutorialPage components={components} />
         case 'simple-workflow':
-          return <SimpleWorkflowPage components={components} />
+          return <SimpleWorkflowTutorialPage components={components} />
+        case 'chat':
+          return <ChatApplicationPage components={components} />
+        case 'editor':
+          return <EditorApplicationPage components={components} />
+        case 'vslite':
+          return <VSLiteApplicationPage components={components} />
         default:
           return <LLMPage components={components} />
       }

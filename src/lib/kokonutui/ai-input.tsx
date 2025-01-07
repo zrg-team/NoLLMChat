@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, KeyboardEvent, useState, MouseEvent } from 'react'
+import { ChangeEvent, KeyboardEvent, useState, MouseEvent, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from 'src/lib/utils'
 import { Textarea } from 'src/lib/shadcn/ui/textarea'
@@ -20,6 +20,7 @@ export default function AIInput({
   minHeight,
   maxHeight,
   className,
+  height,
   onChange,
   value,
 }: {
@@ -31,6 +32,7 @@ export default function AIInput({
   enableFile?: boolean
   minHeight?: number
   maxHeight?: number
+  height?: number
   onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
   onSubmit: (
     input: string,
@@ -46,7 +48,7 @@ export default function AIInput({
   })
   const [showSearch, setShowSearch] = useState(true)
 
-  const handleSubmit = async (
+  const handleSubmit = useCallback(async (
     e: KeyboardEvent<HTMLTextAreaElement> | MouseEvent<HTMLButtonElement>,
   ) => {
     try {
@@ -55,13 +57,17 @@ export default function AIInput({
     } finally {
       setLoading(false)
     }
-  }
+  }, [innerValue, onSubmit])
+
+  const inputStyles = useMemo(() => {
+    return { maxHeight: `${maxHeight || MAX_HEIGHT}px`, ...height ? { height: `${height}px` } : {} }
+  }, [maxHeight, height])
 
   return (
     <div className={cn('w-full py-4 max-w-xl', className)}>
       <div className="relative w-full mx-auto">
         <div className="relative flex flex-col">
-          <div className="overflow-y-auto" style={{ maxHeight: `${maxHeight || MAX_HEIGHT}px` }}>
+          <div className="overflow-y-auto" style={inputStyles}>
             <Textarea
               id="ai-input-04"
               value={(onChange ? value : innerValue) || ''}

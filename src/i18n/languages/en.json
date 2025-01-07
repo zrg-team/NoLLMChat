@@ -57,7 +57,9 @@
     },
     "application": {
       "title": "Application",
-      "changelog": "Changelog"
+      "chat": "Chat",
+      "editor": "Editor",
+      "vslite": "VS Lite"
     }
   },
   "create_new_message": {
@@ -466,6 +468,9 @@
       "text": "Text",
       "file": "File",
       "view": "View"
+    },
+    "vslite": {
+      "copilot": "Copilot"
     }
   }
 }
