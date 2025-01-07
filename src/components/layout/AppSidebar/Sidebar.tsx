@@ -90,7 +90,7 @@ const data = {
         {
           title: 'application.vslite',
           id: 'vslite',
-        }
+        },
       ],
     },
   ],

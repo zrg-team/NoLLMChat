@@ -9,11 +9,15 @@ const NodesPage = lazy(() => import('src/docs/playground/nodes.mdx'))
 const ConnectionsPage = lazy(() => import('src/docs/playground/connections.mdx'))
 const EmbeddingPage = lazy(() => import('src/docs/models/embedding.mdx'))
 const GetStartedTutorialPage = lazy(() => import('src/docs/tutorials/get-started.mdx'))
-const StructuredOutputTutorialPage = lazy(() => import('src/docs/tutorials/ai-structured-output.mdx'))
+const StructuredOutputTutorialPage = lazy(
+  () => import('src/docs/tutorials/ai-structured-output.mdx'),
+)
 const VectorDatabaseTutorialPage = lazy(() => import('src/docs/tutorials/vector-database.mdx'))
 const ToolCallingTutorialPage = lazy(() => import('src/docs/tutorials/tool-calling.mdx'))
 const ChatApplicationTutorialPage = lazy(() => import('src/docs/tutorials/chat-application.mdx'))
-const EditorApplicationTutorialPage = lazy(() => import('src/docs/tutorials/editor-application.mdx'))
+const EditorApplicationTutorialPage = lazy(
+  () => import('src/docs/tutorials/editor-application.mdx'),
+)
 const SimpleWorkflowTutorialPage = lazy(() => import('src/docs/tutorials/simple-workflow.mdx'))
 const ChatApplicationPage = lazy(() => import('src/docs/applications/chat.mdx'))
 const EditorApplicationPage = lazy(() => import('src/docs/applications/editor.mdx'))

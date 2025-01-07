@@ -48,19 +48,23 @@ export default function AIInput({
   })
   const [showSearch, setShowSearch] = useState(true)
 
-  const handleSubmit = useCallback(async (
-    e: KeyboardEvent<HTMLTextAreaElement> | MouseEvent<HTMLButtonElement>,
-  ) => {
-    try {
-      setLoading(true)
-      await onSubmit(innerValue, e)
-    } finally {
-      setLoading(false)
-    }
-  }, [innerValue, onSubmit])
+  const handleSubmit = useCallback(
+    async (e: KeyboardEvent<HTMLTextAreaElement> | MouseEvent<HTMLButtonElement>) => {
+      try {
+        setLoading(true)
+        await onSubmit(innerValue, e)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [innerValue, onSubmit],
+  )
 
   const inputStyles = useMemo(() => {
-    return { maxHeight: `${maxHeight || MAX_HEIGHT}px`, ...height ? { height: `${height}px` } : {} }
+    return {
+      maxHeight: `${maxHeight || MAX_HEIGHT}px`,
+      ...(height ? { height: `${height}px` } : {}),
+    }
   }, [maxHeight, height])
 
   return (

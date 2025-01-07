@@ -7,15 +7,12 @@ import { logDebug } from 'src/utils/logger'
 import { ShellInstance } from '../hooks/useShell'
 import { useMainVSLiteAppContext } from '../contexts/main'
 
-
 interface CopilotProps {
   messages?: Message[]
   shell: ShellInstance
 }
 
-export default function Copilot({
-  messages = [],
-}: CopilotProps) {
+export default function Copilot({ messages = [] }: CopilotProps) {
   const { t } = useTranslation('applications')
   const { llm } = useMainVSLiteAppContext()
 
@@ -39,7 +36,9 @@ export default function Copilot({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div>
-                <h3 className="font-medium text-zinc-900 dark:text-zinc-100">{t('vslite.copilot')}</h3>
+                <h3 className="font-medium text-zinc-900 dark:text-zinc-100">
+                  {t('vslite.copilot')}
+                </h3>
               </div>
             </div>
           </div>
