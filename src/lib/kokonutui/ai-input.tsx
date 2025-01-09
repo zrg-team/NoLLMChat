@@ -52,7 +52,10 @@ export default function AIInput({
     async (e: KeyboardEvent<HTMLTextAreaElement> | MouseEvent<HTMLButtonElement>) => {
       try {
         setLoading(true)
-        await onSubmit(innerValue, e)
+        const result = await onSubmit(innerValue, e)
+        if (result) {
+          setInnerValue('')
+        }
       } finally {
         setLoading(false)
       }

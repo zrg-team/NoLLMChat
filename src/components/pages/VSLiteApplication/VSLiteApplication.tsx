@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, lazy, Suspense } from 'react'
+import { memo, lazy, Suspense, useCallback } from 'react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import LLMIcon from 'src/components/atoms/LLMIcon'
 import { cn } from 'src/lib/utils'
@@ -9,12 +9,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'src/li
 
 import { useCreateMessage } from './hooks/use-create-message'
 import { useFileSystemTree } from './hooks/use-file-system-tree'
+import { Message } from 'ai/react'
 
 const VSLiteApp = lazy(() => import('src/lib/vslite/index'))
 
 const VSLiteApplication = memo(() => {
-  const { loading, mainLLMInfo, loadCurrentModel } = useCreateMessage()
+  const { loading, mainLLMInfo, loadCurrentModel, createMessage } = useCreateMessage()
   const { fileSystemTree, updateCodeContainerFile } = useFileSystemTree()
+
+  const handleSendMessage = useCallback(
+    (message: string, messages: Message[], onMessage?: (chunk: string) => void) => {
+      return createMessage(message, messages, onMessage)
+    },
+    [createMessage],
+  )
 
   return (
     <div className="h-full w-full relative" data-registry="plate">
@@ -65,6 +73,7 @@ const VSLiteApplication = memo(() => {
             llm={mainLLMInfo?.llm}
             fileSystemTree={fileSystemTree}
             onUpdateFileContent={updateCodeContainerFile}
+            sendMessage={handleSendMessage}
           />
         ) : undefined}
       </Suspense>

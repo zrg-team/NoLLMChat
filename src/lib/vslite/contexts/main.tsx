@@ -13,6 +13,7 @@ import {
 import type { TreeEnvironmentRef } from 'react-complex-tree'
 import type { FileSystemTree, WebContainer, WebContainerProcess } from '@webcontainer/api'
 import type { Terminal } from 'xterm'
+import { Message } from 'ai/react'
 import { LLM } from 'src/services/database/types'
 
 type FileTreeState = {
@@ -21,7 +22,7 @@ type FileTreeState = {
   treeEnv: Ref<TreeEnvironmentRef<unknown, never>>
 }
 
-type MainVSLiteContextType = {
+export type MainVSLiteContextType = {
   containerInfo: { url?: string; port?: number }
   container: WebContainer | null
   terminal: Terminal | null
@@ -36,6 +37,11 @@ type MainVSLiteContextType = {
   ternimalElementRef: React.MutableRefObject<HTMLDivElement | null>
   previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
   setLayoutReady?: Dispatch<SetStateAction<boolean>>
+  sendMessage?: (
+    message: string,
+    messages: Message[],
+    onMessage: (chunk: string) => void,
+  ) => Promise<string | undefined>
   layoutReady?: boolean
   llm?: LLM
 }
@@ -45,11 +51,13 @@ const MainVSLiteContext = createContext<MainVSLiteContextType | null>(null)
 export const MainVSLiteAppProvider = ({
   llm,
   children,
+  sendMessage,
   fileSystemTree,
   onUpdateFileContent,
 }: PropsWithChildren & {
   llm?: LLM
   fileSystemTree?: FileSystemTree
+  sendMessage?: MainVSLiteContextType['sendMessage']
   onUpdateFileContent: (path: string, content: string) => void
 }) => {
   const [layoutReady, setLayoutReady] = useState(false)
@@ -93,6 +101,7 @@ export const MainVSLiteAppProvider = ({
       previewElementRef,
       layoutReady,
       setLayoutReady,
+      sendMessage,
       llm,
     }),
     [
@@ -103,6 +112,7 @@ export const MainVSLiteAppProvider = ({
       clearSession,
       onUpdateFileContent,
       layoutReady,
+      sendMessage,
       llm,
     ],
   )

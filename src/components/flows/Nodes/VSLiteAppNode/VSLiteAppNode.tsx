@@ -13,6 +13,7 @@ import type { FileSystemTree } from '@webcontainer/api'
 import { EditorAppNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
+import { Message } from 'ai/react'
 
 const VSLiteApp = lazy(() => import('src/lib/vslite/index'))
 
@@ -21,7 +22,7 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   const [fileSystemTree, setFileSystemTree] = useState(
     data?.flowNode?.raw ? parseJSONLToFileSystemTree(data.flowNode.raw) : undefined,
   )
-  const { updateCodeContainerData, getLinkedConnections } = useActions()
+  const { updateCodeContainerData, getLinkedConnections, sendMessage } = useActions()
   useConnectionToHandler(id)
 
   const handleUpdateCodeContainerData = useCallback(
@@ -32,6 +33,16 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
       setFileSystemTree(tree)
     },
     [data?.flowNode?.id, updateCodeContainerData],
+  )
+
+  const handleSendMessage = useCallback(
+    async (message: string, messages: Message[]) => {
+      if (!data?.flowNode?.id) return
+
+      const result = await sendMessage(message, messages)
+      return result
+    },
+    [data?.flowNode?.id, sendMessage],
   )
 
   const handleUpdateCodeContainerFile = useCallback(
@@ -73,6 +84,7 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
           <VSLiteApp
             fileSystemTree={fileSystemTree}
             onUpdateFileContent={handleUpdateCodeContainerFile}
+            sendMessage={handleSendMessage}
           />
         </Suspense>
       </div>
