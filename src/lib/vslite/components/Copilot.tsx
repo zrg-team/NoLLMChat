@@ -1,32 +1,83 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Message } from 'ai/react'
 import AIInput from 'src/lib/kokonutui/ai-input'
 import { logDebug } from 'src/utils/logger'
+import { nanoid } from 'nanoid'
 
 import { ShellInstance } from '../hooks/useShell'
 import { useMainVSLiteAppContext } from '../contexts/main'
 
 interface CopilotProps {
-  messages?: Message[]
   shell: ShellInstance
 }
 
-export default function Copilot({ messages = [] }: CopilotProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function Copilot(_props: CopilotProps) {
   const { t } = useTranslation('applications')
-  const { llm } = useMainVSLiteAppContext()
+  const [messages, setMessages] = useState<Message[]>([])
+  const { llm, sendMessage } = useMainVSLiteAppContext()
 
-  const handleSubmit = useCallback(async (input: string) => {
-    logDebug('[VSLite][Copilot][HandleSubmit]', input)
-    return true
-  }, [])
+  const handleSubmit = useCallback(
+    async (input: string) => {
+      try {
+        const userMessageId = nanoid()
+        const aiMessageId = nanoid()
+        setMessages((pre) => [
+          ...pre,
+          {
+            id: userMessageId,
+            content: input,
+            role: 'user' as const,
+          },
+          {
+            id: aiMessageId,
+            content: '',
+            role: 'assistant' as const,
+          },
+        ])
+        const result = await sendMessage?.(input, messages, (chunk) => {
+          setMessages((pre) =>
+            pre.map((message) => {
+              if (message.id === aiMessageId) {
+                return {
+                  ...message,
+                  content: `${message.content}${chunk}`,
+                }
+              }
+              return message
+            }),
+          )
+        })
+        if (result) {
+          setMessages((pre) =>
+            pre.map((message) => {
+              if (message.id === aiMessageId) {
+                return {
+                  ...message,
+                  content: result,
+                }
+              }
+              return message
+            }),
+          )
+          return true
+        }
+        throw new Error('No new message')
+      } catch (error) {
+        logDebug('[VSLite][Copilot][HandleSubmit][Error]', error)
+        return true
+      }
+    },
+    [messages, sendMessage],
+  )
 
   if (!llm) {
     return undefined
   }
 
   return (
-    <div className="group relative w-full max-w-md mx-auto h-full flex">
+    <div className="group relative w-full max-w-full mx-auto h-full flex">
       <div
         className="rounded-lg border relative overflow-hidden border-zinc-200/80 dark:border-zinc-800/80 
               bg-gradient-to-br from-white/80 to-white/50 dark:from-zinc-900/80 dark:to-zinc-900/50 backdrop-blur-md
@@ -53,7 +104,15 @@ export default function Copilot({ messages = [] }: CopilotProps) {
                     <span>🤖</span>
                     <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">AI</span>
                   </div>
-                ) : undefined}
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                        User
+                      </span>
+                    </div>
+                  </>
+                )}
                 <p className="text-sm text-zinc-600 dark:text-zinc-300">{message.content}</p>
               </div>
             </div>

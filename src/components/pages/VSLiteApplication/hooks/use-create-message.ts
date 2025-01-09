@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { BaseMessage } from '@langchain/core/messages'
+import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { useLocalLLMState } from 'src/services/local-llm'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum } from 'src/services/database/types'
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
+import { Message } from 'ai/react'
 
 export const useCreateMessage = () => {
   const [loading, setLoading] = useState(false)
@@ -22,13 +23,14 @@ export const useCreateMessage = () => {
   const loadModel = useLocalLLMState((state) => state.loadModel)
 
   const createMessage = useCallback(
-    async (input: string | BaseMessage[], onMessageUpdate: (chunk: string) => void) => {
+    async (input: string, messages: Message[], onMessageUpdate?: (chunk: string) => void) => {
       if (currentSession?.main_node_id) {
         if (!mainLLMInfo?.llm) {
-          return toast({
+          toast({
             variant: 'destructive',
             description: t('editor_node.errors.llm_not_found'),
           })
+          return
         }
 
         if (mainLLMInfo?.status !== LLMStatusEnum.Loaded) {
@@ -38,7 +40,16 @@ export const useCreateMessage = () => {
           setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
         }
         try {
-          const streamResponse = stream(input)
+          const history = messages.map((message) => {
+            if (message.role === 'system') {
+              return new SystemMessage(message.content)
+            }
+            if (message.role === 'assistant') {
+              return new AIMessage(message.content)
+            }
+            return new HumanMessage(message.content)
+          })
+          const streamResponse = stream([...history, new HumanMessage(input)])
           if (!streamResponse) {
             throw new Error('Stream is not supported')
           }
@@ -54,12 +65,14 @@ export const useCreateMessage = () => {
               }
             }
           }
+          onMessageUpdate?.('')
           return chunks.join('')
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
-            return toast({
+            toast({
               title: t('editor_node.errors.llm_not_loaded_yet'),
             })
+            return
           }
           toast({
             variant: 'destructive',

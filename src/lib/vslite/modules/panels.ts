@@ -31,6 +31,7 @@ export function openCopilot(shell: ShellInstance, grid: GridviewApi, dock: Dockv
     component: 'copilot',
     params: { dock, shell },
     minimumWidth: 250,
+    maximumWidth: 400,
     size: 300,
     position: {
       direction: 'right',
