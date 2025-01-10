@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { WebContainer } from '@webcontainer/api'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
-import { useAppState } from 'src/states/app'
-
-import { startFiles, jshRC } from '../modules/webcontainer'
-
 import type { FileSystemAPI, WebContainerProcess } from '@webcontainer/api'
 import type { GridviewPanelApi } from 'dockview'
+
+import { useAppState } from 'src/states/app'
 import { useWebContainerState } from 'src/services/web-container/state'
-import { useMainVSLiteAppContext } from '../contexts/main'
 import { logDebug, logWarn } from 'src/utils/logger'
+
+import { useMainVSLiteAppContext } from '../contexts/main'
+import { startFiles, jshRC } from '../modules/webcontainer'
+import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
 
 export interface ShellInstance {
   container: WebContainer | null
@@ -27,8 +28,11 @@ export interface ShellInstance {
 export type ServerReadyHandler = (url: string, port: number, fs: FileSystemAPI) => void
 
 export function useShell(): ShellInstance {
+  const updatePoolRef = useRef<FileSystemTreeChange[]>([])
+  const updateDebounceInstanceRef = useRef<number>()
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
   const webContainerInit = useWebContainerState((state) => state.init)
+  const webContainerTeardown = useWebContainerState((state) => state.teardown)
   const {
     process,
     fileTreeStateRef,
@@ -40,6 +44,7 @@ export function useShell(): ShellInstance {
     setContainerInfo,
     containerInfo,
     clearSession,
+    onUpdateFileContent,
   } = useMainVSLiteAppContext()
   const theme = useMemo(
     () =>
@@ -55,6 +60,24 @@ export function useShell(): ShellInstance {
       terminal.refresh(0, terminal.rows - 1)
     }
   }, [isDarkTheme, terminal, theme])
+
+  useEffect(() => {
+    return () => {
+      webContainerTeardown()
+    }
+  }, [webContainerTeardown])
+
+  const debounceUpdate = useCallback(
+    (update: FileSystemTreeChange) => {
+      updatePoolRef.current.push(update)
+      clearTimeout(updateDebounceInstanceRef.current)
+      updateDebounceInstanceRef.current = setTimeout(() => {
+        onUpdateFileContent?.(updatePoolRef.current)
+        updatePoolRef.current = []
+      }, 500)
+    },
+    [onUpdateFileContent],
+  )
 
   const start = useCallback(
     async (
@@ -103,14 +126,36 @@ export function useShell(): ShellInstance {
               } else if (data.includes('Watching "."')) {
                 logDebug('File watcher ready.')
                 watchReady = true
+                terminal.clear()
               } else {
-                logDebug('chokidar: ', data)
+                terminal.write(data)
               }
               switch (type) {
                 case 'change':
                   break
                 case 'add':
+                  {
+                    fileTreeStateRef.current?.refresh(data)
+                    try {
+                      const path = data.replace('add:', '').trim()
+                      const content = await shell.fs.readFile(path, 'utf-8')
+                      debounceUpdate({ path, content })
+                      break
+                    } catch (error) {
+                      logWarn('Error reading file: ', error)
+                    }
+                  }
+                  break
                 case 'unlink':
+                  {
+                    fileTreeStateRef.current?.refresh(data)
+                    debounceUpdate({
+                      path: data.replace('unlink:', '').trim(),
+                      content: '',
+                      type: 'delete',
+                    })
+                  }
+                  break
                 case 'addDir':
                 case 'unlinkDir':
                 default:
@@ -193,6 +238,7 @@ export function useShell(): ShellInstance {
       containerInfo.port,
       containerInfo.url,
       fileTreeStateRef,
+      onUpdateFileContent,
       setContainer,
       setContainerInfo,
       setProcess,

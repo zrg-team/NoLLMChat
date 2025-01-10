@@ -2,9 +2,10 @@ import type { FileSystemTree } from '@webcontainer/api'
 import { useCallback, useEffect, useState } from 'react'
 import { getRepository } from 'src/services/database'
 import {
+  FileSystemTreeChange,
   parseFileSystemTreeToJSONL,
   parseJSONLToFileSystemTree,
-  updateFileContentOfFileSystemTree,
+  updateFileSystemTree,
 } from 'src/services/web-container/utils/file-tree'
 import { useSessionState } from 'src/states/session'
 
@@ -19,13 +20,13 @@ export const useFileSystemTree = () => {
   }, [])
 
   const updateCodeContainerFile = useCallback(
-    async (filePath: string, code: string) => {
+    async (changes: FileSystemTreeChange[]) => {
       if (!currentSession?.main_node_id) {
         return
       }
       setFileSystemTree((prev) => {
         if (!currentSession?.main_node_id) return prev
-        const result = updateFileContentOfFileSystemTree(prev || {}, filePath, code)
+        const result = updateFileSystemTree(prev || {}, changes)
         updateCodeContainerData(currentSession?.main_node_id, result)
         return result
       })

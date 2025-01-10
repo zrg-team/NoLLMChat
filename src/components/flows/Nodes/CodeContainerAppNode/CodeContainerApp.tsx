@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import {
   parseJSONLToFileSystemTree,
-  updateFileContentOfFileSystemTree,
+  updateFileSystemTree,
 } from 'src/services/web-container/utils/file-tree'
 import type { FileSystemTree } from '@webcontainer/api'
 import CreateSourcebaseCard from 'src/components/molecules/CreateSourcebaseCard'
@@ -37,7 +37,7 @@ const CodeContainerApp = memo((props: EditorAppNodeProps) => {
     async (filePath: string, code: string) => {
       setFileSystemTree((prev) => {
         if (!prev) return prev
-        const result = updateFileContentOfFileSystemTree(prev, filePath, code)
+        const result = updateFileSystemTree(prev, [{ path: filePath, content: code }])
         updateCodeContainerData(data?.flowNode?.id, result)
         return result
       })

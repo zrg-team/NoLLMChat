@@ -15,6 +15,7 @@ import type { FileSystemTree, WebContainer, WebContainerProcess } from '@webcont
 import type { Terminal } from 'xterm'
 import { Message } from 'ai/react'
 import { LLM } from 'src/services/database/types'
+import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
 
 type FileTreeState = {
   fileSystemTree?: FileSystemTree
@@ -33,7 +34,7 @@ export type MainVSLiteContextType = {
   setProcess?: Dispatch<SetStateAction<WebContainerProcess | null>>
   setContainerInfo?: Dispatch<SetStateAction<{ url?: string; port?: number }>>
   clearSession?: () => void
-  onUpdateFileContent: (path: string, content: string) => void
+  onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
   ternimalElementRef: React.MutableRefObject<HTMLDivElement | null>
   previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
   setLayoutReady?: Dispatch<SetStateAction<boolean>>
@@ -58,7 +59,7 @@ export const MainVSLiteAppProvider = ({
   llm?: LLM
   fileSystemTree?: FileSystemTree
   sendMessage?: MainVSLiteContextType['sendMessage']
-  onUpdateFileContent: (path: string, content: string) => void
+  onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
 }) => {
   const [layoutReady, setLayoutReady] = useState(false)
   const previewElementRef = useRef<HTMLIFrameElement>(null)
