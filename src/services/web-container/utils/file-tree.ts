@@ -1,6 +1,6 @@
 import type { DirectoryNode, FileNode, FileSystemTree } from '@webcontainer/api'
 import { nanoid } from 'nanoid'
-import { logWarn } from 'src/utils/logger'
+import { logDebug } from 'src/utils/logger'
 
 export interface ElementTree {
   id: string
@@ -97,34 +97,66 @@ export function parseFileSystemTreeToJSONL(tree: FileSystemTree): string {
   return lines.join('\n')
 }
 
-export function updateFileContentOfFileSystemTree(
+export type FileSystemTreeChange = {
+  path: string
+  content: string | Uint8Array
+  type?: 'create_or_update' | 'delete'
+}
+
+export function updateFileSystemTree(
   tree: FileSystemTree,
-  filePath: string,
-  newContent: string | Uint8Array,
+  changes: FileSystemTreeChange[],
 ): FileSystemTree {
-  // if filePath starts with './', remove it
-  const parts = filePath.replace(/^\.\//, '').split('/')
-  let currentNode: FileSystemTree | FileNode = tree
+  logDebug(
+    `[UpdateCodeContainerFile] Changes ${changes.map((c) => `${c.type || 'create_or_update'}:${c.path}`).join(', ')}`,
+  )
+  changes.forEach(({ path, content, type = 'create_or_update' }) => {
+    // if path starts with './', remove it
+    const parts = path.replace(/^\.\//, '').split('/')
+    let currentNode: FileSystemTree | FileNode = tree
 
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i]
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i]
 
-    if (i === parts.length - 1) {
-      // Last part should be the file
-      if (part in currentNode && 'file' in currentNode[part]) {
-        ;(currentNode[part] as FileNode).file.contents = newContent
+      if (i === parts.length - 1) {
+        // Last part should be the file
+        if (type === 'delete') {
+          if (part in currentNode && 'file' in currentNode[part]) {
+            delete currentNode[part]
+          } else {
+            console.warn(`Path "${path}" is not a file or does not exist.`)
+          }
+        } else {
+          // Default type is 'create_or_update'
+          if (part in currentNode && 'file' in currentNode[part]) {
+            ;(currentNode[part] as FileNode).file.contents = content
+          } else {
+            // Create new file node if it doesn't exist
+            ;(currentNode as FileSystemTree)[part] = {
+              file: {
+                contents: content,
+              },
+            } as FileNode
+          }
+        }
       } else {
-        logWarn(`Path "${filePath}" is not a file.`)
-      }
-    } else {
-      if (part in currentNode && 'directory' in currentNode[part]) {
-        currentNode = (currentNode[part] as DirectoryNode).directory
-      } else {
-        logWarn(`Path "${filePath}" does not exist.`)
-        return tree
+        if (part in currentNode && 'directory' in currentNode[part]) {
+          currentNode = (currentNode[part] as DirectoryNode).directory
+        } else {
+          if (type === 'delete') {
+            console.warn(`Path "${path}" does not exist.`)
+            break // Exit the loop for this change, but continue with others
+          } else {
+            // Create new directory node if it doesn't exist
+            ;(currentNode as FileSystemTree)[part] = {
+              directory: {},
+            } as DirectoryNode
+            currentNode = (currentNode[part] as DirectoryNode).directory
+          }
+        }
       }
     }
-  }
+  })
 
   return tree
 }

@@ -4,8 +4,9 @@ import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import {
+  FileSystemTreeChange,
   parseJSONLToFileSystemTree,
-  updateFileContentOfFileSystemTree,
+  updateFileSystemTree,
 } from 'src/services/web-container/utils/file-tree'
 import CreateSourcebaseCard from 'src/components/molecules/CreateSourcebaseCard'
 import type { FileSystemTree } from '@webcontainer/api'
@@ -46,9 +47,9 @@ export const VSLiteAppNode = memo((props: EditorAppNodeProps) => {
   )
 
   const handleUpdateCodeContainerFile = useCallback(
-    async (filePath: string, code: string) => {
+    async (changes: FileSystemTreeChange[]) => {
       setFileSystemTree((prev) => {
-        const result = updateFileContentOfFileSystemTree(prev || {}, filePath, code)
+        const result = updateFileSystemTree(prev || {}, changes)
         updateCodeContainerData(data?.flowNode?.id, result)
         return result
       })

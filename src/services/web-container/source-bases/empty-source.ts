@@ -120,6 +120,13 @@ export const BASE: FileSystemTree = {
   'README.md': {
     file: {
       contents: `# How to use
+To clone source code from github
+\`\`\`bash
+git clone /gh/{owner}/{repo} ./{folder}
+\`\`\`
+
+Start HTML server
+
 \`\`\`bash
 http-server
 

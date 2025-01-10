@@ -1,8 +1,10 @@
 import { memo, useCallback, useRef } from 'react'
 import Monaco from '@monaco-editor/react'
 import type { FileSystemAPI } from '@webcontainer/api'
-import { useAppState } from 'src/states/app'
 import type * as monaco from 'monaco-editor'
+
+import { useAppState } from 'src/states/app'
+import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
 
 import { initEditor } from '../modules/monaco'
 import { useMainVSLiteAppContext } from '../contexts/main'
@@ -16,7 +18,7 @@ export type Editor = monaco.editor.IStandaloneCodeEditor
 export type Monaco = typeof monaco
 
 export const EditorInner = memo(
-  (props: EditorProps & { onUpdateFileContent: (path: string, content: string) => void }) => {
+  (props: EditorProps & { onUpdateFileContent: (changes: FileSystemTreeChange[]) => void }) => {
     const fileChangeDebounceRef = useRef<number>()
     const currentContentRef = useRef<string>('')
     const isDarkTheme = useAppState((state) => state.theme === 'dark')
@@ -29,10 +31,13 @@ export const EditorInner = memo(
           return
         }
         fileChangeDebounceRef.current = setTimeout(() => {
+          if (currentContentRef.current === value) {
+            return
+          }
           fileChangeDebounceRef.current = undefined
           currentContentRef.current = value || ''
           props.fs.writeFile(props.path, value || '', 'utf-8')
-          props.onUpdateFileContent(props.path, value || '')
+          props.onUpdateFileContent([{ path: props.path, content: value || '' }])
         }, 500) as unknown as number
       },
       [props],

@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import type { FileSystemTree } from '@webcontainer/api'
 import { LLM } from 'src/services/database/types'
+import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
 
 import { MainVSLiteAppProvider, MainVSLiteContextType } from './contexts/main'
 import { Dock } from './components/Dock'
@@ -19,7 +20,7 @@ export const VSLiteApp = memo(
     llm?: LLM
     fileSystemTree?: FileSystemTree
     sendMessage?: MainVSLiteContextType['sendMessage']
-    onUpdateFileContent: (path: string, content: string) => void
+    onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
   }) => {
     return (
       <MainVSLiteAppProvider
