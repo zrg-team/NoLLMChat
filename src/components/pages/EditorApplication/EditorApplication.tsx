@@ -6,6 +6,7 @@ import LLMIcon from 'src/components/atoms/LLMIcon'
 import { cn } from 'src/lib/utils'
 import { LLMStatusEnum } from 'src/services/database/types'
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from 'src/lib/shadcn/ui/tooltip'
+import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 
 import { useCreateMessage } from './hooks/use-create-message'
 import { useUpdateEditorContent } from './hooks/use-update-editor-content'
@@ -50,17 +51,9 @@ const EditorApplication = memo(() => {
           </div>
         </Tooltip>
       </TooltipProvider>
-      <Suspense
-        fallback={
-          <div className="h-full w-ful !rounded-none flex justify-center items-center">
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          </div>
-        }
-      >
+      <Suspense fallback={<DefaultLoader simple />}>
         {!flowNode ? (
-          <div className="h-full w-full !rounded-none flex justify-center items-center">
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          </div>
+          <DefaultLoader simple />
         ) : (
           <PlateAppEditor
             defaultValue={flowNode?.data}

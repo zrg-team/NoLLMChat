@@ -66,7 +66,7 @@ const AppRoute = memo(
     }, [invalidBaseURL])
 
     if (invalidBaseURL) {
-      return <DefaultLoader className="w-screen h-screen" enableLogo typing />
+      return <DefaultLoader className="w-screen h-screen" simple />
     }
 
     return <RouterProvider router={router} />

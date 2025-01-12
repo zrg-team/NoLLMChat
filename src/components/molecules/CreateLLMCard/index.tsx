@@ -35,12 +35,14 @@ import LoadingButton from 'src/components/atoms/LoadingButton'
 import { Alert } from 'src/lib/shadcn/ui/alert'
 import CreateSessionPassphraseDialog from 'src/components/molecules/dialogs/CreateSessionPassphraseDialog'
 import { useUpdateSessionPassphrase } from 'src/hooks/mutations/use-update-session-passphrase'
-import { encryptSymmetric } from 'src/utils/aes'
+import { decryptSymmetric, encryptSymmetric } from 'src/utils/aes'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { logError } from 'src/utils/logger'
 import secureSession from 'src/utils/secure-session'
 
 import { OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
+import { useSessionState } from 'src/states/session'
+import SessionPassphraseDialog from '../dialogs/SessionPassphraseDialog'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -58,12 +60,14 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     modelList: ModelRecord[]
     functionCallingModelIds: string[]
   }>()
-  const createPassphraseDialog = useModal(CreateSessionPassphraseDialog)
   const { updateSessionPassphrase } = useUpdateSessionPassphrase()
-
+  const currentSession = useSessionState((state) => state.currentSession)
   const syncCachedLLMURLs = useLocalLLMState((state) => state.syncCachedLLMURLs)
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createLLM } = useCreateLLM()
+
+  const createPassphraseDialog = useModal(CreateSessionPassphraseDialog)
+  const sessionPassphraseDialog = useModal(SessionPassphraseDialog)
 
   useEffect(() => {
     import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
@@ -173,12 +177,12 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     setProvider(value)
   }, [])
   const hanldeSubmit = async () => {
-    if (!node) return
+    if (!node || !currentSession) return
     try {
       setLoading(true)
       let passkey = ''
       let parameters: Record<string, unknown> | undefined
-      if (isRequiredSessionPasskey) {
+      if (isRequiredSessionPasskey && !currentSession.passphrase) {
         await new Promise((resolve, reject) => {
           createPassphraseDialog.show({
             onConfirm: (input: string) => {
@@ -200,6 +204,40 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         await Promise.all(
           Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
             const encrypted = await encryptSymmetric(value, keyInfo.passphrase)
+            if (!parameters) {
+              parameters = {}
+            }
+            parameters[key] = encrypted
+          }),
+        )
+      } else if (isRequiredSessionPasskey && currentSession.passphrase) {
+        let passphrase: string
+        await new Promise((resolve, reject) => {
+          sessionPassphraseDialog.show({
+            onConfirm: async (passkey) => {
+              try {
+                passphrase = await decryptSymmetric(currentSession.passphrase!, passkey)
+                await secureSession.set('passphrase', passphrase)
+                resolve(true)
+              } catch (error) {
+                toast({
+                  content: t('invalid_passphrase'),
+                  variant: 'destructive',
+                })
+                reject(error)
+              } finally {
+                sessionPassphraseDialog.hide()
+              }
+            },
+            onCancel: () => {
+              reject()
+            },
+          })
+        })
+        parameters = {}
+        await Promise.all(
+          Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
+            const encrypted = await encryptSymmetric(value, passphrase)
             if (!parameters) {
               parameters = {}
             }

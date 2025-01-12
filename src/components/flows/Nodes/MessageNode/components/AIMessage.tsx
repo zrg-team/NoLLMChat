@@ -8,6 +8,7 @@ import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 import { Button } from 'src/lib/shadcn/ui/button'
 
 import { MessageNodeProps } from '../type'
+import { MessageStatusEnum } from 'src/services/database/types'
 
 const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
@@ -30,8 +31,14 @@ export function AIMessageComponent({
       return {}
     }
   }, [data?.entity?.metadata])
+
+  const isError = data.entity.status === MessageStatusEnum.Failed
+
   return (
-    <Alert className="flex min-w-52">
+    <Alert
+      className={cn('flex min-w-52', isError ? 'bg-background' : '')}
+      variant={isError ? 'destructive' : 'default'}
+    >
       <LazyIcon
         className={cn(data.loading ? 'animate-spin' : undefined)}
         size={24}
@@ -49,13 +56,17 @@ export function AIMessageComponent({
             </div>
           }
         >
-          <MarkdownPreview
-            className="!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans"
-            source={`${data.content || data.entity?.content || ''}`}
-            style={{
-              color: 'unset !important',
-            }}
-          />
+          {isError ? (
+            data.content || data.entity?.content || ''
+          ) : (
+            <MarkdownPreview
+              className={'!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans'}
+              source={`${data.content || data.entity?.content || ''}`}
+              style={{
+                color: 'unset !important',
+              }}
+            />
+          )}
         </Suspense>
         {Array.isArray(messageMetadata?.message?.tool_calls) &&
         messageMetadata?.message?.tool_calls?.length
