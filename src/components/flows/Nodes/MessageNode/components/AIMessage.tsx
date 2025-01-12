@@ -35,12 +35,10 @@ export function AIMessageComponent({
   const isError = data.entity.status === MessageStatusEnum.Failed
 
   return (
-    <Alert className={
-      cn(
-        "flex min-w-52",
-        isError ? 'bg-background' : '',
-      )
-    } variant={isError ? 'destructive' : 'default'}>
+    <Alert
+      className={cn('flex min-w-52', isError ? 'bg-background' : '')}
+      variant={isError ? 'destructive' : 'default'}
+    >
       <LazyIcon
         className={cn(data.loading ? 'animate-spin' : undefined)}
         size={24}
@@ -58,15 +56,17 @@ export function AIMessageComponent({
             </div>
           }
         >
-          {isError
-            ? data.content || data.entity?.content || ''
-            : <MarkdownPreview
-            className={"!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans"}
-            source={`${data.content || data.entity?.content || ''}`}
-            style={{
-              color: 'unset !important',
-            }}
-          />}
+          {isError ? (
+            data.content || data.entity?.content || ''
+          ) : (
+            <MarkdownPreview
+              className={'!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans'}
+              source={`${data.content || data.entity?.content || ''}`}
+              style={{
+                color: 'unset !important',
+              }}
+            />
+          )}
         </Suspense>
         {Array.isArray(messageMetadata?.message?.tool_calls) &&
         messageMetadata?.message?.tool_calls?.length

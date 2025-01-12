@@ -70,7 +70,9 @@ export const DefaultLoader = memo(
 
     if (simple) {
       return (
-        <div className={cn("h-full w-ful !rounded-none flex justify-center items-center", className)}>
+        <div
+          className={cn('h-full w-ful !rounded-none flex justify-center items-center', className)}
+        >
           <LazyIcon name="loader-circle" className="animate-spin" />
         </div>
       )

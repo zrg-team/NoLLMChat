@@ -61,9 +61,7 @@ const DocumentViewer = memo(
     }, [props.name])
     return (
       <div className="max-w-full max-h-full overflow-hidden relative flex flex-col min-h-full">
-        <Suspense
-          fallback={<DefaultLoader simple />}
-        >
+        <Suspense fallback={<DefaultLoader simple />}>
           <div className="flex-grow h-full overflow-auto flex justify-center min-h-full">
             <DotPattern width={32} height={32} className="h-full" cr={0.6} />
             <div className="p-6 !pb-12 relative max-w-5xl">{inner}</div>

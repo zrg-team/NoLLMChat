@@ -51,11 +51,7 @@ const EditorApplication = memo(() => {
           </div>
         </Tooltip>
       </TooltipProvider>
-      <Suspense
-        fallback={
-          <DefaultLoader simple />
-        }
-      >
+      <Suspense fallback={<DefaultLoader simple />}>
         {!flowNode ? (
           <DefaultLoader simple />
         ) : (

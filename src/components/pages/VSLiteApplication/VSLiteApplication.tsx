@@ -60,11 +60,7 @@ const VSLiteApplication = memo(() => {
           </div>
         </Tooltip>
       </TooltipProvider>
-      <Suspense
-        fallback={
-          <DefaultLoader simple />
-        }
-      >
+      <Suspense fallback={<DefaultLoader simple />}>
         {fileSystemTree !== undefined ? (
           <VSLiteApp
             autoLoad
