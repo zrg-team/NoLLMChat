@@ -16,8 +16,8 @@ import {
   VectorDatabase,
 } from 'src/services/database/types'
 import { In } from 'src/services/database/typeorm-wrapper'
-import { useLocalLLMState } from 'src/services/local-llm'
 import { Message } from 'ai/react'
+import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 
 export const useChatApplicationData = () => {
   const [chatInfo, setChatInfo] = useState<{
@@ -44,7 +44,7 @@ export const useChatApplicationData = () => {
   const onThreadMessagesLoadedRef = useRef<(messages: Message[]) => void>()
   const sessionHandleStatus = useRef<{ handling?: string; handled?: string }>({})
   const currentSession = useSessionState((state) => state.currentSession)
-  const loadModel = useLocalLLMState((state) => state.loadModel)
+  const { loadModel } = useLoadModel()
 
   const selectDataNode = useCallback(
     async (dataNode: FlowNode) => {
@@ -343,19 +343,19 @@ export const useChatApplicationData = () => {
   ])
 
   const loadLLM = useCallback(async () => {
-    if (!mainLLMInfo?.llm.name) {
+    if (!mainLLMInfo?.llm?.name) {
       return
     }
     try {
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loading } : pre))
-      await loadModel(mainLLMInfo?.llm.name, (data) => {
+      await loadModel(mainLLMInfo.llm.provider, mainLLMInfo?.llm.name, (data) => {
         setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
       })
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
     } catch {
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Started, progress: '' } : pre))
     }
-  }, [mainLLMInfo?.llm?.name, loadModel])
+  }, [mainLLMInfo?.llm?.name, mainLLMInfo?.llm?.provider, loadModel])
 
   const onThreadMessagesLoaded = useCallback((callback: (messages: Message[]) => void) => {
     onThreadMessagesLoadedRef.current = callback

@@ -241,6 +241,12 @@
       "metadata": "Metadata: ",
       "errors": {
         "failed_to_create": "Failed to create LLM."
+      },
+      "alert": {
+        "session_passkey": "Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
+      },
+      "encrypted_fields": {
+        "api_key": "API key"
       }
     },
     "add_tool_card": {
@@ -383,6 +389,11 @@
       "errors": {
         "create_failed": "Failed to create session."
       }
+    },
+    "create_session_passkey": {
+      "title": "Create Session Passkey",
+      "description": "Create a passkey for this session.",
+      "confirm": "Confirm"
     },
     "create_standalone_application": {
       "title": "Create Application",

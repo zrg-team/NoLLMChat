@@ -1,12 +1,12 @@
 import { useCallback, useRef } from 'react'
-import type { BaseMessage } from '@langchain/core/messages'
-import { useLocalLLMState } from 'src/services/local-llm'
+import { HumanMessage, type BaseMessage } from '@langchain/core/messages'
 import { Connection, useInternalNode, useReactFlow } from '@xyflow/react'
 import { getRepository } from 'src/services/database'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { FlowNodeTypeEnum, LLMStatusEnum } from 'src/services/database/types'
+import { FlowNodeTypeEnum, LLM, LLMStatusEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
 import { DefaultNode } from 'src/utils/flow-node'
+import { useLLM } from 'src/hooks/mutations/use-llm'
 
 export const useActions = (id: string) => {
   const node = useInternalNode(id)
@@ -14,7 +14,7 @@ export const useActions = (id: string) => {
   const refDebounce = useRef<number | null>(null)
   const { toast } = useToast()
   const { getNode, getHandleConnections } = useReactFlow()
-  const stream = useLocalLLMState((state) => state.stream)
+  const { stream } = useLLM()
 
   const updateEditorContent = useCallback(
     async (value: unknown[]) => {
@@ -41,7 +41,8 @@ export const useActions = (id: string) => {
           return currentNode?.type === FlowNodeTypeEnum.LLM
         })
         const llmNode = llmConnection ? getNode(llmConnection?.source as string) : undefined
-        if (!llmNode) {
+        const llm = llmNode?.data?.entity as LLM
+        if (!llmNode || !llm) {
           return toast({
             variant: 'destructive',
             description: t('editor_node.errors.llm_not_found'),
@@ -53,23 +54,17 @@ export const useActions = (id: string) => {
           })
         }
         try {
-          const streamResponse = stream(input)
-          if (!streamResponse) {
-            throw new Error('Stream is not supported')
-          }
-          const chunks: string[] = []
-          for await (const chunk of streamResponse) {
-            if (!chunk) {
-              continue
-            }
-            if (Array.isArray(chunk)) {
-              chunks.push(...chunk.map((c) => c.content))
-              if (chunk?.length) {
-                onMessageUpdate?.(chunk.map((c) => c.content).join(''))
-              }
-            }
-          }
-          return chunks.join('')
+          const streamResponse = await stream(
+            llm.provider,
+            typeof input === 'string' ? [new HumanMessage(input)] : input,
+            {
+              onMessageUpdate: (data) => {
+                onMessageUpdate?.(data.content)
+              },
+              llm,
+            },
+          )
+          return streamResponse.content
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             return toast({

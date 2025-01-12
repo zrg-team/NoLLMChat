@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import { Position } from '@xyflow/react'
 import { Alert, AlertDescription, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { LLMStatusEnum } from 'src/services/database/types/llm'
+import { LLMProviderEnum, LLMStatusEnum } from 'src/services/database/types/llm'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useTranslation } from 'react-i18next'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
@@ -36,6 +36,19 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     if (llmInfo || !data?.entity?.name) {
       return
     }
+    if (data?.entity?.provider !== LLMProviderEnum.WebLLM) {
+      setLLMInfo({
+        hasCache: true,
+        isFunctionCalling: true,
+        info: {
+          model_id: data?.entity?.name,
+          model: data?.entity?.name,
+          model_lib: data?.entity?.provider,
+          model_type: 2,
+        },
+      })
+      return
+    }
     import('@mlc-ai/web-llm').then(
       async ({ hasModelInCache, functionCallingModelIds, prebuiltAppConfig }) => {
         const hasCache = await hasModelInCache(data?.entity?.name)
@@ -46,7 +59,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
         })
       },
     )
-  }, [data?.entity?.name, llmInfo])
+  }, [data?.entity?.name, data?.entity?.provider, llmInfo])
 
   const llmIcon = useMemo(() => {
     switch (data.status) {

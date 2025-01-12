@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { cn } from 'src/lib/utils'
+import { useAppState } from 'src/states/app'
 
 import SnowflakeIcon from 'src/assets/svgs/snowflake.svg?react'
 import GemmaIcon from 'src/assets/svgs/gemma.svg?react'
@@ -11,6 +12,8 @@ import smollmImage from 'src/assets/images/smollm.png'
 import stablelmImage from 'src/assets/images/stablelm.png'
 import nomicImage from 'src/assets/images/nomic.webp'
 import joshuaImage from 'src/assets/images/joshua.webp'
+import OpenAIDarkIcon from 'src/assets/svgs/openai_dark.svg?react'
+import OpenAILightIcon from 'src/assets/svgs/openai_light.svg?react'
 
 import LazyIcon from './LazyIcon'
 
@@ -20,8 +23,16 @@ type LLMIconProps = {
 }
 
 const LLMIcon = memo(({ name, className, ...props }: LLMIconProps) => {
+  const theme = useAppState((state) => state.theme)
+
   name = name.toLowerCase()
-  if (name.includes('gemma')) {
+
+  if (name.includes('gpt')) {
+    if (theme === 'dark') {
+      return <OpenAIDarkIcon className={cn('w-5 h-5', className)} {...props} />
+    }
+    return <OpenAILightIcon className={cn('w-5 h-5', className)} {...props} />
+  } else if (name.includes('gemma')) {
     return <GemmaIcon className={cn('w-5 h-5', className)} {...props} />
   } else if (name?.includes('qwen')) {
     return <img className={cn('w-5 h-5', className)} src={qwenImage} alt="qwen" {...props} />

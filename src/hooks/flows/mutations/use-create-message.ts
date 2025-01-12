@@ -11,6 +11,7 @@ import {
   FlowNodeTypeEnum,
   JSONData,
   JSONLData,
+  LLM,
   MessageRoleEnum,
   MessageStatusEnum,
   Prompt,
@@ -20,19 +21,18 @@ import {
   VectorDatabaseStorageEnum,
 } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
-import { useLocalLLMState } from 'src/services/local-llm'
 import { useFlowState } from 'src/states/flow'
 import {
   prepareThreadConnections,
   threadConversationTraveling,
 } from 'src/utils/thread-conversation-traveling'
-import { useLocalLLM } from 'src/services/local-llm/hooks/use-local-llm'
 import { prepareThreadHistory } from 'src/utils/build-message-history'
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages'
 import { getStorageDataSource } from 'src/utils/vector-storage'
 import { DefaultNodeData } from 'src/utils/flow-node'
 import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
 import { useSessionState } from 'src/states/session'
+import { useLLM } from 'src/hooks/mutations/use-llm'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -53,9 +53,8 @@ export const useCreateMessage = ({
   const similaritySearchWithScore = useLocalEmbeddingState(
     (state) => state.similaritySearchWithScore,
   )
-  const getCurrentModelInfo = useLocalLLMState((state) => state.getCurrentModelInfo)
 
-  const { stream } = useLocalLLM()
+  const { stream } = useLLM()
 
   const insertMessages = useCallback(
     async ({
@@ -254,7 +253,13 @@ export const useCreateMessage = ({
       threadConversionNodes: Node[],
       { onMessageUpdate }: CreateMessageOption,
     ) => {
-      const { prompts, tools, schemas, placeholders } = threadConnection
+      const { prompts, tools, schemas, placeholders, llm } = threadConnection
+
+      const llmEntity = llm?.node.data?.entity as LLM
+
+      if (!llmEntity) {
+        throw new Error('LLM is not found')
+      }
 
       const injectedMessages: BaseMessage[] = []
 
@@ -276,9 +281,10 @@ export const useCreateMessage = ({
       const schemaEntities = schemas
         .map((schemaNode) => schemaNode.node.data?.entity as Schema)
         .filter(Boolean) as Schema[]
-      const { lastChunk, content } = await stream(messages, {
+      const { lastChunk, content } = await stream(llmEntity.provider, messages, {
         tools: toLocalLLMToolCallingInput(tools),
         schemas: schemaEntities,
+        llm: llmEntity,
         onMessageUpdate: ({ content }) => {
           onMessageUpdate?.({
             id: messagesInfo.aiMessageNode.id,
@@ -327,14 +333,11 @@ export const useCreateMessage = ({
           getHandleConnections,
         },
       )
+
       const threadNode = threadConversionNodes.find((node) => node.type === FlowNodeTypeEnum.Thread)
       const thread = threadNode?.data.entity as Thread
       if (!source || !thread || !threadNode) {
         throw new Error('Source or thread is not found')
-      }
-      const modelInfo = await getCurrentModelInfo()
-      if (!modelInfo) {
-        throw new Error('Model is not loaded yet')
       }
       const threadConnections = prepareThreadConnections(threadNode, {
         getNode,
@@ -391,7 +394,7 @@ export const useCreateMessage = ({
         setLoading(false)
       }
     },
-    [getCurrentModelInfo, getHandleConnections, getNode, insertMessages, invokeMessage, t],
+    [getHandleConnections, getNode, insertMessages, invokeMessage, t],
   )
 
   return {

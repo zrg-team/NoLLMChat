@@ -11,18 +11,21 @@ import {
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'
 
-export const useCreateDatabaseLLM = () => {
+export const useCreateLLM = () => {
   const sessionId = useSessionState((state) => state.currentSession?.id)
 
   const [loading, setLoading] = useState(false)
 
   const pushSyncNodeQueue = useFlowState((state) => state.pushSyncNodeQueue)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
-  const createDatabaseLLM = useCallback(
+  const createLLM = useCallback(
     async (source: Node, record: Partial<LLM>) => {
       try {
         if (!sessionId) {
           throw new Error('Session not found')
+        }
+        if (!record.provider || !record.name) {
+          throw new Error('Provider and name are required')
         }
         setLoading(true)
         const existed = await getRepository('LLM').findOne({
@@ -43,11 +46,16 @@ export const useCreateDatabaseLLM = () => {
         return getRepository('LLM')
           .save({
             name: `${record.name}`,
-            status: LLMStatusEnum.Started,
+            // NOTE: No need to load cloud LLM
+            status:
+              record.provider === LLMProviderEnum.WebLLM
+                ? LLMStatusEnum.Started
+                : LLMStatusEnum.Loaded,
             session_id: sessionId,
-            provider: LLMProviderEnum.WebLLM,
-            metadata: JSON.stringify({}),
+            provider: record.provider,
+            metadata: JSON.stringify(record.metadata || {}),
             model_type: record.model_type || LLMModelTypeEnum.LLM,
+            parameters: record.parameters || undefined,
             ...record,
           })
           .then(async (llm) => {
@@ -69,6 +77,6 @@ export const useCreateDatabaseLLM = () => {
 
   return {
     loading,
-    createDatabaseLLM,
+    createLLM,
   }
 }

@@ -42,6 +42,9 @@ export class LLM {
   @Column({ type: 'text', nullable: true })
   connection_info?: string
 
+  @Column({ type: 'json', nullable: true })
+  parameters?: Record<string, unknown>
+
   @CreateDateColumn()
   created_at?: Date
 

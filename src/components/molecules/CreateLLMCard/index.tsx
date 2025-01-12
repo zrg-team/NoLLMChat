@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
-import { useCreateDatabaseLLM } from 'src/hooks/flows/mutations/use-create-database-llm'
+import { useCreateLLM } from 'src/hooks/flows/mutations/use-create-llm'
 import { NodeProps, useInternalNode } from '@xyflow/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,7 @@ import { Popover, PopoverContent } from 'src/lib/shadcn/ui/popover'
 import { PopoverTrigger } from '@radix-ui/react-popover'
 import LLMIcon from 'src/components/atoms/LLMIcon'
 import type { ModelRecord } from '@mlc-ai/web-llm'
+import { useModal } from '@ebay/nice-modal-react'
 import {
   Command,
   CommandEmpty,
@@ -31,27 +32,38 @@ import {
 import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
 import { LLMInfo } from 'src/components/atoms/LLMInfo'
 import LoadingButton from 'src/components/atoms/LoadingButton'
+import { Alert } from 'src/lib/shadcn/ui/alert'
+import CreateSessionPassphraseDialog from 'src/components/molecules/dialogs/CreateSessionPassphraseDialog'
+import { useUpdateSessionPassphrase } from 'src/hooks/mutations/use-update-session-passphrase'
+import { encryptSymmetric } from 'src/utils/aes'
+import { Input } from 'src/lib/shadcn/ui/input'
+import { logError } from 'src/utils/logger'
+import secureSession from 'src/utils/secure-session'
 
-import { SUPPORTED_PROVIDERS } from './constants'
+import { OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
   const { t } = useTranslation('components')
   const { toast } = useToast()
   const node = useInternalNode(id)
+  const [loading, setLoading] = useState(false)
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [encryptedInfo, setEncryptedInfo] = useState<Record<string, string>>()
   const [provider, setProvider] = useState<`${LLMProviderEnum}`>(LLMProviderEnum.WebLLM)
   const [hasCache, setHasCache] = useState(false)
   const [llmsInfo, setLLMsInfo] = useState<{
     modelList: ModelRecord[]
     functionCallingModelIds: string[]
   }>()
+  const createPassphraseDialog = useModal(CreateSessionPassphraseDialog)
+  const { updateSessionPassphrase } = useUpdateSessionPassphrase()
 
   const syncCachedLLMURLs = useLocalLLMState((state) => state.syncCachedLLMURLs)
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
-  const { loading: creatingLLM, createDatabaseLLM } = useCreateDatabaseLLM()
+  const { loading: creatingLLM, createLLM } = useCreateLLM()
 
   useEffect(() => {
     import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
@@ -63,6 +75,11 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   useEffect(() => {
     syncCachedLLMURLs()
   }, [syncCachedLLMURLs])
+
+  const isRequiredSessionPasskey = useMemo(() => {
+    if (!input) return false
+    return provider !== LLMProviderEnum.WebLLM
+  }, [input, provider])
 
   const modelList = useMemo(() => {
     if (!llmsInfo?.functionCallingModelIds || !llmsInfo?.modelList) return []
@@ -122,26 +139,28 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     })
   }, [llmsInfo?.modelList, llmsInfo?.functionCallingModelIds, search, cachedLLMURLs])
 
-  const selectedModel = useMemo(() => {
-    if (!input || !llmsInfo?.modelList) return
-    return llmsInfo?.modelList.find((model) => model.model_id === input)
-  }, [input, llmsInfo?.modelList])
+  const selectedModel = useMemo<ModelRecord | undefined>(() => {
+    if (!input) return
+
+    switch (provider) {
+      case LLMProviderEnum.WebLLM:
+        return llmsInfo?.modelList && modelList.find((model) => model.model_id === input)
+      case LLMProviderEnum.OpenAI:
+        setEncryptedInfo({})
+        return {
+          model: input,
+          model_id: input,
+          model_type: 2,
+          overrides: {},
+        } as ModelRecord
+    }
+  }, [input, llmsInfo?.modelList, modelList, provider])
 
   useEffect(() => {
     if (!selectedModel?.model_id || !cachedLLMURLs) return
 
     setHasCache(cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)))
   }, [cachedLLMURLs, selectedModel?.model_id])
-
-  const modelTypeToLLMType = useCallback((modelType?: unknown) => {
-    if (modelType === 1) {
-      return LLMModelTypeEnum.embedding
-    }
-    if (modelType === 2) {
-      return LLMModelTypeEnum.VLM
-    }
-    return LLMModelTypeEnum.LLM
-  }, [])
 
   const handleOnchange = useCallback((currentValue: string) => {
     setInput(currentValue)
@@ -156,51 +175,148 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const hanldeSubmit = async () => {
     if (!node) return
     try {
-      await createDatabaseLLM(node, {
+      setLoading(true)
+      let passkey = ''
+      let parameters: Record<string, unknown> | undefined
+      if (isRequiredSessionPasskey) {
+        await new Promise((resolve, reject) => {
+          createPassphraseDialog.show({
+            onConfirm: (input: string) => {
+              passkey = input
+              createPassphraseDialog.hide()
+              resolve(undefined)
+            },
+            onCancel: () => {
+              reject()
+            },
+          })
+        })
+        const keyInfo = await updateSessionPassphrase(passkey)
+        if (!keyInfo || !Object.keys(encryptedInfo || {}).length) {
+          throw new Error('Failed to update session passphrase')
+        }
+        await secureSession.set('passphrase', keyInfo.passphrase)
+        parameters = {}
+        await Promise.all(
+          Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
+            const encrypted = await encryptSymmetric(value, keyInfo.passphrase)
+            if (!parameters) {
+              parameters = {}
+            }
+            parameters[key] = encrypted
+          }),
+        )
+      }
+      await createLLM(node, {
         name: input,
         model_type: modelTypeToLLMType(selectedModel?.model_type),
         function_calling: selectedModel?.model_id
           ? llmsInfo?.functionCallingModelIds?.includes(selectedModel?.model_id)
           : false,
+        parameters,
+        provider,
       })
       setDialog?.(false)
-    } catch {
+    } catch (error) {
+      logError(error)
       toast({
         variant: 'destructive',
         description: t('add_llm_card.errors.failed_to_create'),
       })
     } finally {
+      setLoading(false)
       setInput('')
     }
   }
 
+  const modelTypeToLLMType = useCallback((modelType?: unknown) => {
+    if (modelType === 1) {
+      return LLMModelTypeEnum.embedding
+    }
+    if (modelType === 2) {
+      return LLMModelTypeEnum.VLM
+    }
+    return LLMModelTypeEnum.LLM
+  }, [])
+
   const modelItems = useMemo(() => {
-    return modelList.map((model) => (
-      <CommandItem key={model.model_id} value={model.model_id} onSelect={handleOnchange}>
-        {input === model.model_id ? (
-          <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
-        ) : (
-          <div className="mr-2 h-4 w-4" />
-        )}
-        <span className="max-w-md">
-          <div className="flex gap-2 mb-2">
-            <LLMIcon name={model.model_id} />
-            {model.model_id}
-          </div>
-          <div className="flex max-w-full flex-wrap gap-1">
-            <LLMInfo
-              model={model}
-              isFunctionCalling={
-                llmsInfo?.functionCallingModelIds?.includes(model.model_id) || false
-              }
-              name={model.model_id}
-              isCached={cachedLLMURLs.some((item) => item.includes(model.model_id)) || false}
-            />
-          </div>
-        </span>
-      </CommandItem>
-    ))
-  }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList])
+    switch (provider) {
+      case LLMProviderEnum.WebLLM:
+        return modelList.map((model) => (
+          <CommandItem key={model.model_id} value={model.model_id} onSelect={handleOnchange}>
+            {input === model.model_id ? (
+              <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
+            ) : (
+              <div className="mr-2 h-4 w-4" />
+            )}
+            <span className="max-w-md">
+              <div className="flex gap-2 mb-2">
+                <LLMIcon name={model.model_id} />
+                {model.model_id}
+              </div>
+              <div className="flex max-w-full flex-wrap gap-1">
+                <LLMInfo
+                  model={model}
+                  isFunctionCalling={
+                    llmsInfo?.functionCallingModelIds?.includes(model.model_id) || false
+                  }
+                  name={model.model_id}
+                  isCached={cachedLLMURLs.some((item) => item.includes(model.model_id)) || false}
+                />
+              </div>
+            </span>
+          </CommandItem>
+        ))
+      case LLMProviderEnum.OpenAI:
+        return OPEN_AI_MODELS.map((model) => {
+          return (
+            <CommandItem key={model} value={model} onSelect={handleOnchange}>
+              {input === model ? (
+                <LazyIcon name="check" className={'h-4 w-4'} />
+              ) : (
+                <div className="w-4" />
+              )}
+              <span className="max-w-md">
+                <div className="flex gap-3">
+                  <LLMIcon name={model} />
+                  {model}
+                </div>
+              </span>
+            </CommandItem>
+          )
+        })
+    }
+    return
+  }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList, provider])
+
+  const encryptedFields = useMemo(() => {
+    if (!isRequiredSessionPasskey) return undefined
+
+    switch (provider) {
+      case LLMProviderEnum.OpenAI:
+        return (
+          <>
+            <Alert variant="destructive" className="mt-4">
+              {t('add_llm_card.alert.session_passkey')}
+            </Alert>
+            <div className="mt-4">
+              <Label>{t('add_llm_card.encrypted_fields.api_key')}</Label>
+              <Input
+                type="password"
+                value={encryptedInfo?.key || ''}
+                onChange={(e) =>
+                  setEncryptedInfo((pre) => ({
+                    ...pre,
+                    key: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </>
+        )
+        break
+    }
+  }, [isRequiredSessionPasskey, provider, t, encryptedInfo])
 
   return (
     <Card className="max-w-lg">
@@ -270,20 +386,25 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               <span className="font-bold mr-2">{t('add_llm_card.model_url')}</span>
               {selectedModel.model}
             </div>
-            <div className="mt-2 text-sm text-muted-foreground center flex">
-              <span className="font-bold mr-2">{t('add_llm_card.model_lib_url')}</span>
-              {selectedModel.model_lib}
-            </div>
-            <div className="mt-2 text-sm text-muted-foreground center flex">
-              <span className="font-bold mr-2">{t('add_llm_card.metadata')}</span>
-              {JSON.stringify(selectedModel.overrides)}
-            </div>
+            {selectedModel.model_lib ? (
+              <div className="mt-2 text-sm text-muted-foreground center flex">
+                <span className="font-bold mr-2">{t('add_llm_card.model_lib_url')}</span>
+                {selectedModel.model_lib}
+              </div>
+            ) : undefined}
+            {selectedModel.overrides && Object.keys(selectedModel.overrides)?.length ? (
+              <div className="mt-2 text-sm text-muted-foreground center flex">
+                <span className="font-bold mr-2">{t('add_llm_card.metadata')}</span>
+                {JSON.stringify(selectedModel.overrides)}
+              </div>
+            ) : undefined}
           </div>
         ) : null}
+        {encryptedFields}
       </CardContent>
       <CardFooter className="flex justify-between">
         <LoadingButton
-          loading={creatingLLM}
+          loading={creatingLLM || loading}
           disabled={!input?.length}
           onClick={hanldeSubmit}
           className="w-full"

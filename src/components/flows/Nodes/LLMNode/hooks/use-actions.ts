@@ -1,14 +1,14 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Node, useInternalNode, useReactFlow } from '@xyflow/react'
-import { FlowNodeTypeEnum, LLMStatusEnum } from 'src/services/database/types'
+import { FlowNodeTypeEnum, LLM, LLMProviderEnum, LLMStatusEnum } from 'src/services/database/types'
 import { useCreateThread } from 'src/hooks/flows/mutations/use-create-thread'
 import { useFlowState } from 'src/states/flow'
 import { getRepository } from 'src/services/database'
 import { In } from 'src/services/database/typeorm-wrapper'
-import { useLocalLLMState } from 'src/services/local-llm'
 import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { logWarn } from 'src/utils/logger'
+import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 
 import { LLMNodeProps } from '../type'
 
@@ -18,7 +18,7 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
   const [loadingModel, setLoadingModel] = useState(false)
   const [queringThreads, setQueringThreads] = useState(false)
   const node = useInternalNode(id) as Node<LLMNodeProps['data']>
-  const loadModel = useLocalLLMState((state) => state.loadModel)
+  const { loadModel } = useLoadModel()
   const { createThread, loading: creatingThread } = useCreateThread()
 
   const updateNodes = useFlowState((state) => state.updateNodes)
@@ -51,7 +51,7 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
     try {
       setLoadingModel(true)
       if (data.entity && node) {
-        await loadModel?.(`${data.entity.name}`, (initProgress) => {
+        await loadModel?.(data.entity.provider, `${data.entity.name}`, (initProgress) => {
           node.data.status =
             initProgress.progress === 100 ? LLMStatusEnum.Loaded : LLMStatusEnum.Loading
 
@@ -59,7 +59,14 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
           updateNodes([{ id, type: 'replace' as const, item: node }])
         })
         const llmNodeChanges = getNodes()
-          .filter((node) => node.type === FlowNodeTypeEnum.LLM)
+          .filter((node) => {
+            const isLLMNode = node.type === FlowNodeTypeEnum.LLM
+            if (isLLMNode) {
+              const entity = node.data.entity as LLM
+              return entity.provider === LLMProviderEnum.WebLLM
+            }
+            return false
+          })
           .map((node) => {
             node.data.status = LLMStatusEnum.Started
             return { id: node.id, type: 'replace' as const, item: node }
@@ -90,6 +97,13 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
       await createThread?.(node)
     }
   }, [data.entity, node, createThread])
+
+  useEffect(() => {
+    if (data.entity && node && data.entity.status !== data.status) {
+      node.data.status = data.entity.status as LLMStatusEnum
+      updateNodes([{ id, type: 'replace' as const, item: node }])
+    }
+  }, [])
 
   return {
     loadingModel,

@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
-import { FlowNodePlaceholderTypeEnum, Schema } from 'src/services/database/types'
+import { FlowNodePlaceholderTypeEnum, LLMStatusEnum, Schema } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
-import { useLocalLLM } from 'src/services/local-llm/hooks/use-local-llm'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
+import { useLLM } from 'src/hooks/mutations/use-llm'
 import { useChatApplicationData } from './use-chat-application-data'
 
 type CreateMessageOption = {
@@ -14,13 +14,12 @@ type CreateMessageOption = {
   onResponseMessageCreate: (message?: string) => void
   onInjectedMessages: (messages: BaseMessage[]) => void
 }
-export const useSendMessage = () => {
+export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApplicationData>) => {
   const [loading] = useState(false)
   const similaritySearchWithScore = useLocalEmbeddingState(
     (state) => state.similaritySearchWithScore,
   )
-
-  const { stream } = useLocalLLM()
+  const { stream } = useLLM()
 
   const handlePlaceholders = useCallback(
     async (
@@ -100,6 +99,13 @@ export const useSendMessage = () => {
       },
       { schema, onMessageUpdate, onResponseMessageCreate, onInjectedMessages }: CreateMessageOption,
     ) => {
+      if (
+        !chatApplicationData.mainLLMInfo?.llm ||
+        chatApplicationData.mainLLMInfo?.status !== LLMStatusEnum.Loaded
+      ) {
+        throw new Error('LLM not found')
+      }
+
       const injectedMessages: BaseMessage[] = []
 
       if (retriverInfo?.length) {
@@ -119,17 +125,22 @@ export const useSendMessage = () => {
 
       onResponseMessageCreate?.()
 
-      const { content } = await stream(formatedMessages, {
-        schemas: schema ? [schema] : undefined,
-        onMessageUpdate: ({ content }) => {
-          onMessageUpdate?.({
-            nodeData: {
-              loading: true,
-              content: content,
-            },
-          })
+      const { content } = await stream(
+        chatApplicationData.mainLLMInfo.llm.provider,
+        formatedMessages,
+        {
+          schemas: schema ? [schema] : undefined,
+          onMessageUpdate: ({ content }) => {
+            onMessageUpdate?.({
+              nodeData: {
+                loading: true,
+                content: content,
+              },
+            })
+          },
+          llm: chatApplicationData.mainLLMInfo.llm,
         },
-      })
+      )
 
       onMessageUpdate?.({
         nodeData: {
@@ -138,7 +149,7 @@ export const useSendMessage = () => {
       })
       return content
     },
-    [handlePlaceholders, stream],
+    [handlePlaceholders, stream, chatApplicationData.mainLLMInfo],
   )
 
   return {
