@@ -4,11 +4,11 @@ import { getRepository } from 'src/services/database'
 import type { FileSystemTree } from '@webcontainer/api'
 import { parseFileSystemTreeToJSONL } from 'src/services/web-container/utils/file-tree'
 import { DefaultNode } from 'src/utils/flow-node'
-import { FlowNodeTypeEnum } from 'src/services/database/types'
-import { useLocalLLM } from 'src/services/local-llm'
+import { FlowNodeTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
 import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
+import { useLLM } from 'src/hooks/mutations/use-llm'
 
 type CreateMessageOption = {
   onMessageUpdate?: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -16,7 +16,7 @@ type CreateMessageOption = {
 }
 export const useActions = () => {
   const { getNode, getHandleConnections } = useReactFlow()
-  const { stream } = useLocalLLM()
+  const { stream } = useLLM()
 
   const updateCodeContainerData = useCallback(async (id: string, data: FileSystemTree) => {
     await getRepository('FlowNode').update(id, {
@@ -72,16 +72,20 @@ export const useActions = () => {
 
       onResponseMessageCreate?.()
 
-      const { content } = await stream([...formatedMessages, new HumanMessage(message)], {
-        onMessageUpdate: ({ content }) => {
-          onMessageUpdate?.({
-            nodeData: {
-              loading: true,
-              content: content,
-            },
-          })
+      const { content } = await stream(
+        LLMProviderEnum.WebLLM,
+        [...formatedMessages, new HumanMessage(message)],
+        {
+          onMessageUpdate: ({ content }) => {
+            onMessageUpdate?.({
+              nodeData: {
+                loading: true,
+                content: content,
+              },
+            })
+          },
         },
-      })
+      )
 
       onMessageUpdate?.({
         nodeData: {

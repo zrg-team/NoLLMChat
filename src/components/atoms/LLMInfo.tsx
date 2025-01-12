@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ModelRecord } from '@mlc-ai/web-llm'
 import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
@@ -24,13 +24,31 @@ export const LLMInfo = memo(
       return 'llm_info.model_types.llm'
     }, [])
 
+    const modelTypeBadges = useMemo(() => {
+      if (!model) {
+        return undefined
+      }
+      switch (model.model_type) {
+        case 0:
+        case 1:
+          return <Badge className="">{t(modelTypeToString(model.model_type))}</Badge>
+        case 2:
+          return (
+            <>
+              <Badge className="">{t(modelTypeToString(0))}</Badge>
+              <Badge className="">{t(modelTypeToString(model.model_type))}</Badge>
+            </>
+          )
+      }
+    }, [model, modelTypeToString, t])
+
     if (!model) {
       return undefined
     }
 
     return (
       <>
-        <Badge className="">{t(modelTypeToString(model.model_type))}</Badge>
+        {modelTypeBadges}
         {RECOMMENDATION_LOCAL_LLMS.some((item) => name && item.includes(name)) ? (
           <Badge className="" variant="outline">
             {t('llm_info.recommended')}

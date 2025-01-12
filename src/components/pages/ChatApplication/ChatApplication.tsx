@@ -37,6 +37,7 @@ const ChatApplication = memo(() => {
     }, 50)
   }, [])
 
+  const chatApplicationData = useChatApplicationData()
   const {
     schema,
     threadInfo,
@@ -48,8 +49,8 @@ const ChatApplication = memo(() => {
     selectDataNode,
     updateMessagesData,
     onThreadMessagesLoaded,
-  } = useChatApplicationData()
-  const { sendMessage } = useSendMessage()
+  } = chatApplicationData
+  const { sendMessage } = useSendMessage(chatApplicationData)
   const {
     input,
     messages,

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
-import { useLocalLLMState } from 'src/services/local-llm'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +7,8 @@ import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { Message } from 'ai/react'
+import { useLLM } from 'src/hooks/mutations/use-llm'
+import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 
 export const useCreateMessage = () => {
   const [loading, setLoading] = useState(false)
@@ -19,8 +20,8 @@ export const useCreateMessage = () => {
   const currentSession = useSessionState((state) => state.currentSession)
   const { t } = useTranslation('flows')
   const { toast } = useToast()
-  const stream = useLocalLLMState((state) => state.stream)
-  const loadModel = useLocalLLMState((state) => state.loadModel)
+  const { loadModel } = useLoadModel()
+  const { stream } = useLLM()
 
   const createMessage = useCallback(
     async (input: string, messages: Message[], onMessageUpdate?: (chunk: string) => void) => {
@@ -34,7 +35,7 @@ export const useCreateMessage = () => {
         }
 
         if (mainLLMInfo?.status !== LLMStatusEnum.Loaded) {
-          await loadModel(mainLLMInfo.llm.name, (data) => {
+          await loadModel(mainLLMInfo.llm.provider, mainLLMInfo.llm.name, (data) => {
             setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
           })
           setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
@@ -49,24 +50,17 @@ export const useCreateMessage = () => {
             }
             return new HumanMessage(message.content)
           })
-          const streamResponse = stream([...history, new HumanMessage(input)])
-          if (!streamResponse) {
-            throw new Error('Stream is not supported')
-          }
-          const chunks: string[] = []
-          for await (const chunk of streamResponse) {
-            if (!chunk) {
-              continue
-            }
-            if (Array.isArray(chunk)) {
-              chunks.push(...chunk.map((c) => c.content))
-              if (chunk?.length) {
-                onMessageUpdate?.(chunk.map((c) => c.content).join(''))
-              }
-            }
-          }
+          const streamResponse = await stream(
+            mainLLMInfo.llm.provider,
+            [...history, new HumanMessage(input)],
+            {
+              onMessageUpdate: (data) => {
+                onMessageUpdate?.(data.content)
+              },
+            },
+          )
           onMessageUpdate?.('')
-          return chunks.join('')
+          return streamResponse.content
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             toast({
@@ -121,7 +115,7 @@ export const useCreateMessage = () => {
       if (!llm) {
         return
       }
-      await loadModel(llm.name, (data) => {
+      await loadModel(llm.provider, llm.name, (data) => {
         setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
       })
       setLLMInfo({
@@ -139,7 +133,7 @@ export const useCreateMessage = () => {
       if (!mainLLMInfo?.llm) {
         return
       }
-      await loadModel(mainLLMInfo.llm.name, (data) => {
+      await loadModel(mainLLMInfo.llm.provider, mainLLMInfo.llm.name, (data) => {
         setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
       })
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))

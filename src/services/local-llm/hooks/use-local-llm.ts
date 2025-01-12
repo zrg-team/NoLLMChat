@@ -14,12 +14,7 @@ export const useLocalLLM = () => {
   const llmStream = useCallback(
     async (
       messages: BaseMessage[],
-      {
-        tools,
-        schemas,
-        onMessageUpdate,
-        onMessageFinish,
-      }: {
+      info?: {
         schemas?: Schema[]
         tools?: {
           name: string
@@ -30,6 +25,7 @@ export const useLocalLLM = () => {
         onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
       },
     ) => {
+      const { tools, schemas, onMessageUpdate, onMessageFinish } = info || {}
       let streamResponse: ReturnType<typeof stream> | ReturnType<typeof structuredStream>
       if (schemas?.length) {
         if (schemas && schemas?.length > 1) {

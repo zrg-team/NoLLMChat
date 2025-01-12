@@ -43,6 +43,15 @@ export class Session {
   @Column({ type: 'text', nullable: true })
   metadata?: string
 
+  @Column({ type: 'text', nullable: true })
+  main_source_id?: string
+
+  @Column({ type: 'text', nullable: true })
+  main_source_type?: `${AppEntityNames}`
+
+  @Column({ type: 'text', nullable: true })
+  passphrase?: string
+
   @CreateDateColumn()
   created_at?: Date
 
@@ -56,12 +65,6 @@ export class Session {
   })
   @JoinColumn({ name: 'main_node_id' })
   main_node?: FlowNode
-
-  @Column({ type: 'text', nullable: true })
-  main_source_id?: string
-
-  @Column({ type: 'text', nullable: true })
-  main_source_type?: `${AppEntityNames}`
 
   @OneToMany(() => Prompt, (entity: Prompt) => entity.session, { onDelete: 'CASCADE' })
   prompts?: Prompt[]
