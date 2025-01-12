@@ -8,8 +8,12 @@ import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPas
 import { useSessionState } from 'src/states/session'
 import { decryptSymmetric } from 'src/utils/aes'
 import { convertToZodSchema } from 'src/utils/schema-format'
+import { useToast } from 'src/lib/hooks/use-toast'
+import { useTranslation } from 'react-i18next'
 
 export const useLangchainLLM = () => {
+  const { toast } = useToast()
+  const { t } = useTranslation('errors')
   const currentSession = useSessionState((state) => state.currentSession)
   const sessionPassphraseDialog = useModal(SessionPassphraseDialog)
 
@@ -37,14 +41,19 @@ export const useLangchainLLM = () => {
       if (!passphraseExisted) {
         await new Promise<void>((resolve, reject) => {
           sessionPassphraseDialog.show({
-            onConfirm: async (passphrase) => {
+            onConfirm: async (passkey) => {
               try {
-                const result = await decryptSymmetric(currentSession.passphrase!, passphrase)
+                const result = await decryptSymmetric(currentSession.passphrase!, passkey)
                 await secureSession.set('passphrase', result)
-                sessionPassphraseDialog.hide()
                 resolve()
               } catch (error) {
+                toast({
+                  content: t('invalid_passphrase'),
+                  variant: 'destructive',
+                })
                 reject(error)
+              } finally {
+                sessionPassphraseDialog.hide()
               }
             },
             onCancel: () => {
@@ -72,7 +81,6 @@ export const useLangchainLLM = () => {
               apiKey,
               model: info?.llm?.name,
             })
-            console.log('schemas', schemas)
             let content = ''
             let lastChunk: BaseMessageChunk | undefined
             if (schemas?.length) {
@@ -112,7 +120,7 @@ export const useLangchainLLM = () => {
           throw new Error('Provider is not supported')
       }
     },
-    [currentSession?.passphrase, sessionPassphraseDialog],
+    [currentSession?.passphrase, sessionPassphraseDialog, t, toast],
   )
 
   return {

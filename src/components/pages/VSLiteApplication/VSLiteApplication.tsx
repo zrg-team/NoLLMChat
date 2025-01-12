@@ -6,10 +6,11 @@ import LLMIcon from 'src/components/atoms/LLMIcon'
 import { cn } from 'src/lib/utils'
 import { LLMStatusEnum } from 'src/services/database/types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'src/lib/shadcn/ui/tooltip'
+import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
+import { Message } from 'ai/react'
 
 import { useCreateMessage } from './hooks/use-create-message'
 import { useFileSystemTree } from './hooks/use-file-system-tree'
-import { Message } from 'ai/react'
 
 const VSLiteApp = lazy(() => import('src/lib/vslite/index'))
 
@@ -61,9 +62,7 @@ const VSLiteApplication = memo(() => {
       </TooltipProvider>
       <Suspense
         fallback={
-          <div className="h-full w-full flex justify-center items-center">
-            <LazyIcon name="loader-circle" className="animate-spin" />
-          </div>
+          <DefaultLoader simple />
         }
       >
         {fileSystemTree !== undefined ? (

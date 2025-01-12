@@ -13,7 +13,8 @@
     "standalone_session_created": "Standalone session created."
   },
   "errors": {
-    "speech_is_not_supported": "Speech is not supported in this browser."
+    "speech_is_not_supported": "Speech is not supported in this browser.",
+    "invalid_passphrase": "Invalid passphrase."
   },
   "tooltips": {
     "export": "Export current flow",
@@ -393,6 +394,11 @@
     "create_session_passkey": {
       "title": "Create Session Passkey",
       "description": "Create a passkey for this session.",
+      "confirm": "Confirm"
+    },
+    "session_passkey": {
+      "title": "Session Passkey",
+      "description": "Input session passkey to unlock this session.",
       "confirm": "Confirm"
     },
     "create_standalone_application": {

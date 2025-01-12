@@ -5,6 +5,7 @@ import { Button } from 'src/lib/shadcn/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -46,7 +47,8 @@ const SessionPassphraseDialog = create<SessionPassphraseDialogProps>(({ onConfir
     <Dialog open={currentModal.visible} onOpenChange={handleHide}>
       <DialogContent className="w-[330px]">
         <DialogHeader>
-          <DialogTitle>{t('create_session_passkey.title')}</DialogTitle>
+          <DialogTitle>{t('session_passkey.title')}</DialogTitle>
+          <DialogDescription>{t('session_passkey.description')}</DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <InputOTP onChange={handleChangeOTP} maxLength={6}>
@@ -65,7 +67,7 @@ const SessionPassphraseDialog = create<SessionPassphraseDialogProps>(({ onConfir
         </div>
         <DialogFooter>
           <Button onClick={handleSubmit} type="submit">
-            {t('create_session_passkey.confirm')}
+            {t('session_passkey.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

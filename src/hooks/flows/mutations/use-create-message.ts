@@ -33,6 +33,7 @@ import { DefaultNodeData } from 'src/utils/flow-node'
 import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
 import { useSessionState } from 'src/states/session'
 import { useLLM } from 'src/hooks/mutations/use-llm'
+import { logError } from 'src/utils/logger'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -374,7 +375,8 @@ export const useCreateMessage = ({
           },
         })
         return true
-      } catch {
+      } catch (error) {
+        logError(error)
         if (messagesInfo?.aiMessage) {
           await getRepository('Message').update(`${messagesInfo.aiMessage.id}`, {
             status: MessageStatusEnum.Failed,
@@ -386,6 +388,11 @@ export const useCreateMessage = ({
             id: messagesInfo.aiMessageNode.id,
             nodeData: {
               content: t('errors.ai_message_content_failed'),
+              entity: {
+                ...messagesInfo.aiMessage,
+                status: MessageStatusEnum.Failed,
+                content: t('errors.ai_message_content_failed'),
+              },
               loading: false,
             },
           })

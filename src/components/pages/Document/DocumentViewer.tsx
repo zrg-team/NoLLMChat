@@ -62,7 +62,7 @@ const DocumentViewer = memo(
     return (
       <div className="max-w-full max-h-full overflow-hidden relative flex flex-col min-h-full">
         <Suspense
-          fallback={<DefaultLoader flickeringGrid className="w-full h-full min-h-screen" />}
+          fallback={<DefaultLoader simple />}
         >
           <div className="flex-grow h-full overflow-auto flex justify-center min-h-full">
             <DotPattern width={32} height={32} className="h-full" cr={0.6} />

@@ -95,9 +95,7 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
       {mainDock}
       {loading ? (
         <DefaultLoader
-          blurBackground
-          typing
-          text={t('vslite.loading_vm_container')}
+          simple
           className="!absolute !w-full !h-full !z-40 top-0 left-0 !bg-transparent"
         />
       ) : undefined}

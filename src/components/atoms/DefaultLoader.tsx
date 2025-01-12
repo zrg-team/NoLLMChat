@@ -8,6 +8,7 @@ import TypingAnimation from 'src/lib/shadcn/ui/typing-animation'
 import Logo from 'src/assets/svgs/logo.svg?react'
 import { cn } from 'src/lib/utils'
 import { useAppState } from 'src/states/app'
+import LazyIcon from './LazyIcon'
 
 export const DefaultLoader = memo(
   ({
@@ -19,6 +20,8 @@ export const DefaultLoader = memo(
     enableLogo,
     typing,
     text,
+    simple,
+    meteors,
   }: {
     className?: string
     gridPattern?: boolean
@@ -28,6 +31,8 @@ export const DefaultLoader = memo(
     enableLogo?: boolean
     noBackground?: boolean
     blurBackground?: boolean
+    simple?: boolean
+    meteors?: boolean
   }) => {
     const theme = useAppState((state) => state.theme)
     const { t } = useTranslation('common')
@@ -56,12 +61,20 @@ export const DefaultLoader = memo(
       return (
         <>
           <RetroGrid />
-          <Meteors number={25} />
+          {meteors ? <Meteors number={25} /> : undefined}
         </>
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const defaultText = useMemo(() => text ?? t('loading'), [t])
+
+    if (simple) {
+      return (
+        <div className={cn("h-full w-ful !rounded-none flex justify-center items-center", className)}>
+          <LazyIcon name="loader-circle" className="animate-spin" />
+        </div>
+      )
+    }
     return (
       <div
         className={cn(
