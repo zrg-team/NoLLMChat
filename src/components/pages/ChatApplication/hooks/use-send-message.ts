@@ -138,6 +138,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
               },
             })
           },
+          llm: chatApplicationData.mainLLMInfo.llm,
         },
       )
 

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
+import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
 import { useLocalLLM } from 'src/services/local-llm'
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 
@@ -20,9 +20,9 @@ export const useLLM = () => {
           description: string
           schemaItems: SchemaItem[]
         }[]
-        onMessageUpdate?: (data: { content: string; chunk: BaseMessageChunk }) => void
+        onMessageUpdate?: (data: { content: string; chunk?: BaseMessageChunk }) => void
         onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
-        sessionMemoryKey?: string
+        llm?: LLM
       },
     ) => {
       switch (provider) {

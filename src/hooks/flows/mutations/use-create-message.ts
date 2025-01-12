@@ -21,7 +21,6 @@ import {
   VectorDatabaseStorageEnum,
 } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
-import { useLocalLLMState } from 'src/services/local-llm'
 import { useFlowState } from 'src/states/flow'
 import {
   prepareThreadConnections,
@@ -54,7 +53,6 @@ export const useCreateMessage = ({
   const similaritySearchWithScore = useLocalEmbeddingState(
     (state) => state.similaritySearchWithScore,
   )
-  const getCurrentModelInfo = useLocalLLMState((state) => state.getCurrentModelInfo)
 
   const { stream } = useLLM()
 
@@ -286,6 +284,7 @@ export const useCreateMessage = ({
       const { lastChunk, content } = await stream(llmEntity.provider, messages, {
         tools: toLocalLLMToolCallingInput(tools),
         schemas: schemaEntities,
+        llm: llmEntity,
         onMessageUpdate: ({ content }) => {
           onMessageUpdate?.({
             id: messagesInfo.aiMessageNode.id,
@@ -395,7 +394,7 @@ export const useCreateMessage = ({
         setLoading(false)
       }
     },
-    [getCurrentModelInfo, getHandleConnections, getNode, insertMessages, invokeMessage, t],
+    [getHandleConnections, getNode, insertMessages, invokeMessage, t],
   )
 
   return {

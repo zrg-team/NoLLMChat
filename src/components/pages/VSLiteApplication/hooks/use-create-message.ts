@@ -57,6 +57,7 @@ export const useCreateMessage = () => {
               onMessageUpdate: (data) => {
                 onMessageUpdate?.(data.content)
               },
+              llm: mainLLMInfo.llm,
             },
           )
           onMessageUpdate?.('')

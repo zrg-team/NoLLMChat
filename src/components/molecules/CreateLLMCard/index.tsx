@@ -33,13 +33,14 @@ import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
 import { LLMInfo } from 'src/components/atoms/LLMInfo'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { Alert } from 'src/lib/shadcn/ui/alert'
-import CreateSessionPasskeyDialog from 'src/components/molecules/dialogs/CreateSessionPasskeyDialog'
+import CreateSessionPassphraseDialog from 'src/components/molecules/dialogs/CreateSessionPassphraseDialog'
 import { useUpdateSessionPassphrase } from 'src/hooks/mutations/use-update-session-passphrase'
 import { encryptSymmetric } from 'src/utils/aes'
-
-import { OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { logError } from 'src/utils/logger'
+import secureSession from 'src/utils/secure-session'
+
+import { OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -57,7 +58,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     modelList: ModelRecord[]
     functionCallingModelIds: string[]
   }>()
-  const createPasskeyDialog = useModal(CreateSessionPasskeyDialog)
+  const createPassphraseDialog = useModal(CreateSessionPassphraseDialog)
   const { updateSessionPassphrase } = useUpdateSessionPassphrase()
 
   const syncCachedLLMURLs = useLocalLLMState((state) => state.syncCachedLLMURLs)
@@ -179,10 +180,10 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       let parameters: Record<string, unknown> | undefined
       if (isRequiredSessionPasskey) {
         await new Promise((resolve, reject) => {
-          createPasskeyDialog.show({
+          createPassphraseDialog.show({
             onConfirm: (input: string) => {
               passkey = input
-              createPasskeyDialog.hide()
+              createPassphraseDialog.hide()
               resolve(undefined)
             },
             onCancel: () => {
@@ -194,6 +195,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         if (!keyInfo || !Object.keys(encryptedInfo || {}).length) {
           throw new Error('Failed to update session passphrase')
         }
+        await secureSession.set('passphrase', keyInfo.passphrase)
         parameters = {}
         await Promise.all(
           Object.entries(encryptedInfo || {}).map(async ([key, value]) => {

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import type { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
-import type { Schema, SchemaItem } from 'src/services/database/types'
+import type { LLM, Schema, SchemaItem } from 'src/services/database/types'
 import { logWarn } from 'src/utils/logger'
 
 import { handleStream } from '../utils/stream'
@@ -10,6 +10,7 @@ export const useLocalLLM = () => {
   const toolsCallingStream = useLocalLLMState((state) => state.toolsCallingStream)
   const structuredStream = useLocalLLMState((state) => state.structuredStream)
   const stream = useLocalLLMState((state) => state.stream)
+  const getCurrentModelInfo = useLocalLLMState((state) => state.getCurrentModelInfo)
 
   const llmStream = useCallback(
     async (
@@ -23,10 +24,17 @@ export const useLocalLLM = () => {
         }[]
         onMessageUpdate?: (data: { content: string; chunk: BaseMessageChunk }) => void
         onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
+        llm?: LLM
       },
     ) => {
       const { tools, schemas, onMessageUpdate, onMessageFinish } = info || {}
       let streamResponse: ReturnType<typeof stream> | ReturnType<typeof structuredStream>
+
+      const modelInfo = await getCurrentModelInfo()
+      if (!modelInfo) {
+        throw new Error('Model is not found')
+      }
+
       if (schemas?.length) {
         if (schemas && schemas?.length > 1) {
           // Not supported
@@ -53,7 +61,7 @@ export const useLocalLLM = () => {
         content,
       }
     },
-    [stream, structuredStream, toolsCallingStream],
+    [getCurrentModelInfo, stream, structuredStream, toolsCallingStream],
   )
   return {
     stream: llmStream,

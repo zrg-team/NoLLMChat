@@ -61,6 +61,7 @@ export const useActions = (id: string) => {
               onMessageUpdate: (data) => {
                 onMessageUpdate?.(data.content)
               },
+              llm,
             },
           )
           return streamResponse.content

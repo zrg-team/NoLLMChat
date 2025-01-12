@@ -17,13 +17,13 @@ import {
   InputOTPSlot,
 } from 'src/lib/shadcn/ui/input-otp'
 
-type CreateSessionPasskeyDialogProps = {
+type CreateSessionPassphraseDialogProps = {
   className: string
   onConfirm: (newValue: string) => void
   onCancel: () => void
 }
 
-const CreateSessionPasskeyDialog = create<CreateSessionPasskeyDialogProps>(
+const CreateSessionPassphraseDialog = create<CreateSessionPassphraseDialogProps>(
   ({ onConfirm, onCancel }) => {
     const currentModal = useModal()
     const { t } = useTranslation('dialogs')
@@ -35,11 +35,13 @@ const CreateSessionPasskeyDialog = create<CreateSessionPasskeyDialogProps>(
 
     const handleSubmit = async () => {
       onConfirm(name)
+      setName('')
     }
 
     const handleHide = () => {
       onCancel()
       currentModal.hide()
+      setName('')
     }
 
     return (
@@ -75,4 +77,4 @@ const CreateSessionPasskeyDialog = create<CreateSessionPasskeyDialogProps>(
   },
 )
 
-export default CreateSessionPasskeyDialog
+export default CreateSessionPassphraseDialog

@@ -45,6 +45,7 @@ export const useCreateMessage = () => {
               onMessageUpdate: (data) => {
                 onMessageUpdate?.(data.content)
               },
+              llm: mainLLMInfo?.llm,
             },
           )
           return streamResponse.content

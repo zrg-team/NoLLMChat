@@ -1,10 +1,18 @@
 import { useCallback } from 'react'
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import { ChatOpenAI } from '@langchain/openai'
-import { LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
-import { sessionMemory } from 'src/utils/session-memory'
+import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
+import secureSession from 'src/utils/secure-session'
+import { useModal } from '@ebay/nice-modal-react'
+import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import { useSessionState } from 'src/states/session'
+import { decryptSymmetric } from 'src/utils/aes'
+import { convertToZodSchema } from 'src/utils/schema-format'
 
 export const useLangchainLLM = () => {
+  const currentSession = useSessionState((state) => state.currentSession)
+  const sessionPassphraseDialog = useModal(SessionPassphraseDialog)
+
   const stream = useCallback(
     async (
       messages: BaseMessage[],
@@ -15,32 +23,82 @@ export const useLangchainLLM = () => {
           description: string
           schemaItems: SchemaItem[]
         }[]
-        onMessageUpdate?: (data: { content: string; chunk: BaseMessageChunk }) => void
+        onMessageUpdate?: (data: { content: string; chunk?: BaseMessageChunk }) => void
         onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
         provider?: `${LLMProviderEnum}`
-        sessionMemoryKey?: string
+        llm?: LLM
       },
     ) => {
-      if (!info?.sessionMemoryKey || !sessionMemory?.[info?.sessionMemoryKey]) {
-        throw new Error('API key is not found')
+      const { schemas, onMessageUpdate, onMessageFinish } = info || {}
+      if (!currentSession?.passphrase) {
+        throw new Error('Session is not found')
       }
-      switch (info.provider) {
+      const passphraseExisted = await secureSession.exists('passphrase')
+      if (!passphraseExisted) {
+        await new Promise<void>((resolve, reject) => {
+          sessionPassphraseDialog.show({
+            onConfirm: async (passphrase) => {
+              try {
+                const result = await decryptSymmetric(currentSession.passphrase!, passphrase)
+                await secureSession.set('passphrase', result)
+                sessionPassphraseDialog.hide()
+                resolve()
+              } catch (error) {
+                reject(error)
+              }
+            },
+            onCancel: () => {
+              reject()
+            },
+          })
+        })
+      }
+      switch (info?.provider) {
         case LLMProviderEnum.OpenAI:
           {
+            const parameters = info?.llm?.parameters
+            if (!parameters?.key || typeof parameters.key !== 'string') {
+              throw new Error('API Key is not found')
+            }
+            const passphrase = await secureSession.get('passphrase')
+            if (!passphrase) {
+              throw new Error('Passphrase is not found')
+            }
+            const apiKey = await decryptSymmetric(parameters.key, passphrase!)
+            if (!apiKey) {
+              throw new Error('API Key is not found')
+            }
             const model = new ChatOpenAI({
-              apiKey: sessionMemory?.openaikey,
+              apiKey,
+              model: info?.llm?.name,
             })
-            const streamResponse = await model.stream(messages)
-
+            console.log('schemas', schemas)
             let content = ''
             let lastChunk: BaseMessageChunk | undefined
-            for await (const data of streamResponse) {
-              content += `${data.content}`
-              lastChunk = data
-              info?.onMessageUpdate?.({ content: `${data.content}`, chunk: data })
+            if (schemas?.length) {
+              const schemaItems = schemas
+                .filter((item) => item.schema_items?.length)
+                .flatMap((schema) => schema.schema_items) as SchemaItem[]
+              const zodSchema = convertToZodSchema(schemaItems)
+              const structuredLLM = model.withStructuredOutput(zodSchema)
+
+              const streamResponse = await structuredLLM.stream(messages)
+
+              for await (const data of streamResponse) {
+                content = JSON.stringify(data)
+                onMessageUpdate?.({ content: content })
+              }
+            } else {
+              const streamResponse = await model.stream(messages)
+
+              for await (const data of streamResponse) {
+                content += `${data.content}`
+                lastChunk = data
+                onMessageUpdate?.({ content, chunk: data })
+              }
             }
 
-            info?.onMessageFinish?.({
+            onMessageFinish?.({
               content,
               lastChunk,
             })
@@ -54,7 +112,7 @@ export const useLangchainLLM = () => {
           throw new Error('Provider is not supported')
       }
     },
-    [],
+    [currentSession?.passphrase, sessionPassphraseDialog],
   )
 
   return {

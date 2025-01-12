@@ -343,7 +343,7 @@ export const useChatApplicationData = () => {
   ])
 
   const loadLLM = useCallback(async () => {
-    if (!mainLLMInfo?.llm.name) {
+    if (!mainLLMInfo?.llm?.name) {
       return
     }
     try {
@@ -355,7 +355,7 @@ export const useChatApplicationData = () => {
     } catch {
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Started, progress: '' } : pre))
     }
-  }, [mainLLMInfo?.llm?.name, loadModel])
+  }, [mainLLMInfo?.llm?.name, mainLLMInfo?.llm?.provider, loadModel])
 
   const onThreadMessagesLoaded = useCallback((callback: (messages: Message[]) => void) => {
     onThreadMessagesLoadedRef.current = callback
