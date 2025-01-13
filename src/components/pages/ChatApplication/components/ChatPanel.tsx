@@ -25,6 +25,7 @@ import { useChatList } from '../hooks/use-chat-list'
 import { Card } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
 import VectorDatabaseDialog from './VectorDatabaseDialog'
+import { useAppState } from 'src/states/app'
 
 const MarkdownPreview = React.lazy(() => import('@uiw/react-markdown-preview'))
 
@@ -50,6 +51,7 @@ export function ChatPanel({
 }) {
   const { t } = useTranslation('applications')
   const [loading, setLoading] = React.useState(false)
+  const theme = useAppState((state) => state.theme)
   const deleteChatDataNodeDialog = useModal(DeleteChatDataNodeDialog)
   const vectorDatabaseDialog = useModal(VectorDatabaseDialog)
   const { chatList, getChatList, deleteChat } = useChatList(threadNode)
@@ -77,6 +79,29 @@ export function ChatPanel({
     },
     [deleteChat, deleteChatDataNodeDialog],
   )
+
+  const content = React.useMemo(() => {
+    return (
+      <MarkdownPreview
+        className={cn('overflow-hidden break-words whitespace-pre-wrap w-full rounded-lg')}
+        source={
+          schema?.schema_items?.length
+            ? `\`\`\`javascript\n${convertToZodSchemaString(schema?.schema_items || [])}\n\`\`\``
+            : ''
+        }
+        wrapperElement={{
+          'data-color-mode': theme === 'dark' ? 'dark' : 'light',
+        }}
+        components={{
+          pre: ({ children, ...rest }) => (
+            <pre {...rest} className={cn(rest.className, 'nowheel')}>
+              {children}
+            </pre>
+          ),
+        }}
+      />
+    )
+  }, [schema?.schema_items, theme])
 
   return (
     <Sidebar variant="sidebar" side="right" collapsible="none" {...props}>
@@ -132,16 +157,7 @@ export function ChatPanel({
         ) : undefined}
         {schema?.schema_items?.length ? (
           <div className="m-2 !mb-0">
-            <React.Suspense fallback={<MessageLoading />}>
-              <MarkdownPreview
-                className={cn('overflow-hidden break-words whitespace-pre-wrap w-full rounded-lg')}
-                source={
-                  schema?.schema_items?.length
-                    ? `\`\`\`javascript\n${convertToZodSchemaString(schema?.schema_items || [])}\n\`\`\``
-                    : ''
-                }
-              />
-            </React.Suspense>
+            <React.Suspense fallback={<MessageLoading />}>{content}</React.Suspense>
           </div>
         ) : undefined}
         <ChatLLMInfo

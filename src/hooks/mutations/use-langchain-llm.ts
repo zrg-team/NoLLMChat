@@ -3,19 +3,19 @@ import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import { ChatOpenAI } from '@langchain/openai'
 import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
 import secureSession from 'src/utils/secure-session'
-import { useModal } from '@ebay/nice-modal-react'
 import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
 import { useSessionState } from 'src/states/session'
 import { decryptSymmetric } from 'src/utils/aes'
 import { convertToZodSchema } from 'src/utils/schema-format'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { useTranslation } from 'react-i18next'
+import { useModalRef } from 'src/hooks/use-modal-ref'
 
 export const useLangchainLLM = () => {
   const { toast } = useToast()
   const { t } = useTranslation('errors')
   const currentSession = useSessionState((state) => state.currentSession)
-  const sessionPassphraseDialog = useModal(SessionPassphraseDialog)
+  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
   const stream = useCallback(
     async (
@@ -40,7 +40,7 @@ export const useLangchainLLM = () => {
       const passphraseExisted = await secureSession.exists('passphrase')
       if (!passphraseExisted) {
         await new Promise<void>((resolve, reject) => {
-          sessionPassphraseDialog.show({
+          sessionPassphraseDialogRef.current.show({
             onConfirm: async (passkey) => {
               try {
                 const result = await decryptSymmetric(currentSession.passphrase!, passkey)
@@ -53,7 +53,7 @@ export const useLangchainLLM = () => {
                 })
                 reject(error)
               } finally {
-                sessionPassphraseDialog.hide()
+                sessionPassphraseDialogRef.current.hide()
               }
             },
             onCancel: () => {
@@ -120,7 +120,7 @@ export const useLangchainLLM = () => {
           throw new Error('Provider is not supported')
       }
     },
-    [currentSession?.passphrase, sessionPassphraseDialog, t, toast],
+    [currentSession?.passphrase, sessionPassphraseDialogRef, t, toast],
   )
 
   return {

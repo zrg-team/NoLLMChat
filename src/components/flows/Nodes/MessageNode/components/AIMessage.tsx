@@ -9,6 +9,7 @@ import { Button } from 'src/lib/shadcn/ui/button'
 
 import { MessageNodeProps } from '../type'
 import { MessageStatusEnum } from 'src/services/database/types'
+import { useAppState } from 'src/states/app'
 
 const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
@@ -24,6 +25,7 @@ export function AIMessageComponent({
   showThread: boolean
 }) {
   const { t } = useTranslation('flows')
+  const theme = useAppState((state) => state.theme)
   const messageMetadata = useMemo<{ message: Record<string, unknown> }>(() => {
     try {
       return JSON.parse(data?.entity?.metadata || '{}')
@@ -33,6 +35,25 @@ export function AIMessageComponent({
   }, [data?.entity?.metadata])
 
   const isError = data.entity.status === MessageStatusEnum.Failed
+
+  const content = useMemo(() => {
+    return (
+      <MarkdownPreview
+        className={'!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans'}
+        source={`${data.content || data.entity?.content || ''}`}
+        wrapperElement={{
+          'data-color-mode': theme === 'dark' ? 'dark' : 'light',
+        }}
+        components={{
+          pre: ({ children, ...rest }) => (
+            <pre {...rest} className={cn(rest.className, 'nowheel')}>
+              {children}
+            </pre>
+          ),
+        }}
+      />
+    )
+  }, [data.content, data.entity?.content, theme])
 
   return (
     <Alert
@@ -56,17 +77,7 @@ export function AIMessageComponent({
             </div>
           }
         >
-          {isError ? (
-            data.content || data.entity?.content || ''
-          ) : (
-            <MarkdownPreview
-              className={'!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans'}
-              source={`${data.content || data.entity?.content || ''}`}
-              style={{
-                color: 'unset !important',
-              }}
-            />
-          )}
+          {isError ? data.content || data.entity?.content || '' : content}
         </Suspense>
         {Array.isArray(messageMetadata?.message?.tool_calls) &&
         messageMetadata?.message?.tool_calls?.length

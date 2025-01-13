@@ -9,7 +9,6 @@ import { Popover, PopoverContent } from 'src/lib/shadcn/ui/popover'
 import { PopoverTrigger } from '@radix-ui/react-popover'
 import LLMIcon from 'src/components/atoms/LLMIcon'
 import type { ModelRecord } from '@mlc-ai/web-llm'
-import { useModal } from '@ebay/nice-modal-react'
 import {
   Command,
   CommandEmpty,
@@ -35,14 +34,15 @@ import LoadingButton from 'src/components/atoms/LoadingButton'
 import { Alert } from 'src/lib/shadcn/ui/alert'
 import CreateSessionPassphraseDialog from 'src/components/molecules/dialogs/CreateSessionPassphraseDialog'
 import { useUpdateSessionPassphrase } from 'src/hooks/mutations/use-update-session-passphrase'
-import { decryptSymmetric, encryptSymmetric } from 'src/utils/aes'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { logError } from 'src/utils/logger'
 import secureSession from 'src/utils/secure-session'
+import { useSessionState } from 'src/states/session'
+import { encryptData, passphraseConfirm } from 'src/utils/passphrase'
+import { useModalRef } from 'src/hooks/use-modal-ref'
+import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
 
 import { OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
-import { useSessionState } from 'src/states/session'
-import SessionPassphraseDialog from '../dialogs/SessionPassphraseDialog'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -66,8 +66,8 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createLLM } = useCreateLLM()
 
-  const createPassphraseDialog = useModal(CreateSessionPassphraseDialog)
-  const sessionPassphraseDialog = useModal(SessionPassphraseDialog)
+  const { modalRef: createSessionPassphraseDialogRef } = useModalRef(CreateSessionPassphraseDialog)
+  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
   useEffect(() => {
     import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
@@ -184,10 +184,10 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       let parameters: Record<string, unknown> | undefined
       if (isRequiredSessionPasskey && !currentSession.passphrase) {
         await new Promise((resolve, reject) => {
-          createPassphraseDialog.show({
+          createSessionPassphraseDialogRef.current.show({
             onConfirm: (input: string) => {
               passkey = input
-              createPassphraseDialog.hide()
+              createSessionPassphraseDialogRef.current.hide()
               resolve(undefined)
             },
             onCancel: () => {
@@ -200,50 +200,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           throw new Error('Failed to update session passphrase')
         }
         await secureSession.set('passphrase', keyInfo.passphrase)
-        parameters = {}
-        await Promise.all(
-          Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
-            const encrypted = await encryptSymmetric(value, keyInfo.passphrase)
-            if (!parameters) {
-              parameters = {}
-            }
-            parameters[key] = encrypted
-          }),
-        )
+        parameters = await encryptData(encryptedInfo || {}, keyInfo.passphrase)
       } else if (isRequiredSessionPasskey && currentSession.passphrase) {
-        let passphrase: string
-        await new Promise((resolve, reject) => {
-          sessionPassphraseDialog.show({
-            onConfirm: async (passkey) => {
-              try {
-                passphrase = await decryptSymmetric(currentSession.passphrase!, passkey)
-                await secureSession.set('passphrase', passphrase)
-                resolve(true)
-              } catch (error) {
-                toast({
-                  content: t('invalid_passphrase'),
-                  variant: 'destructive',
-                })
-                reject(error)
-              } finally {
-                sessionPassphraseDialog.hide()
-              }
-            },
-            onCancel: () => {
-              reject()
-            },
-          })
-        })
-        parameters = {}
-        await Promise.all(
-          Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
-            const encrypted = await encryptSymmetric(value, passphrase)
-            if (!parameters) {
-              parameters = {}
-            }
-            parameters[key] = encrypted
-          }),
+        const response = await passphraseConfirm(
+          currentSession.passphrase,
+          sessionPassphraseDialogRef.current,
         )
+        parameters = await encryptData(encryptedInfo || {}, response)
       }
       await createLLM(node, {
         name: input,

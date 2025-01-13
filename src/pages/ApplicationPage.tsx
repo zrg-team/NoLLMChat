@@ -7,7 +7,7 @@ import { useSessionState } from 'src/states/session'
 export default function ApplicationPage() {
   const currentSession = useSessionState((state) => state.currentSession)
   if (!currentSession) {
-    return <DefaultLoader flickeringGrid className="w-full h-full" />
+    return <DefaultLoader simple className="w-full h-full" />
   }
 
   if (currentSession.main_source_type === 'Thread') {

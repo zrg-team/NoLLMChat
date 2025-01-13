@@ -9,6 +9,9 @@ import { In } from 'src/services/database/typeorm-wrapper'
 import { Message } from 'ai/react'
 import { useLLM } from 'src/hooks/mutations/use-llm'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
+import { passphraseConfirm } from 'src/utils/passphrase'
+import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import { useModalRef } from 'src/hooks/use-modal-ref'
 
 export const useCreateMessage = () => {
   const [loading, setLoading] = useState(false)
@@ -22,6 +25,7 @@ export const useCreateMessage = () => {
   const { toast } = useToast()
   const { loadModel } = useLoadModel()
   const { stream } = useLLM()
+  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
   const createMessage = useCallback(
     async (input: string, messages: Message[], onMessageUpdate?: (chunk: string) => void) => {
@@ -50,18 +54,18 @@ export const useCreateMessage = () => {
             }
             return new HumanMessage(message.content)
           })
-          const streamResponse = await stream(
+          const { content } = await stream(
             mainLLMInfo.llm.provider,
             [...history, new HumanMessage(input)],
             {
-              onMessageUpdate: (data) => {
-                onMessageUpdate?.(data.content)
+              onMessageUpdate: ({ content }) => {
+                onMessageUpdate?.(content)
               },
               llm: mainLLMInfo.llm,
             },
           )
-          onMessageUpdate?.('')
-          return streamResponse.content
+          onMessageUpdate?.(content)
+          return content
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             toast({
@@ -116,6 +120,9 @@ export const useCreateMessage = () => {
       if (!llm) {
         return
       }
+      if (currentSession.passphrase) {
+        await passphraseConfirm(currentSession.passphrase!, sessionPassphraseDialogRef.current)
+      }
       await loadModel(llm.provider, llm.name, (data) => {
         setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
       })
@@ -126,7 +133,12 @@ export const useCreateMessage = () => {
     } finally {
       setLoading(false)
     }
-  }, [currentSession?.main_node_id, loadModel])
+  }, [
+    currentSession?.main_node_id,
+    currentSession?.passphrase,
+    loadModel,
+    sessionPassphraseDialogRef,
+  ])
 
   const loadCurrentModel = useCallback(async () => {
     try {

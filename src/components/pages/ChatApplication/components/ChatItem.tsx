@@ -1,7 +1,7 @@
 import { cn } from '@udecode/cn'
 import { Message } from 'ai/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { lazy, memo, Suspense } from 'react'
+import { lazy, memo, Suspense, useMemo } from 'react'
 import {
   ChatBubble,
   ChatBubbleAction,
@@ -10,6 +10,7 @@ import {
 } from 'src/lib/shadcn/chat/chat-bubble'
 import MessageLoading from 'src/lib/shadcn/chat/message-loading'
 import { Badge } from 'src/lib/shadcn/ui/badge'
+import { useAppState } from 'src/states/app'
 
 const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
@@ -44,6 +45,34 @@ export const ChatItem = memo(
     isSchema?: boolean
     onActionClick: (action: string, message: Message) => Promise<void>
   }) => {
+    const theme = useAppState((state) => state.theme)
+    const content = useMemo(() => {
+      return (
+        <MarkdownPreview
+          className={cn('[&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans !text-sm')}
+          style={{
+            color: 'unset !important',
+          }}
+          source={
+            message.content
+              ? isSchema
+                ? `\`\`\`json\n${message.content}\n\`\`\``
+                : message.content
+              : ''
+          }
+          wrapperElement={{
+            'data-color-mode': theme === 'dark' ? 'dark' : 'light',
+          }}
+          components={{
+            pre: ({ children, ...rest }) => (
+              <pre {...rest} className={cn(rest.className, 'nowheel')}>
+                {children}
+              </pre>
+            ),
+          }}
+        />
+      )
+    }, [isSchema, message.content, theme])
     return (
       <ChatBubble
         innerclassname={message.role == 'system' ? '!bg-transparent font-semibold' : undefined}
@@ -70,21 +99,7 @@ export const ChatItem = memo(
               {message.role === 'system' ? (
                 <Badge className="!text-sm mb-1">System</Badge>
               ) : undefined}
-              <MarkdownPreview
-                className={cn(
-                  '[&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans !text-sm',
-                )}
-                style={{
-                  color: 'unset !important',
-                }}
-                source={
-                  message.content
-                    ? isSchema
-                      ? `\`\`\`json\n${message.content}\n\`\`\``
-                      : message.content
-                    : ''
-                }
-              />
+              {content}
             </Suspense>
           )}
           {message.role === 'assistant' && isLastMessage && (
