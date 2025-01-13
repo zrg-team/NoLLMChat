@@ -18,6 +18,9 @@ import {
 import { In } from 'src/services/database/typeorm-wrapper'
 import { Message } from 'ai/react'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
+import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import { passphraseConfirm } from 'src/utils/passphrase'
+import { useModalRef } from 'src/hooks/use-modal-ref'
 
 export const useChatApplicationData = () => {
   const [chatInfo, setChatInfo] = useState<{
@@ -27,7 +30,7 @@ export const useChatApplicationData = () => {
   const [threadInfo, setThreadInfo] = useState<{ thread: Thread; threadNode: FlowNode }>()
   const [mainLLMInfo, setLLMInfo] = useState<{
     llm: LLM
-    status: LLMStatusEnum
+    status: `${LLMStatusEnum}`
     progress?: string
   }>()
   const [retriverInfo, setRetriverInfo] = useState<
@@ -45,6 +48,7 @@ export const useChatApplicationData = () => {
   const sessionHandleStatus = useRef<{ handling?: string; handled?: string }>({})
   const currentSession = useSessionState((state) => state.currentSession)
   const { loadModel } = useLoadModel()
+  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
   const selectDataNode = useCallback(
     async (dataNode: FlowNode) => {
@@ -296,8 +300,14 @@ export const useChatApplicationData = () => {
       const promptInfo = threadConnectedNodes.filter((node) => node.source.source_type === 'Prompt')
       const schemaInfo = threadConnectedNodes.find((node) => node.source.source_type === 'Schema')
 
-      if (!llmInfo?.entity) {
+      const llm = llmInfo?.entity as LLM
+
+      if (!llm) {
         return
+      }
+
+      if (currentSession.passphrase) {
+        await passphraseConfirm(currentSession.passphrase!, sessionPassphraseDialogRef.current)
       }
 
       const placeholderInfo = threadConnectedNodes.filter(
@@ -308,8 +318,8 @@ export const useChatApplicationData = () => {
       await handleThreadData(threadNode, promptInfo?.map((info) => info.entity as Prompt) || [])
 
       setLLMInfo({
-        llm: llmInfo.entity as LLM,
-        status: LLMStatusEnum.Started,
+        llm,
+        status: llm.status || LLMStatusEnum.Started,
         progress: '',
       })
       setThreadInfo({
@@ -338,8 +348,10 @@ export const useChatApplicationData = () => {
     currentSession?.main_node_id,
     currentSession?.main_source_id,
     currentSession?.main_source_type,
+    currentSession?.passphrase,
     getRetrieveVectorDatabase,
     handleThreadData,
+    sessionPassphraseDialogRef,
   ])
 
   const loadLLM = useCallback(async () => {

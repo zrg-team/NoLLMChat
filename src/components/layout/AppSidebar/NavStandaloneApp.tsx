@@ -14,7 +14,6 @@ import {
 import { Session } from 'src/services/database/types'
 import { SessionStateActions } from 'src/states/session/actions'
 import DeleteSessionDialog from 'src/components/molecules/dialogs/DeleteSessionDialog'
-import { Badge } from 'src/lib/shadcn/ui/badge'
 
 export function NavStandaloneApp({
   applications,
@@ -49,9 +48,11 @@ export function NavStandaloneApp({
     switch (session.main_source_type) {
       case 'Thread':
         return (
-          <Badge className="ml-1" color="blue">
-            {t('application_types.chat')}
-          </Badge>
+          <LazyIcon
+            className="inline-flex items-center ml-2"
+            name="message-circle-more"
+            size={14}
+          />
         )
       default:
         return null

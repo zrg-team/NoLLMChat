@@ -8,11 +8,12 @@ class SecureSessionMemory {
     this.init()
   }
 
-  async init() {
+  private async init() {
     if (this.loadded) {
       return
     }
 
+    this.sessionMemory = new Map<string, ArrayBuffer>()
     const algorithm = { name: 'AES-GCM', length: 256 }
     const keyUsages = ['encrypt' as const, 'decrypt' as const]
     this.sessionKeyProcess = window.crypto.subtle
@@ -21,6 +22,11 @@ class SecureSessionMemory {
     this.sessionKey = await this.sessionKeyProcess
     this.loadded = true
     this.sessionKeyProcess = undefined
+  }
+
+  async reload() {
+    this.loadded = false
+    this.init()
   }
 
   async set(key: string, value: string) {

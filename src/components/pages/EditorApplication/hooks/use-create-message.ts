@@ -8,6 +8,9 @@ import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { useLLM } from 'src/hooks/mutations/use-llm'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
+import { passphraseConfirm } from 'src/utils/passphrase'
+import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import { useModalRef } from 'src/hooks/use-modal-ref'
 
 export const useCreateMessage = () => {
   const [mainLLMInfo, setLLMInfo] = useState<{
@@ -20,6 +23,7 @@ export const useCreateMessage = () => {
   const { toast } = useToast()
   const { stream } = useLLM()
   const { loadModel } = useLoadModel()
+  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
   const createMessage = useCallback(
     async (input: string | BaseMessage[], onMessageUpdate: (chunk: string) => void) => {
@@ -100,6 +104,11 @@ export const useCreateMessage = () => {
     if (!llm) {
       return
     }
+
+    if (currentSession.passphrase) {
+      await passphraseConfirm(currentSession.passphrase!, sessionPassphraseDialogRef.current)
+    }
+
     await loadModel(llm.provider, llm.name, (data) => {
       setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
     })
@@ -107,7 +116,12 @@ export const useCreateMessage = () => {
       llm,
       status: LLMStatusEnum.Loaded,
     })
-  }, [currentSession?.main_node_id, loadModel])
+  }, [
+    currentSession?.main_node_id,
+    currentSession?.passphrase,
+    loadModel,
+    sessionPassphraseDialogRef,
+  ])
 
   useEffect(() => {
     if (!currentSession?.main_node_id) {

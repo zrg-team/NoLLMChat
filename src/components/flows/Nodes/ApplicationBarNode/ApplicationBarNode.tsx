@@ -8,16 +8,16 @@ import { useTranslation } from 'react-i18next'
 import { FlowNodeTypeEnum } from 'src/services/database/types'
 import { NodeProps } from '@xyflow/react'
 import VisualStudioCodeSvg from 'src/assets/svgs/visual-studio-code.svg?react'
-import PlateEditorSvg from 'src/assets/svgs/plate-editor.svg?react'
+import plateEditorIcon from 'src/assets/images/plate-editor.png'
+import { useToast } from 'src/lib/hooks/use-toast'
 
 import { useActions } from './hooks/use-actions'
-import { useToast } from 'src/lib/hooks/use-toast'
 
 const DATA = {
   applications: [
     {
       key: FlowNodeTypeEnum.EditorApp,
-      icon: PlateEditorSvg,
+      image: plateEditorIcon,
       label: 'application_bar.editor',
     },
     {
@@ -70,7 +70,17 @@ export const ApplicationBarNode = memo((props: NodeProps) => {
             <DockIcon key={item.label}>
               <Tooltip>
                 <TooltipTrigger>
-                  <Icon width={20} height={20} onClick={() => handleAddNode(item.key)} />
+                  {Icon ? (
+                    <Icon width={20} height={20} onClick={() => handleAddNode(item.key)} />
+                  ) : undefined}
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={t(item.label)}
+                      className="w-8 h-8 rounded-md"
+                      onClick={() => handleAddNode(item.key)}
+                    />
+                  ) : undefined}
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{t(item.label)}</p>

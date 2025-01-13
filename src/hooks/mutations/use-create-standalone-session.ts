@@ -107,6 +107,7 @@ export const useCreateStandaloneSession = () => {
           type: SessionTypeEnum.StandaloneApp,
           name: options.name || (currentSession?.name ? `${currentSession.name}` : 'Standalone'),
           status: SessionStatusEnum.Started,
+          passphrase: currentSession.passphrase,
         })
         if (!standaloneSession) {
           throw new Error('Failed create standalone session')

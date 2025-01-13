@@ -42,7 +42,7 @@ export default function Copilot(_props: CopilotProps) {
               if (message.id === aiMessageId) {
                 return {
                   ...message,
-                  content: `${message.content}${chunk}`,
+                  content: chunk,
                 }
               }
               return message

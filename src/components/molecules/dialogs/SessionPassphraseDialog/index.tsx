@@ -17,7 +17,7 @@ import {
   InputOTPSlot,
 } from 'src/lib/shadcn/ui/input-otp'
 
-type SessionPassphraseDialogProps = {
+export type SessionPassphraseDialogProps = {
   className: string
   onConfirm: (newValue: string) => void
   onCancel: () => void

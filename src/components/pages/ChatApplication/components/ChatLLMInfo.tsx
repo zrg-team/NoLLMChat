@@ -19,7 +19,7 @@ export const ChatLLMInfo = memo(
   }: {
     llm?: LLM
     progress?: string
-    status?: LLMStatusEnum
+    status?: `${LLMStatusEnum}`
     loadLLM?: () => Promise<void>
   }) => {
     const { t } = useTranslation('flows')

@@ -2,13 +2,14 @@ import { Session, SessionStatusEnum, SessionTypeEnum } from 'src/services/databa
 import { SetState, GetState } from 'src/utils/zustand'
 import { getRepository } from 'src/services/database'
 import { useAppState } from 'src/states/app'
+import secureSession from 'src/utils/secure-session'
 
 import { SessionState } from './state'
 
 export interface SessionStateActions {
   getLatestApplications: () => Promise<void>
   getLatestSessions: () => Promise<void>
-  setCurrentSession: (session: Session | string | undefined) => Promise<Session>
+  setCurrentSession: (session: Session | string | undefined) => Promise<Session | undefined>
   deleteSession: (id: string) => Promise<void>
   createSession: (session: Partial<Session>) => Promise<Session>
   init: () => void
@@ -21,6 +22,14 @@ export const getSessionStateActions = (
   return {
     setCurrentSession: async (session) => {
       const currentSession = get().currentSession
+      if (
+        !session ||
+        (typeof session === 'string' && currentSession?.id === session) ||
+        (typeof session === 'object' && currentSession?.id === session.id)
+      ) {
+        return currentSession
+      }
+      await secureSession.reload()
       set({ currentSession: undefined })
       if (typeof session === 'string' || !session) {
         session = session || useAppState.getState().selectedSessionId

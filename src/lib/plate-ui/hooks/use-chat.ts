@@ -60,12 +60,15 @@ const createStreamResponse = ({
     async start(controller) {
       try {
         let count = 0
+        let lastChunk = ''
         await copilotStream?.(messages, (chunk) => {
           count += 1
+          const chunkData = chunk.replace(lastChunk, '')
+          lastChunk = chunk
           if (streamProtocol === 'text') {
-            controller.enqueue(encoder.encode(chunk))
+            controller.enqueue(encoder.encode(chunkData))
           } else {
-            controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`))
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(chunkData)}\n`))
           }
         })
 
