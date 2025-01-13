@@ -53,6 +53,9 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
       return
     }
     setCurrentSession(params.sessionId || params.applicationId).then((item) => {
+      if (!item) {
+        return
+      }
       const searchParams = getSearchParams()
       if (searchParams.has('flow') && item.type === SessionTypeEnum.StandaloneApp) {
         return
