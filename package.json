@@ -5,7 +5,8 @@
   "type": "module",
   "homepage": "https://zrg-team.github.io/NoLLMChat/",
   "scripts": {
-    "dev": "vite --force --host",
+    "dev": "vite --force --host --port 5173",
+    "scan": "next dev & npx react-scan@latest http://localhost:5173/NoLLMChat/",
     "build": "npx patch-package && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -154,6 +155,7 @@
     "react-lazy-load-image-component": "^1.6.2",
     "react-resizable-panels": "^2.1.7",
     "react-router-dom": "^7.0.2",
+    "react-scan": "^0.1.0",
     "react-syntax-highlighter": "^15.5.0",
     "react-tweet": "^3.2.1",
     "react-use": "^17.6.0",
