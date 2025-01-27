@@ -1423,10 +1423,10 @@
     source-map "^0.7.0"
     vfile "^6.0.0"
 
-"@mlc-ai/web-llm@^0.2.77":
-  version "0.2.77"
-  resolved "https://registry.yarnpkg.com/@mlc-ai/web-llm/-/web-llm-0.2.77.tgz#59b5a950369bd15d8e15c354bb67fd9fbe03796e"
-  integrity sha512-AD3uQNfB+Pjti2h+DAQ2IDOG3TDkfn8ily1kn1wKij7+Dtv1LBeq6XnT3nsHwrLci9opvxejVXWPzlyA7E6dEw==
+"@mlc-ai/web-llm@^0.2.78":
+  version "0.2.78"
+  resolved "https://registry.yarnpkg.com/@mlc-ai/web-llm/-/web-llm-0.2.78.tgz#f9ce70319b86bb8c0dd4b1a0476152e4fd3e82be"
+  integrity sha512-ptqDNzHnfDyNZj7vjp9IaY5U/QDweXMe5wNzErOmRT1gqj8AaMvcqbj7HroPDzhXJGM7BZpDjANV5MhXhKOosA==
   dependencies:
     loglevel "^1.9.1"
 

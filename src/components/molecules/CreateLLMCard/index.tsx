@@ -107,6 +107,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         return 1
       }
 
+
       const preInRecommended = RECOMMENDATION_LOCAL_LLMS.includes(pre.model_id)
       const nextInRecommended = RECOMMENDATION_LOCAL_LLMS.includes(next.model_id)
 

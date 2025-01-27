@@ -12,6 +12,8 @@ import smollmImage from 'src/assets/images/smollm.png'
 import stablelmImage from 'src/assets/images/stablelm.png'
 import nomicImage from 'src/assets/images/nomic.webp'
 import joshuaImage from 'src/assets/images/joshua.webp'
+import deepseekImage from 'src/assets/images/deepseek.png'
+import redpajamaImage from 'src/assets/images/redpajama.png'
 import OpenAIDarkIcon from 'src/assets/svgs/openai_dark.svg?react'
 import OpenAILightIcon from 'src/assets/svgs/openai_light.svg?react'
 
@@ -32,6 +34,24 @@ const LLMIcon = memo(({ name, className, ...props }: LLMIconProps) => {
       return <OpenAIDarkIcon className={cn('w-5 h-5', className)} {...props} />
     }
     return <OpenAILightIcon className={cn('w-5 h-5', className)} {...props} />
+  } else if (name?.includes('deepseek')) {
+    return (
+      <img
+        className={cn('w-5 h-5 rounded-full', className)}
+        src={deepseekImage}
+        alt="deepseek"
+        {...props}
+      />
+    )
+  } else if (name?.includes('redpajama')) {
+    return (
+      <img
+        className={cn('w-5 h-5 rounded-full', className)}
+        src={redpajamaImage}
+        alt="deepseek"
+        {...props}
+      />
+    )
   } else if (name.includes('gemma')) {
     return <GemmaIcon className={cn('w-5 h-5', className)} {...props} />
   } else if (name?.includes('qwen')) {
