@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useModal } from '@ebay/nice-modal-react'
 import { getRouteURL } from 'src/utils/routes'
 import LazyIcon from 'src/components/atoms/LazyIcon'
@@ -14,8 +14,9 @@ import {
 import { Session } from 'src/services/database/types'
 import { SessionStateActions } from 'src/states/session/actions'
 import NewSessionButton from 'src/components/layout/AppSidebar/NewSessionButton'
-import CreateSessionDialog from 'src/components/molecules/dialogs/CreateSessionDialog'
-import DeleteSessionDialog from 'src/components/molecules/dialogs/DeleteSessionDialog'
+import CreateSessionDialog from 'src/components/dialogs/CreateSessionDialog'
+import DeleteSessionDialog from 'src/components/dialogs/DeleteSessionDialog'
+import { logError } from 'src/utils/logger'
 
 export function NavSessions({
   sessions,
@@ -30,6 +31,8 @@ export function NavSessions({
 }) {
   const { t } = useTranslation('sidebar')
   const navigate = useNavigate()
+  const { sessionId } = useParams()
+  const [loadingId, setLoadingId] = useState<string>()
   const createSessionDialog = useModal(CreateSessionDialog)
   const deleteSessionDialog = useModal(DeleteSessionDialog)
 
@@ -47,10 +50,23 @@ export function NavSessions({
     },
     [deleteSessionDialog],
   )
-  const handleSetCurrentSession = (session: Session) => {
-    setCurrentSession(session)
-    navigate(getRouteURL('whiteboard', { sessionId: session.id }))
+  const handleSetCurrentSession = async (session: Session) => {
+    try {
+      setLoadingId(session.id)
+      await setCurrentSession(session)
+      navigate(getRouteURL('whiteboard', { sessionId: session.id }))
+    } catch (error) {
+      logError(error)
+      setLoadingId(undefined)
+    }
   }
+  useEffect(() => {
+    if (!loadingId || loadingId !== currentSession?.id) {
+      return
+    }
+
+    setLoadingId(undefined)
+  }, [loadingId, currentSession?.id])
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -63,10 +79,16 @@ export function NavSessions({
         </SidebarMenuItem>
         {sessions.map((item) => (
           <SidebarMenuItem className="cursor-pointer" key={item.id}>
-            <SidebarMenuButton asChild onClick={() => handleSetCurrentSession(item)}>
+            <SidebarMenuButton
+              disabled={!!loadingId}
+              asChild
+              onClick={() => handleSetCurrentSession(item)}
+            >
               <div className="flex flex-row justify-between items-center">
                 <div className="flex gap-2">
-                  {currentSession?.id === item.id ? (
+                  {item.id === loadingId ? (
+                    <LazyIcon size={16} name="loader" className="animate-spin" />
+                  ) : sessionId === item.id ? (
                     <LazyIcon size={16} color="green" name="check" />
                   ) : (
                     <LazyIcon size={16} name="chevron-right" />

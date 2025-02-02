@@ -11,7 +11,7 @@ export const logInfo = (...args: unknown[]) =>
 
 export const logError = (...args: unknown[]) => {
   log(chalk.redBright('ERROR:'))
-  console.error(...args)
+  console.log(...args)
   log(chalk.redBright('-'.repeat(10)))
 }
 

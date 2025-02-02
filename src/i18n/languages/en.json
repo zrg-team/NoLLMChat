@@ -231,7 +231,8 @@
       "no_model": "No model found",
       "providers": {
         "webllm": "WebLLM",
-        "openai": "OpenAI"
+        "openai": "OpenAI",
+        "groq": "Groq"
       },
       "provider": "Provider",
       "provider_select_placeholder": "Select a provider",

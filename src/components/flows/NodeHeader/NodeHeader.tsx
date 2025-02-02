@@ -12,7 +12,7 @@ import { DefaultNodeData, DefaultNodeProps } from 'src/utils/flow-node'
 import { EntityType } from 'src/utils/orm-type'
 import { logError } from 'src/utils/logger'
 import { useModal } from '@ebay/nice-modal-react'
-import CreateStandaloneApplicationDialog from 'src/components/molecules/dialogs/CreateStandaloneApplicationDialog'
+import CreateStandaloneApplicationDialog from 'src/components/dialogs/CreateStandaloneApplicationDialog'
 
 export const NodeHeader = memo(
   ({

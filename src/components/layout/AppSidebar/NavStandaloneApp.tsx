@@ -1,7 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModal } from '@ebay/nice-modal-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { getRouteURL } from 'src/utils/routes'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import {
@@ -13,7 +13,7 @@ import {
 } from 'src/lib/shadcn/ui/sidebar'
 import { Session } from 'src/services/database/types'
 import { SessionStateActions } from 'src/states/session/actions'
-import DeleteSessionDialog from 'src/components/molecules/dialogs/DeleteSessionDialog'
+import DeleteSessionDialog from 'src/components/dialogs/DeleteSessionDialog'
 
 export function NavStandaloneApp({
   applications,
@@ -28,6 +28,8 @@ export function NavStandaloneApp({
 }) {
   const { t } = useTranslation('sidebar')
   const navigate = useNavigate()
+  const { applicationId } = useParams()
+  const [loadingId, setLoadingId] = useState<string>()
   const deleteSessionDialog = useModal(DeleteSessionDialog)
 
   const handleDeleteSession = useCallback(
@@ -40,9 +42,15 @@ export function NavStandaloneApp({
     },
     [deleteSessionDialog],
   )
-  const handleSetCurrentSession = (session: Session) => {
-    setCurrentSession(session)
-    navigate(getRouteURL('application', { applicationId: session.id }))
+  const handleSetCurrentSession = async (session: Session) => {
+    try {
+      setLoadingId(session.id)
+      setCurrentSession(session)
+      navigate(getRouteURL('application', { applicationId: session.id }))
+    } catch (error) {
+      console.error(error)
+      setLoadingId(undefined)
+    }
   }
   const renderBadge = (session: Session) => {
     switch (session.main_source_type) {
@@ -58,6 +66,13 @@ export function NavStandaloneApp({
         return null
     }
   }
+  useEffect(() => {
+    if (!loadingId || loadingId !== currentSession?.id) {
+      return
+    }
+
+    setLoadingId(undefined)
+  }, [loadingId, currentSession?.id])
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden pt-0">
@@ -67,10 +82,16 @@ export function NavStandaloneApp({
       <SidebarMenu>
         {applications?.map((item) => (
           <SidebarMenuItem className="cursor-pointer" key={item.id}>
-            <SidebarMenuButton asChild onClick={() => handleSetCurrentSession(item)}>
+            <SidebarMenuButton
+              disabled={!!loadingId}
+              asChild
+              onClick={() => handleSetCurrentSession(item)}
+            >
               <div className="flex flex-row justify-between items-center !h-auto">
                 <div className="flex gap-2">
-                  {currentSession?.id === item.id ? (
+                  {item.id === loadingId ? (
+                    <LazyIcon size={16} name="loader" className="animate-spin" />
+                  ) : applicationId === item.id ? (
                     <LazyIcon size={16} color="green" name="check" />
                   ) : (
                     <LazyIcon size={16} name="chevron-right" />

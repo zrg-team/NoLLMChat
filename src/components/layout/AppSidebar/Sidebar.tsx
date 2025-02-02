@@ -111,7 +111,7 @@ export function AppSidebar({
   setCurrentSession: SessionStateActions['setCurrentSession']
 }) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <div className="h-1" />
       <SidebarContent>
         <NavSessions

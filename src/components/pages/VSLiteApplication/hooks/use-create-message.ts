@@ -10,7 +10,7 @@ import { Message } from 'ai/react'
 import { useLLM } from 'src/hooks/mutations/use-llm'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 import { passphraseConfirm } from 'src/utils/passphrase'
-import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
 import { useModalRef } from 'src/hooks/use-modal-ref'
 
 export const useCreateMessage = () => {

@@ -32,7 +32,7 @@ import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
 import { LLMInfo } from 'src/components/atoms/LLMInfo'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { Alert } from 'src/lib/shadcn/ui/alert'
-import CreateSessionPassphraseDialog from 'src/components/molecules/dialogs/CreateSessionPassphraseDialog'
+import CreateSessionPassphraseDialog from 'src/components/dialogs/CreateSessionPassphraseDialog'
 import { useUpdateSessionPassphrase } from 'src/hooks/mutations/use-update-session-passphrase'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { logError } from 'src/utils/logger'
@@ -40,9 +40,9 @@ import secureSession from 'src/utils/secure-session'
 import { useSessionState } from 'src/states/session'
 import { encryptData, passphraseConfirm } from 'src/utils/passphrase'
 import { useModalRef } from 'src/hooks/use-modal-ref'
-import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
 
-import { OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
+import { GROQ_MODELS, GROQ_VISION_MODELS, OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -149,6 +149,14 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     switch (provider) {
       case LLMProviderEnum.WebLLM:
         return llmsInfo?.modelList && modelList.find((model) => model.model_id === input)
+      case LLMProviderEnum.Groq:
+        setEncryptedInfo({})
+        return {
+          model: input,
+          model_id: input,
+          model_type: GROQ_VISION_MODELS.includes(input) ? 2 : 0,
+          overrides: {},
+        } as ModelRecord
       case LLMProviderEnum.OpenAI:
         setEncryptedInfo({})
         return {
@@ -165,6 +173,14 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
 
     setHasCache(cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)))
   }, [cachedLLMURLs, selectedModel?.model_id])
+  useEffect(() => {
+    if (!currentSession?.id) return
+
+    setProvider(LLMProviderEnum.WebLLM)
+    setInput('')
+    setSearch('')
+    setEncryptedInfo({})
+  }, [currentSession?.id])
 
   const handleOnchange = useCallback((currentValue: string) => {
     setInput(currentValue)
@@ -175,6 +191,9 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   }, [])
   const handleOnSelectProvider = useCallback((value: `${LLMProviderEnum}`) => {
     setProvider(value)
+    setInput('')
+    setSearch('')
+    setEncryptedInfo({})
   }, [])
   const hanldeSubmit = async () => {
     if (!node || !currentSession) return
@@ -226,7 +245,10 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       })
     } finally {
       setLoading(false)
+      setProvider(LLMProviderEnum.WebLLM)
+      setEncryptedInfo({})
       setInput('')
+      setSearch('')
     }
   }
 
@@ -286,6 +308,24 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             </CommandItem>
           )
         })
+      case LLMProviderEnum.Groq:
+        return GROQ_MODELS.map((model) => {
+          return (
+            <CommandItem key={model} value={model} onSelect={handleOnchange}>
+              {input === model ? (
+                <LazyIcon name="check" className={'h-4 w-4'} />
+              ) : (
+                <div className="w-4" />
+              )}
+              <span className="max-w-md">
+                <div className="flex gap-3">
+                  <LLMIcon name={model} />
+                  {model}
+                </div>
+              </span>
+            </CommandItem>
+          )
+        })
     }
     return
   }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList, provider])
@@ -294,6 +334,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     if (!isRequiredSessionPasskey) return undefined
 
     switch (provider) {
+      case LLMProviderEnum.Groq:
       case LLMProviderEnum.OpenAI:
         return (
           <>
