@@ -18,7 +18,7 @@ import {
 import { In } from 'src/services/database/typeorm-wrapper'
 import { Message } from 'ai/react'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
-import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
 import { passphraseConfirm } from 'src/utils/passphrase'
 import { useModalRef } from 'src/hooks/use-modal-ref'
 

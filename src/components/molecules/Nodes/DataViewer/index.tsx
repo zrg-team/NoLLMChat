@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from 'src/lib/shadcn/ui/pagination'
 import { useModal } from '@ebay/nice-modal-react'
-import ViewDataDetailDialog from 'src/components/molecules/dialogs/ViewDataDetailDialog'
+import ViewDataDetailDialog from 'src/components/dialogs/ViewDataDetailDialog'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 
 export const DataViewer = memo(

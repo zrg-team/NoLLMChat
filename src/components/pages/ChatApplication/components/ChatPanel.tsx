@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
 } from 'src/lib/shadcn/ui/sidebar'
 import { useModal } from '@ebay/nice-modal-react'
-import DeleteChatDataNodeDialog from 'src/components/molecules/dialogs/DeleteChatDataNodeDialog'
+import DeleteChatDataNodeDialog from 'src/components/dialogs/DeleteChatDataNodeDialog'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { FlowNode, Schema } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
@@ -18,16 +18,14 @@ import LoadingButton from 'src/components/atoms/LoadingButton'
 import { convertToZodSchemaString } from 'src/utils/schema-format'
 import MessageLoading from 'src/lib/shadcn/chat/message-loading'
 import { cn } from 'src/lib/utils'
+import { MarkdownViewer } from 'src/components/molecules/MarkdownViewer'
+import { Card } from 'src/lib/shadcn/ui/card'
+import { Button } from 'src/lib/shadcn/ui/button'
 
 import { ChatLLMInfo } from './ChatLLMInfo'
 import { useChatApplicationData } from '../hooks/use-chat-application-data'
 import { useChatList } from '../hooks/use-chat-list'
-import { Card } from 'src/lib/shadcn/ui/card'
-import { Button } from 'src/lib/shadcn/ui/button'
 import VectorDatabaseDialog from './VectorDatabaseDialog'
-import { useAppState } from 'src/states/app'
-
-const MarkdownPreview = React.lazy(() => import('@uiw/react-markdown-preview'))
 
 export function ChatPanel({
   schema,
@@ -51,7 +49,6 @@ export function ChatPanel({
 }) {
   const { t } = useTranslation('applications')
   const [loading, setLoading] = React.useState(false)
-  const theme = useAppState((state) => state.theme)
   const deleteChatDataNodeDialog = useModal(DeleteChatDataNodeDialog)
   const vectorDatabaseDialog = useModal(VectorDatabaseDialog)
   const { chatList, getChatList, deleteChat } = useChatList(threadNode)
@@ -82,26 +79,16 @@ export function ChatPanel({
 
   const content = React.useMemo(() => {
     return (
-      <MarkdownPreview
+      <MarkdownViewer
         className={cn('overflow-hidden break-words whitespace-pre-wrap w-full rounded-lg')}
         source={
           schema?.schema_items?.length
             ? `\`\`\`javascript\n${convertToZodSchemaString(schema?.schema_items || [])}\n\`\`\``
             : ''
         }
-        wrapperElement={{
-          'data-color-mode': theme === 'dark' ? 'dark' : 'light',
-        }}
-        components={{
-          pre: ({ children, ...rest }) => (
-            <pre {...rest} className={cn(rest.className, 'nowheel')}>
-              {children}
-            </pre>
-          ),
-        }}
       />
     )
-  }, [schema?.schema_items, theme])
+  }, [schema?.schema_items])
 
   return (
     <Sidebar variant="sidebar" side="right" collapsible="none" {...props}>

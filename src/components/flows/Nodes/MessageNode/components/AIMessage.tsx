@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from 'react'
+import { Suspense, useMemo } from 'react'
 import { Alert, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { cn } from 'src/lib/utils'
@@ -6,12 +6,10 @@ import { useTranslation } from 'react-i18next'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { BorderBeam } from 'src/lib/shadcn/ui/border-beam'
 import { Button } from 'src/lib/shadcn/ui/button'
+import { MessageStatusEnum } from 'src/services/database/types'
+import { MarkdownViewer } from 'src/components/molecules/MarkdownViewer'
 
 import { MessageNodeProps } from '../type'
-import { MessageStatusEnum } from 'src/services/database/types'
-import { useAppState } from 'src/states/app'
-
-const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
 
 export function AIMessageComponent({
   data,
@@ -25,7 +23,6 @@ export function AIMessageComponent({
   showThread: boolean
 }) {
   const { t } = useTranslation('flows')
-  const theme = useAppState((state) => state.theme)
   const messageMetadata = useMemo<{ message: Record<string, unknown> }>(() => {
     try {
       return JSON.parse(data?.entity?.metadata || '{}')
@@ -37,23 +34,8 @@ export function AIMessageComponent({
   const isError = data.entity.status === MessageStatusEnum.Failed
 
   const content = useMemo(() => {
-    return (
-      <MarkdownPreview
-        className={'!text-sm [&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans'}
-        source={`${data.content || data.entity?.content || ''}`}
-        wrapperElement={{
-          'data-color-mode': theme === 'dark' ? 'dark' : 'light',
-        }}
-        components={{
-          pre: ({ children, ...rest }) => (
-            <pre {...rest} className={cn(rest.className, 'nowheel')}>
-              {children}
-            </pre>
-          ),
-        }}
-      />
-    )
-  }, [data.content, data.entity?.content, theme])
+    return <MarkdownViewer source={`${data.content || data.entity?.content || ''}`} />
+  }, [data.content, data.entity?.content])
 
   return (
     <Alert

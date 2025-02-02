@@ -1,15 +1,68 @@
 import { useCallback } from 'react'
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
+import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { ChatOpenAI } from '@langchain/openai'
+import { ChatGroq } from '@langchain/groq'
 import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
 import secureSession from 'src/utils/secure-session'
-import SessionPassphraseDialog from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
 import { useSessionState } from 'src/states/session'
 import { decryptSymmetric } from 'src/utils/aes'
 import { convertToZodSchema } from 'src/utils/schema-format'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { useTranslation } from 'react-i18next'
 import { useModalRef } from 'src/hooks/use-modal-ref'
+
+const getModelByProvider = (provider: `${LLMProviderEnum}`) => {
+  switch (provider) {
+    case LLMProviderEnum.Groq:
+      return ChatGroq
+    case LLMProviderEnum.OpenAI:
+      return ChatOpenAI
+    default:
+      throw new Error('Provider is not supported')
+  }
+}
+
+const llmInvoke = async (
+  model: BaseChatModel,
+  messages: BaseMessage[],
+  {
+    schemas,
+    onMessageUpdate,
+  }: {
+    schemas?: Schema[]
+    onMessageUpdate?: (data: { content: string; chunk?: BaseMessageChunk }) => void
+  },
+) => {
+  let content = ''
+  let lastChunk: BaseMessageChunk | undefined
+  if (schemas?.length) {
+    const schemaItems = schemas
+      .filter((item) => item.schema_items?.length)
+      .flatMap((schema) => schema.schema_items) as SchemaItem[]
+    const structuredLLM = model.withStructuredOutput(convertToZodSchema(schemaItems))
+
+    const streamResponse = await structuredLLM.stream(messages)
+
+    for await (const data of streamResponse) {
+      content = JSON.stringify(data)
+      onMessageUpdate?.({ content: content })
+    }
+  } else {
+    const streamResponse = await model.stream(messages)
+
+    for await (const data of streamResponse) {
+      content += `${data.content}`
+      lastChunk = data
+      onMessageUpdate?.({ content, chunk: data })
+    }
+  }
+  return {
+    lastChunk,
+    content,
+  }
+}
 
 export const useLangchainLLM = () => {
   const { toast } = useToast()
@@ -62,60 +115,40 @@ export const useLangchainLLM = () => {
           })
         })
       }
+      const parameters = info?.llm?.parameters
+      if (!parameters?.key || typeof parameters.key !== 'string') {
+        throw new Error('API Key is not found')
+      }
+      const passphrase = await secureSession.get('passphrase')
+      if (!passphrase) {
+        throw new Error('Passphrase is not found')
+      }
+      const apiKey = await decryptSymmetric(parameters.key, passphrase!)
+      if (!apiKey) {
+        throw new Error('API Key is not found')
+      }
       switch (info?.provider) {
-        case LLMProviderEnum.OpenAI:
-          {
-            const parameters = info?.llm?.parameters
-            if (!parameters?.key || typeof parameters.key !== 'string') {
-              throw new Error('API Key is not found')
-            }
-            const passphrase = await secureSession.get('passphrase')
-            if (!passphrase) {
-              throw new Error('Passphrase is not found')
-            }
-            const apiKey = await decryptSymmetric(parameters.key, passphrase!)
-            if (!apiKey) {
-              throw new Error('API Key is not found')
-            }
-            const model = new ChatOpenAI({
-              apiKey,
-              model: info?.llm?.name,
-            })
-            let content = ''
-            let lastChunk: BaseMessageChunk | undefined
-            if (schemas?.length) {
-              const schemaItems = schemas
-                .filter((item) => item.schema_items?.length)
-                .flatMap((schema) => schema.schema_items) as SchemaItem[]
-              const zodSchema = convertToZodSchema(schemaItems)
-              const structuredLLM = model.withStructuredOutput(zodSchema)
+        case LLMProviderEnum.Groq:
+        case LLMProviderEnum.OpenAI: {
+          const model = new (getModelByProvider(info.provider))({
+            apiKey,
+            model: info?.llm?.name,
+          })
 
-              const streamResponse = await structuredLLM.stream(messages)
+          const { content, lastChunk } = await llmInvoke(model, messages, {
+            schemas,
+            onMessageUpdate,
+          })
 
-              for await (const data of streamResponse) {
-                content = JSON.stringify(data)
-                onMessageUpdate?.({ content: content })
-              }
-            } else {
-              const streamResponse = await model.stream(messages)
-
-              for await (const data of streamResponse) {
-                content += `${data.content}`
-                lastChunk = data
-                onMessageUpdate?.({ content, chunk: data })
-              }
-            }
-
-            onMessageFinish?.({
-              content,
-              lastChunk,
-            })
-            return {
-              lastChunk,
-              content,
-            }
+          onMessageFinish?.({
+            content,
+            lastChunk,
+          })
+          return {
+            lastChunk,
+            content,
           }
-          break
+        }
         default:
           throw new Error('Provider is not supported')
       }

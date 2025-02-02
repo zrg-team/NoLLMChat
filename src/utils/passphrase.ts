@@ -1,5 +1,5 @@
 import { NiceModalHandler, NiceModalHocProps } from '@ebay/nice-modal-react'
-import { SessionPassphraseDialogProps } from 'src/components/molecules/dialogs/SessionPassphraseDialog'
+import { SessionPassphraseDialogProps } from 'src/components/dialogs/SessionPassphraseDialog'
 import secureSession from 'src/utils/secure-session'
 import { decryptSymmetric, encryptSymmetric } from 'src/utils/aes'
 

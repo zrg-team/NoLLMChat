@@ -5,7 +5,7 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { NodeHeader } from 'src/components/flows/NodeHeader'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import { useModal } from '@ebay/nice-modal-react'
-import ViewDataDetailDialog from 'src/components/molecules/dialogs/ViewDataDetailDialog'
+import ViewDataDetailDialog from 'src/components/dialogs/ViewDataDetailDialog'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
 
 import { PromptNodeProps } from './type'

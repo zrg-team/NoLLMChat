@@ -1,7 +1,6 @@
-import { cn } from '@udecode/cn'
+import { memo, Suspense, useMemo } from 'react'
 import { Message } from 'ai/react'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { lazy, memo, Suspense, useMemo } from 'react'
 import {
   ChatBubble,
   ChatBubbleAction,
@@ -10,9 +9,7 @@ import {
 } from 'src/lib/shadcn/chat/chat-bubble'
 import MessageLoading from 'src/lib/shadcn/chat/message-loading'
 import { Badge } from 'src/lib/shadcn/ui/badge'
-import { useAppState } from 'src/states/app'
-
-const MarkdownPreview = lazy(() => import('@uiw/react-markdown-preview'))
+import { MarkdownViewer } from 'src/components/molecules/MarkdownViewer'
 
 const ChatAiIcons = [
   {
@@ -45,11 +42,9 @@ export const ChatItem = memo(
     isSchema?: boolean
     onActionClick: (action: string, message: Message) => Promise<void>
   }) => {
-    const theme = useAppState((state) => state.theme)
     const content = useMemo(() => {
       return (
-        <MarkdownPreview
-          className={cn('[&_p]:leading-relaxed !max-w-full !bg-transparent !font-sans !text-sm')}
+        <MarkdownViewer
           style={{
             color: 'unset !important',
           }}
@@ -60,19 +55,9 @@ export const ChatItem = memo(
                 : message.content
               : ''
           }
-          wrapperElement={{
-            'data-color-mode': theme === 'dark' ? 'dark' : 'light',
-          }}
-          components={{
-            pre: ({ children, ...rest }) => (
-              <pre {...rest} className={cn(rest.className, 'nowheel')}>
-                {children}
-              </pre>
-            ),
-          }}
         />
       )
-    }, [isSchema, message.content, theme])
+    }, [isSchema, message.content])
     return (
       <ChatBubble
         innerclassname={message.role == 'system' ? '!bg-transparent font-semibold' : undefined}
