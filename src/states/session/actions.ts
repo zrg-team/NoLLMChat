@@ -25,7 +25,10 @@ export const getSessionStateActions = (
       if (
         !session ||
         (typeof session === 'string' && currentSession?.id === session) ||
-        (typeof session === 'object' && currentSession?.id === session.id)
+        (typeof session === 'object' &&
+          currentSession?.id === session.id &&
+          currentSession.passphrase === session.passphrase &&
+          currentSession.metadata === session.metadata)
       ) {
         return currentSession
       }

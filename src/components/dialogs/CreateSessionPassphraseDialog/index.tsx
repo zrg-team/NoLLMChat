@@ -36,12 +36,14 @@ const CreateSessionPassphraseDialog = create<CreateSessionPassphraseDialogProps>
     const handleSubmit = async () => {
       onConfirm(name)
       setName('')
+      currentModal.resolve(true)
     }
 
     const handleHide = () => {
       onCancel()
-      currentModal.hide()
       setName('')
+      currentModal.resolve(false)
+      currentModal.hide()
     }
 
     return (

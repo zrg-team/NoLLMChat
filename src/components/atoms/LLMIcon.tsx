@@ -52,7 +52,7 @@ const LLMIcon = memo(({ name, className, ...props }: LLMIconProps) => {
         {...props}
       />
     )
-  } else if (name.includes('gemma')) {
+  } else if (name.includes('gemma') || name.includes('gemini')) {
     return <GemmaIcon className={cn('w-5 h-5', className)} {...props} />
   } else if (name?.includes('qwen')) {
     return <img className={cn('w-5 h-5', className)} src={qwenImage} alt="qwen" {...props} />

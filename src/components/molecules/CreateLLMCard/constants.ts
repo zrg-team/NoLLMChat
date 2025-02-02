@@ -3,6 +3,7 @@ import { LLMProviderEnum } from 'src/services/database/types'
 export const SUPPORTED_PROVIDERS = [
   LLMProviderEnum.WebLLM,
   LLMProviderEnum.OpenAI,
+  LLMProviderEnum.VertexAI,
   LLMProviderEnum.Groq,
 ]
 
@@ -18,3 +19,8 @@ export const GROQ_MODELS = [
   'mixtral-8x7b-32768',
 ]
 export const GROQ_VISION_MODELS = ['llama-3.2-90b-vision-preview']
+export const VERTEX_AI_MODELS = [
+  'gemini-2.0-flash-exp',
+  'gemini-1.5-pro-002',
+  'gemini-1.5-flash-002',
+]

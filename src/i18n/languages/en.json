@@ -232,7 +232,8 @@
       "providers": {
         "webllm": "WebLLM",
         "openai": "OpenAI",
-        "groq": "Groq"
+        "groq": "Groq",
+        "vertexai": "VertexAI"
       },
       "provider": "Provider",
       "provider_select_placeholder": "Select a provider",
@@ -248,7 +249,9 @@
         "session_passkey": "Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
       },
       "encrypted_fields": {
-        "api_key": "API key"
+        "api_key": "API key",
+        "credentials": "Credentials (JSON)",
+        "enabled_google_search_retreival": "Enabled Google Search Retrieval"
       }
     },
     "add_tool_card": {
