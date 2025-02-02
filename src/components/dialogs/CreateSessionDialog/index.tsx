@@ -33,21 +33,29 @@ const CreateSessionDialog = create<CreateSessionProps>(() => {
 
   const handleSubmit = async () => {
     try {
-      await createSession({
+      const newSession = await createSession({
         name,
       })
       setName('')
+      currentModal.resolve(newSession.id)
       currentModal.hide()
-    } catch {
+    } catch (e) {
       toast({
         variant: 'destructive',
         description: t('create_session.errors.create_failed'),
       })
+      currentModal.reject(e)
     }
   }
 
+  const hanldeHide = () => {
+    setName('')
+    currentModal.resolve(undefined)
+    currentModal.hide()
+  }
+
   return (
-    <Dialog open={currentModal.visible} onOpenChange={currentModal.hide}>
+    <Dialog open={currentModal.visible} onOpenChange={hanldeHide}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{t('create_session.title')}</DialogTitle>

@@ -36,9 +36,16 @@ export function NavSessions({
   const createSessionDialog = useModal(CreateSessionDialog)
   const deleteSessionDialog = useModal(DeleteSessionDialog)
 
-  const handleNewSession = useCallback(() => {
-    createSessionDialog.show({})
-  }, [createSessionDialog])
+  const handleNewSession = useCallback(async () => {
+    try {
+      const sessionId = await createSessionDialog.show({})
+      if (sessionId && typeof sessionId === 'string') {
+        navigate(getRouteURL('whiteboard', { sessionId: sessionId }))
+      }
+    } catch {
+      // ignore
+    }
+  }, [createSessionDialog, navigate])
 
   const handleDeleteSession = useCallback(
     (e: React.MouseEvent<SVGSVGElement>, id: string) => {

@@ -42,7 +42,15 @@ import { encryptData, passphraseConfirm } from 'src/utils/passphrase'
 import { useModalRef } from 'src/hooks/use-modal-ref'
 import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
 
-import { GROQ_MODELS, GROQ_VISION_MODELS, OPEN_AI_MODELS, SUPPORTED_PROVIDERS } from './constants'
+import {
+  GROQ_MODELS,
+  GROQ_VISION_MODELS,
+  OPEN_AI_MODELS,
+  SUPPORTED_PROVIDERS,
+  VERTEX_AI_MODELS,
+} from './constants'
+import { Checkbox } from 'src/lib/shadcn/ui/checkbox'
+import { Textarea } from 'src/lib/shadcn/ui/textarea'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -165,6 +173,14 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           model_type: 2,
           overrides: {},
         } as ModelRecord
+      case LLMProviderEnum.VertexAI:
+        setEncryptedInfo({})
+        return {
+          model: input,
+          model_id: input,
+          model_type: 2,
+          overrides: {},
+        } as ModelRecord
     }
   }, [input, llmsInfo?.modelList, modelList, provider])
 
@@ -202,17 +218,11 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       let passkey = ''
       let parameters: Record<string, unknown> | undefined
       if (isRequiredSessionPasskey && !currentSession.passphrase) {
-        await new Promise((resolve, reject) => {
-          createSessionPassphraseDialogRef.current.show({
-            onConfirm: (input: string) => {
-              passkey = input
-              createSessionPassphraseDialogRef.current.hide()
-              resolve(undefined)
-            },
-            onCancel: () => {
-              reject()
-            },
-          })
+        await createSessionPassphraseDialogRef.current.show({
+          onConfirm: (input: string) => {
+            passkey = input
+            createSessionPassphraseDialogRef.current.hide()
+          },
         })
         const keyInfo = await updateSessionPassphrase(passkey)
         if (!keyInfo || !Object.keys(encryptedInfo || {}).length) {
@@ -308,6 +318,24 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             </CommandItem>
           )
         })
+      case LLMProviderEnum.VertexAI:
+        return VERTEX_AI_MODELS.map((model) => {
+          return (
+            <CommandItem key={model} value={model} onSelect={handleOnchange}>
+              {input === model ? (
+                <LazyIcon name="check" className={'h-4 w-4'} />
+              ) : (
+                <div className="w-4" />
+              )}
+              <span className="max-w-md">
+                <div className="flex gap-3">
+                  <LLMIcon name={model} />
+                  {model}
+                </div>
+              </span>
+            </CommandItem>
+          )
+        })
       case LLMProviderEnum.Groq:
         return GROQ_MODELS.map((model) => {
           return (
@@ -356,7 +384,40 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             </div>
           </>
         )
-        break
+      case LLMProviderEnum.VertexAI:
+        return (
+          <>
+            <Alert variant="destructive" className="mt-4">
+              {t('add_llm_card.alert.session_passkey')}
+            </Alert>
+            <div className="mt-4">
+              <Label>{t('add_llm_card.encrypted_fields.credentials')}</Label>
+              <Textarea
+                rows={4}
+                value={encryptedInfo?.key || ''}
+                onChange={(e) =>
+                  setEncryptedInfo((pre) => ({
+                    ...pre,
+                    key: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="mt-4 flex items-center">
+              <Label>{t('add_llm_card.encrypted_fields.enabled_google_search_retreival')}</Label>
+              <Checkbox
+                checked={!!encryptedInfo?.enabled_google_search_retreival}
+                className="ml-2"
+                onCheckedChange={(e) => {
+                  setEncryptedInfo((pre) => ({
+                    ...pre,
+                    enabled_google_search_retreival: !e ? '' : `true`,
+                  }))
+                }}
+              />
+            </div>
+          </>
+        )
     }
   }, [isRequiredSessionPasskey, provider, t, encryptedInfo])
 

@@ -3,6 +3,7 @@ import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatGroq } from '@langchain/groq'
+import { ChatVertexAI } from '@langchain/google-vertexai-web'
 import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
 import secureSession from 'src/utils/secure-session'
 import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
@@ -12,17 +13,6 @@ import { convertToZodSchema } from 'src/utils/schema-format'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { useTranslation } from 'react-i18next'
 import { useModalRef } from 'src/hooks/use-modal-ref'
-
-const getModelByProvider = (provider: `${LLMProviderEnum}`) => {
-  switch (provider) {
-    case LLMProviderEnum.Groq:
-      return ChatGroq
-    case LLMProviderEnum.OpenAI:
-      return ChatOpenAI
-    default:
-      throw new Error('Provider is not supported')
-  }
-}
 
 const llmInvoke = async (
   model: BaseChatModel,
@@ -127,33 +117,79 @@ export const useLangchainLLM = () => {
       if (!apiKey) {
         throw new Error('API Key is not found')
       }
+
+      let content = ''
+      let lastChunk: BaseMessageChunk | undefined
+
       switch (info?.provider) {
-        case LLMProviderEnum.Groq:
-        case LLMProviderEnum.OpenAI: {
-          const model = new (getModelByProvider(info.provider))({
-            apiKey,
-            model: info?.llm?.name,
-          })
-
-          const { content, lastChunk } = await llmInvoke(model, messages, {
-            schemas,
-            onMessageUpdate,
-          })
-
-          onMessageFinish?.({
-            content,
-            lastChunk,
-          })
-          return {
-            lastChunk,
-            content,
+        case LLMProviderEnum.VertexAI:
+          {
+            const model = new ChatVertexAI({
+              authOptions: {
+                credentials: apiKey,
+              },
+              model: info?.llm?.name,
+            })
+            if (parameters?.enabled_google_search_retrieval) {
+              const searchRetrievalTool = {
+                googleSearchRetrieval: {
+                  dynamicRetrievalConfig: {
+                    mode: 'MODE_DYNAMIC', // Use Dynamic Retrieval
+                    dynamicThreshold: 0.7, // Default for Dynamic Retrieval threshold
+                  },
+                },
+              }
+              model.bindTools([searchRetrievalTool])
+            }
+            const result = await llmInvoke(model, messages, {
+              schemas,
+              onMessageUpdate,
+            })
+            content = result.content
+            lastChunk = result.lastChunk
           }
-        }
+          break
+        case LLMProviderEnum.Groq:
+          {
+            const model = new ChatGroq({
+              apiKey,
+              model: info?.llm?.name,
+            })
+            const result = await llmInvoke(model, messages, {
+              schemas,
+              onMessageUpdate,
+            })
+            content = result.content
+            lastChunk = result.lastChunk
+          }
+          break
+        case LLMProviderEnum.OpenAI:
+          {
+            const model = new ChatOpenAI({
+              apiKey,
+              model: info?.llm?.name,
+            })
+            const result = await llmInvoke(model, messages, {
+              schemas,
+              onMessageUpdate,
+            })
+            content = result.content
+            lastChunk = result.lastChunk
+          }
+          break
         default:
           throw new Error('Provider is not supported')
       }
+      onMessageFinish?.({
+        content,
+        lastChunk,
+      })
+      return {
+        lastChunk,
+        content,
+      }
     },
-    [currentSession?.passphrase, sessionPassphraseDialogRef, t, toast],
+    [currentSession, sessionPassphraseDialogRef, t, toast],
   )
 
   return {

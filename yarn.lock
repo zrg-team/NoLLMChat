@@ -1277,6 +1277,29 @@
     zod "^3.22.4"
     zod-to-json-schema "^3.22.3"
 
+"@langchain/google-common@~0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@langchain/google-common/-/google-common-0.1.8.tgz#a8d0fb8946334675aa32f1e8501d43b3c7e4e870"
+  integrity sha512-8auqWw2PMPhcHQHS+nMN3tVZrUPgSLckUaFeOHDOeSBiDvBd4KCybPwyl2oCwMDGvmyIxvOOckkMdeGaJ92vpQ==
+  dependencies:
+    uuid "^10.0.0"
+    zod-to-json-schema "^3.22.4"
+
+"@langchain/google-vertexai-web@^0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@langchain/google-vertexai-web/-/google-vertexai-web-0.1.8.tgz#725b4ef22d07b0b3cfc4901a47913e83f80afba4"
+  integrity sha512-Yp/8pcDdtf2ohp4p5wpgr4xeWMP11oN2qADR9WDTcZibhlN3Oc6yyB1lrYpPJq4SKrBOi2EJUdLi4OnDm1LayA==
+  dependencies:
+    "@langchain/google-webauth" "~0.1.8"
+
+"@langchain/google-webauth@~0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@langchain/google-webauth/-/google-webauth-0.1.8.tgz#af4a9518a00511b96ddfc44bc082c62d126226d9"
+  integrity sha512-4QAngH+RE7b2AkWMBxjFeNV4cCpzkJSxo6vXsdL2NuQ6WfjbZ+CQeIf//qjYBXlWtsS3gX9N8AnPnqYWhWBEYg==
+  dependencies:
+    "@langchain/google-common" "~0.1.8"
+    web-auth-library "^1.0.3"
+
 "@langchain/groq@^0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@langchain/groq/-/groq-0.1.3.tgz#02a554c4cb779b4b5087d8e9b497f634012f7092"
@@ -6580,6 +6603,11 @@ jiti@^1.21.0:
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-1.21.6.tgz#6c7f7398dd4b3142767f9a168af2f317a428d268"
   integrity sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==
 
+"jose@>= 4.12.0 < 5.0.0":
+  version "4.15.9"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.15.9.tgz#9b68eda29e9a0614c042fa29387196c7dd800100"
+  integrity sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==
+
 jotai-optics@0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/jotai-optics/-/jotai-optics-0.4.0.tgz#aad207090a06390e61cc85324b623b2692e2e272"
@@ -9346,6 +9374,11 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
+rfc4648@^1.5.2:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/rfc4648/-/rfc4648-1.5.4.tgz#1174c0afba72423a0b70c386ecfeb80aa61b05ca"
+  integrity sha512-rRg/6Lb+IGfJqO05HZkN50UtY7K/JhxJag1kP23+zyMfrvoB0B7RWv06MbOzoc79RgCdNTiUaNsTT1AJZ7Z+cg==
+
 rimraf@^5.0.5:
   version "5.0.10"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-5.0.10.tgz#23b9843d3dc92db71f96e1a2ce92e39fd2a8221c"
@@ -10667,6 +10700,14 @@ w3c-keyname@^2.2.4:
   resolved "https://registry.yarnpkg.com/w3c-keyname/-/w3c-keyname-2.2.8.tgz#7b17c8c6883d4e8b86ac8aba79d39e880f8869c5"
   integrity sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==
 
+web-auth-library@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/web-auth-library/-/web-auth-library-1.0.3.tgz#52a2188cbb9cbb3e60da3bb55e60f92eacd81993"
+  integrity sha512-fBmEjJSrbmbD9EREwVlewyfSVkb3IzgTXEF0fzXo3miDywsxES1vwG4aJGNpuSSUorZAGBJNyyz5VFq2VFgudw==
+  dependencies:
+    jose ">= 4.12.0 < 5.0.0"
+    rfc4648 "^1.5.2"
+
 web-namespaces@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/web-namespaces/-/web-namespaces-2.0.1.tgz#1010ff7c650eccb2592cebeeaf9a1b253fd40692"
@@ -10862,6 +10903,11 @@ zod-to-json-schema@^3.22.3, zod-to-json-schema@^3.22.5:
   version "3.23.3"
   resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.3.tgz#56cf4e0bd5c4096ab46e63159e20998ec7b19c39"
   integrity sha512-TYWChTxKQbRJp5ST22o/Irt9KC5nj7CdBKYB/AosCRdj/wxEMvv4NNaj9XVUHDOIp53ZxArGhnw5HMZziPFjog==
+
+zod-to-json-schema@^3.22.4:
+  version "3.24.1"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.24.1.tgz#f08c6725091aadabffa820ba8d50c7ab527f227a"
+  integrity sha512-3h08nf3Vw3Wl3PK+q3ow/lIil81IT2Oa7YpQyUUDsEWbXveMesdfK1xBd2RhCkynwZndAxixji/7SYJJowr62w==
 
 zod-to-json-schema@^3.23.2:
   version "3.23.2"
