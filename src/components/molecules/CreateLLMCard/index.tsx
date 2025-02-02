@@ -219,9 +219,8 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       let parameters: Record<string, unknown> | undefined
       if (isRequiredSessionPasskey && !currentSession.passphrase) {
         await createSessionPassphraseDialogRef.current.show({
-          onConfirm: (input: string) => {
+          onConfirm: async (input: string) => {
             passkey = input
-            createSessionPassphraseDialogRef.current.hide()
           },
         })
         const keyInfo = await updateSessionPassphrase(passkey)

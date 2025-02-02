@@ -17,6 +17,7 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
   const sessions = useSessionState((state) => state.sessions)
   const applications = useSessionState((state) => state.applications)
   const setCurrentSession = useSessionState((state) => state.setCurrentSession)
+  const setToDefaultSession = useSessionState((state) => state.setToDefaultSession)
 
   locationRef.current = location
 
@@ -54,7 +55,7 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
     }
     setCurrentSession(params.sessionId || params.applicationId).then((item) => {
       if (!item) {
-        return
+        return setToDefaultSession(location.pathname.includes(getRouteURL('whiteboard')) ? SessionTypeEnum.Whiteboard : SessionTypeEnum.StandaloneApp)
       }
       const searchParams = getSearchParams()
       if (searchParams.has('flow') && item.type === SessionTypeEnum.StandaloneApp) {
@@ -72,7 +73,7 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
         navigate(getRouteURL('whiteboard', { sessionId: item.id }))
       }
     })
-  }, [navigate, params.applicationId, params.sessionId, requiredSession, setCurrentSession])
+  }, [navigate, params.applicationId, params.sessionId, requiredSession, setCurrentSession, setToDefaultSession])
 
   return (
     <SidebarProvider defaultOpen={false}>

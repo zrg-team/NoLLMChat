@@ -516,11 +516,13 @@ const SidebarMenuButton = React.forwardRef<
   React.ComponentProps<'button'> & {
     asChild?: boolean
     isActive?: boolean
+    autoHide?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
     {
+      onClick,
       asChild = false,
       isActive = false,
       variant = 'default',
@@ -532,7 +534,7 @@ const SidebarMenuButton = React.forwardRef<
     ref,
   ) => {
     const Comp = asChild ? Slot : 'button'
-    const { isMobile, state } = useSidebar()
+    const { isMobile, state, toggleSidebar } = useSidebar()
 
     const button = (
       <Comp
@@ -541,6 +543,10 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        onClick={props?.autoHide ? (e) => {
+          onClick?.(e)
+          toggleSidebar()
+        } : onClick}
         {...props}
       />
     )

@@ -87,6 +87,7 @@ export function NavSessions({
         {sessions.map((item) => (
           <SidebarMenuItem className="cursor-pointer" key={item.id}>
             <SidebarMenuButton
+              autoHide
               disabled={!!loadingId}
               asChild
               onClick={() => handleSetCurrentSession(item)}

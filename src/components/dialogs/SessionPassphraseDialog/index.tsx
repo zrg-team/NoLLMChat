@@ -19,8 +19,8 @@ import {
 
 export type SessionPassphraseDialogProps = {
   className: string
-  onConfirm: (newValue: string) => void
-  onCancel: () => void
+  onConfirm?: (newValue: string) => void
+  onCancel?: () => void
 }
 
 const SessionPassphraseDialog = create<SessionPassphraseDialogProps>(({ onConfirm, onCancel }) => {
@@ -33,14 +33,17 @@ const SessionPassphraseDialog = create<SessionPassphraseDialogProps>(({ onConfir
   }
 
   const handleSubmit = async () => {
-    onConfirm(name)
+    if (name?.length !== 6) {
+      return
+    }
+    await onConfirm?.(name)
     setName('')
     currentModal.resolve(true)
     currentModal.hide()
   }
 
-  const handleHide = () => {
-    onCancel()
+  const handleHide = async () => {
+    await onCancel?.()
     setName('')
     currentModal.resolve(false)
     currentModal.hide()
@@ -69,7 +72,7 @@ const SessionPassphraseDialog = create<SessionPassphraseDialogProps>(({ onConfir
           </InputOTP>
         </div>
         <DialogFooter>
-          <Button onClick={handleSubmit} type="submit">
+          <Button disabled={name?.length !== 6} onClick={handleSubmit} type="submit">
             {t('session_passkey.confirm')}
           </Button>
         </DialogFooter>
