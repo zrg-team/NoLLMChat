@@ -19,7 +19,7 @@ import {
 
 type CreateSessionPassphraseDialogProps = {
   className: string
-  onConfirm: (newValue: string) => void
+  onConfirm: (newValue: string) => Promise<unknown>
   onCancel: () => void
 }
 
@@ -34,13 +34,21 @@ const CreateSessionPassphraseDialog = create<CreateSessionPassphraseDialogProps>
     }
 
     const handleSubmit = async () => {
-      onConfirm(name)
-      setName('')
-      currentModal.resolve(true)
+      try {
+        if (name?.length !== 6) {
+          return
+        }
+        await onConfirm?.(name)
+        setName('')
+        currentModal.resolve(true)
+        currentModal.hide()
+      } catch (e) {
+        currentModal.reject(e)
+      }
     }
 
     const handleHide = () => {
-      onCancel()
+      onCancel?.()
       setName('')
       currentModal.resolve(false)
       currentModal.hide()
@@ -69,7 +77,7 @@ const CreateSessionPassphraseDialog = create<CreateSessionPassphraseDialogProps>
             </InputOTP>
           </div>
           <DialogFooter>
-            <Button onClick={handleSubmit} type="submit">
+            <Button disabled={name?.length !== 6} onClick={handleSubmit} type="submit">
               {t('create_session_passkey.confirm')}
             </Button>
           </DialogFooter>

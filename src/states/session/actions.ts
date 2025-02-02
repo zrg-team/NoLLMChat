@@ -10,6 +10,7 @@ export interface SessionStateActions {
   getLatestApplications: () => Promise<void>
   getLatestSessions: () => Promise<void>
   setCurrentSession: (session: Session | string | undefined) => Promise<Session | undefined>
+  setToDefaultSession: (type?: `${SessionTypeEnum}`) => Promise<Session | undefined>
   deleteSession: (id: string) => Promise<void>
   createSession: (session: Partial<Session>) => Promise<Session>
   init: () => void
@@ -20,6 +21,18 @@ export const getSessionStateActions = (
   get: GetState<SessionState & SessionStateActions>,
 ): SessionStateActions => {
   return {
+    setToDefaultSession: async (type?: `${SessionTypeEnum}`) => {
+      const sessions = get().sessions
+      if (!sessions?.length) {
+        const session = await getRepository('Session').find({
+          where: { status: SessionStatusEnum.Started, type: type || SessionTypeEnum.Whiteboard },
+          order: { updated_at: 'DESC' },
+          take: 1,
+        })
+        return get().setCurrentSession(session?.[0])
+      }
+      return get().setCurrentSession(sessions?.[0])
+    },
     setCurrentSession: async (session) => {
       const currentSession = get().currentSession
       if (

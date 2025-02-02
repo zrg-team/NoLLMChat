@@ -85,6 +85,7 @@ export function NavStandaloneApp({
             <SidebarMenuButton
               disabled={!!loadingId}
               asChild
+              autoHide
               onClick={() => handleSetCurrentSession(item)}
             >
               <div className="flex flex-row justify-between items-center !h-auto">
