@@ -543,10 +543,14 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        onClick={props?.autoHide ? (e) => {
-          onClick?.(e)
-          toggleSidebar()
-        } : onClick}
+        onClick={
+          props?.autoHide
+            ? (e) => {
+                onClick?.(e)
+                toggleSidebar()
+              }
+            : onClick
+        }
         {...props}
       />
     )
