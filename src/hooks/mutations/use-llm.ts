@@ -28,7 +28,7 @@ export const useLLM = () => {
       switch (provider) {
         case LLMProviderEnum.WebLLM:
           return localLLM.stream(messages, info)
-        case LLMProviderEnum.VertexAI:
+        case LLMProviderEnum.GoogleGenerativeAI:
         case LLMProviderEnum.Groq:
         case LLMProviderEnum.OpenAI:
           return langchainLLM.stream(messages, {

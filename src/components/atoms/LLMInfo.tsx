@@ -9,9 +9,10 @@ export const LLMInfo = memo(
     name?: string
     isFunctionCalling: boolean
     isCached: boolean
+    cloud: boolean
     model?: ModelRecord
   }) => {
-    const { name, model, isCached, isFunctionCalling } = props
+    const { cloud, name, model, isCached, isFunctionCalling } = props
     const { t } = useTranslation('atoms')
 
     const modelTypeToString = useCallback((modelType?: unknown) => {
@@ -57,6 +58,11 @@ export const LLMInfo = memo(
         {isCached ? (
           <Badge className="" variant="outline">
             {t('llm_info.cached')}
+          </Badge>
+        ) : null}
+        {cloud ? (
+          <Badge className="" variant="outline">
+            {t('llm_info.cloud')}
           </Badge>
         ) : null}
         {isFunctionCalling ? (

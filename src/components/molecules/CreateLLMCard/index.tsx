@@ -41,16 +41,18 @@ import { useSessionState } from 'src/states/session'
 import { encryptData, passphraseConfirm } from 'src/utils/passphrase'
 import { useModalRef } from 'src/hooks/use-modal-ref'
 import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
+import { Checkbox } from 'src/lib/shadcn/ui/checkbox'
 
 import {
+  GROQ_API_KEY_LINK,
   GROQ_MODELS,
   GROQ_VISION_MODELS,
+  OPEN_AI_API_KEY_LINK,
   OPEN_AI_MODELS,
   SUPPORTED_PROVIDERS,
-  VERTEX_AI_MODELS,
+  GOOGLE_GENERATIVE_AI_API_KEY_LINK,
+  GOOGLE_GENERATIVE_AI_MODELS,
 } from './constants'
-import { Checkbox } from 'src/lib/shadcn/ui/checkbox'
-import { Textarea } from 'src/lib/shadcn/ui/textarea'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -173,7 +175,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           model_type: 2,
           overrides: {},
         } as ModelRecord
-      case LLMProviderEnum.VertexAI:
+      case LLMProviderEnum.GoogleGenerativeAI:
         setEncryptedInfo({})
         return {
           model: input,
@@ -294,6 +296,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                   }
                   name={model.model_id}
                   isCached={cachedLLMURLs.some((item) => item.includes(model.model_id)) || false}
+                  cloud={provider !== LLMProviderEnum.WebLLM}
                 />
               </div>
             </span>
@@ -317,8 +320,8 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             </CommandItem>
           )
         })
-      case LLMProviderEnum.VertexAI:
-        return VERTEX_AI_MODELS.map((model) => {
+      case LLMProviderEnum.GoogleGenerativeAI:
+        return GOOGLE_GENERATIVE_AI_MODELS.map((model) => {
           return (
             <CommandItem key={model} value={model} onSelect={handleOnchange}>
               {input === model ? (
@@ -370,6 +373,17 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             </Alert>
             <div className="mt-4">
               <Label>{t('add_llm_card.encrypted_fields.api_key')}</Label>
+              <Button variant="link" className="px-1">
+                <a
+                  href={
+                    provider === LLMProviderEnum.OpenAI ? OPEN_AI_API_KEY_LINK : GROQ_API_KEY_LINK
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ({provider === LLMProviderEnum.OpenAI ? OPEN_AI_API_KEY_LINK : GROQ_API_KEY_LINK})
+                </a>
+              </Button>
               <Input
                 type="password"
                 value={encryptedInfo?.key || ''}
@@ -383,16 +397,21 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             </div>
           </>
         )
-      case LLMProviderEnum.VertexAI:
+      case LLMProviderEnum.GoogleGenerativeAI:
         return (
           <>
             <Alert variant="destructive" className="mt-4">
               {t('add_llm_card.alert.session_passkey')}
             </Alert>
             <div className="mt-4">
-              <Label>{t('add_llm_card.encrypted_fields.credentials')}</Label>
-              <Textarea
-                rows={4}
+              <Label>{t('add_llm_card.encrypted_fields.api_key')}</Label>
+              <Button variant="link" className="px-1">
+                <a href={GOOGLE_GENERATIVE_AI_API_KEY_LINK} target="_blank" rel="noreferrer">
+                  ({GOOGLE_GENERATIVE_AI_API_KEY_LINK})
+                </a>
+              </Button>
+              <Input
+                type="password"
                 value={encryptedInfo?.key || ''}
                 onChange={(e) =>
                   setEncryptedInfo((pre) => ({
@@ -482,6 +501,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 isCached={
                   cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)) || false
                 }
+                cloud={provider !== LLMProviderEnum.WebLLM}
               />
             </div>
             <div className="mt-2 text-sm text-muted-foreground">

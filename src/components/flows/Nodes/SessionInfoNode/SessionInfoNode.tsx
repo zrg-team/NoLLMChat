@@ -265,6 +265,7 @@ export const SessionInfoNode = memo(() => {
                     model={llm?.info}
                     isFunctionCalling={llm?.isFunctionCalling || false}
                     isCached={true}
+                    cloud={false}
                   />
                 </div>
               </div>

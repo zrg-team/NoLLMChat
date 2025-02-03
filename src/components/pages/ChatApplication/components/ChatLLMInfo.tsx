@@ -24,11 +24,26 @@ export const ChatLLMInfo = memo(
   }) => {
     const { t } = useTranslation('flows')
     const [llmInfo, setLLMInfo] = useState<
-      { hasCache: boolean; isFunctionCalling: boolean; info?: ModelRecord } | undefined
+      | { hasCache: boolean; isFunctionCalling: boolean; info?: ModelRecord; cloud?: boolean }
+      | undefined
     >()
 
     useEffect(() => {
       if (llmInfo || !llm?.name) {
+        return
+      }
+      if (llm?.provider !== 'WebLLM') {
+        setLLMInfo({
+          hasCache: false,
+          cloud: true,
+          isFunctionCalling: true,
+          info: {
+            model_id: llm?.name,
+            model: llm?.name,
+            model_lib: llm?.provider,
+            model_type: 2,
+          },
+        })
         return
       }
       import('@mlc-ai/web-llm').then(
@@ -70,6 +85,7 @@ export const ChatLLMInfo = memo(
               isFunctionCalling={llmInfo?.isFunctionCalling || false}
               name={llm?.name}
               isCached={llmInfo?.hasCache || false}
+              cloud={llmInfo?.cloud || false}
             />
             {status !== LLMStatusEnum.Loaded ? (
               progress ? (

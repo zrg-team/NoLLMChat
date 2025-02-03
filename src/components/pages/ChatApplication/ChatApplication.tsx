@@ -23,6 +23,7 @@ import { useChatApplicationData } from './hooks/use-chat-application-data'
 import { useSendMessage } from './hooks/use-send-message'
 import { ChatPanel } from './components/ChatPanel'
 import { ChatItem } from './components/ChatItem'
+import { useUpdateLLMOptions } from './hooks/use-update-llm-options'
 
 const ChatApplication = memo(() => {
   const { t } = useTranslation('applications')
@@ -45,11 +46,13 @@ const ChatApplication = memo(() => {
     retriverInfo,
     currentDataNode,
     loadLLM,
+    setLLMInfo,
     addNewDataNode,
     selectDataNode,
     updateMessagesData,
     onThreadMessagesLoaded,
   } = chatApplicationData
+  const { changeLLMOptions } = useUpdateLLMOptions()
   const { sendMessage } = useSendMessage(chatApplicationData)
   const {
     input,
@@ -248,6 +251,8 @@ const ChatApplication = memo(() => {
         retriverInfo={retriverInfo}
         onAddNewThread={addNewDataNode}
         onSelectThread={selectDataNode}
+        changeLLMOptions={changeLLMOptions}
+        setLLMInfo={setLLMInfo}
       />
     </SidebarProvider>
   )

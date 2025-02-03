@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { Position } from '@xyflow/react'
 import { Alert, AlertDescription, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
@@ -16,18 +16,18 @@ import LoadingButton from 'src/components/atoms/LoadingButton'
 import { LLMNodeProps } from './type'
 import { useActions } from './hooks/use-actions'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
+import { LLMSetting } from 'src/components/atoms/LLMSetting'
 
 export const LLMNode = memo((props: LLMNodeProps) => {
   const { id, data, isConnectable } = props
   const [llmInfo, setLLMInfo] = useState<
-    { hasCache: boolean; isFunctionCalling: boolean; info?: ModelRecord } | undefined
+    | { hasCache: boolean; isFunctionCalling: boolean; info?: ModelRecord; cloud?: boolean }
+    | undefined
   >()
   const { t } = useTranslation('flows')
 
-  const { createThread, loadModel, queringThreads, queryThreads, loadingModel } = useActions(
-    id,
-    data,
-  )
+  const { createThread, loadModel, queringThreads, queryThreads, loadingModel, changeLLMOptions } =
+    useActions(id, data)
   useConnectionToHandler(id)
 
   const isLoading = [LLMStatusEnum.Loading, LLMStatusEnum.Downloading].includes(data.status)
@@ -38,7 +38,8 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     }
     if (data?.entity?.provider !== LLMProviderEnum.WebLLM) {
       setLLMInfo({
-        hasCache: true,
+        hasCache: false,
+        cloud: true,
         isFunctionCalling: true,
         info: {
           model_id: data?.entity?.name,
@@ -60,6 +61,13 @@ export const LLMNode = memo((props: LLMNodeProps) => {
       },
     )
   }, [data?.entity?.name, data?.entity?.provider, llmInfo])
+
+  const onChangeOptions = useCallback(
+    async (options: Record<string, unknown>) => {
+      await changeLLMOptions(options)
+    },
+    [changeLLMOptions],
+  )
 
   const llmIcon = useMemo(() => {
     switch (data.status) {
@@ -132,8 +140,14 @@ export const LLMNode = memo((props: LLMNodeProps) => {
                 isFunctionCalling={llmInfo?.isFunctionCalling || false}
                 name={data?.entity?.name}
                 isCached={llmInfo?.hasCache || false}
+                cloud={llmInfo?.cloud || false}
               />
             </div>
+            <LLMSetting
+              llmOptions={data?.entity?.options}
+              onChangeOptions={onChangeOptions}
+              className="mt-2"
+            />
             {actions}
           </div>
         </Alert>

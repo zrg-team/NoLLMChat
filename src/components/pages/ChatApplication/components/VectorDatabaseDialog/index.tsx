@@ -12,9 +12,8 @@ import IndexNewText from 'src/components/flows/Nodes/VectorDatabaseNode/componen
 import IndexNewFile from 'src/components/flows/Nodes/VectorDatabaseNode/components/IndexNewFile'
 import { DataViewer } from 'src/components/molecules/Nodes/DataViewer'
 import { decodeLine } from 'src/utils/string-data'
-
-import { useActions } from './use-actions'
-import { useChatApplicationData } from '../../hooks/use-chat-application-data'
+import { useVectorDatabaseActions } from 'src/components/pages/ChatApplication/hooks/use-vector-database-actions'
+import { useChatApplicationData } from 'src/components/pages/ChatApplication/hooks/use-chat-application-data'
 
 type VectorDatabaseDialogProps = {
   retriverInfo: ReturnType<typeof useChatApplicationData>['retriverInfo'][number]
@@ -22,7 +21,7 @@ type VectorDatabaseDialogProps = {
 
 const VectorDatabaseDialog = create<VectorDatabaseDialogProps>(({ retriverInfo }) => {
   const { t } = useTranslation('applications')
-  const { loading, similaritySearchWithScore, indexData } = useActions()
+  const { loading, similaritySearchWithScore, indexData } = useVectorDatabaseActions()
 
   const [mode, setMode] = useState('search')
   const [progress, setProgress] = useState(0)
