@@ -21,11 +21,13 @@ import { cn } from 'src/lib/utils'
 import { MarkdownViewer } from 'src/components/molecules/MarkdownViewer'
 import { Card } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
+import { LLMSetting } from 'src/components/atoms/LLMSetting'
 
 import { ChatLLMInfo } from './ChatLLMInfo'
+import VectorDatabaseDialog from './VectorDatabaseDialog'
 import { useChatApplicationData } from '../hooks/use-chat-application-data'
 import { useChatList } from '../hooks/use-chat-list'
-import VectorDatabaseDialog from './VectorDatabaseDialog'
+import { useUpdateLLMOptions } from '../hooks/use-update-llm-options'
 
 export function ChatPanel({
   schema,
@@ -36,6 +38,8 @@ export function ChatPanel({
   onSelectThread,
   onAddNewThread,
   currentDataNode,
+  setLLMInfo,
+  changeLLMOptions,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   schema?: Schema
@@ -46,6 +50,8 @@ export function ChatPanel({
   currentDataNode: ReturnType<typeof useChatApplicationData>['currentDataNode']
   loadLLM: ReturnType<typeof useChatApplicationData>['loadLLM']
   mainLLMInfo: ReturnType<typeof useChatApplicationData>['mainLLMInfo']
+  setLLMInfo: ReturnType<typeof useChatApplicationData>['setLLMInfo']
+  changeLLMOptions: ReturnType<typeof useUpdateLLMOptions>['changeLLMOptions']
 }) {
   const { t } = useTranslation('applications')
   const [loading, setLoading] = React.useState(false)
@@ -75,6 +81,27 @@ export function ChatPanel({
       deleteChatDataNodeDialog.show({ onDelete: () => deleteChat(node) })
     },
     [deleteChat, deleteChatDataNodeDialog],
+  )
+
+  const handleChangeOptions = React.useCallback(
+    async (options: Record<string, unknown>) => {
+      if (!mainLLMInfo?.llm) {
+        return
+      }
+      await changeLLMOptions(mainLLMInfo?.llm, options)
+      setLLMInfo((pre) =>
+        pre
+          ? {
+              ...pre,
+              llm: {
+                ...pre.llm,
+                options,
+              },
+            }
+          : undefined,
+      )
+    },
+    [changeLLMOptions, mainLLMInfo?.llm, setLLMInfo],
   )
 
   const content = React.useMemo(() => {
@@ -147,6 +174,11 @@ export function ChatPanel({
             <React.Suspense fallback={<MessageLoading />}>{content}</React.Suspense>
           </div>
         ) : undefined}
+        <LLMSetting
+          llmOptions={mainLLMInfo?.llm?.options}
+          onChangeOptions={handleChangeOptions}
+          className="p-2"
+        />
         <ChatLLMInfo
           llm={mainLLMInfo?.llm}
           status={mainLLMInfo?.status}

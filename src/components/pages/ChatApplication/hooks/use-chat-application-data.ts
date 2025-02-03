@@ -409,6 +409,7 @@ export const useChatApplicationData = () => {
     updateMessagesData,
     addNewDataNode,
     selectDataNode,
+    setLLMInfo,
     onThreadMessagesLoaded,
   }
 }

@@ -17,7 +17,10 @@ export const MarkdownViewer: React.FC<MarkdownPreviewProps> = memo(
           </pre>
         ),
         think: ({ children }: PropsWithChildren) => (
-          <blockquote className="think">{children}</blockquote>
+          <>
+            <code className="!rounded-none">Think: </code>
+            <blockquote className="think">{children}</blockquote>
+          </>
         ),
       }),
       [],

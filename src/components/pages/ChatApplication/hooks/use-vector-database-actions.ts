@@ -7,7 +7,7 @@ import { VectorDatabase } from 'src/services/database/entities'
 import { VectorDatabaseStorageEnum } from 'src/services/database/types'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
 
-export const useActions = () => {
+export const useVectorDatabaseActions = () => {
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation('flows')
   const { toast } = useToast()

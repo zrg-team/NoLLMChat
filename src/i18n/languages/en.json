@@ -233,7 +233,7 @@
         "webllm": "WebLLM",
         "openai": "OpenAI",
         "groq": "Groq",
-        "vertexai": "VertexAI"
+        "googlegenerativeai": "Google Generative AI"
       },
       "provider": "Provider",
       "provider_select_placeholder": "Select a provider",
@@ -251,7 +251,7 @@
       "encrypted_fields": {
         "api_key": "API key",
         "credentials": "Credentials (JSON)",
-        "enabled_google_search_retreival": "Enabled Google Search Retrieval"
+        "enabled_google_search_retreival": "Enabled Google Search"
       }
     },
     "add_tool_card": {
@@ -473,11 +473,23 @@
       "low_resource_required": "Low resource required",
       "cached": "Cached",
       "recommended": "Recommended",
+      "cloud": "Cloud",
       "model_types": {
         "llm": "LLM",
         "embedding": "Embedding",
         "vlm": "Vision"
       }
+    },
+    "llm_setting": {
+      "title": "LLM Setting",
+      "hide": "Hide",
+      "temperature": "Temperature",
+      "top_k": "Top K",
+      "top_p": "Top P",
+      "max_tokens": "Max Tokens",
+      "stop_sequences": "Stop Sequences",
+      "stop_sequences_placeholder": "Stop sequences, separated by comma. Example: 'end, stop'",
+      "save": "Save"
     }
   },
   "applications": {

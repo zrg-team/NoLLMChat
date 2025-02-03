@@ -45,6 +45,9 @@ export class LLM {
   @Column({ type: 'json', nullable: true })
   parameters?: Record<string, unknown>
 
+  @Column({ type: 'json', nullable: true })
+  options?: Record<string, unknown>
+
   @CreateDateColumn()
   created_at?: Date
 

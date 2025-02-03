@@ -98,17 +98,30 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
     }
   }, [data.entity, node, createThread])
 
+  const changeLLMOptions = useCallback(
+    async (options: Record<string, unknown>) => {
+      if (data.entity && node) {
+        node.data.entity.options = options
+        await getRepository('LLM').update(data.entity.id, { options })
+        updateNodes([{ id, type: 'replace' as const, item: node }])
+      }
+    },
+    [data.entity, id, node, updateNodes],
+  )
+
   useEffect(() => {
     if (data.entity && node && data.entity.status !== data.status) {
       node.data.status = data.entity.status as LLMStatusEnum
       updateNodes([{ id, type: 'replace' as const, item: node }])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return {
     loadingModel,
     creatingThread,
     queringThreads,
+    changeLLMOptions,
     loadModel: handleLoadModel,
     createThread: handleCreateThread,
     queryThreads: queryThreadsFromModel,

@@ -1042,6 +1042,11 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.8.tgz#21a907684723bbbaa5f0974cf7730bd797eb8e62"
   integrity sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==
 
+"@google/generative-ai@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/@google/generative-ai/-/generative-ai-0.21.0.tgz#a5011aab9e6082e706937b26ef23445933fa0d15"
+  integrity sha512-7XhUbtnlkSEZK15kN3t+tzIMxsbKm/dSkKBFalj+20NvPKe1kBY7mR2P7vuijEn+f06z5+A8bVGKO0v39cr6Wg==
+
 "@huggingface/jinja@^0.3.0":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@huggingface/jinja/-/jinja-0.3.2.tgz#c1967f0685c69657c2d3b169459f72d5c6acbdec"
@@ -1277,28 +1282,13 @@
     zod "^3.22.4"
     zod-to-json-schema "^3.22.3"
 
-"@langchain/google-common@~0.1.8":
+"@langchain/google-genai@^0.1.8":
   version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@langchain/google-common/-/google-common-0.1.8.tgz#a8d0fb8946334675aa32f1e8501d43b3c7e4e870"
-  integrity sha512-8auqWw2PMPhcHQHS+nMN3tVZrUPgSLckUaFeOHDOeSBiDvBd4KCybPwyl2oCwMDGvmyIxvOOckkMdeGaJ92vpQ==
+  resolved "https://registry.yarnpkg.com/@langchain/google-genai/-/google-genai-0.1.8.tgz#9dd702f2e38a58cc4e5d53fef97aa66a03bdb526"
+  integrity sha512-aBz8IzEJfihOVz2GpqFrdLWjDlpscZUYIA7LZ2iazU7edO03etPaqxdexiYKr/Q+Be2D0BT7uaFJsouvQApIZA==
   dependencies:
-    uuid "^10.0.0"
+    "@google/generative-ai" "^0.21.0"
     zod-to-json-schema "^3.22.4"
-
-"@langchain/google-vertexai-web@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@langchain/google-vertexai-web/-/google-vertexai-web-0.1.8.tgz#725b4ef22d07b0b3cfc4901a47913e83f80afba4"
-  integrity sha512-Yp/8pcDdtf2ohp4p5wpgr4xeWMP11oN2qADR9WDTcZibhlN3Oc6yyB1lrYpPJq4SKrBOi2EJUdLi4OnDm1LayA==
-  dependencies:
-    "@langchain/google-webauth" "~0.1.8"
-
-"@langchain/google-webauth@~0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@langchain/google-webauth/-/google-webauth-0.1.8.tgz#af4a9518a00511b96ddfc44bc082c62d126226d9"
-  integrity sha512-4QAngH+RE7b2AkWMBxjFeNV4cCpzkJSxo6vXsdL2NuQ6WfjbZ+CQeIf//qjYBXlWtsS3gX9N8AnPnqYWhWBEYg==
-  dependencies:
-    "@langchain/google-common" "~0.1.8"
-    web-auth-library "^1.0.3"
 
 "@langchain/groq@^0.1.3":
   version "0.1.3"
@@ -6603,11 +6593,6 @@ jiti@^1.21.0:
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-1.21.6.tgz#6c7f7398dd4b3142767f9a168af2f317a428d268"
   integrity sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==
 
-"jose@>= 4.12.0 < 5.0.0":
-  version "4.15.9"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.15.9.tgz#9b68eda29e9a0614c042fa29387196c7dd800100"
-  integrity sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==
-
 jotai-optics@0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/jotai-optics/-/jotai-optics-0.4.0.tgz#aad207090a06390e61cc85324b623b2692e2e272"
@@ -9374,11 +9359,6 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-rfc4648@^1.5.2:
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/rfc4648/-/rfc4648-1.5.4.tgz#1174c0afba72423a0b70c386ecfeb80aa61b05ca"
-  integrity sha512-rRg/6Lb+IGfJqO05HZkN50UtY7K/JhxJag1kP23+zyMfrvoB0B7RWv06MbOzoc79RgCdNTiUaNsTT1AJZ7Z+cg==
-
 rimraf@^5.0.5:
   version "5.0.10"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-5.0.10.tgz#23b9843d3dc92db71f96e1a2ce92e39fd2a8221c"
@@ -10699,14 +10679,6 @@ w3c-keyname@^2.2.4:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/w3c-keyname/-/w3c-keyname-2.2.8.tgz#7b17c8c6883d4e8b86ac8aba79d39e880f8869c5"
   integrity sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==
-
-web-auth-library@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/web-auth-library/-/web-auth-library-1.0.3.tgz#52a2188cbb9cbb3e60da3bb55e60f92eacd81993"
-  integrity sha512-fBmEjJSrbmbD9EREwVlewyfSVkb3IzgTXEF0fzXo3miDywsxES1vwG4aJGNpuSSUorZAGBJNyyz5VFq2VFgudw==
-  dependencies:
-    jose ">= 4.12.0 < 5.0.0"
-    rfc4648 "^1.5.2"
 
 web-namespaces@^2.0.0:
   version "2.0.1"

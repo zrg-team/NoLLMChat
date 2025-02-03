@@ -16,5 +16,5 @@ export enum LLMProviderEnum {
   WebLLM = 'WebLLM',
   OpenAI = 'OpenAI',
   Groq = 'Groq',
-  VertexAI = 'VertexAI',
+  GoogleGenerativeAI = 'GoogleGenerativeAI',
 }

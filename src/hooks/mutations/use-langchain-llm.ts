@@ -3,7 +3,7 @@ import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatGroq } from '@langchain/groq'
-import { ChatVertexAI } from '@langchain/google-vertexai-web'
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
 import secureSession from 'src/utils/secure-session'
 import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
@@ -106,6 +106,7 @@ export const useLangchainLLM = () => {
         })
       }
       const parameters = info?.llm?.parameters
+      const options = info?.llm?.options || ({} as Record<string, unknown>)
       if (!parameters?.key || typeof parameters.key !== 'string') {
         throw new Error('API Key is not found')
       }
@@ -122,13 +123,16 @@ export const useLangchainLLM = () => {
       let lastChunk: BaseMessageChunk | undefined
 
       switch (info?.provider) {
-        case LLMProviderEnum.VertexAI:
+        case LLMProviderEnum.GoogleGenerativeAI:
           {
-            const model = new ChatVertexAI({
-              authOptions: {
-                credentials: apiKey,
-              },
+            const model = new ChatGoogleGenerativeAI({
+              apiKey,
               model: info?.llm?.name,
+              temperature: options?.temperature ? +options.temperature : undefined,
+              topK: options?.topK ? +options.topK : undefined,
+              topP: options?.topP ? +options.topP : undefined,
+              stopSequences: options?.stop ? (options.stop as string[]) : undefined,
+              maxOutputTokens: options?.maxTokens ? +options.maxTokens : undefined,
             })
             if (parameters?.enabled_google_search_retrieval) {
               const searchRetrievalTool = {
@@ -154,6 +158,9 @@ export const useLangchainLLM = () => {
             const model = new ChatGroq({
               apiKey,
               model: info?.llm?.name,
+              temperature: options?.temperature ? +options.temperature : undefined,
+              stopSequences: options?.stop ? (options.stop as string[]) : undefined,
+              maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
             })
             const result = await llmInvoke(model, messages, {
               schemas,
@@ -168,6 +175,10 @@ export const useLangchainLLM = () => {
             const model = new ChatOpenAI({
               apiKey,
               model: info?.llm?.name,
+              temperature: options?.temperature ? +options.temperature : undefined,
+              topP: options?.topP ? +options.topP : undefined,
+              stopSequences: options?.stop ? (options.stop as string[]) : undefined,
+              maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
             })
             const result = await llmInvoke(model, messages, {
               schemas,
