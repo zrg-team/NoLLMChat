@@ -32,7 +32,12 @@ export const useConfirmOrCreatePassphrase = () => {
       await confirmPassphrase()
     }
     return secureSession.get('passphrase')
-  }, [currentSession])
+  }, [
+    confirmPassphrase,
+    createSessionPassphraseDialogRef,
+    currentSession?.passphrase,
+    updateSessionPassphrase,
+  ])
 
   return {
     confirmOrCreatePassphrase,
