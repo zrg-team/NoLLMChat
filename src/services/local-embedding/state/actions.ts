@@ -21,6 +21,7 @@ import {
   VectorDatabaseProviderEnum,
 } from 'src/services/database/types'
 import { DEFAULT_EMBEDDING_MODEL } from 'src/constants/embedding'
+import { Embeddings } from '@langchain/core/embeddings'
 import { logWarn } from 'src/utils/logger'
 
 import { LocalEmbeddingState } from './state'
@@ -29,26 +30,35 @@ import { WorkerEmbeddings } from '../utils/worker-embeddings'
 export interface LocalEmbeddingStateActions {
   init: () => void
   index: (
-    database: {
-      databaseId: string
-      dataSourceId?: string
-      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    info: {
+      database: {
+        databaseId: string
+        dataSourceId?: string
+        dataSourceType?: `${VectorDatabaseNodeDataSource}`
+      }
+      embedding?: Embeddings
     },
     ...args: Parameters<VoyVectorStore['addDocuments'] | MemoryVectorStore['addDocuments']>
   ) => ReturnType<VoyVectorStore['addDocuments'] | MemoryVectorStore['addDocuments']>
   similaritySearch: (
-    database: {
-      databaseId: string
-      dataSourceId?: string
-      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    info: {
+      database: {
+        databaseId: string
+        dataSourceId?: string
+        dataSourceType?: `${VectorDatabaseNodeDataSource}`
+      }
+      embedding?: Embeddings
     },
     ...args: Parameters<VoyVectorStore['similaritySearch'] | MemoryVectorStore['similaritySearch']>
   ) => ReturnType<VoyVectorStore['similaritySearch'] | MemoryVectorStore['similaritySearch']>
   similaritySearchWithScore: (
-    database: {
-      databaseId: string
-      dataSourceId?: string
-      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    info: {
+      database: {
+        databaseId: string
+        dataSourceId?: string
+        dataSourceType?: `${VectorDatabaseNodeDataSource}`
+      }
+      embedding?: Embeddings
     },
     ...args: Parameters<
       VoyVectorStore['similaritySearchWithScore'] | MemoryVectorStore['similaritySearchWithScore']
@@ -57,10 +67,13 @@ export interface LocalEmbeddingStateActions {
     VoyVectorStore['similaritySearchWithScore'] | MemoryVectorStore['similaritySearchWithScore']
   >
   getVectorDatabase: (
-    database: {
-      databaseId: string
-      dataSourceId?: string
-      dataSourceType?: `${VectorDatabaseNodeDataSource}`
+    info: {
+      database: {
+        databaseId: string
+        dataSourceId?: string
+        dataSourceType?: `${VectorDatabaseNodeDataSource}`
+      }
+      embedding?: Embeddings
     },
     args?: MemoryVectorStoreArgs,
   ) => Promise<MemoryVectorStore | VoyVectorStore>
@@ -109,10 +122,10 @@ export const getLocalEmbeddingStateActions = (
   return {
     init: async () => {
       try {
-        const embedding = get().embedding
-        if (!embedding) {
+        const localEmbedding = get().localEmbedding
+        if (!localEmbedding) {
           set({
-            embedding: new WorkerEmbeddings({
+            localEmbedding: new WorkerEmbeddings({
               modelName: DEFAULT_EMBEDDING_MODEL,
             }),
           })
@@ -133,14 +146,14 @@ export const getLocalEmbeddingStateActions = (
         set({ ready: true })
       }
     },
-    index: async (databaseInfo, documents) => {
-      const embedding = get().embedding
+    index: async (info, documents) => {
+      const embedding = info?.embedding || get().localEmbedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
       const database = await getRepository('VectorDatabase').findOne({
-        where: { id: databaseInfo.databaseId },
+        where: { id: info.database.databaseId },
       })
       if (!database) {
         throw new Error('Database not found.')
@@ -149,9 +162,9 @@ export const getLocalEmbeddingStateActions = (
         throw new Error('Database provider not found.')
       }
       const dataSource =
-        databaseInfo.dataSourceId && databaseInfo.dataSourceType
-          ? await getRepository(databaseInfo.dataSourceType).findOne({
-              where: { id: databaseInfo.dataSourceId },
+        info.database.dataSourceId && info.database.dataSourceType
+          ? await getRepository(info.database.dataSourceType).findOne({
+              where: { id: info.database.dataSourceId },
             })
           : undefined
 
@@ -199,14 +212,14 @@ export const getLocalEmbeddingStateActions = (
           break
       }
     },
-    getVectorDatabase: async (databaseInfo, ...args) => {
-      const embedding = get().embedding
+    getVectorDatabase: async (info, ...args) => {
+      const embedding = info.embedding || get().localEmbedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
       const database = await getRepository('VectorDatabase').findOne({
-        where: { id: databaseInfo.databaseId },
+        where: { id: info.database.databaseId },
       })
       if (!database) {
         throw new Error('Database not found.')
@@ -215,9 +228,9 @@ export const getLocalEmbeddingStateActions = (
         throw new Error('Database provider not found.')
       }
       const dataSource =
-        databaseInfo.dataSourceId && databaseInfo.dataSourceType
-          ? await getRepository(databaseInfo.dataSourceType).findOne({
-              where: { id: databaseInfo.dataSourceId },
+        info.database.dataSourceId && info.database.dataSourceType
+          ? await getRepository(info.database.dataSourceType).findOne({
+              where: { id: info.database.dataSourceId },
             })
           : undefined
 
@@ -245,14 +258,14 @@ export const getLocalEmbeddingStateActions = (
           throw new Error('Invalid provider')
       }
     },
-    similaritySearch: async (databaseInfo, ...args) => {
-      const embedding = get().embedding
+    similaritySearch: async (info, ...args) => {
+      const embedding = info.embedding || get().localEmbedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
       const database = await getRepository('VectorDatabase').findOne({
-        where: { id: databaseInfo.databaseId },
+        where: { id: info.database.databaseId },
       })
       if (!database || !database.provider) {
         throw new Error('Database not found.')
@@ -261,9 +274,9 @@ export const getLocalEmbeddingStateActions = (
         throw new Error('Database provider not found.')
       }
       const dataSource =
-        databaseInfo.dataSourceId && databaseInfo.dataSourceType
-          ? await getRepository(databaseInfo.dataSourceType).findOne({
-              where: { id: databaseInfo.dataSourceId },
+        info.database.dataSourceId && info.database.dataSourceType
+          ? await getRepository(info.database.dataSourceType).findOne({
+              where: { id: info.database.dataSourceId },
             })
           : undefined
 
@@ -298,14 +311,14 @@ export const getLocalEmbeddingStateActions = (
           throw new Error('Invalid provider')
       }
     },
-    similaritySearchWithScore: async (databaseInfo, ...args) => {
-      const embedding = get().embedding
+    similaritySearchWithScore: async (info, ...args) => {
+      const embedding = info.embedding || get().localEmbedding
       const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
       const database = await getRepository('VectorDatabase').findOne({
-        where: { id: databaseInfo.databaseId },
+        where: { id: info.database.databaseId },
       })
       if (!database || !database.provider) {
         throw new Error('Database not found.')
@@ -314,9 +327,9 @@ export const getLocalEmbeddingStateActions = (
         throw new Error('Database provider not found.')
       }
       const dataSource =
-        databaseInfo.dataSourceId && databaseInfo.dataSourceType
-          ? await getRepository(databaseInfo.dataSourceType).findOne({
-              where: { id: databaseInfo.dataSourceId },
+        info.database.dataSourceId && info.database.dataSourceType
+          ? await getRepository(info.database.dataSourceType).findOne({
+              where: { id: info.database.dataSourceId },
             })
           : undefined
 

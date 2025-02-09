@@ -144,7 +144,7 @@ export const LLMNode = memo((props: LLMNodeProps) => {
               />
             </div>
             <LLMSetting
-              llmOptions={data?.entity?.options}
+              options={data?.entity?.options}
               onChangeOptions={onChangeOptions}
               className="mt-2"
             />

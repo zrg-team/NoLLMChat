@@ -161,7 +161,7 @@ export const VectorDatabaseNode = memo((props: VectorDatabaseNodeProps) => {
               loading={loading}
               progress={progress}
               onFileSubmit={handleIndexPDF}
-              fileOptions={{ accept: '.pdf,.txt,.text', maxSize: 1 }}
+              fileOptions={{ accept: '.pdf,.txt,.text', maxSize: 2 }}
             />
           </TabsContent>
         )

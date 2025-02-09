@@ -20,7 +20,6 @@ import {
   VectorDatabase,
   VectorDatabaseStorageEnum,
 } from 'src/services/database/types'
-import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { useFlowState } from 'src/states/flow'
 import {
   prepareThreadConnections,
@@ -34,6 +33,7 @@ import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
 import { useSessionState } from 'src/states/session'
 import { useLLM } from 'src/hooks/mutations/use-llm'
 import { logError } from 'src/utils/logger'
+import { useEmbedding } from 'src/hooks/mutations/use-embedding'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -51,9 +51,7 @@ export const useCreateMessage = ({
   const currenSession = useSessionState((state) => state.currentSession)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
-  const similaritySearchWithScore = useLocalEmbeddingState(
-    (state) => state.similaritySearchWithScore,
-  )
+  const { similaritySearchWithScore: similaritySearchWithScoreFunction } = useEmbedding()
 
   const { stream } = useLLM()
 
@@ -176,7 +174,7 @@ export const useCreateMessage = ({
                 minimalScore = minimalScore / 100
               }
 
-              const documents: Awaited<ReturnType<typeof similaritySearchWithScore>> = []
+              const documents: Awaited<ReturnType<typeof similaritySearchWithScoreFunction>> = []
 
               if (vector.storage === VectorDatabaseStorageEnum.DataNode) {
                 const connections = getHandleConnections({
@@ -197,25 +195,31 @@ export const useCreateMessage = ({
                   return
                 }
                 documents.push(
-                  ...(await similaritySearchWithScore(
+                  ...((await similaritySearchWithScoreFunction(
+                    undefined,
                     {
-                      databaseId: vector.id,
-                      dataSourceId: dataSource.id,
-                      dataSourceType: getStorageDataSource(dataSource),
+                      database: {
+                        databaseId: vector.id,
+                        dataSourceId: dataSource.id,
+                        dataSourceType: getStorageDataSource(dataSource),
+                      },
                     },
                     messagesInfo.humanMessage.content,
                     k,
-                  )),
+                  )) || []),
                 )
               } else {
                 documents.push(
-                  ...(await similaritySearchWithScore(
+                  ...((await similaritySearchWithScoreFunction(
+                    undefined,
                     {
-                      databaseId: vector.id,
+                      database: {
+                        databaseId: vector.id,
+                      },
                     },
                     messagesInfo.humanMessage.content,
                     k,
-                  )),
+                  )) || []),
                 )
               }
               if (!documents) {
@@ -244,7 +248,7 @@ export const useCreateMessage = ({
       )
       return injectedMessages
     },
-    [getHandleConnections, getNode, similaritySearchWithScore],
+    [getHandleConnections, getNode, similaritySearchWithScoreFunction],
   )
 
   const invokeMessage = useCallback(

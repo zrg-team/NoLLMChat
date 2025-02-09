@@ -3,12 +3,12 @@ import localforage from 'localforage'
 
 export interface LocalEmbeddingState {
   ready: boolean
-  embedding?: Embeddings
+  localEmbedding?: Embeddings
   embeddingStorage?: typeof localforage
 }
 
 export const defaultLocalEmbeddingState: LocalEmbeddingState = {
   ready: false,
-  embedding: undefined,
+  localEmbedding: undefined,
   embeddingStorage: undefined,
 }

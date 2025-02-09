@@ -56,6 +56,7 @@ export const useCreateLLM = () => {
             metadata: JSON.stringify(record.metadata || {}),
             model_type: record.model_type || LLMModelTypeEnum.LLM,
             parameters: record.parameters || undefined,
+            encrypted: record.encrypted || undefined,
             ...record,
           })
           .then(async (llm) => {

@@ -5,7 +5,7 @@ import { useSessionState } from 'src/states/session'
 
 export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFlowManager>) => {
   const currentSessionId = useSessionState((state) => state.currentSession?.id)
-  const { loadingState, prepareFlowInfo, syncEdges, initialFlow, currentSessionIdRef } = flowManager
+  const { loadingState, prepareFlowInfo, initialFlow, currentSessionIdRef } = flowManager
 
   const flowStateReady = useFlowState((state) => state.ready)
   const removeSyncNodeQueue = useFlowState((state) => state.removeSyncNodeQueue)
@@ -60,7 +60,6 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
         )
         if (handlingQueueItems.length) {
           removeSyncEdgeQueue(handlingQueueItems.map((item) => item.timestamp))
-          syncEdges()
         }
       },
     )
@@ -69,5 +68,5 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
       unsubNodeHandler()
       unsubEdgeHandler()
     }
-  }, [prepareFlowInfo, removeSyncEdgeQueue, removeSyncNodeQueue, syncEdges])
+  }, [prepareFlowInfo, removeSyncEdgeQueue, removeSyncNodeQueue])
 }

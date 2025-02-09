@@ -6,13 +6,9 @@ import { ChatGroq } from '@langchain/groq'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
 import secureSession from 'src/utils/secure-session'
-import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
-import { useSessionState } from 'src/states/session'
 import { decryptSymmetric } from 'src/utils/aes'
 import { convertToZodSchema } from 'src/utils/schema-format'
-import { useToast } from 'src/lib/hooks/use-toast'
-import { useTranslation } from 'react-i18next'
-import { useModalRef } from 'src/hooks/use-modal-ref'
+import { useConfirmPassphrase } from './use-confirm-passphrase'
 
 const llmInvoke = async (
   model: BaseChatModel,
@@ -55,10 +51,7 @@ const llmInvoke = async (
 }
 
 export const useLangchainLLM = () => {
-  const { toast } = useToast()
-  const { t } = useTranslation('errors')
-  const currentSession = useSessionState((state) => state.currentSession)
-  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
+  const { confirmPassphrase } = useConfirmPassphrase()
 
   const stream = useCallback(
     async (
@@ -77,44 +70,17 @@ export const useLangchainLLM = () => {
       },
     ) => {
       const { schemas, onMessageUpdate, onMessageFinish } = info || {}
-      if (!currentSession?.passphrase) {
-        throw new Error('Session is not found')
-      }
-      const passphraseExisted = await secureSession.exists('passphrase')
-      if (!passphraseExisted) {
-        await new Promise<void>((resolve, reject) => {
-          sessionPassphraseDialogRef.current.show({
-            onConfirm: async (passkey) => {
-              try {
-                const result = await decryptSymmetric(currentSession.passphrase!, passkey)
-                await secureSession.set('passphrase', result)
-                resolve()
-              } catch (error) {
-                toast({
-                  content: t('invalid_passphrase'),
-                  variant: 'destructive',
-                })
-                reject(error)
-              } finally {
-                sessionPassphraseDialogRef.current.hide()
-              }
-            },
-            onCancel: () => {
-              reject()
-            },
-          })
-        })
-      }
-      const parameters = info?.llm?.parameters
+      await confirmPassphrase()
+      const encrypted = info?.llm?.encrypted
       const options = info?.llm?.options || ({} as Record<string, unknown>)
-      if (!parameters?.key || typeof parameters.key !== 'string') {
+      if (!encrypted?.key || typeof encrypted.key !== 'string') {
         throw new Error('API Key is not found')
       }
       const passphrase = await secureSession.get('passphrase')
       if (!passphrase) {
         throw new Error('Passphrase is not found')
       }
-      const apiKey = await decryptSymmetric(parameters.key, passphrase!)
+      const apiKey = await decryptSymmetric(encrypted.key, passphrase!)
       if (!apiKey) {
         throw new Error('API Key is not found')
       }
@@ -134,7 +100,7 @@ export const useLangchainLLM = () => {
               stopSequences: options?.stop ? (options.stop as string[]) : undefined,
               maxOutputTokens: options?.maxTokens ? +options.maxTokens : undefined,
             })
-            if (parameters?.enabled_google_search_retrieval) {
+            if (encrypted?.enabled_google_search_retrieval) {
               const searchRetrievalTool = {
                 googleSearchRetrieval: {
                   dynamicRetrievalConfig: {
@@ -200,7 +166,7 @@ export const useLangchainLLM = () => {
         content,
       }
     },
-    [currentSession, sessionPassphraseDialogRef, t, toast],
+    [confirmPassphrase],
   )
 
   return {

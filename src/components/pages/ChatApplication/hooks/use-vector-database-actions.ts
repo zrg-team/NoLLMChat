@@ -2,20 +2,18 @@ import { Document } from '@langchain/core/documents'
 import chunk from 'lodash/chunk'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useEmbedding } from 'src/hooks/mutations/use-embedding'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { VectorDatabase } from 'src/services/database/entities'
+import type { VectorDatabase } from 'src/services/database/types'
 import { VectorDatabaseStorageEnum } from 'src/services/database/types'
-import { useLocalEmbeddingState } from 'src/services/local-embedding'
 
 export const useVectorDatabaseActions = () => {
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation('flows')
   const { toast } = useToast()
 
-  const indexFunction = useLocalEmbeddingState((state) => state.index)
-  const similaritySearchWithScoreFunction = useLocalEmbeddingState(
-    (state) => state.similaritySearchWithScore,
-  )
+  const { index: indexFunction, similaritySearchWithScore: similaritySearchWithScoreFunction } =
+    useEmbedding()
   const similaritySearchWithScore = useCallback(
     async (input: string, options?: { k?: number; vectorDatabase: VectorDatabase }) => {
       try {
@@ -31,8 +29,11 @@ export const useVectorDatabaseActions = () => {
         } else {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
+            undefined,
             {
-              databaseId: options.vectorDatabase.id,
+              database: {
+                databaseId: options.vectorDatabase.id,
+              },
             },
             input,
             options?.k,
@@ -103,8 +104,11 @@ export const useVectorDatabaseActions = () => {
               total: documents.length,
             })
             await indexFunction(
+              undefined,
               {
-                databaseId: options.vectorDatabase.id,
+                database: {
+                  databaseId: options.vectorDatabase.id,
+                },
               },
               partDocuments,
             )

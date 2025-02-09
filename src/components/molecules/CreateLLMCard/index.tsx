@@ -32,27 +32,23 @@ import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
 import { LLMInfo } from 'src/components/atoms/LLMInfo'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { Alert } from 'src/lib/shadcn/ui/alert'
-import CreateSessionPassphraseDialog from 'src/components/dialogs/CreateSessionPassphraseDialog'
-import { useUpdateSessionPassphrase } from 'src/hooks/mutations/use-update-session-passphrase'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { logError } from 'src/utils/logger'
-import secureSession from 'src/utils/secure-session'
 import { useSessionState } from 'src/states/session'
-import { encryptData, passphraseConfirm } from 'src/utils/passphrase'
-import { useModalRef } from 'src/hooks/use-modal-ref'
-import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
+import { encryptData } from 'src/utils/passphrase'
 import { Checkbox } from 'src/lib/shadcn/ui/checkbox'
-
 import {
   GROQ_API_KEY_LINK,
   GROQ_MODELS,
   GROQ_VISION_MODELS,
   OPEN_AI_API_KEY_LINK,
   OPEN_AI_MODELS,
-  SUPPORTED_PROVIDERS,
   GOOGLE_GENERATIVE_AI_API_KEY_LINK,
   GOOGLE_GENERATIVE_AI_MODELS,
-} from './constants'
+} from 'src/constants/llm'
+
+import { SUPPORTED_PROVIDERS } from './constants'
+import { useConfirmOrCreatePassphrase } from 'src/hooks/mutations/use-confirm-or-create-passphrase'
 
 function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
   const { id, setDialog } = props
@@ -70,14 +66,12 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     modelList: ModelRecord[]
     functionCallingModelIds: string[]
   }>()
-  const { updateSessionPassphrase } = useUpdateSessionPassphrase()
   const currentSession = useSessionState((state) => state.currentSession)
   const syncCachedLLMURLs = useLocalLLMState((state) => state.syncCachedLLMURLs)
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createLLM } = useCreateLLM()
 
-  const { modalRef: createSessionPassphraseDialogRef } = useModalRef(CreateSessionPassphraseDialog)
-  const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
+  const { confirmOrCreatePassphrase } = useConfirmOrCreatePassphrase()
 
   useEffect(() => {
     import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
@@ -217,26 +211,14 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     if (!node || !currentSession) return
     try {
       setLoading(true)
-      let passkey = ''
-      let parameters: Record<string, unknown> | undefined
-      if (isRequiredSessionPasskey && !currentSession.passphrase) {
-        await createSessionPassphraseDialogRef.current.show({
-          onConfirm: async (input: string) => {
-            passkey = input
-          },
-        })
-        const keyInfo = await updateSessionPassphrase(passkey)
-        if (!keyInfo || !Object.keys(encryptedInfo || {}).length) {
-          throw new Error('Failed to update session passphrase')
+      let encrypted: Record<string, unknown> | undefined
+
+      if (isRequiredSessionPasskey) {
+        const passphrase = await confirmOrCreatePassphrase()
+        if (!passphrase) {
+          throw new Error('Passphrase is not found')
         }
-        await secureSession.set('passphrase', keyInfo.passphrase)
-        parameters = await encryptData(encryptedInfo || {}, keyInfo.passphrase)
-      } else if (isRequiredSessionPasskey && currentSession.passphrase) {
-        const response = await passphraseConfirm(
-          currentSession.passphrase,
-          sessionPassphraseDialogRef.current,
-        )
-        parameters = await encryptData(encryptedInfo || {}, response)
+        encrypted = await encryptData(encryptedInfo || {}, passphrase)
       }
       await createLLM(node, {
         name: input,
@@ -244,7 +226,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         function_calling: selectedModel?.model_id
           ? llmsInfo?.functionCallingModelIds?.includes(selectedModel?.model_id)
           : false,
-        parameters,
+        encrypted,
         provider,
       })
       setDialog?.(false)
