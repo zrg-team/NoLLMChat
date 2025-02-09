@@ -481,7 +481,7 @@
       }
     },
     "llm_setting": {
-      "title": "LLM Setting",
+      "title": "Setting",
       "hide": "Hide",
       "temperature": "Temperature",
       "top_k": "Top K",
@@ -490,6 +490,19 @@
       "stop_sequences": "Stop Sequences",
       "stop_sequences_placeholder": "Stop sequences, separated by comma. Example: 'end, stop'",
       "save": "Save"
+    },
+    "embedding_setting": {
+      "title": "Setting",
+      "hide": "Hide",
+      "save": "Save",
+      "provider": "Provider",
+      "provider_placeholder": "Select a provider",
+      "providers": {
+        "local_transformers": "Local Transformers"
+      },
+      "alerts": {
+        "no_provider": "To select difference embedding model, please add a LLM node which is supported embedding model. Example: 'OpenAI', 'Google Generative AI'"
+      }
     }
   },
   "applications": {

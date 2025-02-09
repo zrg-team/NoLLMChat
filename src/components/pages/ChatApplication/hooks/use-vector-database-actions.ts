@@ -32,7 +32,9 @@ export const useVectorDatabaseActions = () => {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
             {
-              databaseId: options.vectorDatabase.id,
+              database: {
+                databaseId: options.vectorDatabase.id,
+              },
             },
             input,
             options?.k,
@@ -104,7 +106,9 @@ export const useVectorDatabaseActions = () => {
             })
             await indexFunction(
               {
-                databaseId: options.vectorDatabase.id,
+                database: {
+                  databaseId: options.vectorDatabase.id,
+                },
               },
               partDocuments,
             )

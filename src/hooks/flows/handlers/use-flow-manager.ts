@@ -168,12 +168,6 @@ export const useFlowManager = () => {
     [addConnectionToEdges],
   )
 
-  const syncEdges = useCallback(() => {
-    if (!flowEdgesRef.current?.length) {
-      return
-    }
-  }, [])
-
   const updateOrCreateNode = useCallback(
     (input: Node | ((node: Node[]) => Node | undefined)) => {
       setNodes((nodes) => {
@@ -207,7 +201,6 @@ export const useFlowManager = () => {
   )
 
   return {
-    syncEdges,
     initialFlow,
     loadingState,
     prepareFlowInfo,

@@ -199,9 +199,11 @@ export const useCreateMessage = ({
                 documents.push(
                   ...(await similaritySearchWithScore(
                     {
-                      databaseId: vector.id,
-                      dataSourceId: dataSource.id,
-                      dataSourceType: getStorageDataSource(dataSource),
+                      database: {
+                        databaseId: vector.id,
+                        dataSourceId: dataSource.id,
+                        dataSourceType: getStorageDataSource(dataSource),
+                      },
                     },
                     messagesInfo.humanMessage.content,
                     k,
@@ -211,7 +213,9 @@ export const useCreateMessage = ({
                 documents.push(
                   ...(await similaritySearchWithScore(
                     {
-                      databaseId: vector.id,
+                      database: {
+                        databaseId: vector.id,
+                      },
                     },
                     messagesInfo.humanMessage.content,
                     k,

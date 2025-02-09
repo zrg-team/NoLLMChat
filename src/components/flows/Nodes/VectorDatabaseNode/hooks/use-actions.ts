@@ -68,9 +68,11 @@ export const useActions = (id: string) => {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
             {
-              databaseId: entity.id,
-              dataSourceId: dataSource.id,
-              dataSourceType: getStorageDataSource(dataSource),
+              database: {
+                databaseId: entity.id,
+                dataSourceId: dataSource.id,
+                dataSourceType: getStorageDataSource(dataSource),
+              },
             },
             input,
             options?.k,
@@ -80,7 +82,9 @@ export const useActions = (id: string) => {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
             {
-              databaseId: entity.id,
+              database: {
+                databaseId: entity.id,
+              },
             },
             input,
             options?.k,
@@ -177,9 +181,11 @@ export const useActions = (id: string) => {
             })
             await indexFunction(
               {
-                databaseId: entity.id,
-                dataSourceId: dataSource.id,
-                dataSourceType,
+                database: {
+                  databaseId: entity.id,
+                  dataSourceId: dataSource.id,
+                  dataSourceType,
+                },
               },
               partDocuments,
             )
@@ -216,7 +222,9 @@ export const useActions = (id: string) => {
             })
             await indexFunction(
               {
-                databaseId: entity.id,
+                database: {
+                  databaseId: entity.id,
+                },
               },
               partDocuments,
             )

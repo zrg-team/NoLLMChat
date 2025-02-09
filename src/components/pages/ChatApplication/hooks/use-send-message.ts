@@ -55,7 +55,9 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
               }
               const documents = await similaritySearchWithScore(
                 {
-                  databaseId: item.vectorDatabaseEntity.id,
+                  database: {
+                    databaseId: item.vectorDatabaseEntity.id,
+                  },
                 },
                 content,
                 k,

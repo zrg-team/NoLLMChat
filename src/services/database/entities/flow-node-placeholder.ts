@@ -22,7 +22,7 @@ export class FlowNodePlaceholder {
   placeholder_type: `${FlowNodePlaceholderTypeEnum}`
 
   @Column({ type: 'json', nullable: true })
-  data?: unknown
+  data?: Record<string, unknown>
 
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, unknown>

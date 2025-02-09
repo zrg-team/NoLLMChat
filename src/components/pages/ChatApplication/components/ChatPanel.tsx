@@ -175,7 +175,7 @@ export function ChatPanel({
           </div>
         ) : undefined}
         <LLMSetting
-          llmOptions={mainLLMInfo?.llm?.options}
+          options={mainLLMInfo?.llm?.options}
           onChangeOptions={handleChangeOptions}
           className="p-2"
         />
