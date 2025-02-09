@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { getRepository } from 'src/services/database'
-import { VectorDatabase } from 'src/services/database/entities'
+import type { VectorDatabase } from 'src/services/database/types'
 import {
   FlowNodeTypeEnum,
   CSVData,
@@ -13,9 +13,9 @@ import {
   JSONLData,
   VectorDatabaseStorageEnum,
 } from 'src/services/database/types'
-import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { useFlowState } from 'src/states/flow'
 import { getStorageDataSource } from 'src/utils/vector-storage'
+import { useEmbedding } from 'src/hooks/mutations/use-embedding'
 
 export const useActions = (id: string) => {
   const [loading, setLoading] = useState(false)
@@ -24,10 +24,8 @@ export const useActions = (id: string) => {
 
   const { getNode, getHandleConnections } = useReactFlow()
   const updateNodes = useFlowState((state) => state.updateNodes)
-  const indexFunction = useLocalEmbeddingState((state) => state.index)
-  const similaritySearchWithScoreFunction = useLocalEmbeddingState(
-    (state) => state.similaritySearchWithScore,
-  )
+  const { index: indexFunction, similaritySearchWithScore: similaritySearchWithScoreFunction } =
+    useEmbedding()
   const similaritySearchWithScore = useCallback(
     async (input: string, options?: { k?: number }) => {
       try {
@@ -67,6 +65,7 @@ export const useActions = (id: string) => {
           }
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
+            undefined,
             {
               database: {
                 databaseId: entity.id,
@@ -81,6 +80,7 @@ export const useActions = (id: string) => {
         } else {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
+            undefined,
             {
               database: {
                 databaseId: entity.id,
@@ -180,6 +180,7 @@ export const useActions = (id: string) => {
               total: documents.length,
             })
             await indexFunction(
+              undefined,
               {
                 database: {
                   databaseId: entity.id,
@@ -221,6 +222,7 @@ export const useActions = (id: string) => {
               total: documents.length,
             })
             await indexFunction(
+              undefined,
               {
                 database: {
                   databaseId: entity.id,

@@ -27,6 +27,9 @@ export class FlowNodePlaceholder {
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, unknown>
 
+  @Column({ type: 'json', nullable: true })
+  encrypted?: Record<string, unknown>
+
   @CreateDateColumn()
   created_at?: Date
 

@@ -3,13 +3,13 @@ import { Node } from '@xyflow/react'
 import { useBaseConnectionToHandler } from 'src/hooks/flows/handlers/use-base-connection-to-handler'
 import { useFlowState } from 'src/states/flow'
 import { CSVData, FlowNodeTypeEnum, VectorDatabase } from 'src/services/database/types'
-import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { decodeCSVData } from 'src/utils/string-data'
 import { Document } from '@langchain/core/documents'
+import { useEmbedding } from 'src/hooks/mutations/use-embedding'
 
 export const useConnectionToHandler = (id: string) => {
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
-  const indexVector = useLocalEmbeddingState((state) => state.index)
+  const { index: indexFunction } = useEmbedding()
 
   const connectionHandler = useCallback(
     async ({ edgeId, target, source }: { edgeId: string; source: Node; target: Node }) => {
@@ -32,11 +32,14 @@ export const useConnectionToHandler = (id: string) => {
                 pageContent: `${row.text}`,
               }),
           )
-          await indexVector(
+          await indexFunction(
+            undefined,
             {
-              databaseId: targetEntity.id,
-              dataSourceId: csvData.id,
-              dataSourceType: 'CSVData',
+              database: {
+                databaseId: targetEntity.id,
+                dataSourceId: csvData.id,
+                dataSourceType: 'CSVData',
+              },
             },
             documents,
           )
@@ -55,7 +58,7 @@ export const useConnectionToHandler = (id: string) => {
         }
       }
     },
-    [createOrUpdateFlowEdge, indexVector],
+    [createOrUpdateFlowEdge, indexFunction],
   )
 
   useBaseConnectionToHandler(id, connectionHandler)

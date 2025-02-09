@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
 import { FlowNodePlaceholderTypeEnum, LLMStatusEnum, Schema } from 'src/services/database/types'
-import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
 import { useLLM } from 'src/hooks/mutations/use-llm'
 import { useChatApplicationData } from './use-chat-application-data'
+import { useEmbedding } from 'src/hooks/mutations/use-embedding'
 
 type CreateMessageOption = {
   schema?: Schema
@@ -16,9 +16,7 @@ type CreateMessageOption = {
 }
 export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApplicationData>) => {
   const [loading] = useState(false)
-  const similaritySearchWithScore = useLocalEmbeddingState(
-    (state) => state.similaritySearchWithScore,
-  )
+  const { similaritySearchWithScore } = useEmbedding()
   const { stream } = useLLM()
 
   const handlePlaceholders = useCallback(
@@ -54,6 +52,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
                 minimalScore = minimalScore / 100
               }
               const documents = await similaritySearchWithScore(
+                undefined,
                 {
                   database: {
                     databaseId: item.vectorDatabaseEntity.id,

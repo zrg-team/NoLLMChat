@@ -498,10 +498,16 @@
       "provider": "Provider",
       "provider_placeholder": "Select a provider",
       "providers": {
-        "local_transformers": "Local Transformers"
+        "local_transformers": "Local Transformers",
+        "openai": "OpenAI",
+        "googlegenerativeai": "Google Generative AI"
       },
       "alerts": {
-        "no_provider": "To select difference embedding model, please add a LLM node which is supported embedding model. Example: 'OpenAI', 'Google Generative AI'"
+        "no_provider": "To select difference embedding model, please add a LLM node which is supported embedding model. Example: 'OpenAI', 'Google Generative AI'",
+        "session_passkey":"Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
+      },
+      "encrypted_fields": {
+        "api_key": "API key"
       }
     }
   },

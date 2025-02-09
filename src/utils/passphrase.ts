@@ -4,25 +4,25 @@ import secureSession from 'src/utils/secure-session'
 import { decryptSymmetric, encryptSymmetric } from 'src/utils/aes'
 
 export const encryptData = async (encryptedInfo: Record<string, string>, passphrase: string) => {
-  const parameters: Record<string, string> = {}
+  const result: Record<string, string> = {}
   await Promise.all(
     Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
       const encrypted = await encryptSymmetric(value, passphrase)
-      parameters[key] = encrypted
+      result[key] = encrypted
     }),
   )
-  return parameters
+  return result
 }
 
 export const decryptData = async (encryptedInfo: Record<string, string>, passphrase: string) => {
-  const parameters: Record<string, string> = {}
+  const result: Record<string, string> = {}
   await Promise.all(
     Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
       const decrypted = await decryptSymmetric(value, passphrase)
-      parameters[key] = decrypted
+      result[key] = decrypted
     }),
   )
-  return parameters
+  return result
 }
 
 export const passphraseConfirm = async (
