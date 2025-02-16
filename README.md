@@ -9,7 +9,7 @@ The project aims to revolutionize AI interaction by creating a platform that enh
     <a href="https://nollm.netlify.app/NoLLMChat">✨✨✨ DEMO ✨✨✨</a>
 </p>
 <p align="center">
-    [■■■□□□□□□□] 25%
+    [■■■■□□□□□□] 30%
 </p>
 
 ![Intro Image](./public/intro.jpeg)
