@@ -91,7 +91,7 @@ export const LLMSetting = memo(
                     <Label>{t('llm_setting.max_tokens')}:</Label>
                     <Input
                       type="number"
-                      value={options.max_tokens ? `${options.max_tokens}` : ''}
+                      value={options.maxTokens ? `${options.maxTokens}` : ''}
                       onChange={(e) =>
                         setOptions((pre) => ({
                           ...pre,

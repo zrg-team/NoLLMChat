@@ -191,7 +191,8 @@
         "add": "Add"
       },
       "add_file": {
-        "index": "Index File"
+        "index": "Index File",
+        "alert_file_size": "Noted: file size larger than 2MB will take a long time to index by using local embedding model (Setting Embedding Node to use OpenAI or Google Generative AI for large file)."
       },
       "to_retriever": "To Retriever"
     },

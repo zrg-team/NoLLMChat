@@ -34,6 +34,7 @@ import { useSessionState } from 'src/states/session'
 import { useLLM } from 'src/hooks/mutations/use-llm'
 import { logError } from 'src/utils/logger'
 import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { useFlowEmbeddingNode } from 'src/hooks/flows/use-flow-embedding-node'
 
 type CreateMessageOption = {
   onMessageUpdate: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -52,6 +53,7 @@ export const useCreateMessage = ({
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
   const { similaritySearchWithScore: similaritySearchWithScoreFunction } = useEmbedding()
+  const { getFlowEmbeddingEntity } = useFlowEmbeddingNode()
 
   const { stream } = useLLM()
 
@@ -196,7 +198,7 @@ export const useCreateMessage = ({
                 }
                 documents.push(
                   ...((await similaritySearchWithScoreFunction(
-                    undefined,
+                    getFlowEmbeddingEntity(),
                     {
                       database: {
                         databaseId: vector.id,
@@ -211,7 +213,7 @@ export const useCreateMessage = ({
               } else {
                 documents.push(
                   ...((await similaritySearchWithScoreFunction(
-                    undefined,
+                    getFlowEmbeddingEntity(),
                     {
                       database: {
                         databaseId: vector.id,
@@ -248,7 +250,7 @@ export const useCreateMessage = ({
       )
       return injectedMessages
     },
-    [getHandleConnections, getNode, similaritySearchWithScoreFunction],
+    [getFlowEmbeddingEntity, getHandleConnections, getNode, similaritySearchWithScoreFunction],
   )
 
   const invokeMessage = useCallback(

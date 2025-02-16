@@ -7,6 +7,7 @@ import {
   FlowEdge,
   FlowNode,
   FlowNodePlaceholder,
+  FlowNodeTypeEnum,
   JSONData,
   LLM,
   LLMStatusEnum,
@@ -26,6 +27,9 @@ export const useChatApplicationData = () => {
   const [chatInfo, setChatInfo] = useState<{
     prompts?: Prompt[]
     schema?: Schema
+  }>()
+  const [mainEmbeddingInfo, setMainEmbeddingInfo] = useState<{
+    embedding?: FlowNodePlaceholder
   }>()
   const [threadInfo, setThreadInfo] = useState<{ thread: Thread; threadNode: FlowNode }>()
   const [mainLLMInfo, setLLMInfo] = useState<{
@@ -317,6 +321,23 @@ export const useChatApplicationData = () => {
       await getRetrieveVectorDatabase(placeholderInfo)
       await handleThreadData(threadNode, promptInfo?.map((info) => info.entity as Prompt) || [])
 
+      // Handle Embedding Node
+      const embeddingNode = await getRepository('FlowNode').findOne({
+        where: {
+          node_type: FlowNodeTypeEnum.DefaultEmbeddingModel,
+          source_type: 'FlowNodePlaceholder',
+        },
+      })
+
+      if (embeddingNode) {
+        const embeddingEntity = await getRepository('FlowNodePlaceholder').findOne({
+          where: { id: embeddingNode.source_id },
+        })
+        setMainEmbeddingInfo({
+          embedding: embeddingEntity,
+        })
+      }
+
       setLLMInfo({
         llm,
         status: llm.status || LLMStatusEnum.Started,
@@ -404,6 +425,7 @@ export const useChatApplicationData = () => {
     loadLLM,
     threadInfo,
     mainLLMInfo,
+    mainEmbeddingInfo,
     retriverInfo,
     currentDataNode,
     updateMessagesData,

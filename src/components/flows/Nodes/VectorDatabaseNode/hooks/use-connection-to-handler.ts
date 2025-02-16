@@ -6,9 +6,11 @@ import { CSVData, FlowNodeTypeEnum, VectorDatabase } from 'src/services/database
 import { decodeCSVData } from 'src/utils/string-data'
 import { Document } from '@langchain/core/documents'
 import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { useFlowEmbeddingNode } from 'src/hooks/flows/use-flow-embedding-node'
 
 export const useConnectionToHandler = (id: string) => {
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
+  const { getFlowEmbeddingEntity } = useFlowEmbeddingNode()
   const { index: indexFunction } = useEmbedding()
 
   const connectionHandler = useCallback(
@@ -33,7 +35,7 @@ export const useConnectionToHandler = (id: string) => {
               }),
           )
           await indexFunction(
-            undefined,
+            getFlowEmbeddingEntity(),
             {
               database: {
                 databaseId: targetEntity.id,
@@ -58,7 +60,7 @@ export const useConnectionToHandler = (id: string) => {
         }
       }
     },
-    [createOrUpdateFlowEdge, indexFunction],
+    [createOrUpdateFlowEdge, getFlowEmbeddingEntity, indexFunction],
   )
 
   useBaseConnectionToHandler(id, connectionHandler)

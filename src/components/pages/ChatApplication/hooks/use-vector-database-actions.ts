@@ -6,8 +6,11 @@ import { useEmbedding } from 'src/hooks/mutations/use-embedding'
 import { useToast } from 'src/lib/hooks/use-toast'
 import type { VectorDatabase } from 'src/services/database/types'
 import { VectorDatabaseStorageEnum } from 'src/services/database/types'
+import { useChatApplicationData } from './use-chat-application-data'
 
-export const useVectorDatabaseActions = () => {
+export const useVectorDatabaseActions = (
+  mainEmbeddingInfo?: ReturnType<typeof useChatApplicationData>['mainEmbeddingInfo'],
+) => {
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation('flows')
   const { toast } = useToast()
@@ -29,7 +32,7 @@ export const useVectorDatabaseActions = () => {
         } else {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
-            undefined,
+            mainEmbeddingInfo?.embedding,
             {
               database: {
                 databaseId: options.vectorDatabase.id,
@@ -49,7 +52,7 @@ export const useVectorDatabaseActions = () => {
         setLoading(false)
       }
     },
-    [similaritySearchWithScoreFunction, toast, t],
+    [toast, t, similaritySearchWithScoreFunction, mainEmbeddingInfo?.embedding],
   )
 
   const indexData = useCallback(
@@ -104,7 +107,7 @@ export const useVectorDatabaseActions = () => {
               total: documents.length,
             })
             await indexFunction(
-              undefined,
+              mainEmbeddingInfo?.embedding,
               {
                 database: {
                   databaseId: options.vectorDatabase.id,
@@ -124,7 +127,7 @@ export const useVectorDatabaseActions = () => {
         setLoading(false)
       }
     },
-    [indexFunction, toast, t],
+    [toast, t, indexFunction, mainEmbeddingInfo?.embedding],
   )
 
   return {
