@@ -16,6 +16,7 @@ import {
 import { useFlowState } from 'src/states/flow'
 import { getStorageDataSource } from 'src/utils/vector-storage'
 import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { useFlowEmbeddingNode } from 'src/hooks/flows/use-flow-embedding-node'
 
 export const useActions = (id: string) => {
   const [loading, setLoading] = useState(false)
@@ -24,6 +25,7 @@ export const useActions = (id: string) => {
 
   const { getNode, getHandleConnections } = useReactFlow()
   const updateNodes = useFlowState((state) => state.updateNodes)
+  const { getFlowEmbeddingEntity } = useFlowEmbeddingNode()
   const { index: indexFunction, similaritySearchWithScore: similaritySearchWithScoreFunction } =
     useEmbedding()
   const similaritySearchWithScore = useCallback(
@@ -41,6 +43,7 @@ export const useActions = (id: string) => {
           })
           return
         }
+        const embbedingEntity = getFlowEmbeddingEntity()
         if (entity.storage === VectorDatabaseStorageEnum.DataNode) {
           const connections = getHandleConnections({
             nodeId: id,
@@ -65,7 +68,7 @@ export const useActions = (id: string) => {
           }
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
-            undefined,
+            embbedingEntity,
             {
               database: {
                 databaseId: entity.id,
@@ -80,7 +83,7 @@ export const useActions = (id: string) => {
         } else {
           setLoading(true)
           const result = await similaritySearchWithScoreFunction(
-            undefined,
+            embbedingEntity,
             {
               database: {
                 databaseId: entity.id,
@@ -100,7 +103,15 @@ export const useActions = (id: string) => {
         setLoading(false)
       }
     },
-    [getHandleConnections, id, similaritySearchWithScoreFunction, toast, t, getNode],
+    [
+      getNode,
+      id,
+      getFlowEmbeddingEntity,
+      toast,
+      t,
+      getHandleConnections,
+      similaritySearchWithScoreFunction,
+    ],
   )
 
   const indexData = useCallback(
@@ -145,6 +156,8 @@ export const useActions = (id: string) => {
           return
         }
 
+        const embbedingEntity = getFlowEmbeddingEntity()
+
         if (entity.storage === VectorDatabaseStorageEnum.DataNode) {
           const connections = getHandleConnections({
             nodeId: id,
@@ -180,7 +193,7 @@ export const useActions = (id: string) => {
               total: documents.length,
             })
             await indexFunction(
-              undefined,
+              embbedingEntity,
               {
                 database: {
                   databaseId: entity.id,
@@ -222,7 +235,7 @@ export const useActions = (id: string) => {
               total: documents.length,
             })
             await indexFunction(
-              undefined,
+              embbedingEntity,
               {
                 database: {
                   databaseId: entity.id,
@@ -258,7 +271,16 @@ export const useActions = (id: string) => {
         setLoading(false)
       }
     },
-    [getHandleConnections, id, indexFunction, toast, t, getNode, updateNodes],
+    [
+      getNode,
+      id,
+      getFlowEmbeddingEntity,
+      toast,
+      t,
+      getHandleConnections,
+      indexFunction,
+      updateNodes,
+    ],
   )
 
   return {

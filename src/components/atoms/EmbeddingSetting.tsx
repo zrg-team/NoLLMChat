@@ -16,7 +16,7 @@ import { cn } from 'src/lib/utils'
 import { Alert } from 'src/lib/shadcn/ui/alert'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { LLMProviderEnum } from 'src/services/database/types'
-import { GROQ_API_KEY_LINK, OPEN_AI_API_KEY_LINK } from 'src/constants/llm'
+import { GOOGLE_GENERATIVE_AI_API_KEY_LINK, OPEN_AI_API_KEY_LINK } from 'src/constants/llm'
 import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import secureSession from 'src/utils/secure-session'
 import { decryptSymmetric } from 'src/utils/aes'
@@ -51,7 +51,10 @@ export const EmbeddingSetting = memo(
           await Promise.all(
             Object.keys(props.encrypted || {}).map(async (key) => {
               if (props.encrypted?.[key]) {
-                decrypted[key] = await decryptSymmetric(options[key] as string, passphrase!)
+                decrypted[key] = await decryptSymmetric(
+                  props.encrypted?.[key] as string,
+                  passphrase!,
+                )
               }
             }),
           )
@@ -129,7 +132,7 @@ export const EmbeddingSetting = memo(
                               href={
                                 options.provider === LLMProviderEnum.OpenAI
                                   ? OPEN_AI_API_KEY_LINK
-                                  : GROQ_API_KEY_LINK
+                                  : GOOGLE_GENERATIVE_AI_API_KEY_LINK
                               }
                               target="_blank"
                               rel="noreferrer"
@@ -137,7 +140,7 @@ export const EmbeddingSetting = memo(
                               (
                               {options.provider === LLMProviderEnum.OpenAI
                                 ? OPEN_AI_API_KEY_LINK
-                                : GROQ_API_KEY_LINK}
+                                : GOOGLE_GENERATIVE_AI_API_KEY_LINK}
                               )
                             </a>
                           </Button>

@@ -32,6 +32,7 @@ import { useUpdateLLMOptions } from '../hooks/use-update-llm-options'
 export function ChatPanel({
   schema,
   mainLLMInfo,
+  mainEmbeddingInfo,
   loadLLM,
   retriverInfo,
   threadNode,
@@ -50,6 +51,7 @@ export function ChatPanel({
   currentDataNode: ReturnType<typeof useChatApplicationData>['currentDataNode']
   loadLLM: ReturnType<typeof useChatApplicationData>['loadLLM']
   mainLLMInfo: ReturnType<typeof useChatApplicationData>['mainLLMInfo']
+  mainEmbeddingInfo: ReturnType<typeof useChatApplicationData>['mainEmbeddingInfo']
   setLLMInfo: ReturnType<typeof useChatApplicationData>['setLLMInfo']
   changeLLMOptions: ReturnType<typeof useUpdateLLMOptions>['changeLLMOptions']
 }) {
@@ -72,8 +74,9 @@ export function ChatPanel({
   const handleShowVectorDatabase = React.useCallback(() => {
     vectorDatabaseDialog.show({
       retriverInfo: retriverInfo[0],
+      mainEmbeddingInfo: mainEmbeddingInfo,
     })
-  }, [retriverInfo, vectorDatabaseDialog])
+  }, [mainEmbeddingInfo, retriverInfo, vectorDatabaseDialog])
 
   const handleDeleteDataNode = React.useCallback(
     async (e: React.MouseEvent, node: FlowNode) => {

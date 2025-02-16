@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import FileUploadInput from 'src/lib/kokonutui/file-upload-input'
 import { UseFileInputOptions } from 'src/lib/kokonutui/use-file-input'
+import { Alert } from 'src/lib/shadcn/ui/alert'
 
 export default function IndexNewFile({
   onFileSubmit,
@@ -37,6 +38,9 @@ export default function IndexNewFile({
           setFile={setFile}
           file={file}
         />
+        <Alert variant="default" className="mt-2 border-none max-w-96">
+          {t('vector_database_node.add_file.alert_file_size')}
+        </Alert>
       </div>
       <LoadingButton
         loading={loading}

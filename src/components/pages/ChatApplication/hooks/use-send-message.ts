@@ -52,7 +52,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
                 minimalScore = minimalScore / 100
               }
               const documents = await similaritySearchWithScore(
-                undefined,
+                chatApplicationData?.mainEmbeddingInfo?.embedding,
                 {
                   database: {
                     databaseId: item.vectorDatabaseEntity.id,
@@ -86,7 +86,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
       )
       return injectedMessages
     },
-    [similaritySearchWithScore],
+    [similaritySearchWithScore, chatApplicationData?.mainEmbeddingInfo?.embedding],
   )
 
   const sendMessage = useCallback(
@@ -128,7 +128,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
 
       const { content } = await stream(
         chatApplicationData.mainLLMInfo.llm.provider,
-        formatedMessages,
+        [...injectedMessages, ...formatedMessages],
         {
           schemas: schema ? [schema] : undefined,
           onMessageUpdate: ({ content }) => {
