@@ -128,6 +128,7 @@
     "framer-motion": "^11.13.3",
     "html2canvas": "^1.4.1",
     "i18next": "^23.15.1",
+    "ignore": "^7.0.3",
     "input-otp": "^1.4.2",
     "jotai-x": "^1.2.4",
     "js-md5": "^0.8.3",

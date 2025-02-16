@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { WebContainer } from '@webcontainer/api'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
@@ -7,11 +7,12 @@ import type { GridviewPanelApi } from 'dockview'
 
 import { useAppState } from 'src/states/app'
 import { useWebContainerState } from 'src/services/web-container/state'
-import { logDebug, logWarn } from 'src/utils/logger'
+import { logDebug, logInfo, logWarn } from 'src/utils/logger'
+import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
+import ignore from 'ignore'
 
 import { useMainVSLiteAppContext } from '../contexts/main'
 import { startFiles, jshRC } from '../modules/webcontainer'
-import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
 
 export interface ShellInstance {
   container: WebContainer | null
@@ -30,6 +31,7 @@ export type ServerReadyHandler = (url: string, port: number, fs: FileSystemAPI) 
 export function useShell(): ShellInstance {
   const updatePoolRef = useRef<FileSystemTreeChange[]>([])
   const updateDebounceInstanceRef = useRef<number>()
+  const ignoreInstanceRef = useRef<ReturnType<typeof ignore>>()
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
   const webContainerInit = useWebContainerState((state) => state.init)
   const webContainerTeardown = useWebContainerState((state) => state.teardown)
@@ -46,6 +48,7 @@ export function useShell(): ShellInstance {
     clearSession,
     onUpdateFileContent,
   } = useMainVSLiteAppContext()
+
   const theme = useMemo(
     () =>
       isDarkTheme
@@ -53,6 +56,15 @@ export function useShell(): ShellInstance {
         : { background: '#f3f3f3', foreground: '#000', cursor: '#666' },
     [isDarkTheme],
   )
+
+  useLayoutEffect(() => {
+    ignoreInstanceRef.current = ignore()
+    ignoreInstanceRef.current.add(['.git', 'node_modules', 'dist', 'build', 'coverage', '_tmp_'])
+
+    return () => {
+      ignoreInstanceRef.current = undefined
+    }
+  }, [])
 
   useEffect(() => {
     if (terminal) {
@@ -64,6 +76,7 @@ export function useShell(): ShellInstance {
   useEffect(() => {
     return () => {
       webContainerTeardown()
+      ignoreInstanceRef.current = undefined
     }
   }, [webContainerTeardown])
 
@@ -72,7 +85,12 @@ export function useShell(): ShellInstance {
       updatePoolRef.current.push(update)
       clearTimeout(updateDebounceInstanceRef.current)
       updateDebounceInstanceRef.current = setTimeout(() => {
-        onUpdateFileContent?.(updatePoolRef.current)
+        const filtered = updatePoolRef.current.filter((change) => {
+          return !ignoreInstanceRef.current?.ignores(change.path)
+        })
+        if (filtered?.length) {
+          onUpdateFileContent?.(filtered)
+        }
         updatePoolRef.current = []
       }, 500)
     },
@@ -102,6 +120,16 @@ export function useShell(): ShellInstance {
         await shell.fs.writeFile('.jshrc', jshRC)
         await shell.spawn('mv', ['.jshrc', '/home/.jshrc'])
 
+        await shell.fs
+          .readFile('.gitignore', 'utf-8')
+          .then((content) => {
+            logInfo('Adding gitignore to ignore list', content)
+            ignoreInstanceRef.current?.add(content.split('\n'))
+          })
+          .catch((err) => {
+            logWarn('err', err)
+          })
+
         // Setup terminal
         const terminal = new Terminal({ convertEol: true, theme })
         const addon = new FitAddon()
@@ -115,7 +143,7 @@ export function useShell(): ShellInstance {
           'chokidar-cli',
           '.',
           '-i',
-          '"(**/(node_modules|.git|_tmp_)**)"',
+          '"(**/(node_modules|.git|_tmp_|.vite|dist|build|coverage)**)"',
         ])
         watch.output.pipeTo(
           new WritableStream({
@@ -238,12 +266,12 @@ export function useShell(): ShellInstance {
       containerInfo.port,
       containerInfo.url,
       fileTreeStateRef,
-      onUpdateFileContent,
       setContainer,
       setContainerInfo,
       setProcess,
       setTerminal,
       theme,
+      debounceUpdate,
       webContainerInit,
     ],
   )
