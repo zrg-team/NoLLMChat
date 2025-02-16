@@ -51,7 +51,7 @@ export function ChatPanel({
   currentDataNode: ReturnType<typeof useChatApplicationData>['currentDataNode']
   loadLLM: ReturnType<typeof useChatApplicationData>['loadLLM']
   mainLLMInfo: ReturnType<typeof useChatApplicationData>['mainLLMInfo']
-  mainEmbeddingInfo: ReturnType<typeof useChatApplicationData>['mainEmbeddingInfo']
+  mainEmbeddingInfo?: ReturnType<typeof useChatApplicationData>['mainEmbeddingInfo']
   setLLMInfo: ReturnType<typeof useChatApplicationData>['setLLMInfo']
   changeLLMOptions: ReturnType<typeof useUpdateLLMOptions>['changeLLMOptions']
 }) {
