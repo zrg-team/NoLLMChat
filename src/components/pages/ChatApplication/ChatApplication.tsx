@@ -248,6 +248,7 @@ const ChatApplication = memo(() => {
         threadNode={threadInfo?.threadNode}
         loadLLM={loadLLM}
         mainLLMInfo={mainLLMInfo}
+        mainEmbeddingInfo={chatApplicationData.mainEmbeddingInfo}
         retriverInfo={retriverInfo}
         onAddNewThread={addNewDataNode}
         onSelectThread={selectDataNode}
