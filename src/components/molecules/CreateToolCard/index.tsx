@@ -35,7 +35,7 @@ const CreateToolCard = memo((props: NodeProps) => {
         setName('')
         setDescription('')
       } catch (error) {
-        logWarn(error)
+        logWarn('Create Tool', error)
         toast({
           variant: 'destructive',
           title: t('add_tool_card.errors.create_tool_failed'),
