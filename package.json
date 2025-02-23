@@ -16,7 +16,7 @@
     "postinstall": "npx patch-package",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d dist",
-    "production-serve": "rm -rf ./serve && mkdir ./serve && cp -R ./dist ./serve/NoLLMChat && cp -R ./dist/index.html ./serve/index.html  && npx serve ./serve"
+    "production-serve": "cp -R ./dist ./dist/NoLLMChat  && npx serve ./serve"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.5",

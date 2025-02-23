@@ -23,6 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
   },
-  "include": ["vite.config.ts"],
-  "exclude": ["node_modules", "dist", "serve", "apps", "volumes", "vite.config.ts"],
+  "include": ["vite.config.ts"]
 }
