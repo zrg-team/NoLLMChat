@@ -17,7 +17,7 @@ export async function initEditor(editor: Editor, _monaco: Monaco, fs: FileSystem
   try {
     contents = await fs.readFile(path, 'utf-8')
   } catch (e) {
-    logWarn(e)
+    logWarn('Init Monaco', e)
     // File not found
   }
   editor.setValue(contents)

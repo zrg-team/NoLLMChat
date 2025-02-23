@@ -12,10 +12,11 @@ import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { logWarn } from 'src/utils/logger'
 
 import { LocalLLMState } from './state'
-import { worker } from '../worker'
+import { getLocalLLMWorker } from '../worker'
 
 export interface LocalLLMStateActions {
   init: () => void
+  destroy: () => void
   setInitializing: (initializing: Partial<LocalLLMState['initializing']>) => void
   setSelectedModel: (selectedModel: string) => void
   setInitProgressCallback: (callback: (initProgress: InitProgressReport) => void) => () => void
@@ -104,17 +105,38 @@ export const getLocalLLMStateActions = (
     setSelectedModel: (selectedModel) => {
       set({ selectedModel })
     },
+    destroy: () => {
+      try {
+        const oldHandler = get().handler
+        const worker = get().worker
+        if (worker) {
+          if (oldHandler) {
+            worker.removeEventListener('message', oldHandler)
+          }
+          worker.terminate()
+        }
+
+        set({ handler: undefined, worker: undefined })
+      } catch (error) {
+        logWarn('Destroy Local LLM thread', error)
+      }
+    },
     init: () => {
       try {
         const oldHandler = get().handler
-        if (worker && oldHandler) {
-          worker.removeEventListener('message', oldHandler)
+        const worker = get().worker
+        if (worker) {
+          if (oldHandler) {
+            worker.removeEventListener('message', oldHandler)
+          }
+          worker.terminate()
         }
+        const newWorker = getLocalLLMWorker()
         const handler = getHandleMessages(get, set)
-        set({ handler })
-        worker.addEventListener('message', handler)
+        newWorker.addEventListener('message', handler)
+        set({ handler, worker: newWorker })
       } catch (error) {
-        logWarn('Failed to init', error)
+        logWarn('Init Local LLM Thread', error)
       }
     },
     syncCachedLLMURLs: async () => {
@@ -131,6 +153,7 @@ export const getLocalLLMStateActions = (
     },
     loadModel: async (modelName, callback) => {
       let currentLoadModelMessageId = get().currentLoadModelMessageId
+      const worker = get().worker
       const initProgressCallbacks = get().initProgressCallbacks
       const initializing = get().initializing
       const refProcesses = get().refProcesses
@@ -187,6 +210,7 @@ export const getLocalLLMStateActions = (
     },
     invoke: (...args) => {
       const refProcesses = get().refProcesses
+      const worker = get().worker
       if (!worker) {
         throw new Error('Worker not initialized')
       }
@@ -204,6 +228,7 @@ export const getLocalLLMStateActions = (
     },
     stream: (...args) => {
       const refProcesses = get().refProcesses
+      const worker = get().worker
       if (!worker) {
         throw new Error('Worker not initialized')
       }
@@ -225,6 +250,7 @@ export const getLocalLLMStateActions = (
     },
     structuredStream: (schemaItems, ...args) => {
       const refProcesses = get().refProcesses
+      const worker = get().worker
       if (!worker) {
         throw new Error('Worker not initialized')
       }
@@ -251,6 +277,7 @@ export const getLocalLLMStateActions = (
     },
     toolsCallingStream: (tools, ...args) => {
       const refProcesses = get().refProcesses
+      const worker = get().worker
       if (!worker) {
         throw new Error('Worker not initialized')
       }
@@ -277,6 +304,7 @@ export const getLocalLLMStateActions = (
     },
     getCurrentModelInfo: async () => {
       const refProcesses = get().refProcesses
+      const worker = get().worker
       if (!worker) {
         throw new Error('Worker not initialized')
       }

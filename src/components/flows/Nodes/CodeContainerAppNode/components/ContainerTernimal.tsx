@@ -207,7 +207,7 @@ const ContainerTernimal = memo(({ fileSystemTree }: { fileSystemTree?: FileSyste
             await writer.releaseLock()
           }
         } catch (error) {
-          logError(error)
+          logError('Terminal', error)
           updateLine('🛑  Failed to run command')
         } finally {
           await writer?.close()
@@ -280,7 +280,7 @@ const ContainerTernimal = memo(({ fileSystemTree }: { fileSystemTree?: FileSyste
 
         instance?.write(data)
       } catch (error) {
-        logError(error)
+        logError('Terminal', error)
       }
     })
     const removeKeyListenter = instance?.onKey((e) => {

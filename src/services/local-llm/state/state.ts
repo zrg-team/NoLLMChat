@@ -29,6 +29,7 @@ export interface LocalLLMState {
     }>,
   ) => void
   initProgressCallbacks: ((initProgress: InitProgressReport) => void)[]
+  worker?: Worker
 }
 
 export const defaultLocalLLMState: LocalLLMState = {
@@ -40,4 +41,5 @@ export const defaultLocalLLMState: LocalLLMState = {
   currentLoadModelMessageId: undefined,
   handler: undefined,
   initProgressCallbacks: [],
+  worker: undefined,
 }

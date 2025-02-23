@@ -26,9 +26,11 @@ import { logWarn } from 'src/utils/logger'
 
 import { LocalEmbeddingState } from './state'
 import { WorkerEmbeddings } from '../utils/worker-embeddings'
+import { getLocalEmbeddingWorker } from '../worker'
 
 export interface LocalEmbeddingStateActions {
   init: () => void
+  destroy: () => void
   index: (
     info: {
       database: {
@@ -120,28 +122,45 @@ export const getLocalEmbeddingStateActions = (
   get: GetState<LocalEmbeddingState>,
 ): LocalEmbeddingStateActions => {
   return {
+    destroy: () => {
+      try {
+        const worker = get().worker
+        if (worker) {
+          worker.terminate()
+        }
+        set({
+          localEmbedding: undefined,
+          embeddingStorage: undefined,
+          worker: undefined,
+        })
+      } catch (error) {
+        logWarn('Destroy Local Embedding Thread', error)
+      }
+    },
     init: async () => {
       try {
-        const localEmbedding = get().localEmbedding
-        if (!localEmbedding) {
-          set({
-            localEmbedding: new WorkerEmbeddings({
-              modelName: DEFAULT_EMBEDDING_MODEL,
-            }),
-          })
+        const worker = get().worker
+        if (worker) {
+          worker.terminate()
         }
-        const embeddingStorage = get().embeddingStorage
-        if (!embeddingStorage) {
-          set({
-            embeddingStorage: localforage.createInstance({
-              name: 'vector-database',
-              driver: localforage.INDEXEDDB,
-              storeName: 'main',
-            }),
-          })
-        }
+        const newWorker = getLocalEmbeddingWorker()
+        const localEmbedding = new WorkerEmbeddings({
+          modelName: DEFAULT_EMBEDDING_MODEL,
+          worker: newWorker,
+        })
+        const embeddingStorage = localforage.createInstance({
+          name: 'vector-database',
+          driver: localforage.INDEXEDDB,
+          storeName: 'main',
+        })
+
+        set({
+          worker: newWorker,
+          localEmbedding,
+          embeddingStorage,
+        })
       } catch (error) {
-        logWarn('Failed init:', error)
+        logWarn('Init Local Embedding Thread', error)
       } finally {
         set({ ready: true })
       }

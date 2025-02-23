@@ -6,8 +6,6 @@ import { nanoid } from 'nanoid'
 import { getEmptyPromise } from 'src/utils/promise'
 import { logWarn } from 'src/utils/logger'
 
-import { worker } from '../worker'
-
 export interface WorkerEmbeddingsParams extends EmbeddingsParams {
   modelName: string
   model: string
@@ -24,32 +22,28 @@ export interface WorkerEmbeddingsParams extends EmbeddingsParams {
 }
 
 export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsParams {
-  ready = false
+  private readonly worker: Worker
+  private readonly EMBEDDING_LOAD_MESSAGE_ID = 'EMBEDDING_LOAD_MESSAGE_ID'
 
-  modelName = 'Xenova/all-MiniLM-L6-v2'
-
-  model = 'Xenova/all-MiniLM-L6-v2'
-
-  batchSize = 512
-
-  stripNewLines = true
+  private ready = false
 
   timeout?: number
-
+  stripNewLines = true
+  modelName = 'Xenova/all-MiniLM-L6-v2'
+  model = 'Xenova/all-MiniLM-L6-v2'
+  batchSize = 512
   pretrainedOptions?: PretrainedOptions
-
   pipelineOptions?: FeatureExtractionPipelineOptions
-
-  EMBEDDING_LOAD_MESSAGE_ID = 'EMBEDDING_LOAD_MESSAGE_ID'
 
   refProcesses: Map<
     string,
     [promise: Promise<unknown>, (data: unknown) => void, (reason?: unknown) => void]
   > = new Map()
 
-  constructor(fields?: Partial<WorkerEmbeddingsParams>) {
+  constructor(fields: Partial<WorkerEmbeddingsParams> & { worker: Worker }) {
     super(fields ?? {})
 
+    this.worker = fields.worker
     this.modelName = fields?.model ?? fields?.modelName ?? this.model
     this.model = this.modelName
     this.stripNewLines = fields?.stripNewLines ?? this.stripNewLines
@@ -64,11 +58,12 @@ export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsPara
   }
 
   initWorker = () => {
-    sendToWorker(worker, 'load', this.EMBEDDING_LOAD_MESSAGE_ID, [
+    sendToWorker(this.worker, 'load', this.EMBEDDING_LOAD_MESSAGE_ID, [
       this.model,
       this.pretrainedOptions,
     ])
-    worker.addEventListener('message', this.handleMessages)
+    this.worker.removeEventListener('message', this.handleMessages)
+    this.worker.addEventListener('message', this.handleMessages)
     const promiseInfo = getEmptyPromise()
     this.refProcesses.set(this.EMBEDDING_LOAD_MESSAGE_ID, [
       promiseInfo.promise,
@@ -128,7 +123,7 @@ export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsPara
   }
 
   private runEmbedding = async (texts: string[]) => {
-    if (!worker) {
+    if (!this.worker) {
       throw new Error('MISSING WORKER')
     }
     const initProcess = this.refProcesses.get(this.EMBEDDING_LOAD_MESSAGE_ID)
@@ -141,7 +136,7 @@ export class WorkerEmbeddings extends Embeddings implements WorkerEmbeddingsPara
     return this.caller.call(async () => {
       const messageId = nanoid()
       const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'embedding', messageId, [texts, this.pipelineOptions])
+        sendToWorker(this.worker, 'embedding', messageId, [texts, this.pipelineOptions])
       })
       this.refProcesses.set(messageId, [
         promiseInfo.promise,

@@ -113,6 +113,8 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "@xyflow/react": "^12.3.5",
+    "@zenfs/core": "^1.11.2",
+    "@zenfs/dom": "^1.1.5",
     "ai": "^4.0.8",
     "buffer": "^6.0.3",
     "chalk": "^5.3.0",

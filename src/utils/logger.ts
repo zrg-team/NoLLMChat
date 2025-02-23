@@ -1,28 +1,41 @@
 import chalk from 'chalk'
+import dayjs from 'dayjs'
 import { isDev } from 'src/constants/dev'
 
-const log = console.log
+const log = isDev ? console.log : undefined
+const debug = isDev ? console.debug : undefined
+const warn = console.warn
+const error = console.error
 
-const stringify = (...args: unknown[]) =>
-  args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg)).join('\n')
+const group = console.group
+const groupEnd = console.groupEnd
 
-export const logInfo = (...args: unknown[]) =>
-  isDev ? log(chalk.blueBright(stringify(...args))) : undefined
-
-export const logError = (...args: unknown[]) => {
-  log(chalk.redBright('ERROR:'))
-  console.log(...args)
-  log(chalk.redBright('-'.repeat(10)))
+export const logInfo = (key: string, ...args: unknown[]) => {
+  group(chalk.blueBright(`🔵 INFO: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
+  log?.(...args)
+  groupEnd()
 }
 
-export const logWarn = (...args: unknown[]) => {
-  log(chalk.yellowBright('WARN:'))
-  console.warn(...args)
-  log(chalk.yellowBright('-'.repeat(10)))
+export const logError = (key: string, ...args: unknown[]) => {
+  group(chalk.redBright(`🔴 ERROR: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
+  error?.(...args)
+  groupEnd()
 }
 
-export const logDebug = (...args: unknown[]) =>
-  isDev ? log(chalk.greenBright(stringify(...args))) : undefined
+export const logWarn = (key: string, ...args: unknown[]) => {
+  group(chalk.yellowBright(`🔶 WARN: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
+  warn?.(...args)
+  groupEnd()
+}
 
-export const logSilent = (...args: unknown[]) =>
-  isDev ? log(chalk.whiteBright(stringify(...args))) : undefined
+export const logDebug = (key: string, ...args: unknown[]) => {
+  group(chalk.greenBright(`⚪ DEBUG: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
+  debug?.(...args)
+  groupEnd()
+}
+
+export const logSilent = (key: string, ...args: unknown[]) => {
+  group(chalk.whiteBright(`⚫ SILENT: ${key} [${dayjs().format('DD:MM HH:mm:ss')}]`))
+  log?.(...args)
+  groupEnd()
+}

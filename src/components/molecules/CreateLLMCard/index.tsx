@@ -231,7 +231,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       })
       setDialog?.(false)
     } catch (error) {
-      logError(error)
+      logError('Create LLM', error)
       toast({
         variant: 'destructive',
         description: t('add_llm_card.errors.failed_to_create'),

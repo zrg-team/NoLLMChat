@@ -33,7 +33,7 @@ export function MainHeader() {
       await exportSession()
       return true
     } catch (error) {
-      logError(error)
+      logError('Export Session', error)
       return false
     }
   }, [exportSession])
@@ -66,7 +66,7 @@ export function MainHeader() {
         })
         await importSession(json as Record<string, object[]>)
       } catch (error) {
-        logError(error)
+        logError('Import Session', error)
         return false
       }
     },
