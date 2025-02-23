@@ -1,49 +1,51 @@
-import { FC, PropsWithChildren, Suspense, lazy, memo, useEffect } from 'react'
+import { FC, PropsWithChildren, Suspense, memo, useEffect } from 'react'
 
 import 'src/i18n'
 import 'src/css/global.css'
 import '@xyflow/react/dist/style.css'
+import 'src/services/filesystem'
 
 import * as dayjs from 'dayjs'
 import relatedTime from 'dayjs/plugin/relativeTime'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Toaster } from 'src/lib/shadcn/ui/toaster'
 import Modal from '@ebay/nice-modal-react'
+import { useShallow } from 'zustand/react/shallow'
 
-import { FileSystemProvider } from 'src/services/file-system/provider'
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 import { ThemeProvider } from 'src/components/layout/ThemeProvider'
 
 import { TextToSpeech } from 'src/utils/text-to-speech'
 import { useSessionState } from 'src/states/session'
-import { useLocalLLMState } from 'src/services/local-llm'
-import { useLocalEmbeddingState } from 'src/services/local-embedding/state'
 import { useAppHydration } from 'src/hooks/handlers/use-app-hydration'
 import { logError } from 'src/utils/logger'
+import { SessionState } from 'src/states/session/state'
+import { SessionStateActions } from 'src/states/session/actions'
+import AppRoute from 'src/routes'
 
-const AppRoute = lazy(() => import('src/routes'))
+// const AppRoute = lazy(() => import('src/routes'))
 
 dayjs.extend(relatedTime)
 TextToSpeech.init()
 
 const logErrorHook = (error: Error, info: { componentStack?: string | null }) => {
-  logError(error, info)
+  logError('Main Error Boundary', error, info)
 }
 
 const MainApp = memo(() => {
-  const initSessionState = useSessionState((state) => state.init)
-  const initLocalLLMState = useLocalLLMState((state) => state.init)
-  const initLocalEmbeddingState = useLocalEmbeddingState((state) => state.init)
-  const ready = useSessionState((state) => state.ready)
-  const error = useSessionState((state) => state.error)
+  const { ready, error, initSessionState } = useSessionState(
+    useShallow((state: SessionState & SessionStateActions) => ({
+      initSessionState: state.init,
+      error: state.error,
+      ready: state.ready,
+    })),
+  )
   const hydrated = useAppHydration()
 
   useEffect(() => {
     initSessionState()
-    initLocalLLMState()
-    initLocalEmbeddingState()
-  }, [initLocalEmbeddingState, initLocalLLMState, initSessionState])
+  }, [initSessionState])
 
   if (error) {
     return <DefaultError error={error} />
@@ -52,22 +54,20 @@ const MainApp = memo(() => {
   }
 
   return (
-    <Modal.Provider>
-      <ErrorBoundary fallback={<DefaultError />} onError={logErrorHook}>
-        <Suspense fallback={<DefaultLoader className="w-screen h-screen" enableLogo typing />}>
-          <AppRoute />
-        </Suspense>
-      </ErrorBoundary>
-    </Modal.Provider>
+    <ErrorBoundary fallback={<DefaultError />} onError={logErrorHook}>
+      <Suspense fallback={<DefaultLoader className="w-screen h-screen" enableLogo typing />}>
+        <AppRoute />
+      </Suspense>
+    </ErrorBoundary>
   )
 })
 export const App: FC<PropsWithChildren> = memo(() => {
   return (
     <ThemeProvider>
-      <FileSystemProvider>
+      <Modal.Provider>
         <MainApp />
-        <Toaster />
-      </FileSystemProvider>
+      </Modal.Provider>
+      <Toaster />
     </ThemeProvider>
   )
 })

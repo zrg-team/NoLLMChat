@@ -22,7 +22,7 @@ import DocumentPage from 'src/pages/DocumentPage'
 
 function ErrorBoundary() {
   const error = useRouteError()
-  logError(error)
+  logError('Route Error Boundary', error)
   return <DefaultError />
 }
 

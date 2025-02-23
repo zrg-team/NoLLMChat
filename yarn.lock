@@ -2987,6 +2987,13 @@
   dependencies:
     undici-types "~6.19.2"
 
+"@types/node@^22.10.1":
+  version "22.13.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.5.tgz#23add1d71acddab2c6a4d31db89c0f98d330b511"
+  integrity sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==
+  dependencies:
+    undici-types "~6.20.0"
+
 "@types/node@^22.5.0":
   version "22.5.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.5.0.tgz#10f01fe9465166b4cab72e75f60d8b99d019f958"
@@ -3663,6 +3670,22 @@
     d3-drag "^3.0.0"
     d3-selection "^3.0.0"
     d3-zoom "^3.0.0"
+
+"@zenfs/core@^1.11.2":
+  version "1.11.2"
+  resolved "https://registry.yarnpkg.com/@zenfs/core/-/core-1.11.2.tgz#25d2b5c1725b56381a1f7ce4d19a902cafe6ae01"
+  integrity sha512-p7/ZKQtlF5Mla8SeKhao0v6cOmwV8ZWzaej2iko3MOwBH86cBQm/pcwlS6F8mx4+eJ7xCbnP6dAd6J9FlnJy2w==
+  dependencies:
+    "@types/node" "^22.10.1"
+    buffer "^6.0.3"
+    eventemitter3 "^5.0.1"
+    readable-stream "^4.5.2"
+    utilium "^1.3.3"
+
+"@zenfs/dom@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@zenfs/dom/-/dom-1.1.5.tgz#7e7aae9d4f3908a6574bc6e244511bcfeb790901"
+  integrity sha512-NMrHlm+6LBQAFzuJiur9viQ47GiSw74AwYJnw0kR8AL9eDUpGkuYe2ItlBM0NKgEH8fLGB32yGkoOjsrui4K5A==
 
 JSONStream@^1.3.5:
   version "1.3.5"
@@ -5436,7 +5459,7 @@ eventemitter3@^5.0.1:
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-5.0.1.tgz#53f5ffd0a492ac800721bb42c66b841de96423c4"
   integrity sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==
 
-events@^3.0.0:
+events@^3.0.0, events@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
@@ -9028,6 +9051,17 @@ readable-stream@^2.3.8:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
+readable-stream@^4.5.2:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-4.7.0.tgz#cedbd8a1146c13dfff8dab14068028d58c15ac91"
+  integrity sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==
+  dependencies:
+    abort-controller "^3.0.0"
+    buffer "^6.0.3"
+    events "^3.3.0"
+    process "^0.11.10"
+    string_decoder "^1.3.0"
+
 readdirp@~3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/readdirp/-/readdirp-3.6.0.tgz#74a370bd857116e245b29cc97340cd431a02a6c7"
@@ -9827,7 +9861,7 @@ string-width@^5.0.1, string-width@^5.1.2:
     emoji-regex "^9.2.2"
     strip-ansi "^7.0.1"
 
-string_decoder@^1.0.0, string_decoder@^1.1.1:
+string_decoder@^1.0.0, string_decoder@^1.1.1, string_decoder@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.3.0.tgz#42f114594a46cf1a8e30b0a84f56c78c3edac21e"
   integrity sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==
@@ -10322,6 +10356,11 @@ undici-types@~6.19.2:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.8.tgz#35111c9d1437ab83a7cdc0abae2f26d88eda0a02"
   integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
 
+undici-types@~6.20.0:
+  version "6.20.0"
+  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.20.0.tgz#8171bf22c1f588d1554d55bf204bc624af388433"
+  integrity sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==
+
 unified@^11.0.0, unified@^11.0.3, unified@^11.0.5, unified@~11.0.0:
   version "11.0.5"
   resolved "https://registry.yarnpkg.com/unified/-/unified-11.0.5.tgz#f66677610a5c0a9ee90cab2b8d4d66037026d9e1"
@@ -10530,6 +10569,15 @@ util@^0.12.4, util@^0.12.5:
     is-generator-function "^1.0.7"
     is-typed-array "^1.1.3"
     which-typed-array "^1.1.2"
+
+utilium@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/utilium/-/utilium-1.3.3.tgz#97590328372b3656e8691a256ed74077d7fd545e"
+  integrity sha512-mQ+S93SZ6xQUdBmokDpucBl0Wu+KX8LNna+cEhm4+39+4lGsc6FwugbCEKKppAPRln1ZhEYNBwj4EX4iZuMxXA==
+  dependencies:
+    eventemitter3 "^5.0.1"
+  optionalDependencies:
+    "@xterm/xterm" "^5.5.0"
 
 utrie@^1.0.2:
   version "1.0.2"

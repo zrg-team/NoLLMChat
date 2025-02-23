@@ -7,7 +7,7 @@ import { getRepository } from 'src/services/database'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { logWarn } from 'src/utils/logger'
+import { logError } from 'src/utils/logger'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 
 import { LLMNodeProps } from '../type'
@@ -82,7 +82,7 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
         await queryThreadsFromModel()
       }
     } catch (error) {
-      logWarn(error)
+      logError('Load Model', error)
       toast({
         variant: 'destructive',
         description: t('llm_node.errors.loading_model'),

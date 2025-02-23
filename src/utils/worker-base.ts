@@ -50,7 +50,7 @@ function handlePayloadFunc<M extends BaseMessagePayload>(handler: (data: M) => P
 
       sendToMainThread(data.messageId, 'complete', responseData)
     } catch (e: unknown) {
-      logError(e, { payload: data })
+      logError('Handle Worker Message', e, { payload: data })
       sendToMainThread(data.messageId, 'error', {
         error: e instanceof Error ? e.message : 'An error occurred',
         error_code: 'UNKNOWN_ERROR',

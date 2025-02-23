@@ -78,7 +78,7 @@ const repositoryExecute = async <T>(
     sendToWorker(worker, WorkerExecutionType.REPOSITORY_EXECUTE, messageId, [entity, action, data])
     return response.promise
   } catch (err) {
-    logWarn(`Error executing ${WorkerExecutionType.REPOSITORY_EXECUTE} action:`, err)
+    logWarn(`Error executing ${WorkerExecutionType.REPOSITORY_EXECUTE} action`, err)
     if (messageId) {
       refProcesses.delete(messageId)
     }
@@ -98,7 +98,7 @@ export const rawQuery = async (query: string, params?: (string | number | boolea
     sendToWorker(worker, WorkerExecutionType.RAW_QUERY_EXECUTE, messageId, [query, params])
     return response.promise
   } catch (err) {
-    logWarn(`Error executing ${WorkerExecutionType.RAW_QUERY_EXECUTE} action:`, err)
+    logWarn(`Error executing ${WorkerExecutionType.RAW_QUERY_EXECUTE} action`, err)
     if (messageId) {
       refProcesses.delete(messageId)
     }

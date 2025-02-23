@@ -92,7 +92,7 @@ export function useShell(): ShellInstance {
           onUpdateFileContent?.(filtered)
         }
         updatePoolRef.current = []
-      }, 500)
+      }, 500) as unknown as number
     },
     [onUpdateFileContent],
   )
@@ -127,7 +127,7 @@ export function useShell(): ShellInstance {
             ignoreInstanceRef.current?.add(content.split('\n'))
           })
           .catch((err) => {
-            logWarn('err', err)
+            logWarn('Add gitignore failed', err)
           })
 
         // Setup terminal
@@ -170,7 +170,7 @@ export function useShell(): ShellInstance {
                       debounceUpdate({ path, content })
                       break
                     } catch (error) {
-                      logWarn('Error reading file: ', error)
+                      logWarn(`Reading file`, error)
                     }
                   }
                   break
@@ -207,7 +207,7 @@ export function useShell(): ShellInstance {
           try {
             input.write(data)
           } catch (error) {
-            logWarn('Error writing to shell: ', error)
+            logWarn('Writing to shell', error)
           }
         })
         jsh.output.pipeTo(

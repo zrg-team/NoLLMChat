@@ -43,7 +43,7 @@ export async function openFolder(_fs: FileSystemAPI, _api: DockviewApi) {
   // @ts-expect-error globalThis must exist
   const dir = await globalThis.showDirectoryPicker()
   for await (const entry of dir.values()) {
-    logDebug(entry)
+    logDebug('Web Container Open Folder', entry)
   }
 }
 

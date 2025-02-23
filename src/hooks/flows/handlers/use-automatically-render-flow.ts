@@ -1,17 +1,19 @@
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFlowManager } from 'src/hooks/flows/handlers/use-flow-manager'
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'
 
 export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFlowManager>) => {
   const currentSessionId = useSessionState((state) => state.currentSession?.id)
-  const { loadingState, prepareFlowInfo, initialFlow, currentSessionIdRef } = flowManager
+  const { loadingState, prepareFlowInfo, initFlow, currentSessionIdRef } = flowManager
 
   const flowStateReady = useFlowState((state) => state.ready)
+  const nodes = useFlowState((state) => state.nodes)
+
+  const flowNodesRef = useRef(nodes)
   const removeSyncNodeQueue = useFlowState((state) => state.removeSyncNodeQueue)
   const removeSyncEdgeQueue = useFlowState((state) => state.removeSyncEdgeQueue)
-
-  useLayoutEffect(() => {}, [currentSessionId])
+  flowNodesRef.current = nodes
 
   useEffect(() => {
     if (
@@ -22,7 +24,7 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
     ) {
       return
     }
-    initialFlow(currentSessionId, async () => {
+    initFlow(currentSessionId, async () => {
       await prepareFlowInfo({
         where: {
           session_id: currentSessionId,
@@ -30,7 +32,7 @@ export const useAutomaticallyRenderFlows = (flowManager: ReturnType<typeof useFl
       })
     })
   }, [
-    initialFlow,
+    initFlow,
     prepareFlowInfo,
     loadingState.loading,
     currentSessionIdRef,

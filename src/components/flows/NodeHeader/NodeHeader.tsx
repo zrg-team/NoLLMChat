@@ -64,7 +64,7 @@ export const NodeHeader = memo(
             description: t('standalone_session_created'),
           })
         } catch (error) {
-          logError(error)
+          logError('Clone Standalone Session', error)
           toast({
             description: t('errors.create_standalone_session_failed'),
             variant: 'destructive',

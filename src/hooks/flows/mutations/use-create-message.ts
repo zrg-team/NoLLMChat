@@ -382,7 +382,7 @@ export const useCreateMessage = ({
         })
         return true
       } catch (error) {
-        logError(error)
+        logError('Create Message', error)
         if (messagesInfo?.aiMessage) {
           await getRepository('Message').update(`${messagesInfo.aiMessage.id}`, {
             status: MessageStatusEnum.Failed,

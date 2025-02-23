@@ -10,6 +10,9 @@ import { useSessionState } from 'src/states/session'
 export const useFlowManager = () => {
   const updatePositionRef = useRef<Record<string, number | undefined>>({})
   const updateDimensionsRef = useRef<Record<string, number>>({})
+  const onNodesChangesRef = useRef<
+    ((changes: NodeChange<Node>[]) => Promise<boolean | void | undefined>)[]
+  >([])
 
   const flowEdges = useFlowState((state) => state.flowEdges)
   const currentSession = useSessionState((state) => state.currentSession)
@@ -32,7 +35,7 @@ export const useFlowManager = () => {
 
   flowEdgesRef.current = flowEdges
 
-  const initialFlow = useCallback(
+  const initFlow = useCallback(
     async (currentSessionId: string, func?: () => Promise<void>) => {
       try {
         currentSessionIdRef.current = currentSessionId
@@ -78,6 +81,12 @@ export const useFlowManager = () => {
 
   const updateNodeChanges = useCallback(
     async (changes: NodeChange<Node>[]) => {
+      for (const handler of onNodesChangesRef.current) {
+        const result = await handler(changes)
+        if (typeof result === 'boolean' && !result) {
+          return
+        }
+      }
       for (const change of changes) {
         if (
           'id' in change &&
@@ -200,8 +209,18 @@ export const useFlowManager = () => {
     [setNodes],
   )
 
+  const addOnNodeChangeHandler = useCallback(
+    (func: (changes: NodeChange<Node>[]) => Promise<boolean | void | undefined>) => {
+      onNodesChangesRef.current.push(func)
+      return () => {
+        onNodesChangesRef.current = onNodesChangesRef.current.filter((handler) => handler !== func)
+      }
+    },
+    [],
+  )
+
   return {
-    initialFlow,
+    initFlow,
     loadingState,
     prepareFlowInfo,
     updateNodeChanges,
@@ -209,5 +228,6 @@ export const useFlowManager = () => {
     updateOrCreateNode,
     currentSessionIdRef,
     updateEdgeConnection,
+    addOnNodeChangeHandler,
   }
 }

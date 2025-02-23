@@ -29,7 +29,7 @@ export const getWebContainerStateActions = (
         set({ webcontainerInstance, onWebContainerTeardown })
         return webcontainerInstance
       } catch (error) {
-        logWarn('Failed init:', error)
+        logWarn('Init Web Container', error)
       } finally {
         set({ ready: true })
       }
@@ -49,7 +49,7 @@ export const getWebContainerStateActions = (
         }
         await webcontainerInstance.mount(files)
       } catch (error) {
-        logWarn('Failed startContainer:', error)
+        logWarn('Mount Web Container:', error)
       }
     },
   }

@@ -158,7 +158,8 @@ export const getSessionStateActions = (
     },
     getLatestSessions: async () => {
       try {
-        if (get().ready) return
+        const ready = get().ready
+        if (ready) return
 
         const sessions = await getRepository('Session').find({
           where: { status: SessionStatusEnum.Started, type: SessionTypeEnum.Whiteboard },

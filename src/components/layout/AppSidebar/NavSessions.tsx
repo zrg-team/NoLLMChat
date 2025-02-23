@@ -63,7 +63,7 @@ export function NavSessions({
       await setCurrentSession(session)
       navigate(getRouteURL('whiteboard', { sessionId: session.id }))
     } catch (error) {
-      logError(error)
+      logError('Set Current Session', error)
       setLoadingId(undefined)
     }
   }
