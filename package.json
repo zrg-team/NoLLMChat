@@ -15,7 +15,8 @@
     "prepare": "husky",
     "postinstall": "npx patch-package",
     "predeploy": "yarn build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "production-serve": "rm -rf ./serve && mkdir ./serve && cp -R ./dist ./serve/NoLLMChat && cp -R ./dist/index.html ./serve/index.html  && npx serve ./serve"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.5",
@@ -165,7 +166,7 @@
     "react-tweet": "^3.2.1",
     "react-use": "^17.6.0",
     "react-xtermjs": "^1.0.9",
-    "recharts": "^2.13.3",
+    "recharts": "2.13.3",
     "reflect-metadata": "^0.2.2",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",

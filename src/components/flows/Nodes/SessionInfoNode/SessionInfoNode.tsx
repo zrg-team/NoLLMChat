@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bar, XAxis, CartesianGrid, BarChart } from 'recharts'
+// import { Bar, XAxis, CartesianGrid, BarChart } from 'recharts'
 import { Badge } from 'src/lib/shadcn/ui/badge'
 import type { ModelRecord } from '@mlc-ai/web-llm'
 import {
@@ -12,12 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from 'src/lib/shadcn/ui/card'
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from 'src/lib/shadcn/ui/chart'
+// import {
+//   ChartConfig,
+//   ChartContainer,
+//   ChartTooltip,
+//   ChartTooltipContent,
+// } from 'src/lib/shadcn/ui/chart'
 import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 import { formatBytes } from 'src/utils/bytes-format'
@@ -34,7 +34,7 @@ export const SessionInfoNode = memo(() => {
   const currentSession = useSessionState((state) => state.currentSession)
   const [latestUpdate, setLatestUpdate] = useState<Date>()
   const [usedBytes, setUsedBytes] = useState('')
-  const [countInfo, setCountInfo] = useState<
+  const [, setCountInfo] = useState<
     [
       {
         name: string
@@ -52,50 +52,50 @@ export const SessionInfoNode = memo(() => {
     ]
   >()
 
-  const chartConfig = useMemo(() => {
-    return {
-      nodes: {
-        label: t('session_info_node.entities.nodes'),
-        color: '#2563eb', // Original color
-      },
-      edges: {
-        label: t('session_info_node.entities.edges'),
-        color: '#34d399', // New color
-      },
-      threads: {
-        label: t('session_info_node.entities.threads'),
-        color: '#fbbf24', // New color
-      },
-      llms: {
-        label: t('session_info_node.entities.llms'),
-        color: '#f87171', // New color
-      },
-      prompts: {
-        label: t('session_info_node.entities.prompts'),
-        color: '#a78bfa', // New color
-      },
-      tools: {
-        label: t('session_info_node.entities.tools'),
-        color: '#ffcccb', // Lighter and more colorful
-      },
-      schemas: {
-        label: t('session_info_node.entities.schemas'),
-        color: '#ffb6c1', // Lighter and more colorful
-      },
-      vectorDatabases: {
-        label: t('session_info_node.entities.vector_databases'),
-        color: '#ff69b4', // Lighter and more colorful
-      },
-      jsonlDatas: {
-        label: t('session_info_node.entities.jsonl_data'),
-        color: '#ff1493', // Lighter and more colorful
-      },
-      csvDatas: {
-        label: t('session_info_node.entities.csv_data'),
-        color: '#db7093', // Lighter and more colorful
-      },
-    } satisfies ChartConfig
-  }, [t])
+  // const chartConfig = useMemo(() => {
+  //   return {
+  //     nodes: {
+  //       label: t('session_info_node.entities.nodes'),
+  //       color: '#2563eb', // Original color
+  //     },
+  //     edges: {
+  //       label: t('session_info_node.entities.edges'),
+  //       color: '#34d399', // New color
+  //     },
+  //     threads: {
+  //       label: t('session_info_node.entities.threads'),
+  //       color: '#fbbf24', // New color
+  //     },
+  //     llms: {
+  //       label: t('session_info_node.entities.llms'),
+  //       color: '#f87171', // New color
+  //     },
+  //     prompts: {
+  //       label: t('session_info_node.entities.prompts'),
+  //       color: '#a78bfa', // New color
+  //     },
+  //     tools: {
+  //       label: t('session_info_node.entities.tools'),
+  //       color: '#ffcccb', // Lighter and more colorful
+  //     },
+  //     schemas: {
+  //       label: t('session_info_node.entities.schemas'),
+  //       color: '#ffb6c1', // Lighter and more colorful
+  //     },
+  //     vectorDatabases: {
+  //       label: t('session_info_node.entities.vector_databases'),
+  //       color: '#ff69b4', // Lighter and more colorful
+  //     },
+  //     jsonlDatas: {
+  //       label: t('session_info_node.entities.jsonl_data'),
+  //       color: '#ff1493', // Lighter and more colorful
+  //     },
+  //     csvDatas: {
+  //       label: t('session_info_node.entities.csv_data'),
+  //       color: '#db7093', // Lighter and more colorful
+  //     },
+  //   } satisfies ChartConfig
+  // }, [t])
 
   useEffect(() => {
     import('@mlc-ai/web-llm').then(({ functionCallingModelIds, prebuiltAppConfig }) => {
@@ -273,16 +273,17 @@ export const SessionInfoNode = memo(() => {
           </div>
         </div>
         <div>
-          <ChartContainer config={chartConfig} className="min-h-28 w-full">
+          {/* Production build failed */}
+          {/* <ChartContainer config={chartConfig} className="min-h-28 w-full">
             <BarChart accessibilityLayer data={countInfo}>
               <CartesianGrid vertical={false} />
               <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              {Object.entries(chartConfig).map(([key, item]) => (
-                <Bar key={key} dataKey={key} fill={item.color} radius={4} />
+              {Object.entries(chartConfig).map(([key]) => (
+                <Bar key={key} dataKey={key} fill={'#ffb6c1'} radius={4} />
               ))}
             </BarChart>
-          </ChartContainer>
+          </ChartContainer> */}
         </div>
       </CardContent>
       <CardFooter>

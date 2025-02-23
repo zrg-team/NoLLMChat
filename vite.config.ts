@@ -26,9 +26,8 @@ export default defineConfig({
     }),
   ],
   build: {
-    chunkSizeWarningLimit: 2000,
-    sourcemap: false,
-    minify: true,
+    sourcemap: true,
+    minify: 'esbuild',
   },
   resolve: {
     alias: {

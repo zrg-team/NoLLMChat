@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { isDev } from 'src/constants/dev.ts'
 import { App } from 'src/App.tsx'
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && isDev) {
   scan({
     enabled: isDev,
     log: false,

@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, Suspense, memo, useEffect } from 'react'
+import { FC, PropsWithChildren, Suspense, lazy, memo, useEffect } from 'react'
 
 import 'src/i18n'
 import 'src/css/global.css'
@@ -22,9 +22,8 @@ import { useAppHydration } from 'src/hooks/handlers/use-app-hydration'
 import { logError } from 'src/utils/logger'
 import { SessionState } from 'src/states/session/state'
 import { SessionStateActions } from 'src/states/session/actions'
-import AppRoute from 'src/routes'
 
-// const AppRoute = lazy(() => import('src/routes'))
+const AppRoute = lazy(() => import('src/routes'))
 
 dayjs.extend(relatedTime)
 TextToSpeech.init()

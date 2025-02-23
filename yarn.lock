@@ -8894,9 +8894,9 @@ react-scan@^0.1.0:
     unplugin "2.1.0"
 
 react-smooth@^4.0.0:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-smooth/-/react-smooth-4.0.1.tgz#6200d8699bfe051ae40ba187988323b1449eab1a"
-  integrity sha512-OE4hm7XqR0jNOq3Qmk9mFLyd6p2+j6bvbPJ7qlB7+oo0eNcL2l7WQzG6MBnT3EXY6xzkLMUBec3AfewJdA0J8w==
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/react-smooth/-/react-smooth-4.0.4.tgz#a5875f8bb61963ca61b819cedc569dc2453894b4"
+  integrity sha512-gnGKTpYwqL0Iii09gHobNolvX4Kiq4PKx6eWBCYYix+8cdw+cGo3do906l1NBPKkSWx1DghC1dlWG9L2uGd61Q==
   dependencies:
     fast-equals "^5.0.1"
     prop-types "^15.8.1"
@@ -9076,7 +9076,7 @@ recharts-scale@^0.4.4:
   dependencies:
     decimal.js-light "^2.4.1"
 
-recharts@^2.13.3:
+recharts@2.13.3:
   version "2.13.3"
   resolved "https://registry.yarnpkg.com/recharts/-/recharts-2.13.3.tgz#a5ce61e493dff921a14a14a8f42a9f2d2bbefd5a"
   integrity sha512-YDZ9dOfK9t3ycwxgKbrnDlRC4BHdjlY73fet3a0C1+qGMjXVZe6+VXmpOIIhzkje5MMEL8AN4hLIe4AMskBzlA==
