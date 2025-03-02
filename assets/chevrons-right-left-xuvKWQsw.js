@@ -1,6 +1,0 @@
-import{c as t}from"./createLucideIcon-B-o_1Xz_.js";import"./index-Dm1R2z7R.js";/**
-* @license lucide-react v0.462.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/const e=t("ChevronsRightLeft",[["path",{d:"m20 17-5-5 5-5",key:"30x0n2"}],["path",{d:"m4 17 5-5-5-5",key:"16spf4"}]]);export{e as default};
