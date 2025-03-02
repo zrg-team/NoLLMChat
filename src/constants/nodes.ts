@@ -64,5 +64,4 @@ export const DISABLED_DELETE_NODE_TYPES = [
   FlowNodeTypeEnum.SessionInfo,
   FlowNodeTypeEnum.ApplicationBar,
   FlowNodeTypeEnum.EditorApp,
-  FlowNodeTypeEnum.CodeContainerApp,
 ]
