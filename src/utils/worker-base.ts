@@ -40,7 +40,7 @@ export function sendToMainThread(
     type,
     payload,
   } as BaseMessageResponse)
-  logDebug('[Message sent to main thread]', { id, type, payload })
+  logDebug('[Send Worker to Main Thread]', { id, type, payload })
 }
 
 function handlePayloadFunc<M extends BaseMessagePayload>(handler: (data: M) => Promise<unknown>) {

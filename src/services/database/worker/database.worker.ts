@@ -102,7 +102,7 @@ async function handlePayload(data: DatabasePayload) {
   if (!messageId || !Object.keys(data).length) {
     return
   }
-  logDebug('Database worker received message:', data, data.type)
+  logDebug('[Database worker received message]', data, data.type)
   switch (data.type) {
     case WorkerExecutionType.INIT: {
       if (appDataSource || initProcess) {

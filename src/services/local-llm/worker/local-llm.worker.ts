@@ -66,7 +66,7 @@ type MessagePayload = (
   BaseMessagePayload
 
 async function handlePayload(data: MessagePayload) {
-  logDebug('Received payload:', data)
+  logDebug('[LLM worker received message]', data, data.type)
   if ((!engine || !model) && data.type !== 'load') {
     throw new Error('LLM_NOT_LOADED_YET')
   }
