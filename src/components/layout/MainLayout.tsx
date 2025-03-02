@@ -34,7 +34,6 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
     initSessionState()
   }, [initSessionState])
 
-
   locationRef.current = location
 
   useEffect(() => {
