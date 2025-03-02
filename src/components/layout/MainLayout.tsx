@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppSidebar } from 'src/components/layout/AppSidebar/Sidebar'
 import { SidebarInset, SidebarProvider } from 'src/lib/shadcn/ui//sidebar'
@@ -6,6 +6,11 @@ import { Separator } from 'src/lib/shadcn/ui/separator'
 import { useSessionState } from 'src/states/session'
 import { getRouteURL, getSearchParams } from 'src/utils/routes'
 import { SessionTypeEnum } from 'src/services/database/types'
+import { useShallow } from 'zustand/react/shallow'
+import { SessionStateActions } from 'src/states/session/actions'
+import { SessionState } from 'src/states/session/state'
+import { DefaultError } from 'src/components/atoms/DefaultError'
+
 import { MainHeader } from './MainHeader'
 
 export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
@@ -18,6 +23,17 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
   const applications = useSessionState((state) => state.applications)
   const setCurrentSession = useSessionState((state) => state.setCurrentSession)
   const setToDefaultSession = useSessionState((state) => state.setToDefaultSession)
+  const { error, ready, initSessionState } = useSessionState(
+    useShallow((state: SessionState & SessionStateActions) => ({
+      initSessionState: state.init,
+      error: state.error,
+      ready: state.ready,
+    })),
+  )
+  useLayoutEffect(() => {
+    initSessionState()
+  }, [initSessionState])
+
 
   locationRef.current = location
 
@@ -86,6 +102,10 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
     setToDefaultSession,
   ])
 
+  if (!ready) {
+    return null
+  }
+
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar
@@ -98,7 +118,7 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
         <MainHeader />
         <Separator className="shrink-0" />
         <div className="flex flex-1 flex-col p-0 m-0 overflow-y-auto">
-          <Outlet />
+          {error ? <DefaultError /> : <Outlet />}
         </div>
       </SidebarInset>
     </SidebarProvider>

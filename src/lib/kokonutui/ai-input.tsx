@@ -65,7 +65,7 @@ export default function AIInput({
 
   const inputStyles = useMemo(() => {
     return {
-      maxHeight: `${maxHeight || MAX_HEIGHT}px`,
+      ...(maxHeight ? { maxHeight: `${maxHeight}px` } : {}),
       ...(height ? { height: `${height}px` } : {}),
     }
   }, [maxHeight, height])

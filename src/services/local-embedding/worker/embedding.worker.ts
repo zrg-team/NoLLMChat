@@ -22,6 +22,7 @@ type MessagePayload = (
   BaseMessagePayload
 
 async function handlePayload(data: MessagePayload) {
+  logDebug('[Database worker received message]', data, data.type)
   switch (data.type) {
     case 'load': {
       const [model, options] = data.payload

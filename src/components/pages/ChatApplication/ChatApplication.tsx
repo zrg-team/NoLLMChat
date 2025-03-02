@@ -236,7 +236,6 @@ const ChatApplication = memo(() => {
             onSubmit={onSubmit}
             disabled={isLoading || isGenerating || mainLLMInfo?.status !== LLMStatusEnum.Loaded}
             placeholder={t('chat.input_message_placeholder')}
-            maxHeight={72}
             value={input}
             onChange={handleInputChange}
           />

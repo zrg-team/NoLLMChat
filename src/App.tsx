@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, Suspense, lazy, memo, useEffect } from 'react'
+import { FC, PropsWithChildren, Suspense, lazy, memo } from 'react'
 
 import 'src/i18n'
 import 'src/css/global.css'
@@ -10,18 +10,14 @@ import relatedTime from 'dayjs/plugin/relativeTime'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Toaster } from 'src/lib/shadcn/ui/toaster'
 import Modal from '@ebay/nice-modal-react'
-import { useShallow } from 'zustand/react/shallow'
 
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 import { ThemeProvider } from 'src/components/layout/ThemeProvider'
 
 import { TextToSpeech } from 'src/utils/text-to-speech'
-import { useSessionState } from 'src/states/session'
 import { useAppHydration } from 'src/hooks/handlers/use-app-hydration'
 import { logError } from 'src/utils/logger'
-import { SessionState } from 'src/states/session/state'
-import { SessionStateActions } from 'src/states/session/actions'
 
 const AppRoute = lazy(() => import('src/routes'))
 
@@ -33,22 +29,9 @@ const logErrorHook = (error: Error, info: { componentStack?: string | null }) =>
 }
 
 const MainApp = memo(() => {
-  const { ready, error, initSessionState } = useSessionState(
-    useShallow((state: SessionState & SessionStateActions) => ({
-      initSessionState: state.init,
-      error: state.error,
-      ready: state.ready,
-    })),
-  )
   const hydrated = useAppHydration()
 
-  useEffect(() => {
-    initSessionState()
-  }, [initSessionState])
-
-  if (error) {
-    return <DefaultError error={error} />
-  } else if (!ready || !hydrated) {
+  if (!hydrated) {
     return <DefaultLoader className="w-screen h-screen" enableLogo typing />
   }
 
