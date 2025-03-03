@@ -1,1 +1,0 @@
-import{r as o}from"./index-D_ELiTRG.js";const a=(r,s)=>{o.useEffect(()=>{const t=n=>{n.ctrlKey&&n.preventDefault()},e=r.current;return e&&e.addEventListener("wheel",t,{passive:!1}),()=>{e&&e.removeEventListener("wheel",t)}},[r,s])};export{a as u};
