@@ -9,8 +9,7 @@ import {
   MessageContentComplex,
   SystemMessage,
 } from '@langchain/core/messages'
-import type { ChatCompletionRequest } from '@mlc-ai/web-llm'
-import { WllamaChatMessage } from '@wllama/wllama'
+import type { WllamaChatMessage } from '@wllama/wllama'
 
 const parseLLMInputItemToBridgeJSON = (
   input: Exclude<BaseLanguageModelInput, BaseMessageLike[]> | BaseMessageLike,
@@ -91,130 +90,21 @@ export function parseBridgeJSONToLLMInput(
         role: 'assistant',
         content: m,
       })
-    } else if ('instanceof' in m && 'item' in m && 'content' in m) {
-      switch (m.instanceof) {
-        case 'HumanMessage':
-          messages.push({
-            role: 'user',
-            content: parseBridgeJSONToLLMInputItem(m.content),
-          })
-          break
-        case 'AIMessage':
-          messages.push({
-            role: 'assistant',
-            content: parseBridgeJSONToLLMInputItem(m.content),
-          })
-          break
-        case 'SystemMessage':
-          messages.push({
-            role: 'system',
-            content: parseBridgeJSONToLLMInputItem(m.content),
-          })
-          break
-        default:
-          throw new Error('Invalid message type')
-      }
-    } else if ('role' in m) {
-      switch (m.role) {
-        case 'ai':
-        case 'assistant':
-          messages.push({
-            role: 'assistant',
-            content: parseBridgeJSONToLLMInputItem(m),
-          })
-          break
-        case 'user':
-        case 'human':
-          messages.push({
-            role: 'user',
-            content: parseBridgeJSONToLLMInputItem(m),
-          })
-          break
-        case 'system':
-          messages.push({
-            role: 'system',
-            content: parseBridgeJSONToLLMInputItem(m),
-          })
-          break
-        default:
-          throw new Error('Invalid message type')
-      }
-    } else {
-      throw new Error(`Invalid message type ${JSON.stringify(m)}`)
-    }
-  })
-
-  return messages
-}
-
-export function parseBridgeJSONToWebLLMInput(
-  input: Parameters<ChatWebLLM['invoke']>[0] | Parameters<ChatWebLLM['stream']>[0],
-): ChatCompletionRequest['messages'] {
-  if (typeof input === 'string' || !Array.isArray(input)) {
-    return [
-      {
-        role: 'user',
-        content: typeof input === 'string' ? input : input.toString(),
-      },
-    ]
-  }
-
-  // ChatWebLLM does not support non-string message content in sessions.
-  const messages: ChatCompletionRequest['messages'] = []
-  input.map((m) => {
-    if (typeof m === 'string') {
+    } else if (m instanceof HumanMessage) {
       messages.push({
         role: 'user',
-        content: m,
+        content: parseBridgeJSONToLLMInputItem(m.content),
       })
-    } else if ('instanceof' in m && 'item' in m && 'content' in m) {
-      switch (m.instanceof) {
-        case 'HumanMessage':
-          messages.push({
-            role: 'user',
-            content: parseBridgeJSONToLLMInputItem(m.content) || '',
-          })
-          break
-        case 'AIMessage':
-          messages.push({
-            role: 'assistant',
-            content: parseBridgeJSONToLLMInputItem(m.content) || '',
-          })
-          break
-        case 'SystemMessage':
-          messages.push({
-            role: 'system',
-            content: parseBridgeJSONToLLMInputItem(m.content) || '',
-          })
-          break
-        default:
-          throw new Error('Invalid message type')
-      }
-    } else if ('role' in m) {
-      switch (m.role) {
-        case 'ai':
-        case 'assistant':
-          messages.push({
-            role: 'assistant',
-            content: parseBridgeJSONToLLMInputItem(m) || '',
-          })
-          break
-        case 'user':
-        case 'human':
-          messages.push({
-            role: 'user',
-            content: parseBridgeJSONToLLMInputItem(m) || '',
-          })
-          break
-        case 'system':
-          messages.push({
-            role: 'system',
-            content: parseBridgeJSONToLLMInputItem(m) || '',
-          })
-          break
-        default:
-          throw new Error('Invalid message type')
-      }
+    } else if (m instanceof AIMessage) {
+      messages.push({
+        role: 'assistant',
+        content: parseBridgeJSONToLLMInputItem(m.content),
+      })
+    } else if (m instanceof SystemMessage) {
+      messages.push({
+        role: 'system',
+        content: parseBridgeJSONToLLMInputItem(m.content),
+      })
     } else {
       throw new Error(`Invalid message type ${JSON.stringify(m)}`)
     }

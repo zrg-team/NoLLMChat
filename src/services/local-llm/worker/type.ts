@@ -10,32 +10,30 @@ export const JSON_MODE = {
 export type MessagePayload = (
   | {
       type: 'load'
-      provider: 'webllm' | 'wllama'
       payload: ConstructorParameters<typeof ChatWebLLM>
     }
   | {
+      type: 'unload'
+      payload: []
+    }
+  | {
       type: 'get-current-model-info'
-      provider: 'webllm' | 'wllama'
       payload: []
     }
   | {
       type: 'invoke'
-      provider: 'webllm' | 'wllama'
       payload: Parameters<ChatWebLLM['invoke']>
     }
   | {
       type: 'stream'
-      provider: 'webllm' | 'wllama'
       payload: Parameters<ChatWebLLM['stream']>
     }
   | {
       type: 'structured-stream'
-      provider: 'webllm' | 'wllama'
       payload: [SchemaItem[], ...Parameters<ChatWebLLM['stream']>]
     }
   | {
       type: 'tools-calling-stream'
-      provider: 'webllm' | 'wllama'
       payload: [
         { name: string; description: string; schemaItems: SchemaItem[] }[],
         ...Parameters<ChatWebLLM['stream']>,

@@ -381,8 +381,11 @@ export const useChatApplicationData = () => {
     }
     try {
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loading } : pre))
-      await loadModel(mainLLMInfo.llm.provider, mainLLMInfo?.llm.name, (data) => {
-        setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
+      await loadModel(mainLLMInfo.llm.provider, mainLLMInfo?.llm.name, {
+        provider: mainLLMInfo.llm.provider,
+        callback: (data) => {
+          setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
+        },
       })
       setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
     } catch {

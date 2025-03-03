@@ -20,37 +20,45 @@ import { parseBridgeJSONToLLMInput, parseBridgeJSONToWebLLMInput } from '../util
 import { manualStructuredResponse } from '../utils/manual-structured-response'
 import { JSON_MODE, MessagePayload } from './type'
 
-let model: ChatWebLLM
-let engine: MLCEngine
+let model: ChatWebLLM | undefined
+let engine: MLCEngine | undefined
 
 export async function handleWebLLM(data: MessagePayload) {
-  if ((!engine || !model) && data.type !== 'load') {
-    throw new Error('LLM_NOT_LOADED_YET')
-  }
-
   switch (data.type) {
+    case 'unload': {
+      if (engine) {
+        await engine.unload()
+      }
+      engine = undefined
+      model = undefined
+      return
+    }
     case 'load': {
       model = new ChatWebLLM(...data.payload)
-      return model.initialize((progress) => {
-        if ('engine' in model) {
+      await model.initialize((progress) => {
+        if (model && 'engine' in model) {
           // @ts-expect-error engine is protected in the model
           engine = model.engine as MLCEngine
         }
         sendToMainThread(data.messageId, 'inprogress', progress)
       })
+      return
     }
     case 'get-current-model-info': {
       return {
-        model: model.model,
-        chatOptions: model.chatOptions,
-        appConfig: model.appConfig,
+        model: model?.model,
+        chatOptions: model?.chatOptions,
+        appConfig: model?.appConfig,
       }
     }
     case 'invoke': {
       const [input, ...rest] = data.payload
-      return model.invoke(parseBridgeJSONToLLMInput(input), ...rest)
+      return model?.invoke(parseBridgeJSONToLLMInput(input), ...rest)
     }
     case 'stream': {
+      if (!model || !engine) {
+        throw new Error('Model is not available')
+      }
       let content = ''
       const [input, ...rest] = data.payload
       const stream = await model.stream(parseBridgeJSONToLLMInput(input), ...rest)
@@ -66,6 +74,9 @@ export async function handleWebLLM(data: MessagePayload) {
     case 'tools-calling-stream': {
       // Lanchain not yet supported tool call for WebLLM
       const [toolJSON, input] = data.payload
+      if (!model || !engine) {
+        throw new Error('Model is not available')
+      }
 
       if (JSON_MODE.TOOLS_CALLING_STREAM) {
         let content = ''
@@ -160,6 +171,9 @@ export async function handleWebLLM(data: MessagePayload) {
       }
     }
     case 'structured-stream': {
+      if (!model || !engine) {
+        throw new Error('Model is not available')
+      }
       // Lanchain not yet supported structured response for WebLLM
       const [json, input] = data.payload
       if (JSON_MODE.STRUCTURED_STREAM) {

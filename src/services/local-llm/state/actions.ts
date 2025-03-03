@@ -5,7 +5,7 @@ import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
 import type { InitProgressReport } from '@mlc-ai/web-llm'
 import { nanoid } from 'nanoid'
 import { parseLLMInputToBridgeJSON } from 'src/services/local-llm'
-import { SchemaItem } from 'src/services/database/types'
+import { LLMProviderEnum, SchemaItem } from 'src/services/database/types'
 import { fakeStreaming } from 'src/services/local-llm/utils/fake-streaming'
 import { getEmptyPromise } from 'src/utils/promise'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
@@ -22,15 +22,24 @@ export interface LocalLLMStateActions {
   setInitProgressCallback: (callback: (initProgress: InitProgressReport) => void) => () => void
   loadModel: (
     modelName: string,
-    callback?: (initProgress: InitProgressReport) => void,
+    options: {
+      callback?: (initProgress: InitProgressReport) => void
+      provider: `${LLMProviderEnum}`
+    },
   ) => Promise<void>
-  invoke: (...args: Parameters<ChatWebLLM['invoke']>) => ReturnType<ChatWebLLM['invoke']>
+  unLoadModel: () => void
+  invoke: (
+    input: Parameters<ChatWebLLM['invoke']>[0],
+    options: Parameters<ChatWebLLM['invoke']>[1] & { provider: `${LLMProviderEnum}` },
+  ) => ReturnType<ChatWebLLM['invoke']>
   stream: (
-    ...args: Parameters<ChatWebLLM['stream']>
+    input: Parameters<ChatWebLLM['stream']>[0],
+    options: Parameters<ChatWebLLM['stream']>[1] & { provider: `${LLMProviderEnum}` },
   ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
   structuredStream: (
     schemaItems: SchemaItem[],
-    ...args: Parameters<ChatWebLLM['stream']>
+    input: Parameters<ChatWebLLM['stream']>[0],
+    options: Parameters<ChatWebLLM['stream']>[1] & { provider: `${LLMProviderEnum}` },
   ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
   toolsCallingStream: (
     tools: {
@@ -38,7 +47,8 @@ export interface LocalLLMStateActions {
       description: string
       schemaItems: SchemaItem[]
     }[],
-    ...args: Parameters<ChatWebLLM['stream']>
+    input: Parameters<ChatWebLLM['stream']>[0],
+    options: Parameters<ChatWebLLM['stream']>[1] & { provider: `${LLMProviderEnum}` },
   ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
   getCurrentModelInfo: () => Promise<{
     model: string
@@ -151,7 +161,7 @@ export const getLocalLLMStateActions = (
           return urls
         })
     },
-    loadModel: async (modelName, callback) => {
+    loadModel: async (modelName, { callback }) => {
       let currentLoadModelMessageId = get().currentLoadModelMessageId
       const worker = get().worker
       const initProgressCallbacks = get().initProgressCallbacks
@@ -198,6 +208,23 @@ export const getLocalLLMStateActions = (
         set({ initializing: { ...get().initializing, loading: false } })
       }, 100)
     },
+    unLoadModel: () => {
+      const worker = get().worker
+      const refProcesses = get().refProcesses
+      const currentLoadModelMessageId = get().currentLoadModelMessageId
+      if (currentLoadModelMessageId) {
+        const process = refProcesses.get(currentLoadModelMessageId)
+        if (process) {
+          const { reject } = process
+          reject?.('stop')
+          refProcesses.delete(currentLoadModelMessageId)
+        }
+      }
+      if (worker) {
+        sendToWorker(worker, 'unload', nanoid(), [])
+      }
+      set({ selectedModel: undefined })
+    },
     setInitProgressCallback: (callback) => {
       const data = get().initProgressCallbacks
       data.push(callback)
@@ -216,9 +243,7 @@ export const getLocalLLMStateActions = (
       }
       const messageId = nanoid()
       const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'invoke', messageId, args, {
-          provider: 'webllm',
-        })
+        sendToWorker(worker, 'invoke', messageId, args)
       })
       refProcesses.set(messageId, {
         promise: promiseInfo.promise,
