@@ -47,10 +47,11 @@ export const useCreateLLM = () => {
           .save({
             name: `${record.name}`,
             // NOTE: No need to load cloud LLM
-            status:
-              record.provider === LLMProviderEnum.WebLLM
-                ? LLMStatusEnum.Started
-                : LLMStatusEnum.Loaded,
+            status: [LLMProviderEnum.WebLLM, LLMProviderEnum.Wllama].includes(
+              record.provider as LLMProviderEnum,
+            )
+              ? LLMStatusEnum.Started
+              : LLMStatusEnum.Loaded,
             session_id: sessionId,
             provider: record.provider,
             metadata: JSON.stringify(record.metadata || {}),

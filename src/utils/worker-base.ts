@@ -17,8 +17,10 @@ export async function sendToWorker(
   type: string,
   messageId: string,
   payload: unknown,
+  metadata: Record<string, unknown> = {},
 ) {
   return worker.postMessage({
+    ...metadata,
     type: type,
     messageId,
     payload: payload,

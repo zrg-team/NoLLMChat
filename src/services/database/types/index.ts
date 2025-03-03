@@ -108,7 +108,6 @@ export const flowNodeTypeToEntity: Record<FlowNodeTypeEnum, AppEntityNames | und
   [FlowNodeTypeEnum.CircleShape]: undefined,
   [FlowNodeTypeEnum.TriangleShape]: undefined,
   [FlowNodeTypeEnum.EditorApp]: undefined,
-  [FlowNodeTypeEnum.CodeContainerApp]: undefined,
   [FlowNodeTypeEnum.VSLiteApp]: undefined,
   [FlowNodeTypeEnum.NewMessage]: undefined,
   [FlowNodeTypeEnum.ToolHandler]: undefined,

@@ -10,32 +10,37 @@ const error = console.error
 const group = console.group
 const groupEnd = console.groupEnd
 
-export const logInfo = (key: string, ...args: unknown[]) => {
-  group(chalk.blueBright(`🔵 INFO: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
-  log?.(...args)
+const logBase = (
+  prefix: string,
+  colorFunc: (...text: unknown[]) => string,
+  logFunc: typeof log | typeof debug | typeof warn | typeof error,
+  ...args: unknown[]
+) => {
+  const [key, ...rest] = args
+  const isKeyString = typeof key === 'string'
+  const messageKey = isKeyString ? key : ''
+
+  group(colorFunc(`${prefix} ${messageKey}[${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
+  logFunc?.(...(!isKeyString ? args : rest))
   groupEnd()
 }
 
-export const logError = (key: string, ...args: unknown[]) => {
-  group(chalk.redBright(`🔴 ERROR: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
-  error?.(...args)
-  groupEnd()
+export const logInfo = (...args: unknown[]) => {
+  logBase('🔵 INFO:', chalk.blueBright, log, ...args)
 }
 
-export const logWarn = (key: string, ...args: unknown[]) => {
-  group(chalk.yellowBright(`🔶 WARN: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
-  warn?.(...args)
-  groupEnd()
+export const logError = (...args: unknown[]) => {
+  logBase('🔴 ERROR:', chalk.redBright, error, ...args)
 }
 
-export const logDebug = (key: string, ...args: unknown[]) => {
-  group(chalk.greenBright(`⚪ DEBUG: ${key} [${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
-  debug?.(...args)
-  groupEnd()
+export const logWarn = (...args: unknown[]) => {
+  logBase('🔶 WARN:', chalk.yellowBright, warn, ...args)
 }
 
-export const logSilent = (key: string, ...args: unknown[]) => {
-  group(chalk.whiteBright(`⚫ SILENT: ${key} [${dayjs().format('DD:MM HH:mm:ss')}]`))
-  log?.(...args)
-  groupEnd()
+export const logDebug = (...args: unknown[]) => {
+  logBase('⚪ DEBUG:', chalk.greenBright, debug, ...args)
+}
+
+export const logSilent = (...args: unknown[]) => {
+  logBase('⚫ SILENT:', chalk.whiteBright, log, ...args)
 }

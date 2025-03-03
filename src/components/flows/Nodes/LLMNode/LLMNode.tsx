@@ -36,7 +36,11 @@ export const LLMNode = memo((props: LLMNodeProps) => {
     if (llmInfo || !data?.entity?.name) {
       return
     }
-    if (data?.entity?.provider !== LLMProviderEnum.WebLLM) {
+    if (
+      ![LLMProviderEnum.WebLLM, LLMProviderEnum.Wllama].includes(
+        data?.entity?.provider as LLMProviderEnum,
+      )
+    ) {
       setLLMInfo({
         hasCache: false,
         cloud: true,
@@ -49,7 +53,36 @@ export const LLMNode = memo((props: LLMNodeProps) => {
         },
       })
       return
+    } else if (LLMProviderEnum.Wllama === data?.entity?.provider) {
+      import('@wllama/wllama').then(async ({ ModelManager }) => {
+        const modelManager = new ModelManager()
+        const models = await modelManager.getModels()
+        setLLMInfo({
+          hasCache: !!models.find((item) => item.url.includes(data?.entity?.name)),
+          cloud: false,
+          isFunctionCalling: false,
+          info: {
+            model_id: data?.entity?.name,
+            model: data?.entity?.name,
+            model_lib: data?.entity?.provider,
+            model_type: 2,
+          },
+        })
+      })
+      setLLMInfo({
+        hasCache: false,
+        cloud: false,
+        isFunctionCalling: true,
+        info: {
+          model_id: data?.entity?.name,
+          model: data?.entity?.name,
+          model_lib: data?.entity?.provider,
+          model_type: 2,
+        },
+      })
+      return
     }
+
     import('@mlc-ai/web-llm').then(
       async ({ hasModelInCache, functionCallingModelIds, prebuiltAppConfig }) => {
         const hasCache = await hasModelInCache(data?.entity?.name)

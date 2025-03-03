@@ -36,8 +36,11 @@ export const useCreateMessage = () => {
         }
 
         if (mainLLMInfo?.status !== LLMStatusEnum.Loaded) {
-          await loadModel(mainLLMInfo.llm.provider, mainLLMInfo.llm.name, (data) => {
-            setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
+          await loadModel(mainLLMInfo.llm.provider, mainLLMInfo.llm.name, {
+            provider: mainLLMInfo.llm.provider,
+            callback: (data) => {
+              setLLMInfo((pre) => (pre ? { ...pre, progress: data.text } : pre))
+            },
           })
           setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
         }
@@ -109,8 +112,11 @@ export const useCreateMessage = () => {
       await passphraseConfirm(currentSession.passphrase!, sessionPassphraseDialogRef.current)
     }
 
-    await loadModel(llm.provider, llm.name, (data) => {
-      setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
+    await loadModel(llm.provider, llm.name, {
+      provider: llm.provider,
+      callback: (data) => {
+        setLLMInfo((pre) => (pre ? { ...pre, llm, progress: data.text } : pre))
+      },
     })
     setLLMInfo({
       llm,

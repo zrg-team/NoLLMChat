@@ -51,12 +51,15 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
     try {
       setLoadingModel(true)
       if (data.entity && node) {
-        await loadModel?.(data.entity.provider, `${data.entity.name}`, (initProgress) => {
-          node.data.status =
-            initProgress.progress === 100 ? LLMStatusEnum.Loaded : LLMStatusEnum.Loading
+        await loadModel?.(data.entity.provider, `${data.entity.name}`, {
+          provider: data.entity.provider,
+          callback: (initProgress) => {
+            node.data.status =
+              initProgress.progress === 100 ? LLMStatusEnum.Loaded : LLMStatusEnum.Loading
 
-          node.data.label = initProgress.text
-          updateNodes([{ id, type: 'replace' as const, item: node }])
+            node.data.label = initProgress.text
+            updateNodes([{ id, type: 'replace' as const, item: node }])
+          },
         })
         const llmNodeChanges = getNodes()
           .filter((node) => {
