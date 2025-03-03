@@ -229,9 +229,13 @@
       "model_name": "Model",
       "select_model_placeholder": "Select a model",
       "search_placeholder": "Search model...",
+      "hugging_face_repo_placeholder": "{username}/{repo}",
+      "wllama_description": "Max GGUF file size is 2GB. If your model is bigger than 2GB, please follow this guide to split it into smaller shards.",
       "no_model": "No model found",
+      "hugging_face_repo": "Hugging Face Repo",
       "providers": {
         "webllm": "WebLLM",
+        "wllama": "Wllama",
         "openai": "OpenAI",
         "groq": "Groq",
         "googlegenerativeai": "Google Generative AI"

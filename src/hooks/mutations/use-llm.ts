@@ -27,6 +27,7 @@ export const useLLM = () => {
     ) => {
       switch (provider) {
         case LLMProviderEnum.WebLLM:
+        case LLMProviderEnum.Wllama:
           return localLLM.stream(messages, info)
         case LLMProviderEnum.GoogleGenerativeAI:
         case LLMProviderEnum.Groq:

@@ -9,6 +9,7 @@ export const useLoadModel = () => {
     async (provider: `${LLMProviderEnum}`, ...args: Parameters<typeof loadModel>) => {
       switch (provider) {
         case LLMProviderEnum.WebLLM:
+        case LLMProviderEnum.Wllama:
           return loadModel(...args)
         default:
           // No need to load

@@ -216,7 +216,9 @@ export const getLocalLLMStateActions = (
       }
       const messageId = nanoid()
       const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'invoke', messageId, args)
+        sendToWorker(worker, 'invoke', messageId, args, {
+          provider: 'webllm',
+        })
       })
       refProcesses.set(messageId, {
         promise: promiseInfo.promise,

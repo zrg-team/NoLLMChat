@@ -3495,6 +3495,11 @@
   resolved "https://registry.yarnpkg.com/@webcontainer/api/-/api-1.5.1-internal.1.tgz#7c30687c1b19d54084d4ca81310b4b7f32441130"
   integrity sha512-u2hwGC25OzEfav9giHGmqhLUnnnBM6qeBhpBSWGO3Yr6L7XhxklrnCKIqP0hZZehEtesjjpvfdHW6X1vFhhPLw==
 
+"@wllama/wllama@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@wllama/wllama/-/wllama-2.2.1.tgz#c7b83b18fbf44234de2513c9c964b61f4d28ab6e"
+  integrity sha512-Qm8tDLedKdptRt0oOrGlp+fDAOau5Waguw7dyZTuB0EqcffZXtiOvTSit3WBm9b+3uRFq9D+d0XfzFQSvhe9EQ==
+
 "@xobotyi/scrollbar-width@^1.9.5":
   version "1.9.5"
   resolved "https://registry.yarnpkg.com/@xobotyi/scrollbar-width/-/scrollbar-width-1.9.5.tgz#80224a6919272f405b87913ca13b92929bdf3c4d"

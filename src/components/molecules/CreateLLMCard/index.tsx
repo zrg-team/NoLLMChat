@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useCreateLLM } from 'src/hooks/flows/mutations/use-create-llm'
@@ -56,13 +56,19 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const { toast } = useToast()
   const node = useInternalNode(id)
   const [loading, setLoading] = useState(false)
-  const [input, setInput] = useState('')
+  const [modelId, setModelId] = useState('')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [encryptedInfo, setEncryptedInfo] = useState<Record<string, string>>()
   const [provider, setProvider] = useState<`${LLMProviderEnum}`>(LLMProviderEnum.WebLLM)
   const [hasCache, setHasCache] = useState(false)
   const [llmsInfo, setLLMsInfo] = useState<{
+    input?: string
+    modelList: ModelRecord[]
+    functionCallingModelIds: string[]
+  }>()
+  const llmInfoRef = useRef<{
+    input?: string
     modelList: ModelRecord[]
     functionCallingModelIds: string[]
   }>()
@@ -71,23 +77,18 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const cachedLLMURLs = useLocalLLMState((state) => state.cachedLLMURLs)
   const { loading: creatingLLM, createLLM } = useCreateLLM()
 
-  const { confirmOrCreatePassphrase } = useConfirmOrCreatePassphrase()
+  llmInfoRef.current = llmsInfo
 
-  useEffect(() => {
-    import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
-      const modelList = prebuiltAppConfig.model_list
-      setLLMsInfo({ modelList, functionCallingModelIds })
-    })
-  }, [])
+  const { confirmOrCreatePassphrase } = useConfirmOrCreatePassphrase()
 
   useEffect(() => {
     syncCachedLLMURLs()
   }, [syncCachedLLMURLs])
 
   const isRequiredSessionPasskey = useMemo(() => {
-    if (!input) return false
-    return provider !== LLMProviderEnum.WebLLM
-  }, [input, provider])
+    if (!modelId) return false
+    return ![LLMProviderEnum.WebLLM, LLMProviderEnum.Wllama].includes(provider as LLMProviderEnum)
+  }, [modelId, provider])
 
   const modelList = useMemo(() => {
     if (!llmsInfo?.functionCallingModelIds || !llmsInfo?.modelList) return []
@@ -148,37 +149,39 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   }, [llmsInfo?.modelList, llmsInfo?.functionCallingModelIds, search, cachedLLMURLs])
 
   const selectedModel = useMemo<ModelRecord | undefined>(() => {
-    if (!input) return
+    if (!modelId) return
 
     switch (provider) {
+      case LLMProviderEnum.Wllama:
+        return llmsInfo?.modelList.find((model) => model.model_id === modelId)
       case LLMProviderEnum.WebLLM:
-        return llmsInfo?.modelList && modelList.find((model) => model.model_id === input)
+        return llmsInfo?.modelList && modelList.find((model) => model.model_id === modelId)
       case LLMProviderEnum.Groq:
         setEncryptedInfo({})
         return {
-          model: input,
-          model_id: input,
-          model_type: GROQ_VISION_MODELS.includes(input) ? 2 : 0,
+          model: modelId,
+          model_id: modelId,
+          model_type: GROQ_VISION_MODELS.includes(modelId) ? 2 : 0,
           overrides: {},
         } as ModelRecord
       case LLMProviderEnum.OpenAI:
         setEncryptedInfo({})
         return {
-          model: input,
-          model_id: input,
+          model: modelId,
+          model_id: modelId,
           model_type: 2,
           overrides: {},
         } as ModelRecord
       case LLMProviderEnum.GoogleGenerativeAI:
         setEncryptedInfo({})
         return {
-          model: input,
-          model_id: input,
+          model: modelId,
+          model_id: modelId,
           model_type: 2,
           overrides: {},
         } as ModelRecord
     }
-  }, [input, llmsInfo?.modelList, modelList, provider])
+  }, [modelId, llmsInfo?.modelList, modelList, provider])
 
   useEffect(() => {
     if (!selectedModel?.model_id || !cachedLLMURLs) return
@@ -189,13 +192,13 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     if (!currentSession?.id) return
 
     setProvider(LLMProviderEnum.WebLLM)
-    setInput('')
+    setModelId('')
     setSearch('')
     setEncryptedInfo({})
   }, [currentSession?.id])
 
   const handleOnchange = useCallback((currentValue: string) => {
-    setInput(currentValue)
+    setModelId(currentValue)
     setOpen(false)
   }, [])
   const handleSearchChange = useCallback((value: string) => {
@@ -203,7 +206,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   }, [])
   const handleOnSelectProvider = useCallback((value: `${LLMProviderEnum}`) => {
     setProvider(value)
-    setInput('')
+    setModelId('')
     setSearch('')
     setEncryptedInfo({})
   }, [])
@@ -221,7 +224,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         encrypted = await encryptData(encryptedInfo || {}, passphrase)
       }
       await createLLM(node, {
-        name: input,
+        name: modelId,
         model_type: modelTypeToLLMType(selectedModel?.model_type),
         function_calling: selectedModel?.model_id
           ? llmsInfo?.functionCallingModelIds?.includes(selectedModel?.model_id)
@@ -240,10 +243,63 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       setLoading(false)
       setProvider(LLMProviderEnum.WebLLM)
       setEncryptedInfo({})
-      setInput('')
+      setModelId('')
       setSearch('')
     }
   }
+
+  useLayoutEffect(() => {
+    const getModelInfo = async () => {
+      try {
+        if (provider === LLMProviderEnum.Wllama) {
+          const [username, repo] = modelId?.split('/') || []
+          const repoInfo = `${username}/${repo}`
+          if (!modelId || !username || !repo) {
+            setLLMsInfo({
+              modelList: [],
+              functionCallingModelIds: [],
+            })
+            return
+          } else if (llmInfoRef.current?.input === repoInfo) {
+            return
+          }
+          const res = await fetch(`https://huggingface.co/api/models/${repoInfo}`)
+          const data: { siblings?: { rfilename: string }[] } = await res.json()
+          if (data.siblings) {
+            setLLMsInfo({
+              input: repoInfo,
+              modelList: data.siblings
+                .map((s) => s.rfilename)
+                .filter((f) => f.endsWith('.gguf'))
+                .map((item) => {
+                  return {
+                    model_id: `${repoInfo}/${item}`,
+                    model: `${repoInfo}/${item}`,
+                    model_lib: `${repoInfo}/${item}`,
+                    model_type: 0,
+                    overrides: {},
+                  }
+                }),
+              functionCallingModelIds: [],
+            })
+          } else {
+            setLLMsInfo({
+              modelList: [],
+              functionCallingModelIds: [],
+            })
+          }
+        } else if (provider === LLMProviderEnum.WebLLM) {
+          import('@mlc-ai/web-llm').then(async ({ functionCallingModelIds, prebuiltAppConfig }) => {
+            const modelList = prebuiltAppConfig.model_list
+            setLLMsInfo({ modelList, functionCallingModelIds })
+          })
+        }
+      } catch {
+        // TODO: handle error
+      }
+    }
+    getModelInfo()
+  }, [provider, modelId])
 
   const modelTypeToLLMType = useCallback((modelType?: unknown) => {
     if (modelType === 1) {
@@ -257,10 +313,11 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
 
   const modelItems = useMemo(() => {
     switch (provider) {
+      case LLMProviderEnum.Wllama:
       case LLMProviderEnum.WebLLM:
         return modelList.map((model) => (
           <CommandItem key={model.model_id} value={model.model_id} onSelect={handleOnchange}>
-            {input === model.model_id ? (
+            {modelId === model.model_id ? (
               <LazyIcon name="check" className={'mr-2 h-4 w-4'} />
             ) : (
               <div className="mr-2 h-4 w-4" />
@@ -288,7 +345,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         return OPEN_AI_MODELS.map((model) => {
           return (
             <CommandItem key={model} value={model} onSelect={handleOnchange}>
-              {input === model ? (
+              {modelId === model ? (
                 <LazyIcon name="check" className={'h-4 w-4'} />
               ) : (
                 <div className="w-4" />
@@ -306,7 +363,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         return GOOGLE_GENERATIVE_AI_MODELS.map((model) => {
           return (
             <CommandItem key={model} value={model} onSelect={handleOnchange}>
-              {input === model ? (
+              {modelId === model ? (
                 <LazyIcon name="check" className={'h-4 w-4'} />
               ) : (
                 <div className="w-4" />
@@ -324,7 +381,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         return GROQ_MODELS.map((model) => {
           return (
             <CommandItem key={model} value={model} onSelect={handleOnchange}>
-              {input === model ? (
+              {modelId === model ? (
                 <LazyIcon name="check" className={'h-4 w-4'} />
               ) : (
                 <div className="w-4" />
@@ -340,7 +397,107 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         })
     }
     return
-  }, [cachedLLMURLs, handleOnchange, input, llmsInfo?.functionCallingModelIds, modelList, provider])
+  }, [
+    cachedLLMURLs,
+    handleOnchange,
+    modelId,
+    llmsInfo?.functionCallingModelIds,
+    modelList,
+    provider,
+  ])
+
+  const modelSelection = useMemo(() => {
+    if (provider === LLMProviderEnum.Wllama) {
+      const [username, repo] = modelId?.split('/') || []
+      return (
+        <>
+          <Alert variant="default" className="mb-4">
+            {t('add_llm_card.wllama_description')}
+          </Alert>
+          <Label>{t('add_llm_card.hugging_face_repo')}</Label>
+          {username && repo ? (
+            <div className="relative">
+              <Input
+                value={`${username}/${repo}`}
+                disabled
+                placeholder={t('add_llm_card.hugging_face_repo_placeholder')}
+              />
+              <LazyIcon
+                onClick={() => setModelId('')}
+                name="x"
+                className="h-4 w-4 absolute right-3 top-3 cursor-pointer"
+              />
+            </div>
+          ) : (
+            <Input
+              value={username ? `${username}/${repo}` : ''}
+              onChange={(e) => setModelId(e.target.value)}
+              placeholder={t('add_llm_card.hugging_face_repo_placeholder')}
+            />
+          )}
+          <Label>{t('add_llm_card.model_name')}</Label>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                disabled={!username || !repo}
+                className="w-full justify-between max-w-full overflow-hidden"
+              >
+                {modelId && selectedModel
+                  ? selectedModel?.model_id
+                  : t('add_llm_card.select_model_placeholder')}
+                <LazyIcon name="chevrons-up-down" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput
+                  onValueChange={handleSearchChange}
+                  placeholder={t('add_llm_card.search_placeholder')}
+                />
+                <CommandList>
+                  <CommandEmpty>{t('add_llm_card.no_model')}</CommandEmpty>
+                  <CommandGroup>{modelItems}</CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </>
+      )
+    }
+    return (
+      <>
+        <Label>{t('add_llm_card.model_name')}</Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              {modelId ? selectedModel?.model_id : t('add_llm_card.select_model_placeholder')}
+              <LazyIcon name="chevrons-up-down" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0">
+            <Command>
+              <CommandInput
+                onValueChange={handleSearchChange}
+                placeholder={t('add_llm_card.search_placeholder')}
+              />
+              <CommandList>
+                <CommandEmpty>{t('add_llm_card.no_model')}</CommandEmpty>
+                <CommandGroup>{modelItems}</CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </>
+    )
+  }, [modelId, provider, modelItems, open, setOpen, handleSearchChange])
 
   const encryptedFields = useMemo(() => {
     if (!isRequiredSessionPasskey) return undefined
@@ -443,32 +600,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               })}
             </SelectContent>
           </Select>
-          <Label>{t('add_llm_card.model_name')}</Label>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-full justify-between"
-              >
-                {input ? selectedModel?.model_id : t('add_llm_card.select_model_placeholder')}
-                <LazyIcon name="chevrons-up-down" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <Command>
-                <CommandInput
-                  onValueChange={handleSearchChange}
-                  placeholder={t('add_llm_card.search_placeholder')}
-                />
-                <CommandList>
-                  <CommandEmpty>{t('add_llm_card.no_model')}</CommandEmpty>
-                  <CommandGroup>{modelItems}</CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          {modelSelection}
         </div>
         {selectedModel ? (
           <div className="mt-4">
@@ -483,7 +615,11 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 isCached={
                   cachedLLMURLs.some((item) => item.includes(selectedModel.model_id)) || false
                 }
-                cloud={provider !== LLMProviderEnum.WebLLM}
+                cloud={
+                  ![LLMProviderEnum.WebLLM, LLMProviderEnum.Wllama].includes(
+                    provider as LLMProviderEnum,
+                  )
+                }
               />
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
@@ -509,7 +645,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       <CardFooter className="flex justify-between">
         <LoadingButton
           loading={creatingLLM || loading}
-          disabled={!input?.length}
+          disabled={!modelId?.length}
           onClick={hanldeSubmit}
           className="w-full"
         >
