@@ -288,7 +288,7 @@ export const useCreateMessage = ({
       const schemaEntities = schemas
         .map((schemaNode) => schemaNode.node.data?.entity as Schema)
         .filter(Boolean) as Schema[]
-      const { lastChunk, content } = await stream(llmEntity.provider, messages, {
+      const response = await stream(llmEntity.provider, messages, {
         tools: toLocalLLMToolCallingInput(tools),
         schemas: schemaEntities,
         llm: llmEntity,
@@ -303,27 +303,27 @@ export const useCreateMessage = ({
         },
       })
 
-      messagesInfo.aiMessage.content = content
+      messagesInfo.aiMessage.content = response?.content || ''
       messagesInfo.aiMessage.metadata = JSON.stringify({
-        message: lastChunk,
+        message: response?.lastChunk,
       })
       onMessageUpdate?.({
         id: messagesInfo.aiMessageNode.id,
         nodeData: {
-          content,
+          content: response?.content,
           loading: false,
           entity: messagesInfo.aiMessage,
         },
       })
       if (messagesInfo.aiMessage.id) {
         await getRepository('Message').update(messagesInfo.aiMessage.id, {
-          content: content,
+          content: response?.content,
           metadata: JSON.stringify({
-            message: lastChunk,
+            message: response?.lastChunk,
           }),
         })
       }
-      return content
+      return response?.content
     },
     [handlePlaceholders, stream],
   )

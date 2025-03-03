@@ -57,7 +57,7 @@ export const useCreateMessage = () => {
             }
             return new HumanMessage(message.content)
           })
-          const { content } = await stream(
+          const response = await stream(
             mainLLMInfo.llm.provider,
             [...history, new HumanMessage(input)],
             {
@@ -67,8 +67,8 @@ export const useCreateMessage = () => {
               llm: mainLLMInfo.llm,
             },
           )
-          onMessageUpdate?.(content)
-          return content
+          onMessageUpdate?.(response?.content || '')
+          return response?.content
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             toast({

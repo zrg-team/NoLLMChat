@@ -20,8 +20,14 @@ export const useLLM = () => {
           description: string
           schemaItems: SchemaItem[]
         }[]
-        onMessageUpdate?: (data: { content: string; chunk?: BaseMessageChunk }) => void
-        onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
+        onMessageUpdate?: (data: {
+          content: string
+          chunk?: BaseMessageChunk | BaseMessage
+        }) => void
+        onMessageFinish?: (data: {
+          content: string
+          lastChunk?: BaseMessageChunk | BaseMessage
+        }) => void
         llm?: LLM
       },
     ) => {

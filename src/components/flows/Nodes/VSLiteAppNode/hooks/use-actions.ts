@@ -72,7 +72,7 @@ export const useActions = () => {
 
       onResponseMessageCreate?.()
 
-      const { content } = await stream(
+      const response = await stream(
         LLMProviderEnum.WebLLM,
         [...formatedMessages, new HumanMessage(message)],
         {
@@ -91,10 +91,10 @@ export const useActions = () => {
       onMessageUpdate?.({
         nodeData: {
           loading: false,
-          content,
+          content: response?.content,
         },
       })
-      return content
+      return response?.content
     },
     [stream],
   )

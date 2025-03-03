@@ -126,7 +126,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
 
       onResponseMessageCreate?.()
 
-      const { content } = await stream(
+      const response = await stream(
         chatApplicationData.mainLLMInfo.llm.provider,
         [...injectedMessages, ...formatedMessages],
         {
@@ -145,10 +145,10 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
 
       onMessageUpdate?.({
         nodeData: {
-          content,
+          content: response?.content,
         },
       })
-      return content
+      return response?.content
     },
     [handlePlaceholders, stream, chatApplicationData.mainLLMInfo],
   )

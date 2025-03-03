@@ -55,7 +55,7 @@ export const useCreateMessage = () => {
               llm: mainLLMInfo?.llm,
             },
           )
-          return streamResponse.content
+          return streamResponse?.content
         } catch (error) {
           if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
             return toast({
