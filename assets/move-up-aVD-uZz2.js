@@ -1,0 +1,6 @@
+import{c as p}from"./createLucideIcon-DuxePKJa.js";import"./index-DOJp-o6r.js";/**
+* @license lucide-react v0.462.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/const t=p("MoveUp",[["path",{d:"M8 6L12 2L16 6",key:"1yvkyx"}],["path",{d:"M12 2V22",key:"r89rzk"}]]);export{t as default};
