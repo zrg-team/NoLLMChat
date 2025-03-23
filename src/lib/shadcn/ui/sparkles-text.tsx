@@ -65,9 +65,10 @@ const SparklesText: React.FC<SparklesTextProps> = memo(
     text,
     colors = { first: '#9E7AFF', second: '#FE8BBB' },
     className,
-    sparklesCount = 10,
+    sparklesCount,
     ...props
   }) => {
+    sparklesCount = sparklesCount ?? 10
     const [sparkles, setSparkles] = useState<Sparkle[]>([])
 
     useEffect(() => {
@@ -83,7 +84,7 @@ const SparklesText: React.FC<SparklesTextProps> = memo(
       }
 
       const initializeStars = () => {
-        const newSparkles = Array.from({ length: sparklesCount }, generateStar)
+        const newSparkles = sparklesCount ? Array.from({ length: sparklesCount }, generateStar) : []
         setSparkles(newSparkles)
       }
 
@@ -107,7 +108,7 @@ const SparklesText: React.FC<SparklesTextProps> = memo(
 
     return (
       <div
-        className={cn('text-6xl font-bold', className)}
+        className={cn('text-6xl', className)}
         {...props}
         style={
           {

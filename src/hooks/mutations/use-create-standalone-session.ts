@@ -19,7 +19,6 @@ export const useCreateStandaloneSession = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const currentSession = useSessionState((state) => state.currentSession)
-  const getLatestApplications = useSessionState((state) => state.getLatestApplications)
 
   const cloneNode = useCallback(
     async (
@@ -156,7 +155,6 @@ export const useCreateStandaloneSession = () => {
             })
           }
         }
-        getLatestApplications()
 
         navigate(getRouteURL('application', { applicationId: standaloneSession.id }))
         return true
@@ -164,7 +162,7 @@ export const useCreateStandaloneSession = () => {
         setLoading(false)
       }
     },
-    [cloneNode, currentSession, getLatestApplications, navigate],
+    [cloneNode, currentSession, navigate],
   )
 
   return {
