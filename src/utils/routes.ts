@@ -4,6 +4,7 @@ export const APP_ROUTES = {
   application: '/application/:applicationId?',
   whiteboard: '/whiteboard/:sessionId?',
   document: '/document/:documentId?',
+  sessions: '/sessions',
 } as const
 export const getRouteURL = (route: keyof typeof APP_ROUTES, params?: Record<string, string>) => {
   let url = APP_ROUTES[route] as string

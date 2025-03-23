@@ -10,7 +10,7 @@ export interface SessionState {
 
 export const defaultSessionState: SessionState = {
   currentSession: undefined,
-  ready: false,
+  ready: true,
   error: undefined,
   sessions: [],
   applications: [],

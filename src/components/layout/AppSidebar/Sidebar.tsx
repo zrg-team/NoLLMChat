@@ -5,9 +5,6 @@ import { NavSessions } from 'src/components/layout/AppSidebar/NavSessions'
 import { NavUser } from 'src/components/layout/AppSidebar/NavUser'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from 'src/lib/shadcn/ui/sidebar'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { SessionStateActions } from 'src/states/session/actions'
-import { Session } from 'src/services/database/types'
-import { NavStandaloneApp } from './NavStandaloneApp'
 
 const data = {
   navMain: [
@@ -97,33 +94,18 @@ const data = {
 }
 
 export function AppSidebar({
-  sessions,
-  applications,
   currentSession,
-  setCurrentSession,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  sessions?: Session[]
-  applications?: Session[]
   currentSession?: {
     id: string
   }
-  setCurrentSession: SessionStateActions['setCurrentSession']
 }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <div className="h-1" />
       <SidebarContent>
-        <NavSessions
-          sessions={sessions || []}
-          currentSession={currentSession}
-          setCurrentSession={setCurrentSession}
-        />
-        <NavStandaloneApp
-          applications={applications || []}
-          currentSession={currentSession}
-          setCurrentSession={setCurrentSession}
-        />
+        <NavSessions currentSession={currentSession} />
         <NavDocuments items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>

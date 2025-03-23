@@ -10,7 +10,7 @@ import {
   RouteObject,
 } from 'react-router-dom'
 import { MainLayout } from 'src/components/layout/MainLayout'
-import { APP_ROUTES, getRouteURL } from 'src/utils/routes'
+import { APP_ROUTES } from 'src/utils/routes'
 import { logDebug, logError } from 'src//utils/logger'
 import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from './components/atoms/DefaultLoader'
@@ -19,10 +19,11 @@ import { ROUTE_MODE } from 'src/constants/route'
 import ApplicationPage from 'src/pages/ApplicationPage'
 import HomePage from 'src/pages/HomePage'
 import DocumentPage from 'src/pages/DocumentPage'
+import SessionListPage from 'src/pages/SessionListPage'
 
 function ErrorBoundary() {
   const error = useRouteError()
-  logError('Route Error Boundary', error)
+  logError('[ERROR]', error)
   return <DefaultError />
 }
 
@@ -35,10 +36,15 @@ const routes = createRoutesFromElements(
         errorElement={<ErrorBoundary />}
         Component={ApplicationPage}
       />
-      <Route path="*" element={<Navigate to={getRouteURL('whiteboard')} />} />
+      <Route path="*" element={<Navigate to={APP_ROUTES.sessions} />} />
     </Route>
     <Route element={<MainLayout />}>
       <Route path={APP_ROUTES.document} errorElement={<ErrorBoundary />} Component={DocumentPage} />
+      <Route
+        path={APP_ROUTES.sessions}
+        errorElement={<ErrorBoundary />}
+        Component={SessionListPage}
+      />
     </Route>
   </Route>,
 )

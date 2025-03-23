@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppSidebar } from 'src/components/layout/AppSidebar/Sidebar'
 import { SidebarInset, SidebarProvider } from 'src/lib/shadcn/ui//sidebar'
@@ -19,20 +19,14 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
   const location = useLocation()
   const locationRef = useRef(location)
   const currentSession = useSessionState((state) => state.currentSession)
-  const sessions = useSessionState((state) => state.sessions)
-  const applications = useSessionState((state) => state.applications)
   const setCurrentSession = useSessionState((state) => state.setCurrentSession)
   const setToDefaultSession = useSessionState((state) => state.setToDefaultSession)
-  const { error, ready, initSessionState } = useSessionState(
+  const { error, ready } = useSessionState(
     useShallow((state: SessionState & SessionStateActions) => ({
-      initSessionState: state.init,
       error: state.error,
       ready: state.ready,
     })),
   )
-  useLayoutEffect(() => {
-    initSessionState()
-  }, [initSessionState])
 
   locationRef.current = location
 
@@ -107,12 +101,7 @@ export function MainLayout({ requiredSession }: { requiredSession?: boolean }) {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <AppSidebar
-        sessions={sessions}
-        applications={applications}
-        currentSession={currentSession}
-        setCurrentSession={setCurrentSession}
-      />
+      <AppSidebar currentSession={currentSession} />
       <SidebarInset className="max-h-screen overflow-hidden">
         <MainHeader />
         <Separator className="shrink-0" />
