@@ -25,6 +25,8 @@ export default function SessionItem({
     icon = <img src={plateEditorIcon} alt="Editor App" className="w-[32px] h-[32px] rounded-md" />
   } else if (session.main_node.node_type === FlowNodeTypeEnum.VSLiteApp) {
     icon = <VisualStudioCodeSvg width={32} height={32} />
+  } else {
+    icon = <LazyIcon name="message-circle-more" width={32} height={32} />
   }
   return (
     <motion.div

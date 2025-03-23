@@ -29,10 +29,10 @@ export default function NewSessionItem({ onClick }: SessionItemProps) {
     >
       <ShineBorder shineColor={['#A07CFE', '#FE8FB5', '#FFBE7B']} />
       <div className="flex justify-between gap-1">
-        <div className="flex gap-3">
+        <div className="flex gap-3 mt-[2px]">
           <div
             className={cn(
-              'relative w-[32px] h-[32px] rounded-lg overflow-hidden mt-1',
+              'relative w-[32px] h-[32px] rounded-lg overflow-hidden',
               'transition-colors duration-200',
               'group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700',
             )}
