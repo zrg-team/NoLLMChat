@@ -9,13 +9,14 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
+  useEffect,
+  MutableRefObject,
 } from 'react'
 import type { TreeEnvironmentRef } from 'react-complex-tree'
 import type { FileSystemTree, WebContainer, WebContainerProcess } from '@webcontainer/api'
 import type { Terminal } from 'xterm'
-import { Message } from 'ai/react'
-import { LLM } from 'src/services/database/types'
-import { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
+import type { FileSystemTreeChange } from 'src/services/web-container/utils/file-tree'
+import type { DockviewApi, GridviewApi, PaneviewApi } from 'dockview'
 
 type FileTreeState = {
   fileSystemTree?: FileSystemTree
@@ -23,98 +24,214 @@ type FileTreeState = {
   treeEnv: Ref<TreeEnvironmentRef<unknown, never>>
 }
 
-export type MainVSLiteContextType = {
-  containerInfo: { url?: string; port?: number }
-  container: WebContainer | null
-  terminal: Terminal | null
-  process: WebContainerProcess | null
-  fileTreeStateRef: React.MutableRefObject<FileTreeState>
-  setContainer?: Dispatch<SetStateAction<WebContainer | null>>
-  setTerminal?: Dispatch<SetStateAction<Terminal | null>>
-  setProcess?: Dispatch<SetStateAction<WebContainerProcess | null>>
-  setContainerInfo?: Dispatch<SetStateAction<{ url?: string; port?: number }>>
-  clearSession?: () => void
-  onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
-  ternimalElementRef: React.MutableRefObject<HTMLDivElement | null>
-  previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
-  setLayoutReady?: Dispatch<SetStateAction<boolean>>
-  sendMessage?: (
-    message: string,
-    messages: Message[],
-    onMessage: (chunk: string) => void,
-  ) => Promise<string | undefined>
-  layoutReady?: boolean
-  llm?: LLM
+export type MainVSLiteContextSetInfoType = {
+  setReady?: (ready: boolean) => void
+  setContainer?: (data?: WebContainer) => void
+  setTerminal?: (data?: Terminal) => void
+  setTerminalProcess?: (data?: WebContainerProcess) => void
+  setFileTreeState?: (data: FileTreeState) => void
+  setContainerPreviewInfo?: (data: { url?: string; port?: number }) => void
+  setTerminalProcessWriter?: (data?: WritableStreamDefaultWriter<string>) => void
 }
 
-const MainVSLiteContext = createContext<MainVSLiteContextType | null>(null)
+export type MainVSLiteContextType = {
+  containerPreviewInfo: { url?: string; port?: number }
+  container: WebContainer | undefined
+  terminal: Terminal | undefined
+  terminalProcess: WebContainerProcess | undefined
+  layoutReady?: boolean
+  fileTreeStateRef: React.MutableRefObject<FileTreeState>
+  ternimalElementRef: React.MutableRefObject<HTMLDivElement | null>
+  previewElementRef: React.MutableRefObject<HTMLIFrameElement | null>
+  grid: React.MutableRefObject<GridviewApi | null>
+  dock: React.MutableRefObject<DockviewApi | null>
+  panes: React.MutableRefObject<PaneviewApi | null>
+  ready?: boolean
+
+  clearSession?: () => void
+  onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
+  setLayoutReady?: Dispatch<SetStateAction<boolean>>
+
+  renderCustomPanel?: (rest: MainVSLiteContextType) => JSX.Element
+} & MainVSLiteContextSetInfoType
+
+const MainVSLiteContext = createContext<MainVSLiteContextType | undefined>(undefined)
+
+export type MainVSLiteAppProviderType = {
+  fileSystemTree?: FileSystemTree
+  renderCustomPanel?: (rest: MainVSLiteContextType) => JSX.Element
+  onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
+  setState?: MainVSLiteContextSetInfoType & {
+    setPreviewElementRef?: (ref: MutableRefObject<HTMLIFrameElement | null>) => void
+  }
+  initState?: (
+    data: Partial<{ terminal?: Terminal; container?: WebContainer; process?: WebContainerProcess }>,
+  ) => void
+}
 
 export const MainVSLiteAppProvider = ({
-  llm,
   children,
-  sendMessage,
+  initState,
   fileSystemTree,
+  renderCustomPanel,
   onUpdateFileContent,
-}: PropsWithChildren & {
-  llm?: LLM
-  fileSystemTree?: FileSystemTree
-  sendMessage?: MainVSLiteContextType['sendMessage']
-  onUpdateFileContent: (changes: FileSystemTreeChange[]) => void
-}) => {
+  setState,
+}: PropsWithChildren & MainVSLiteAppProviderType) => {
+  const [ready, setReady] = useState(false)
   const [layoutReady, setLayoutReady] = useState(false)
-  const previewElementRef = useRef<HTMLIFrameElement>(null)
-  const ternimalElementRef = useRef<HTMLDivElement>(null)
-  const [container, setContainer] = useState<WebContainer | null>(null)
-  const [terminal, setTerminal] = useState<Terminal | null>(null)
-  const [containerInfo, setContainerInfo] = useState<{ url?: string; port?: number }>({
-    url: undefined,
-    port: undefined,
-  })
-  const [process, setProcess] = useState<WebContainerProcess | null>(null)
+  // Components
+  const grid = useRef<GridviewApi | null>(null)
+  const dock = useRef<DockviewApi | null>(null)
+  const panes = useRef<PaneviewApi | null>(null)
+  const previewElementRef = useRef<HTMLIFrameElement | null>(null)
+  const ternimalElementRef = useRef<HTMLDivElement | null>(null)
+
+  const [container, setContainer] = useState<WebContainer>()
+  const [terminal, setTerminal] = useState<Terminal>()
+  const [process, setProcess] = useState<WebContainerProcess>()
+  const [, setTerminalProcessWriter] = useState<WritableStreamDefaultWriter<string>>()
+
+  const [containerPreviewInfo, setContainerPreviewInfo] = useState<{ url?: string; port?: number }>(
+    {
+      url: undefined,
+      port: undefined,
+    },
+  )
   const fileTreeStateRef = useRef<FileTreeState>({
     fileSystemTree,
     refresh: () => {},
     treeEnv: null as Ref<TreeEnvironmentRef<unknown, never>>,
   })
+  fileTreeStateRef.current.fileSystemTree = fileSystemTree
+
+  const renderCustomPanelRef = useRef(renderCustomPanel)
+  const ternmialRef = useRef(terminal)
+  const containerRef = useRef(container)
+  const terminalProcessRef = useRef(process)
+
+  terminalProcessRef.current = process
+  containerRef.current = container
+  ternmialRef.current = terminal
+  renderCustomPanelRef.current = renderCustomPanel
+
+  const handleAllProcessReady = useCallback(() => {
+    setState?.setPreviewElementRef?.(previewElementRef)
+    if (ternmialRef.current && terminalProcessRef.current && containerRef.current) {
+      setState?.setReady?.(true)
+      setReady(true)
+    }
+  }, [])
 
   const clearSession = useCallback(() => {
+    if (ternmialRef.current) {
+      ternmialRef.current.dispose()
+    }
+    if (terminalProcessRef.current) {
+      terminalProcessRef.current.kill()
+    }
+    if (containerRef.current) {
+      containerRef.current.teardown()
+    }
     fileSystemTree = undefined
-    setContainer(null)
-    setTerminal(null)
-    setProcess(null)
-    setContainerInfo({ url: undefined, port: undefined })
+    setContainer(undefined)
+    setTerminal(undefined)
+    setProcess(undefined)
+    setContainerPreviewInfo({ url: undefined, port: undefined })
   }, [])
+
+  const handleSetTerminal = useCallback((terminal: Terminal | undefined) => {
+    setTerminal(terminal)
+    initState?.({ terminal })
+    ternmialRef.current = terminal
+    setState?.setTerminal?.(terminal)
+    handleAllProcessReady()
+  }, [])
+
+  const handleSetContainer = useCallback((container: WebContainer | undefined) => {
+    setContainer(container)
+    initState?.({ container })
+    containerRef.current = container
+    setState?.setContainer?.(container)
+    handleAllProcessReady()
+  }, [])
+
+  const handleSetFileTreeState = useCallback((fileTreeState: FileTreeState) => {
+    setState?.setFileTreeState?.(fileTreeState)
+    handleAllProcessReady()
+  }, [])
+
+  const handleSetTerminalProcess = useCallback((process: WebContainerProcess | undefined) => {
+    setProcess(process)
+    initState?.({ process })
+    terminalProcessRef.current = process
+    setState?.setTerminalProcess?.(process)
+    handleAllProcessReady()
+  }, [])
+
+  const handleSetTerminalProcessWriter = useCallback(
+    (writer: WritableStreamDefaultWriter<string> | undefined) => {
+      setTerminalProcessWriter(writer)
+      setState?.setTerminalProcessWriter?.(writer)
+      handleAllProcessReady()
+    },
+    [],
+  )
+
+  const handleSetContainerPreviewInfo = useCallback((info: { url?: string; port?: number }) => {
+    setContainerPreviewInfo(info)
+    setState?.setContainerPreviewInfo?.(info)
+  }, [])
+
+  useEffect(() => {
+    if (previewElementRef?.current) {
+      setState?.setPreviewElementRef?.(previewElementRef)
+    }
+  }, [previewElementRef?.current])
 
   const value = useMemo(
     () => ({
-      setContainer,
-      setTerminal,
-      setProcess,
-      fileTreeStateRef,
-      container,
-      terminal,
-      process,
-      containerInfo,
-      setContainerInfo,
       clearSession,
+      setLayoutReady,
       onUpdateFileContent,
+      setTerminal: handleSetTerminal,
+      setContainer: handleSetContainer,
+      setFileTreeState: handleSetFileTreeState,
+      setTerminalProcess: handleSetTerminalProcess,
+      setContainerPreviewInfo: handleSetContainerPreviewInfo,
+      setTerminalProcessWriter: handleSetTerminalProcessWriter,
+      renderCustomPanel: renderCustomPanelRef.current,
+      terminalProcess: terminalProcessRef.current,
+      container: containerRef.current,
+      terminal: ternmialRef.current,
+      containerPreviewInfo,
       ternimalElementRef,
       previewElementRef,
+      fileTreeStateRef,
       layoutReady,
-      setLayoutReady,
-      sendMessage,
-      llm,
+      grid,
+      dock,
+      panes,
+      ready,
     }),
     [
+      ready,
+      grid,
+      dock,
+      panes,
       container,
       terminal,
       process,
-      containerInfo,
+      layoutReady,
+      containerPreviewInfo,
       clearSession,
       onUpdateFileContent,
-      layoutReady,
-      sendMessage,
-      llm,
+      handleSetContainer,
+      handleSetTerminal,
+      handleSetTerminalProcess,
+      handleSetFileTreeState,
+      handleSetContainerPreviewInfo,
+      handleSetTerminalProcessWriter,
+      renderCustomPanelRef.current,
     ],
   )
 

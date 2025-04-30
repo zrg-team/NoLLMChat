@@ -5,7 +5,6 @@ import {
   TokenTextSplitter,
 } from 'langchain/text_splitter'
 import { EmbeddedResource, Voy } from 'voy-search'
-import localforage from 'localforage'
 import { SetState, GetState } from 'src/utils/zustand'
 import { MemoryVectorStore, MemoryVectorStoreArgs } from 'langchain/vectorstores/memory'
 import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
@@ -16,8 +15,8 @@ import {
 } from 'src/utils/vector-storage'
 import { getRepository } from 'src/services/database'
 import {
+  TABLE_NAMES,
   VectorDatabase,
-  VectorDatabaseNodeDataSource,
   VectorDatabaseProviderEnum,
 } from 'src/services/database/types'
 import { DEFAULT_EMBEDDING_MODEL } from 'src/constants/embedding'
@@ -27,6 +26,8 @@ import { logWarn } from 'src/utils/logger'
 import { LocalEmbeddingState } from './state'
 import { WorkerEmbeddings } from '../utils/worker-embeddings'
 import { getLocalEmbeddingWorker } from '../worker'
+import { PGLiteVectorStore } from 'src/lib/langchain-pglite-vector-store'
+import { embeddingStorage } from '../embedding-storage'
 
 export interface LocalEmbeddingStateActions {
   init: () => void
@@ -36,7 +37,6 @@ export interface LocalEmbeddingStateActions {
       database: {
         databaseId: string
         dataSourceId?: string
-        dataSourceType?: `${VectorDatabaseNodeDataSource}`
       }
       embedding?: Embeddings
     },
@@ -47,7 +47,6 @@ export interface LocalEmbeddingStateActions {
       database: {
         databaseId: string
         dataSourceId?: string
-        dataSourceType?: `${VectorDatabaseNodeDataSource}`
       }
       embedding?: Embeddings
     },
@@ -58,7 +57,6 @@ export interface LocalEmbeddingStateActions {
       database: {
         databaseId: string
         dataSourceId?: string
-        dataSourceType?: `${VectorDatabaseNodeDataSource}`
       }
       embedding?: Embeddings
     },
@@ -73,12 +71,11 @@ export interface LocalEmbeddingStateActions {
       database: {
         databaseId: string
         dataSourceId?: string
-        dataSourceType?: `${VectorDatabaseNodeDataSource}`
       }
       embedding?: Embeddings
     },
     args?: MemoryVectorStoreArgs,
-  ) => Promise<MemoryVectorStore | VoyVectorStore>
+  ) => Promise<MemoryVectorStore | VoyVectorStore | PGLiteVectorStore>
 }
 
 const splitterDocuments = (database: VectorDatabase, documents: Document[]) => {
@@ -130,7 +127,6 @@ export const getLocalEmbeddingStateActions = (
         }
         set({
           localEmbedding: undefined,
-          embeddingStorage: undefined,
           worker: undefined,
         })
       } catch (error) {
@@ -148,16 +144,10 @@ export const getLocalEmbeddingStateActions = (
           modelName: DEFAULT_EMBEDDING_MODEL,
           worker: newWorker,
         })
-        const embeddingStorage = localforage.createInstance({
-          name: 'vector-database',
-          driver: localforage.INDEXEDDB,
-          storeName: 'main',
-        })
 
         set({
           worker: newWorker,
           localEmbedding,
-          embeddingStorage,
         })
       } catch (error) {
         logWarn('Init Local Embedding Thread', error)
@@ -167,8 +157,7 @@ export const getLocalEmbeddingStateActions = (
     },
     index: async (info, documents) => {
       const embedding = info?.embedding || get().localEmbedding
-      const embeddingStorage = get().embeddingStorage
-      if (!embedding || !embeddingStorage) {
+      if (!embedding) {
         throw new Error('Missing embedding model or storage.')
       }
       const database = await getRepository('VectorDatabase').findOne({
@@ -180,23 +169,26 @@ export const getLocalEmbeddingStateActions = (
       if (!database.provider) {
         throw new Error('Database provider not found.')
       }
-      const dataSource =
-        info.database.dataSourceId && info.database.dataSourceType
-          ? await getRepository(info.database.dataSourceType).findOne({
-              where: { id: info.database.dataSourceId },
-            })
-          : undefined
 
-      const databaseName = getDatabaseId(database.name)
+      const databaseName = getDatabaseId(database.id)
       const splittedDocuments = await splitterDocuments(database, documents)
       const data = await getVectorDatabaseStorage({
         databaseName,
         storageType: database.storage || 'IndexedDB',
         provider: database.provider,
         storageService: embeddingStorage,
-        storageDataNode: database || dataSource,
+        storageDataNode: database,
       })
       switch (database.provider) {
+        case VectorDatabaseProviderEnum.PGVector:
+          {
+            const store = await PGLiteVectorStore.initialize(embedding, {
+              tableName: TABLE_NAMES.VectorDatabaseData,
+              collectionName: database.id,
+            })
+            store.addDocuments(splittedDocuments)
+          }
+          break
         case VectorDatabaseProviderEnum.Voy:
           {
             const voyClient = new Voy({
@@ -210,7 +202,7 @@ export const getLocalEmbeddingStateActions = (
               embeddingStorage,
               docstore: store.docstore,
               storageType: database.storage || 'IndexedDB',
-              storageDataNode: dataSource || database,
+              storageDataNode: database,
             })
           }
           break
@@ -225,7 +217,7 @@ export const getLocalEmbeddingStateActions = (
               embeddingStorage,
               docstore: store.memoryVectors,
               storageType: database.storage || 'IndexedDB',
-              storageDataNode: dataSource || database,
+              storageDataNode: database,
             })
           }
           break
@@ -233,7 +225,6 @@ export const getLocalEmbeddingStateActions = (
     },
     getVectorDatabase: async (info, ...args) => {
       const embedding = info.embedding || get().localEmbedding
-      const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
@@ -246,22 +237,23 @@ export const getLocalEmbeddingStateActions = (
       if (!database.provider) {
         throw new Error('Database provider not found.')
       }
-      const dataSource =
-        info.database.dataSourceId && info.database.dataSourceType
-          ? await getRepository(info.database.dataSourceType).findOne({
-              where: { id: info.database.dataSourceId },
-            })
-          : undefined
 
-      const databaseName = getDatabaseId(database.name)
+      const databaseName = getDatabaseId(database.id)
       const data = await getVectorDatabaseStorage({
         databaseName,
         storageType: database.storage || 'IndexedDB',
         provider: database.provider,
-        storageService: get().embeddingStorage,
-        storageDataNode: dataSource,
+        storageService: embeddingStorage,
+        storageDataNode: database,
       })
       switch (database.provider) {
+        case VectorDatabaseProviderEnum.PGVector: {
+          const store = await PGLiteVectorStore.initialize(embedding, {
+            tableName: TABLE_NAMES.VectorDatabaseData,
+            collectionName: database.id,
+          })
+          return store
+        }
         case VectorDatabaseProviderEnum.Voy: {
           const voyClient = new Voy({
             embeddings: data as EmbeddedResource[],
@@ -279,7 +271,6 @@ export const getLocalEmbeddingStateActions = (
     },
     similaritySearch: async (info, ...args) => {
       const embedding = info.embedding || get().localEmbedding
-      const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
@@ -292,22 +283,26 @@ export const getLocalEmbeddingStateActions = (
       if (!database.provider) {
         throw new Error('Database provider not found.')
       }
-      const dataSource =
-        info.database.dataSourceId && info.database.dataSourceType
-          ? await getRepository(info.database.dataSourceType).findOne({
-              where: { id: info.database.dataSourceId },
-            })
-          : undefined
 
-      const databaseName = getDatabaseId(database.name)
+      const databaseName = getDatabaseId(database.id)
       const data = await getVectorDatabaseStorage({
         databaseName,
-        storageDataNode: dataSource || database,
+        storageDataNode: database,
         provider: database.provider,
         storageService: embeddingStorage,
         storageType: database.storage || 'IndexedDB',
       })
       switch (database.provider) {
+        case VectorDatabaseProviderEnum.PGVector: {
+          const store = await PGLiteVectorStore.initialize(embedding, {
+            tableName: TABLE_NAMES.VectorDatabaseData,
+            collectionName: database.id,
+          })
+          const documents = await store.similaritySearch(
+            ...(args as Parameters<PGLiteVectorStore['similaritySearch']>),
+          )
+          return documents
+        }
         case VectorDatabaseProviderEnum.Voy: {
           const voyClient = new Voy({
             embeddings: data as EmbeddedResource[],
@@ -332,7 +327,6 @@ export const getLocalEmbeddingStateActions = (
     },
     similaritySearchWithScore: async (info, ...args) => {
       const embedding = info.embedding || get().localEmbedding
-      const embeddingStorage = get().embeddingStorage
       if (!embedding || !embeddingStorage) {
         throw new Error('Missing embedding model or storage.')
       }
@@ -345,22 +339,26 @@ export const getLocalEmbeddingStateActions = (
       if (!database.provider) {
         throw new Error('Database provider not found.')
       }
-      const dataSource =
-        info.database.dataSourceId && info.database.dataSourceType
-          ? await getRepository(info.database.dataSourceType).findOne({
-              where: { id: info.database.dataSourceId },
-            })
-          : undefined
 
-      const databaseName = getDatabaseId(database.name)
+      const databaseName = getDatabaseId(database.id)
       const data = await getVectorDatabaseStorage({
         databaseName,
         provider: database.provider,
-        storageDataNode: dataSource || database,
+        storageDataNode: database,
         storageService: embeddingStorage,
         storageType: database.storage || 'IndexedDB',
       })
       switch (database.provider) {
+        case VectorDatabaseProviderEnum.PGVector: {
+          const store = await PGLiteVectorStore.initialize(embedding, {
+            tableName: TABLE_NAMES.VectorDatabaseData,
+            collectionName: database.id,
+          })
+          const documents = await store.similaritySearchWithScore(
+            ...(args as Parameters<PGLiteVectorStore['similaritySearchWithScore']>),
+          )
+          return documents
+        }
         case VectorDatabaseProviderEnum.Voy: {
           const voyClient = new Voy({
             embeddings: data as EmbeddedResource[],

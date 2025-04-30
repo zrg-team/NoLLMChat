@@ -1,45 +1,51 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { DockviewReact, GridviewReact, PaneviewReact } from 'dockview'
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useAppState } from 'src/states/app'
-import LoadingButton from 'src/components/atoms/LoadingButton'
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
-import { DefaultLoader } from 'src/components/atoms/DefaultLoader'
 import type { FileSystemAPI } from '@webcontainer/api'
 import type {
   DockviewApi,
-  GridviewApi,
   PaneviewApi,
   IGridviewPanelProps,
   IPaneviewPanelProps,
   IDockviewPanelProps,
+  GridviewReadyEvent,
 } from 'dockview'
+
+import { useAppState } from 'src/states/app'
+import LoadingButton from 'src/components/atoms/LoadingButton'
 
 import { Editor } from './Editor'
 import { FileTree } from './FileTree'
 import { Terminal } from './Terminal'
-import { Watermark } from './Watermark'
-import { useStartup } from '../hooks/useStartup'
+import { CustomPanel } from './CustomPanel'
+import { useStartup } from '../hooks/use-startup'
 import * as panels from '../modules/panels'
-import type { ShellInstance } from '../hooks/useShell'
+import type { ContainerInstance } from '../hooks/use-container'
 import { Preview } from './Preview'
 import { useMainVSLiteAppContext } from '../contexts/main'
-import Copilot from './Copilot'
 
 export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppName?: boolean }) {
   const { t } = useTranslation('components')
   const [loading, setLoading] = useState(false)
   const loadingRef = useRef(loading)
-  const grid = useRef<GridviewApi>()
-  const dock = useRef<DockviewApi>()
-  const panes = useRef<PaneviewApi>()
+
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
-  const { container, ternimalElementRef, layoutReady, setLayoutReady, llm } =
+  const { grid, dock, panes, container, ternimalElementRef, layoutReady, setLayoutReady } =
     useMainVSLiteAppContext()
 
   loadingRef.current = loading
 
-  const { shell } = useStartup(layoutReady, grid, dock, panes, { hideAppName })
-  const startShell = useCallback(async () => {
+  const { containerInstance } = useStartup(layoutReady, { hideAppName })
+  const startContainer = useCallback(async () => {
     const terminalPanel = grid?.current?.getPanel('terminal')?.api
     if (
       !dock.current ||
@@ -52,7 +58,8 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
       return
     }
     setLoading(true)
-    shell.start(
+    panels.createPreviewOpener(dock.current)('file://', 8080)
+    containerInstance.start(
       ternimalElementRef.current!,
       terminalPanel,
       panels.createPreviewOpener(dock.current),
@@ -60,19 +67,26 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
         setLoading(false)
       },
     )
-  }, [dock, panes, grid, shell, ternimalElementRef])
+  }, [dock, panes, grid, containerInstance, ternimalElementRef])
+
+  const handleReady = useCallback((event: GridviewReadyEvent) => {
+    grid.current = event.api
+    panels.openDock(event.api, dock)
+    panels.openPanes(event.api, panes)
+    setLayoutReady?.(true)
+  }, [])
 
   useEffect(() => {
-    if (grid.current && dock.current && !grid.current.getPanel('copilot') && llm) {
-      panels.openCopilot(shell, grid.current, dock.current)
+    if (grid.current && dock.current && !grid.current.getPanel('copilot')) {
+      panels.openCopilot(containerInstance, grid.current, dock.current)
     }
-  }, [llm, shell])
+  }, [containerInstance])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (autoLoad) {
-      startShell()
+      startContainer()
     }
-  }, [autoLoad, startShell])
+  }, [autoLoad, startContainer])
 
   const mainDock = useMemo(() => {
     return (
@@ -80,12 +94,7 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
         className={isDarkTheme ? 'dockview-theme-dark' : 'dockview-theme-light'}
         components={gridComponents}
         proportionalLayout={false}
-        onReady={(event) => {
-          grid.current = event.api
-          panels.openDock(event.api, dock)
-          panels.openPanes(event.api, panes)
-          setLayoutReady?.(true)
-        }}
+        onReady={handleReady}
       />
     )
   }, [isDarkTheme, setLayoutReady])
@@ -93,15 +102,9 @@ export function Dock({ autoLoad, hideAppName }: { autoLoad?: boolean; hideAppNam
   return (
     <>
       {mainDock}
-      {loading ? (
-        <DefaultLoader
-          simple
-          className="!absolute !w-full !h-full !z-40 top-0 left-0 !bg-transparent"
-        />
-      ) : undefined}
       {!container && !autoLoad ? (
         <div className="absolute w-full h-full flex justify-center items-center z-40 bg-background top-0 left-0">
-          <LoadingButton onClick={startShell} loading={loading}>
+          <LoadingButton onClick={startContainer} loading={loading}>
             {t('vslite.load_app_container')}
           </LoadingButton>
         </div>
@@ -122,7 +125,6 @@ const dockComponents: Record<string, FunctionComponent<IDockviewPanelProps>> = {
 const gridComponents: Record<string, FunctionComponent<IGridviewPanelProps>> = {
   dock: (props: IGridviewPanelProps<{ api: React.MutableRefObject<DockviewApi> }>) => (
     <DockviewReact
-      watermarkComponent={Watermark}
       components={dockComponents}
       onReady={(event) => {
         props.params.api.current = event.api
@@ -138,12 +140,15 @@ const gridComponents: Record<string, FunctionComponent<IGridviewPanelProps>> = {
     />
   ),
   copilot: (
-    props: IGridviewPanelProps<{ api: React.MutableRefObject<PaneviewApi>; shell: ShellInstance }>,
+    _props: IGridviewPanelProps<{
+      api: React.MutableRefObject<PaneviewApi>
+      container: ContainerInstance
+    }>,
   ) => {
-    return <Copilot shell={props.params.shell} />
+    return <CustomPanel />
   },
-  terminal: (props: IGridviewPanelProps<{ dock: DockviewApi; shell: ShellInstance }>) => (
-    <Terminal shell={props.params.shell} panelApi={props.api} />
+  terminal: (props: IGridviewPanelProps<{ dock: DockviewApi; container: ContainerInstance }>) => (
+    <Terminal container={props.params.container} panelApi={props.api} />
   ),
 }
 

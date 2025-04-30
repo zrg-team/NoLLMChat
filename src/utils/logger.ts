@@ -20,27 +20,27 @@ const logBase = (
   const isKeyString = typeof key === 'string'
   const messageKey = isKeyString ? key : ''
 
-  group(colorFunc(`${prefix} ${messageKey}[${dayjs().format('DD-MM-YYYY HH:mm:ss')}]`))
+  group(colorFunc(`${prefix}[${dayjs().format('DD-MM-YYYY HH:mm:ss')}]: ${messageKey}`))
   logFunc?.(...(!isKeyString ? args : rest))
   groupEnd()
 }
 
 export const logInfo = (...args: unknown[]) => {
-  logBase('🔵 INFO:', chalk.blueBright, log, ...args)
+  logBase('🔵 INFO', chalk.blueBright, log, ...args)
 }
 
 export const logError = (...args: unknown[]) => {
-  logBase('🔴 ERROR:', chalk.redBright, error, ...args)
+  logBase('🔴 ERROR', chalk.redBright, error, ...args)
 }
 
 export const logWarn = (...args: unknown[]) => {
-  logBase('🔶 WARN:', chalk.yellowBright, warn, ...args)
+  logBase('🔶 WARN', chalk.yellowBright, warn, ...args)
 }
 
 export const logDebug = (...args: unknown[]) => {
-  logBase('⚪ DEBUG:', chalk.greenBright, debug, ...args)
+  logBase('⚪ DEBUG', chalk.greenBright, debug, ...args)
 }
 
 export const logSilent = (...args: unknown[]) => {
-  logBase('⚫ SILENT:', chalk.whiteBright, log, ...args)
+  logBase('⚫ SILENT', chalk.whiteBright, log, ...args)
 }

@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm'
-import { Message, Session, Thread } from './index'
+import { Message, Session } from './index'
 import {
   TABLE_NAMES,
   type LLMModelTypeEnum,
@@ -57,11 +57,8 @@ export class LLM {
   @UpdateDateColumn()
   updated_at?: Date
 
-  @OneToMany(() => Message, (message: Message) => message.thread)
+  @OneToMany(() => Message, (message: Message) => message.llm)
   messages?: Message[]
-
-  @OneToMany(() => Thread, (thread: Thread) => thread.llm)
-  threads?: Thread[]
 
   @Column('uuid')
   session_id: string

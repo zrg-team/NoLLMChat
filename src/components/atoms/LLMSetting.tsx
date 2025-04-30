@@ -1,11 +1,15 @@
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Label } from 'src/lib/shadcn/ui/label'
-import LazyIcon from './LazyIcon'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from 'src/lib/shadcn/ui/popover'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
+import { cn } from 'src/lib/utils'
+import { useAppState } from 'src/states/app'
+import { useShallow } from 'zustand/react/shallow'
+
+import LazyIcon from './LazyIcon'
 
 export const LLMSetting = memo(
   (props: {
@@ -14,6 +18,7 @@ export const LLMSetting = memo(
     options?: Record<string, unknown>
     onChangeOptions?: (options: Record<string, unknown>) => Promise<void>
   }) => {
+    const theme = useAppState(useShallow((state) => state.theme))
     const [show, setShow] = useState(false)
     const [options, setOptions] = useState<Record<string, unknown>>(props.options || {})
     const { t } = useTranslation('atoms')
@@ -31,13 +36,15 @@ export const LLMSetting = memo(
     }
 
     return (
-      <div className={props.className}>
+      <div className={cn('w-full', props.className)}>
         <Popover open={show} onOpenChange={setShow}>
           <PopoverTrigger asChild>
             <div className="flex justify-end gap-2">
               <Button onClick={handleOpenChange} variant="link" className="flex items-center px-0">
                 <LazyIcon name="settings" />
-                <Label>{t('llm_setting.title')}</Label>
+                <Label className={cn(theme === 'dark' ? 'text-background' : 'text-primary')}>
+                  {t('llm_setting.title')}
+                </Label>
               </Button>
             </div>
           </PopoverTrigger>

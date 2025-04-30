@@ -3,17 +3,19 @@ import { SetState, GetState } from 'src/utils/zustand'
 import { getRepository } from 'src/services/database'
 import { useAppState } from 'src/states/app'
 import secureSession from 'src/utils/secure-session'
+import type { FindManyOptions } from 'src/services/database/typeorm-wrapper'
 
 import { SessionState } from './state'
+import { logError } from 'src/utils/logger'
 
 export interface SessionStateActions {
-  getLatestApplications: () => Promise<void>
-  getLatestSessions: () => Promise<void>
+  getSessions: (condition?: {
+    where: FindManyOptions<Session>['where']
+    page?: number
+  }) => Promise<void>
   setCurrentSession: (session: Session | string | undefined) => Promise<Session | undefined>
-  setToDefaultSession: (type?: `${SessionTypeEnum}`) => Promise<Session | undefined>
   deleteSession: (id: string) => Promise<void>
   createSession: (session: Partial<Session>) => Promise<Session>
-  init: () => void
 }
 
 export const getSessionStateActions = (
@@ -21,83 +23,53 @@ export const getSessionStateActions = (
   get: GetState<SessionState & SessionStateActions>,
 ): SessionStateActions => {
   return {
-    setToDefaultSession: async (type?: `${SessionTypeEnum}`) => {
-      const sessions = get().sessions
-      if (!sessions?.length) {
-        const session = await getRepository('Session').find({
-          where: { status: SessionStatusEnum.Started, type: type || SessionTypeEnum.Whiteboard },
-          order: { updated_at: 'DESC' },
-          take: 1,
-        })
-        return get().setCurrentSession(session?.[0])
-      }
-      return get().setCurrentSession(sessions?.[0])
-    },
     setCurrentSession: async (session) => {
-      const currentSession = get().currentSession
-      if (
-        !session ||
-        (typeof session === 'string' && currentSession?.id === session) ||
-        (typeof session === 'object' &&
-          currentSession?.id === session.id &&
-          currentSession.passphrase === session.passphrase &&
-          currentSession.metadata === session.metadata)
-      ) {
-        return currentSession
-      }
-      await secureSession.reload()
-      set({ currentSession: undefined })
-      if (typeof session === 'string' || !session) {
-        session = session || useAppState.getState().selectedSessionId
-
-        if (session === currentSession?.id && currentSession) {
-          session = currentSession
-        } else {
-          let selectedSession = await getRepository('Session').findOne({
-            where: { id: session },
-          })
-          if (!selectedSession) {
-            selectedSession = (await getRepository('Session').findOne({
-              order: { updated_at: 'DESC' },
-            })) as Session
-          }
-          session = selectedSession
+      try {
+        if (!session) {
+          set({ currentSession: undefined })
+          return undefined
         }
-      }
-      useAppState.setState({ selectedSessionId: session.id })
+        const currentSession = get().currentSession
+        if (
+          (typeof session === 'string' && currentSession?.id === session) ||
+          (typeof session === 'object' &&
+            currentSession?.id === session.id &&
+            currentSession.passphrase === session.passphrase)
+        ) {
+          return currentSession
+        }
+        set({ loadingCurrentSession: true })
+        await secureSession.reload()
+        set({ currentSession: undefined })
+        if (typeof session === 'string' || !session) {
+          const sessionId = session || useAppState.getState().selectedSessionId
 
-      const mainNode = await getRepository('FlowNode').findOne({
-        where: { id: session.main_node_id },
-      })
-      session.main_node = mainNode
-
-      let isExist = false
-      if (session.type === SessionTypeEnum.StandaloneApp) {
-        const applications = get().applications.map((item) => {
-          if (item.id === session.id) {
-            isExist = true
-            return session
+          if (sessionId === currentSession?.id && currentSession) {
+            session = currentSession
+          } else {
+            let selectedSession = await getRepository('Session').findOne({
+              where: { id: sessionId },
+            })
+            if (!selectedSession) {
+              selectedSession = (await getRepository('Session').findOne({
+                order: { updated_at: 'DESC' },
+              })) as Session
+            }
+            session = selectedSession
           }
-          return item
-        })
+        }
+        useAppState.setState({ selectedSessionId: session.id })
+
         set({
           currentSession: session,
-          applications: isExist ? applications : [session, ...get().applications],
+          loadingCurrentSession: false,
         })
-      } else {
-        const sessions = get().sessions.map((item) => {
-          if (item.id === session.id) {
-            isExist = true
-            return session
-          }
-          return item
-        })
-        set({
-          currentSession: session,
-          sessions: isExist ? sessions : [session, ...get().sessions],
-        })
+        return session
+      } catch (error) {
+        logError(`[setCurrentSession] Error when set current session`, error)
+        set({ loadingCurrentSession: false })
+        return undefined
       }
-      return session
     },
     createSession: async (data) => {
       const session = await getRepository('Session').save({
@@ -140,51 +112,21 @@ export const getSessionStateActions = (
         })
       }
     },
-    init: () => {
-      get().getLatestApplications()
-      get().getLatestSessions()
-    },
-    getLatestApplications: async () => {
+    getSessions: async (condition) => {
       try {
-        const applications = await getRepository('Session').find({
-          where: { type: SessionTypeEnum.StandaloneApp },
-          order: { updated_at: 'DESC' },
-          take: 7,
-        })
-        set({ applications })
-      } catch {
-        set({ error: 'No application' })
-      }
-    },
-    getLatestSessions: async () => {
-      try {
-        const ready = get().ready
-        if (ready) return
-
         const sessions = await getRepository('Session').find({
-          where: { status: SessionStatusEnum.Started, type: SessionTypeEnum.Whiteboard },
+          where: condition?.where || { status: SessionStatusEnum.Started },
           order: { updated_at: 'DESC' },
-          take: 7,
+          take: 20,
+          skip: condition?.page ? (condition.page - 1) * 20 : 0,
         })
         if (sessions?.length) {
           set({
             sessions,
-            ready: true,
           })
-        } else {
-          const newSession = await getRepository('Session').save({
-            name: 'Default',
-            status: SessionStatusEnum.Started,
-            type: SessionTypeEnum.Whiteboard,
-          })
-          if (newSession) {
-            useAppState.setState({ selectedSessionId: newSession.id })
-            set({ currentSession: newSession, sessions: [newSession], ready: true })
-          } else {
-            throw new Error('No session')
-          }
         }
-      } catch {
+      } catch (error) {
+        logError(`[getSessions] Error when get sessions`, error)
         set({ error: 'No session' })
       }
     },

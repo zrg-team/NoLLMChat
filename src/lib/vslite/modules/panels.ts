@@ -1,9 +1,11 @@
 import type { DockviewApi, GridviewApi, PaneviewApi } from 'dockview'
 import type { FileSystemAPI } from '@webcontainer/api'
 
-import type { ShellInstance } from '../hooks/useShell'
+import type { ContainerInstance } from '../hooks/use-container'
 
-export function openDock(grid: GridviewApi, api: React.MutableRefObject<DockviewApi | undefined>) {
+const PREVIEW_PANEL_ID = 'preview::>'
+
+export function openDock(grid: GridviewApi, api: React.MutableRefObject<DockviewApi | null>) {
   grid.addPanel({
     id: 'dock',
     component: 'dock',
@@ -11,7 +13,7 @@ export function openDock(grid: GridviewApi, api: React.MutableRefObject<Dockview
   })
 }
 
-export function openPanes(grid: GridviewApi, api: React.MutableRefObject<PaneviewApi | undefined>) {
+export function openPanes(grid: GridviewApi, api: React.MutableRefObject<PaneviewApi | null>) {
   grid.addPanel({
     id: 'panes',
     component: 'panes',
@@ -25,14 +27,14 @@ export function openPanes(grid: GridviewApi, api: React.MutableRefObject<Panevie
   })
 }
 
-export function openCopilot(shell: ShellInstance, grid: GridviewApi, dock: DockviewApi) {
+export function openCopilot(container: ContainerInstance, grid: GridviewApi, dock: DockviewApi) {
   grid.addPanel({
     id: 'copilot',
     component: 'copilot',
-    params: { dock, shell },
+    params: { dock, container },
     minimumWidth: 250,
-    maximumWidth: 400,
-    size: 300,
+    maximumWidth: 600,
+    size: 350,
     position: {
       direction: 'right',
       referencePanel: 'dock',
@@ -40,11 +42,11 @@ export function openCopilot(shell: ShellInstance, grid: GridviewApi, dock: Dockv
   })
 }
 
-export function openTerminal(shell: ShellInstance, grid: GridviewApi, dock: DockviewApi) {
+export function openTerminal(container: ContainerInstance, grid: GridviewApi, dock: DockviewApi) {
   grid.addPanel({
     id: 'terminal',
     component: 'terminal',
-    params: { dock, shell },
+    params: { dock, container },
     minimumHeight: 100,
     size: 200,
     position: {
@@ -98,24 +100,21 @@ export async function openStartFile(
 
 export function createPreviewOpener(api: DockviewApi) {
   return (serverUrl: string, serverPort: number) => {
-    // Storybook can't be loaded immediately
     if (serverPort === 6006) return
-    const panel = api.getPanel(`preview:${serverPort.toString()}`)
-    const title = `Port: ${serverPort}`
+    const panel = api.getPanel(PREVIEW_PANEL_ID)
+    const title = `Preview`
     const url = `${serverUrl}?${Date.now()}`
-    // Update the existing preview panel
     if (panel) {
       panel.api.updateParameters({ url })
       panel.api.setTitle(title)
-      // Create the preview panel
     } else {
       api.addPanel({
-        id: `preview:${serverPort.toString()}`,
-        title: `Port: ${serverPort}`,
+        id: PREVIEW_PANEL_ID,
+        title: `Preview`,
         component: 'preview',
         params: { url },
         position: {
-          direction: 'right',
+          direction: 'within',
         },
       })
     }

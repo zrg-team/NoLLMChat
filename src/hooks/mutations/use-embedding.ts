@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
-import type { FlowNodePlaceholder } from 'src/services/database/entities'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { useLangchainEmbedding } from 'src/hooks/mutations/use-langchain-embedding'
+import { EmbeddingProviderEnum } from 'src/services/database/types'
 
 export const useEmbedding = () => {
   const [loading, setLoading] = useState(false)
@@ -9,10 +9,13 @@ export const useEmbedding = () => {
   const similaritySearchWithScoreLocalEmbedding = useLocalEmbeddingState(
     (state) => state.similaritySearchWithScore,
   )
+  const getLocalVectorDatabase = useLocalEmbeddingState((state) => state.getVectorDatabase)
   const { getEmbedding } = useLangchainEmbedding()
   const similaritySearchWithScore = useCallback(
     async (
-      embbedingEntity?: FlowNodePlaceholder | undefined,
+      embbedingEntity?:
+        | { encrypted?: Record<string, unknown>; provider?: string; passphrase?: string }
+        | undefined,
       ...args: Parameters<typeof similaritySearchWithScoreLocalEmbedding>
     ) => {
       try {
@@ -20,8 +23,8 @@ export const useEmbedding = () => {
         setLoading(true)
         if (
           !embbedingEntity ||
-          !embbedingEntity.data?.provider ||
-          embbedingEntity.data?.provider === 'local_transformers'
+          !embbedingEntity.provider ||
+          embbedingEntity.provider === EmbeddingProviderEnum.Local
         ) {
           return similaritySearchWithScoreLocalEmbedding(info, options)
         }
@@ -44,7 +47,7 @@ export const useEmbedding = () => {
 
   const index = useCallback(
     async (
-      embbedingEntity?: FlowNodePlaceholder | undefined,
+      embbedingEntity: Parameters<typeof getEmbedding>[0],
       ...args: Parameters<typeof indexLocalEmbedding>
     ) => {
       try {
@@ -52,8 +55,8 @@ export const useEmbedding = () => {
         setLoading(true)
         if (
           !embbedingEntity ||
-          !embbedingEntity.data?.provider ||
-          embbedingEntity.data?.provider === 'local_transformers'
+          !embbedingEntity.provider ||
+          embbedingEntity.provider === EmbeddingProviderEnum.Local
         ) {
           return indexLocalEmbedding(info, documents)
         }
@@ -74,9 +77,41 @@ export const useEmbedding = () => {
     [getEmbedding, indexLocalEmbedding],
   )
 
+  const getVectorDatabase = useCallback(
+    async (
+      embbedingEntity: Parameters<typeof getEmbedding>[0],
+      ...args: Parameters<typeof getLocalVectorDatabase>
+    ) => {
+      setLoading(true)
+      const [info] = args
+      setLoading(true)
+      if (
+        !embbedingEntity ||
+        !embbedingEntity.provider ||
+        embbedingEntity.provider === EmbeddingProviderEnum.Local
+      ) {
+        return getLocalVectorDatabase({
+          ...info,
+          embedding: undefined,
+        })
+      }
+
+      const embedding = await getEmbedding({
+        ...embbedingEntity,
+      })
+
+      return getLocalVectorDatabase({
+        ...info,
+        embedding,
+      })
+    },
+    [],
+  )
+
   return {
     loading,
     index,
+    getVectorDatabase,
     similaritySearchWithScore,
   }
 }

@@ -16,9 +16,11 @@ import { DefaultError } from 'src/components/atoms/DefaultError'
 import { DefaultLoader } from './components/atoms/DefaultLoader'
 import { ROUTE_MODE } from 'src/constants/route'
 
-import ApplicationPage from 'src/pages/ApplicationPage'
-import HomePage from 'src/pages/HomePage'
+import SessionPage from 'src/pages/SessionPage'
+import CreateSessionPage from 'src/pages/CreateSessionPage'
+import SessionListPage from 'src/pages/SessionListPage'
 import DocumentPage from 'src/pages/DocumentPage'
+import { withSessionHOC } from './components/layout/WithSessionHOC'
 
 function ErrorBoundary() {
   const error = useRouteError()
@@ -28,17 +30,24 @@ function ErrorBoundary() {
 
 const routes = createRoutesFromElements(
   <Route errorElement={<ErrorBoundary />}>
-    <Route element={<MainLayout requiredSession />}>
-      <Route path={APP_ROUTES.whiteboard} Component={HomePage} errorElement={<ErrorBoundary />} />
-      <Route
-        path={APP_ROUTES.application}
-        errorElement={<ErrorBoundary />}
-        Component={ApplicationPage}
-      />
-      <Route path="*" element={<Navigate to={getRouteURL('whiteboard')} />} />
-    </Route>
     <Route element={<MainLayout />}>
+      <Route
+        path={APP_ROUTES.session}
+        Component={withSessionHOC(SessionPage)}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
+        path={APP_ROUTES.sessions}
+        Component={SessionListPage}
+        errorElement={<ErrorBoundary />}
+      />
+      <Route
+        path={APP_ROUTES.createSession}
+        Component={CreateSessionPage}
+        errorElement={<ErrorBoundary />}
+      />
       <Route path={APP_ROUTES.document} errorElement={<ErrorBoundary />} Component={DocumentPage} />
+      <Route path="*" element={<Navigate to={getRouteURL('sessions')} />} />
     </Route>
   </Route>,
 )
@@ -66,7 +75,7 @@ const AppRoute = memo(
     }, [invalidBaseURL])
 
     if (invalidBaseURL) {
-      return <DefaultLoader className="w-screen h-screen" simple />
+      return <DefaultLoader className="w-screen h-screen" morphing />
     }
 
     return <RouterProvider router={router} />

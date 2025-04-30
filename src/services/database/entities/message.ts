@@ -8,7 +8,7 @@ import {
   JoinColumn,
   OneToOne,
 } from 'typeorm'
-import { LLM, Thread, Prompt, Session } from './index'
+import { LLM, Session } from './index'
 import { TABLE_NAMES, type MessageRoleEnum, type MessageStatusEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Message })
@@ -25,8 +25,8 @@ export class Message {
   @Column({ type: 'text' })
   status: `${MessageStatusEnum}`
 
-  @Column({ type: 'text', nullable: true })
-  metadata?: string
+  @Column({ type: 'jsonb', nullable: true })
+  metadata?: Record<string, unknown>
 
   @Column({ type: 'text', nullable: true })
   output?: string
@@ -49,28 +49,12 @@ export class Message {
   message?: Message
 
   @Column('uuid')
-  thread_id: string
-  @ManyToOne(() => Thread, (entity) => entity.messages, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: 'thread_id' })
-  thread?: Thread
-
-  @Column('uuid')
   llm_id: string
   @ManyToOne(() => LLM, (entity: LLM) => entity.messages, {
     createForeignKeyConstraints: false,
   })
   @JoinColumn({ name: 'llm_id' })
   llm?: LLM
-
-  @Column('uuid', { nullable: true })
-  prompt_id?: string
-  @ManyToOne(() => Prompt, (entity: Prompt) => entity.messages, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: 'prompt_id' })
-  prompt?: Prompt
 
   @Column('uuid')
   session_id: string

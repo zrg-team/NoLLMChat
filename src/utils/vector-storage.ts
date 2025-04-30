@@ -2,21 +2,9 @@ import { md5 } from 'js-md5'
 import { VoyVectorStore } from '@langchain/community/vectorstores/voy'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import localforage from 'localforage'
-import {
-  CSVData,
-  JSONData,
-  JSONLData,
-  VectorDatabase,
-  VectorDatabaseStorageEnum,
-} from 'src/services/database/types'
+import { VectorDatabase, VectorDatabaseStorageEnum } from 'src/services/database/types'
 import { EmbeddedResource } from 'voy-search'
-import {
-  decodeCSVData,
-  decodeLine,
-  decodeSplitter,
-  encodeLine,
-  encodeSplitter,
-} from './string-data'
+import { decodeLine, encodeLine } from './string-data'
 import { getRepository } from 'src/services/database'
 
 export type VectorData = {
@@ -26,7 +14,7 @@ export type VectorData = {
   metadata?: Record<string, unknown>
 }
 
-type VectorDatabaseType<T extends 'memory' | 'voy'> = T extends 'memory'
+type VectorDatabaseType<T extends 'memory' | 'voy' | 'pgvector'> = T extends 'memory'
   ? MemoryVectorStore['memoryVectors']
   : EmbeddedResource[]
 
@@ -34,7 +22,7 @@ type VectorDatabaseDocType<T extends 'memory' | 'voy'> = T extends 'memory'
   ? MemoryVectorStore['memoryVectors']
   : VoyVectorStore['docstore']
 
-const mapVectorDataByProvider = async <T extends 'memory' | 'voy'>({
+const mapVectorDataByProvider = async <T extends 'memory' | 'voy' | 'pgvector'>({
   provider,
   storedData,
   databaseName,
@@ -70,7 +58,7 @@ const mapVectorDataByProvider = async <T extends 'memory' | 'voy'>({
       throw new Error('Invalid provider')
   }
 }
-export const getVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
+export const getVectorDatabaseStorage = async <T extends 'memory' | 'voy' | 'pgvector'>({
   storageType,
   provider,
   databaseName,
@@ -81,50 +69,11 @@ export const getVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
   provider: T
   databaseName: string
   storageService?: typeof localforage
-  storageDataNode?: JSONData | CSVData | JSONLData | VectorDatabase
+  storageDataNode?: VectorDatabase
 }): Promise<VectorDatabaseType<T>> => {
   switch (storageType) {
-    case VectorDatabaseStorageEnum.DataNode: {
-      if (!storageDataNode) {
-        throw new Error('Storage data node not found')
-      }
-      if ('csv' in storageDataNode) {
-        const { rows } = decodeCSVData(storageDataNode?.headers || '', storageDataNode?.csv || '')
-        return mapVectorDataByProvider({
-          provider,
-          storedData: rows as {
-            id?: string
-            embedding?: number[]
-            content: string
-            metadata?: Record<string, unknown>
-          }[],
-          databaseName,
-        })
-      }
-      if ('json' in storageDataNode) {
-        return mapVectorDataByProvider({
-          provider,
-          storedData: JSON.parse(storageDataNode?.json || '[]') as {
-            id?: string
-            embedding?: number[]
-            content: string
-            metadata?: Record<string, unknown>
-          }[],
-          databaseName,
-        })
-      }
-      if ('jsonl' in storageDataNode) {
-        return mapVectorDataByProvider({
-          provider,
-          storedData: decodeLine(storageDataNode?.jsonl).map((item) => JSON.parse(item)) as {
-            id?: string
-            embedding?: number[]
-            content: string
-            metadata?: Record<string, unknown>
-          }[],
-          databaseName,
-        })
-      }
+    case VectorDatabaseStorageEnum.Database: {
+      // TODO: add support for pgvector
       return []
     }
     case VectorDatabaseStorageEnum.DatabaseNode: {
@@ -169,7 +118,7 @@ export const storeVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
   databaseName: string
   embeddingStorage: typeof localforage
   docstore: VectorDatabaseDocType<T>
-  storageDataNode?: JSONData | CSVData | JSONLData | VectorDatabase
+  storageDataNode?: VectorDatabase
 }) => {
   const data = docstore.map((entry) => {
     if ('embedding' in entry) {
@@ -188,37 +137,7 @@ export const storeVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
     }
   })
   switch (storageType) {
-    case VectorDatabaseStorageEnum.DataNode:
-      {
-        storageDataNode = storageDataNode as CSVData | JSONData | JSONLData
-        if (!storageDataNode) {
-          throw new Error('Storage data node not found')
-        }
-        const storageDataNodeType = getStorageDataSource(storageDataNode)
-        if (storageDataNodeType === 'CSVData') {
-          await getRepository(storageDataNodeType).update(storageDataNode.id, {
-            csv: encodeLine(
-              data.map((item) => {
-                const headers = decodeSplitter(
-                  (storageDataNode as CSVData | JSONData | JSONLData).headers,
-                )
-                const row = headers.map((header) => item[header as keyof typeof item])
-                return encodeSplitter(row)
-              }),
-            ),
-          })
-        }
-        if (storageDataNodeType === 'JSONData') {
-          await getRepository(storageDataNodeType).update(storageDataNode.id, {
-            json: JSON.stringify(data),
-          })
-        }
-        if (storageDataNodeType === 'JSONLData') {
-          await getRepository(storageDataNodeType).update(storageDataNode.id, {
-            jsonl: encodeLine(data.map((item) => JSON.stringify(item))),
-          })
-        }
-      }
+    case VectorDatabaseStorageEnum.Database:
       break
     case VectorDatabaseStorageEnum.DatabaseNode:
       {
@@ -235,16 +154,6 @@ export const storeVectorDatabaseStorage = async <T extends 'memory' | 'voy'>({
       break
   }
   return data
-}
-
-export const getStorageDataSource = (dataSource: CSVData | JSONData | JSONLData) => {
-  return 'csv' in dataSource
-    ? 'CSVData'
-    : 'json' in dataSource
-      ? 'JSONData'
-      : 'jsonl' in dataSource
-        ? 'JSONLData'
-        : undefined
 }
 
 export const getDatabaseId = (name: string) => md5(name)

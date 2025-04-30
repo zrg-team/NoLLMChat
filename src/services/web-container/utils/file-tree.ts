@@ -1,6 +1,6 @@
 import type { DirectoryNode, FileNode, FileSystemTree } from '@webcontainer/api'
 import { nanoid } from 'nanoid'
-import { logDebug } from 'src/utils/logger'
+import { logDebug, logError } from 'src/utils/logger'
 
 export interface ElementTree {
   id: string
@@ -40,34 +40,104 @@ export function convertToElementsTree(
   return elements
 }
 
+export function fileSystemTreeToFilePaths(
+  tree: FileSystemTree,
+): { file: string; content: string }[] {
+  const filePaths: { file: string; content: string }[] = []
+
+  function traverse(node: FileSystemTree, path: string[] = []) {
+    for (const [name, value] of Object.entries(node)) {
+      if ('file' in value) {
+        // It's a file node
+        const filePath = [...path, name].join('/')
+        if ('contents' in value.file) {
+          const content = value.file.contents
+          filePaths.push({
+            file: filePath,
+            content: typeof content === 'string' ? content : content.toString(),
+          })
+        }
+      } else if ('directory' in value) {
+        // It's a directory node
+        traverse(value.directory, [...path, name])
+      }
+    }
+  }
+
+  traverse(tree)
+  return filePaths
+}
+
+export function parseFileSystemTree(data: { file: string; content: string }[]): FileSystemTree {
+  const root: FileSystemTree = {}
+
+  data.filter(Boolean).forEach((line) => {
+    try {
+      const file = line.file
+      const content = line.content
+      const parts = file.split('/')
+      let currentNode: FileSystemTree = root
+
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i]
+
+        if (i === parts.length - 1) {
+          // Last part is a file
+          currentNode[part] = {
+            file: {
+              contents: content,
+            },
+          }
+        } else {
+          // Intermediate parts are directories
+          if (!currentNode[part]) {
+            currentNode[part] = {
+              directory: {},
+            }
+          }
+          currentNode = (currentNode[part] as DirectoryNode).directory
+        }
+      }
+    } catch (error) {
+      logError(`Failed to parse JSONL line: ${line}`, error)
+    }
+  })
+
+  return root
+}
+
 export function parseJSONLToFileSystemTree(jsonl: string): FileSystemTree {
   const lines = jsonl.trim().split('\n')
   const root: FileSystemTree = {}
 
-  lines.forEach((line) => {
-    const { file, content } = JSON.parse(line)
-    const parts = file.split('/')
-    let currentNode: FileSystemTree = root
+  lines.filter(Boolean).forEach((line) => {
+    try {
+      const { file, content } = JSON.parse(line)
+      const parts = file.split('/')
+      let currentNode: FileSystemTree = root
 
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i]
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i]
 
-      if (i === parts.length - 1) {
-        // Last part is a file
-        currentNode[part] = {
-          file: {
-            contents: content,
-          },
-        }
-      } else {
-        // Intermediate parts are directories
-        if (!currentNode[part]) {
+        if (i === parts.length - 1) {
+          // Last part is a file
           currentNode[part] = {
-            directory: {},
+            file: {
+              contents: content,
+            },
           }
+        } else {
+          // Intermediate parts are directories
+          if (!currentNode[part]) {
+            currentNode[part] = {
+              directory: {},
+            }
+          }
+          currentNode = (currentNode[part] as DirectoryNode).directory
         }
-        currentNode = (currentNode[part] as DirectoryNode).directory
       }
+    } catch (error) {
+      logError(`Failed to parse JSONL line: ${line}`, error)
     }
   })
 

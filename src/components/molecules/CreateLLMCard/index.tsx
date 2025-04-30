@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from 'src/lib/shadcn/ui/card'
 import { Button } from 'src/lib/shadcn/ui/button'
-import { useCreateLLM } from 'src/hooks/flows/mutations/use-create-llm'
-import { NodeProps, useInternalNode } from '@xyflow/react'
+import { useCreateLLM } from 'src/hooks/mutations/use-create-llm'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { useTranslation } from 'react-i18next'
 import { Popover, PopoverContent } from 'src/lib/shadcn/ui/popover'
@@ -17,7 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from 'src/lib/shadcn/ui/command'
-import { LLMModelTypeEnum, LLMProviderEnum } from 'src/services/database/types'
+import { LLM, LLMModelTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { useLocalLLMState } from 'src/services/local-llm'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { Label } from 'src/lib/shadcn/ui/label'
@@ -35,7 +34,7 @@ import { Alert } from 'src/lib/shadcn/ui/alert'
 import { Input } from 'src/lib/shadcn/ui/input'
 import { logError } from 'src/utils/logger'
 import { useSessionState } from 'src/states/session'
-import { encryptData } from 'src/utils/passphrase'
+import { decryptData, encryptData } from 'src/utils/passphrase'
 import { Checkbox } from 'src/lib/shadcn/ui/checkbox'
 import {
   GROQ_API_KEY_LINK,
@@ -46,21 +45,47 @@ import {
   GOOGLE_GENERATIVE_AI_API_KEY_LINK,
   GOOGLE_GENERATIVE_AI_MODELS,
 } from 'src/constants/llm'
-
-import { SUPPORTED_PROVIDERS } from './constants'
 import { useConfirmOrCreatePassphrase } from 'src/hooks/mutations/use-confirm-or-create-passphrase'
+import { cn } from 'src/lib/utils'
 
-function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void }) {
-  const { id, setDialog } = props
+import { SUPPORTED_PROVIDERS, DISABLED_PROVIDERS } from './constants'
+
+function CreateLLMCard(props: {
+  setDialog?: (value: boolean) => void
+  llm?: LLM
+  className?: string
+  onCreated?: (llm: LLM) => void
+  noHeader?: boolean
+  buttonTitle?: string
+  cardBodyClassName?: string
+  cardFooterClassName?: string
+  onCreate?: (llm: {
+    name: string
+    model_type: LLMModelTypeEnum
+    function_calling: boolean
+    encryptedInfo: Record<string, unknown>
+    provider: `${LLMProviderEnum}`
+  }) => void
+}) {
+  const {
+    noHeader,
+    cardBodyClassName,
+    className,
+    cardFooterClassName,
+    buttonTitle,
+    llm,
+    setDialog,
+    onCreated,
+    onCreate,
+  } = props
   const { t } = useTranslation('components')
   const { toast } = useToast()
-  const node = useInternalNode(id)
+  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [modelId, setModelId] = useState('')
-  const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [encryptedInfo, setEncryptedInfo] = useState<Record<string, string>>()
-  const [provider, setProvider] = useState<`${LLMProviderEnum}`>(LLMProviderEnum.WebLLM)
+  const [provider, setProvider] = useState<`${LLMProviderEnum}`>(LLMProviderEnum.OpenAI)
+  const [encryptedInfo, setEncryptedInfo] = useState<Record<string, unknown>>({})
   const [hasCache, setHasCache] = useState(false)
   const [llmsInfo, setLLMsInfo] = useState<{
     input?: string
@@ -157,7 +182,6 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       case LLMProviderEnum.WebLLM:
         return llmsInfo?.modelList && modelList.find((model) => model.model_id === modelId)
       case LLMProviderEnum.Groq:
-        setEncryptedInfo({})
         return {
           model: modelId,
           model_id: modelId,
@@ -165,7 +189,6 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           overrides: {},
         } as ModelRecord
       case LLMProviderEnum.OpenAI:
-        setEncryptedInfo({})
         return {
           model: modelId,
           model_id: modelId,
@@ -173,7 +196,6 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           overrides: {},
         } as ModelRecord
       case LLMProviderEnum.GoogleGenerativeAI:
-        setEncryptedInfo({})
         return {
           model: modelId,
           model_id: modelId,
@@ -191,11 +213,25 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   useEffect(() => {
     if (!currentSession?.id) return
 
-    setProvider(LLMProviderEnum.WebLLM)
-    setModelId('')
-    setSearch('')
-    setEncryptedInfo({})
-  }, [currentSession?.id])
+    if (!llm) {
+      setProvider(LLMProviderEnum.OpenAI)
+      setModelId('')
+      setSearch('')
+      setEncryptedInfo({})
+    } else {
+      confirmOrCreatePassphrase().then((key) => {
+        if (!key) {
+          return
+        }
+        decryptData(llm.encrypted || {}, key).then((data) => {
+          setSearch('')
+          setModelId(llm.name)
+          setProvider(llm.provider)
+          setEncryptedInfo(data || {})
+        })
+      })
+    }
+  }, [currentSession?.id, llm])
 
   const handleOnchange = useCallback((currentValue: string) => {
     setModelId(currentValue)
@@ -211,9 +247,24 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
     setEncryptedInfo({})
   }, [])
   const hanldeSubmit = async () => {
-    if (!node || !currentSession) return
+    if (onCreate) {
+      onCreate({
+        name: modelId,
+        model_type: modelTypeToLLMType(selectedModel?.model_type),
+        function_calling: selectedModel?.model_id
+          ? llmsInfo?.functionCallingModelIds?.includes(selectedModel?.model_id) || false
+          : false,
+        encryptedInfo,
+        provider,
+      })
+      setDialog?.(false)
+      return
+    }
     try {
+      if (!currentSession) return
+
       setLoading(true)
+
       let encrypted: Record<string, unknown> | undefined
 
       if (isRequiredSessionPasskey) {
@@ -223,7 +274,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         }
         encrypted = await encryptData(encryptedInfo || {}, passphrase)
       }
-      await createLLM(node, {
+      const llmResult = await createLLM({
         name: modelId,
         model_type: modelTypeToLLMType(selectedModel?.model_type),
         function_calling: selectedModel?.model_id
@@ -233,6 +284,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         provider,
       })
       setDialog?.(false)
+      onCreated?.(llmResult)
     } catch (error) {
       logError('Create LLM', error)
       toast({
@@ -241,7 +293,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
       })
     } finally {
       setLoading(false)
-      setProvider(LLMProviderEnum.WebLLM)
+      setProvider(LLMProviderEnum.OpenAI)
       setEncryptedInfo({})
       setModelId('')
       setSearch('')
@@ -476,7 +528,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between"
+              className="w-full justify-between overflow-hidden"
             >
               {modelId ? selectedModel?.model_id : t('add_llm_card.select_model_placeholder')}
               <LazyIcon name="chevrons-up-down" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -525,7 +577,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               </Button>
               <Input
                 type="password"
-                value={encryptedInfo?.key || ''}
+                value={encryptedInfo?.key ? `${encryptedInfo?.key}` : ''}
                 onChange={(e) =>
                   setEncryptedInfo((pre) => ({
                     ...pre,
@@ -551,7 +603,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
               </Button>
               <Input
                 type="password"
-                value={encryptedInfo?.key || ''}
+                value={encryptedInfo?.key ? `${encryptedInfo?.key}` : ''}
                 onChange={(e) =>
                   setEncryptedInfo((pre) => ({
                     ...pre,
@@ -579,12 +631,14 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   }, [isRequiredSessionPasskey, provider, t, encryptedInfo])
 
   return (
-    <Card className="max-w-lg">
-      <CardHeader>
-        <CardTitle>{t('add_llm_card.title')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid w-full gap-1.5">
+    <Card className={cn('max-w-lg', className)}>
+      {!noHeader ? (
+        <CardHeader>
+          <CardTitle>{t('add_llm_card.title')}</CardTitle>
+        </CardHeader>
+      ) : undefined}
+      <CardContent className={cardBodyClassName}>
+        <div className="flex w-full gap-1.5 flex-col">
           <Label>{t('add_llm_card.provider')}</Label>
           <Select value={provider} onValueChange={handleOnSelectProvider}>
             <SelectTrigger className="w-full mb-4">
@@ -593,7 +647,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
             <SelectContent>
               {Object.values(SUPPORTED_PROVIDERS).map((item) => {
                 return (
-                  <SelectItem key={item} value={item}>
+                  <SelectItem key={item} value={item} disabled={DISABLED_PROVIDERS.includes(item)}>
                     {t(`add_llm_card.providers.${item.toLowerCase()}`)}
                   </SelectItem>
                 )
@@ -622,18 +676,18 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
                 }
               />
             </div>
-            <div className="mt-2 text-sm text-muted-foreground">
+            <div className="mt-2 text-sm text-muted-foreground break-words">
               <span className="font-bold mr-2">{t('add_llm_card.model_url')}</span>
               {selectedModel.model}
             </div>
             {selectedModel.model_lib ? (
-              <div className="mt-2 text-sm text-muted-foreground center flex">
+              <div className="mt-2 text-sm text-muted-foreground break-words">
                 <span className="font-bold mr-2">{t('add_llm_card.model_lib_url')}</span>
                 {selectedModel.model_lib}
               </div>
             ) : undefined}
             {selectedModel.overrides && Object.keys(selectedModel.overrides)?.length ? (
-              <div className="mt-2 text-sm text-muted-foreground center flex">
+              <div className="mt-2 text-sm text-muted-foreground break-words">
                 <span className="font-bold mr-2">{t('add_llm_card.metadata')}</span>
                 {JSON.stringify(selectedModel.overrides)}
               </div>
@@ -642,14 +696,15 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         ) : null}
         {encryptedFields}
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className={cn('flex justify-between', cardFooterClassName)}>
         <LoadingButton
           loading={creatingLLM || loading}
           disabled={!modelId?.length}
           onClick={hanldeSubmit}
           className="w-full"
         >
-          {hasCache ? t('add_llm_card.button_add') : t('add_llm_card.button_download_and_add')}
+          {buttonTitle ||
+            (hasCache ? t('add_llm_card.button_add') : t('add_llm_card.button_download_and_add'))}
         </LoadingButton>
       </CardFooter>
     </Card>

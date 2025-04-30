@@ -28,13 +28,14 @@ export async function sendToWorker(
 }
 
 export function sendToMainThread(
+  service: string,
   id: string,
   type: 'inprogress' | 'complete' | 'error' | 'started',
   payload: unknown,
 ) {
   const process = processes.get(id)
   if (!process && id !== WOKER_INIT_MESSAGE_ID) {
-    logWarn('[No process found for message]', id)
+    logWarn(`[${service}][No process found for message]`, id)
     return
   }
   self.postMessage({
@@ -42,18 +43,21 @@ export function sendToMainThread(
     type,
     payload,
   } as BaseMessageResponse)
-  logDebug('[Send Worker to Main Thread]', { id, type, payload })
+  logDebug(`[${service}][Send Worker to Main Thread]`, { id, type, payload })
 }
 
-function handlePayloadFunc<M extends BaseMessagePayload>(handler: (data: M) => Promise<unknown>) {
+function handlePayloadFunc<M extends BaseMessagePayload>(
+  service: string,
+  handler: (data: M) => Promise<unknown>,
+) {
   return async (data: M) => {
     try {
       const responseData = await handler(data)
 
-      sendToMainThread(data.messageId, 'complete', responseData)
-    } catch (e: unknown) {
+      sendToMainThread(service, data.messageId, 'complete', responseData)
+    } catch (e) {
       logError('Handle Worker Message', e, { payload: data })
-      sendToMainThread(data.messageId, 'error', {
+      sendToMainThread(service, data.messageId, 'error', {
         error: e instanceof Error ? e.message : 'An error occurred',
         error_code: 'UNKNOWN_ERROR',
       })
@@ -65,6 +69,7 @@ function handlePayloadFunc<M extends BaseMessagePayload>(handler: (data: M) => P
 
 // Listen for messages from the main thread
 export function listenForMessages<M extends BaseMessagePayload>(
+  service: string,
   handler: (data: M) => Promise<unknown>,
   options?: { timeout?: number },
 ) {
@@ -72,11 +77,11 @@ export function listenForMessages<M extends BaseMessagePayload>(
     processes.set(
       event.data.messageId,
       Promise.race([
-        handlePayloadFunc(handler)(event.data),
+        handlePayloadFunc(service, handler)(event.data),
         new Promise((resolve) => setTimeout(() => resolve(true), options?.timeout || 120000)).then(
           () => {
             if (processes.has(event.data.messageId)) {
-              sendToMainThread(event.data.messageId, 'error', {
+              sendToMainThread(service, event.data.messageId, 'error', {
                 error: 'Operation timed out',
                 error_code: 'TIMEOUT_ERROR',
               })
@@ -86,15 +91,15 @@ export function listenForMessages<M extends BaseMessagePayload>(
         ),
       ]),
     )
-    sendToMainThread(event.data.messageId, 'started', 'Started processing')
+    sendToMainThread(service, event.data.messageId, 'started', 'Started processing')
   })
 }
 
-export async function init(func?: () => Promise<void>) {
+export async function init(service: string, func?: () => Promise<void>) {
   if (typeof func === 'function') {
     await func()
   }
-  sendToMainThread(WOKER_INIT_MESSAGE_ID, 'complete', 'Worker initialized')
+  sendToMainThread(service, WOKER_INIT_MESSAGE_ID, 'complete', 'Worker initialized')
 }
 
 export const workerMessagesHandler = <

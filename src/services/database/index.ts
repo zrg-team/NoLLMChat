@@ -10,6 +10,7 @@ import { EntityType } from 'src/utils/orm-type'
 import { sendToWorker, workerMessagesHandler } from 'src/utils/worker-base'
 import { getEmptyPromise } from 'src/utils/promise'
 import { logWarn } from 'src/utils/logger'
+import type { Results } from '@electric-sql/pglite'
 
 import type { AppEntityNames, EntityTypesMap } from './types'
 import { QueryOptions } from './utils/serialize.base'
@@ -86,7 +87,7 @@ const repositoryExecute = async <T>(
   }
 }
 
-export const rawQuery = async (query: string, params?: (string | number | boolean)[]) => {
+export const rawQuery = async (query: string, params?: unknown[]) => {
   let messageId = ''
   try {
     if (!worker) {
@@ -95,10 +96,10 @@ export const rawQuery = async (query: string, params?: (string | number | boolea
 
     const response = createProcessPromise()
     messageId = response.messageId
-    sendToWorker(worker, WorkerExecutionType.RAW_QUERY_EXECUTE, messageId, [query, params])
-    return response.promise
+    sendToWorker(worker, WorkerExecutionType.PGLITE_QUERY_EXECUTE, messageId, [query, params])
+    return response.promise as Promise<Results>
   } catch (err) {
-    logWarn(`Error executing ${WorkerExecutionType.RAW_QUERY_EXECUTE} action`, err)
+    logWarn(`Error executing ${WorkerExecutionType.PGLITE_QUERY_EXECUTE} action`, err)
     if (messageId) {
       refProcesses.delete(messageId)
     }

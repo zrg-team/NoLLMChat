@@ -1,11 +1,10 @@
-import { useRef, useState, useCallback, useMemo } from 'react'
+import { useRef, useState, useCallback, useMemo, useEffect } from 'react'
 import { Tree, UncontrolledTreeEnvironment, TreeEnvironmentRef } from 'react-complex-tree'
 import type * as RCT from 'react-complex-tree'
 import type { FileSystemAPI } from '@webcontainer/api'
 import { EventEmitter } from 'react-complex-tree/src/EventEmitter'
 import { useAppState } from 'src/states/app'
 import { cn } from 'src/lib/utils'
-import { usePreventPitchZoom } from 'src/hooks/use-prevent-pitch-zoom'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Label } from 'src/lib/shadcn/ui/label'
 import {
@@ -15,13 +14,14 @@ import {
   ContextMenuTrigger,
 } from 'src/lib/shadcn/ui/context-menu'
 import { useTranslation } from 'react-i18next'
+import { Popover, PopoverContent, PopoverTrigger } from 'src/lib/shadcn/ui/popover'
+import { Separator } from 'src/lib/shadcn/ui/separator'
 
 import { getDirAsTree } from '../modules/webcontainer'
 import { debounce } from '../utils/debounce'
 import { getIcon } from '../icons'
 import { useMainVSLiteAppContext } from '../contexts/main'
-import { Popover, PopoverContent, PopoverTrigger } from 'src/lib/shadcn/ui/popover'
-import { Separator } from 'src/lib/shadcn/ui/separator'
+import { Skeleton } from 'src/lib/shadcn/ui/skeleton'
 
 interface FileTreeProps {
   hideAppName?: boolean
@@ -46,7 +46,8 @@ const root: RCT.TreeItem<string> = {
 export function FileTree(props: FileTreeProps) {
   const { onAddFile, onTriggerItem, onRenameItem, onDeleteFile, onAddFolder, onRenameFolder } =
     props
-  const { t } = useTranslation('components')
+  const { t } = useTranslation('vslite')
+  const { ready } = useMainVSLiteAppContext()
   const [selectedItemIndex, setSelectedItemIndex] = useState<RCT.TreeItemIndex[]>()
   const [, setHoverItem] = useState<RCT.TreeItem<unknown> | undefined>()
   const [openRenamePopover, setOpenRenamePopover] = useState(false)
@@ -58,11 +59,9 @@ export function FileTree(props: FileTreeProps) {
   const isDarkTheme = useAppState((state) => state.theme === 'dark')
   const isContextMenuRef = useRef(false)
   const hoverItemRef = useRef<RCT.TreeItem>()
-  const { fileTreeStateRef } = useMainVSLiteAppContext()
+  const { fileTreeStateRef, setFileTreeState } = useMainVSLiteAppContext()
 
-  usePreventPitchZoom(editorRef)
-
-  const refresh = async (updateMessage?: unknown) => {
+  const refresh = useCallback(async (updateMessage?: unknown) => {
     if (typeof updateMessage === 'string') {
       const data = await getDirAsTree(
         props.fs,
@@ -73,9 +72,13 @@ export function FileTree(props: FileTreeProps) {
       )
       provider.current.updateItems(data)
     }
-  }
+  }, [])
 
   fileTreeStateRef.current = { treeEnv, refresh: debounce(refresh, 300) }
+
+  useEffect(() => {
+    setFileTreeState?.(fileTreeStateRef.current)
+  }, [])
 
   const selectItems = useMemo<RCT.TreeItem<unknown>[]>(() => {
     if (selectedItemIndex?.length) {
@@ -89,7 +92,7 @@ export function FileTree(props: FileTreeProps) {
   const handleAddFile = useCallback(() => {
     onAddFile(
       selectItems?.[0] && selectItems?.[0].isFolder ? `${selectItems[0].index}` : '/',
-      'new_file',
+      'new_file.ts',
     )
   }, [onAddFile, selectItems])
 
@@ -161,7 +164,10 @@ export function FileTree(props: FileTreeProps) {
               setHoverItem(undefined)
             }
           }}
-          className={cn(icon, 'flex content-center items-center')}
+          className={cn(
+            icon,
+            'flex content-center items-center text-ellipsis overflow-hidden whitespace-nowrap',
+          )}
         >{`${props.item.data}`}</span>
       )
 
@@ -223,7 +229,7 @@ export function FileTree(props: FileTreeProps) {
             <div
               ref={editorRef}
               className={cn(
-                'flex-1 !overflow-scroll max-h-full nowheel nodrag',
+                'flex-1 !overflow-scroll max-h-full nowheel nodrag relative',
                 isDarkTheme ? 'rct-dark' : 'rct-default',
               )}
             >
@@ -245,6 +251,21 @@ export function FileTree(props: FileTreeProps) {
               >
                 <Tree treeId="filetree" treeLabel="Explorer" rootItem="root" />
               </UncontrolledTreeEnvironment>
+              {!ready ? (
+                <div className="absolute top-0 left-0 w-full h-full flex flex-col gap-2 z-50 p-4">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              ) : undefined}
             </div>
           </div>
         </ContextMenuTrigger>
@@ -253,17 +274,15 @@ export function FileTree(props: FileTreeProps) {
             {`${selectItems?.[0]?.index || './'}`.replace('./', '')}
           </ContextMenuItem>
           <Separator />
-          <ContextMenuItem onClick={handleAddFile}>
-            {t('vslite.context_menu.new_file')}
-          </ContextMenuItem>
+          <ContextMenuItem onClick={handleAddFile}>{t('context_menu.new_file')}</ContextMenuItem>
           <ContextMenuItem onClick={handleAddFolder}>
-            {t('vslite.context_menu.new_folder')}
+            {t('context_menu.new_folder')}
           </ContextMenuItem>
           <ContextMenuItem onClick={handleOpenRenameFile} disabled={!selectedItemIndex?.length}>
-            {t('vslite.context_menu.rename')}
+            {t('context_menu.rename')}
           </ContextMenuItem>
           <ContextMenuItem onClick={handleDeleteFile} disabled={!selectedItemIndex?.length}>
-            {t('vslite.context_menu.delete')}
+            {t('context_menu.delete')}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

@@ -22,13 +22,13 @@ export class VectorDatabase {
   id: string
 
   @Column({ type: 'text' })
-  name: string
+  key: string
 
   @Column({ type: 'text' })
   type: `${VectorDatabaseTypeEnum}`
 
-  @Column({ type: 'text', nullable: true })
-  provider?: `${VectorDatabaseProviderEnum}`
+  @Column({ type: 'text', nullable: false })
+  provider: `${VectorDatabaseProviderEnum}`
 
   @Column({ type: 'text', nullable: true })
   storage?: `${VectorDatabaseStorageEnum}`
@@ -40,7 +40,7 @@ export class VectorDatabase {
   raw?: string
 
   @Column({ type: 'json', nullable: true })
-  data?: unknown
+  data?: Record<string, unknown>
 
   @CreateDateColumn()
   created_at?: Date

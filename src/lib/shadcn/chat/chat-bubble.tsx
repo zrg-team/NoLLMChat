@@ -6,7 +6,7 @@ import MessageLoading from 'src/lib/shadcn/chat/message-loading'
 import { Button, ButtonProps } from 'src/lib/shadcn/ui/button'
 
 // ChatBubble
-const chatBubbleVariant = cva('flex gap-2 max-w-[60%] items-end relative group', {
+const chatBubbleVariant = cva('flex gap-2 max-w-full items-end relative group', {
   variants: {
     variant: {
       received: 'self-start',
@@ -68,7 +68,7 @@ const ChatBubbleAvatar: React.FC<ChatBubbleAvatarProps> = ({ src, fallback, clas
 const chatBubbleMessageVariants = cva('p-4', {
   variants: {
     variant: {
-      received: 'bg-secondary text-secondary-foreground rounded-r-lg rounded-tl-lg',
+      received: 'border border-border rounded-r-lg rounded-tl-lg',
       sent: 'border border-border rounded-l-lg rounded-tr-lg',
     },
     layout: {
@@ -93,7 +93,7 @@ const ChatBubbleMessage = React.forwardRef<HTMLDivElement, ChatBubbleMessageProp
     <div
       className={cn(
         chatBubbleMessageVariants({ variant, layout, className }),
-        'break-words max-w-full whitespace-pre-wrap',
+        'break-words max-w-[94%] whitespace-pre-wrap',
       )}
       ref={ref}
       {...props}

@@ -22,6 +22,10 @@ export class PGliteInstance {
     PGliteInstance.options = options
   }
 
+  static setPGLite(pgLite: PGlite): void {
+    PGliteInstance.instance = pgLite
+  }
+
   static async close(): Promise<void> {
     if (PGliteInstance.instance) {
       await PGliteInstance.instance.close()

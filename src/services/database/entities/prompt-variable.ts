@@ -4,11 +4,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  OneToMany,
   ManyToOne,
   JoinColumn,
 } from 'typeorm'
-import { Message, Prompt, Session } from './index'
+import { Prompt, Session } from './index'
 import { TABLE_NAMES, type AppEntityNames, type PromptVariableTypeEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.PromptVariable })
@@ -45,9 +44,6 @@ export class PromptVariable {
 
   @UpdateDateColumn()
   updated_at?: Date
-
-  @OneToMany(() => Message, (message: Message) => message.prompt)
-  messages?: Message[]
 
   @Column('uuid', { nullable: true })
   prompt_id: string

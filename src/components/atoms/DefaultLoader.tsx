@@ -1,38 +1,35 @@
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import AnimatedGridPattern from 'src/lib/shadcn/ui/animated-grid-pattern'
-import FlickeringGrid from 'src/lib/shadcn/ui/flickering-grid'
-import Meteors from 'src/lib/shadcn/ui/meteors'
 import RetroGrid from 'src/lib/shadcn/ui/retro-grid'
 import TypingAnimation from 'src/lib/shadcn/ui/typing-animation'
-import Logo from 'src/assets/svgs/logo.svg?react'
+import Icon from 'src/assets/svgs/icon.svg?react'
 import { cn } from 'src/lib/utils'
 import { useAppState } from 'src/states/app'
+import { MorphingText } from 'src/lib/shadcn/magicui/morphing-text'
+
 import LazyIcon from './LazyIcon'
 
 export const DefaultLoader = memo(
   ({
     className,
-    gridPattern,
-    flickeringGrid,
     blurBackground,
     noBackground,
     enableLogo,
     typing,
     text,
     simple,
-    meteors,
+    noText,
+    morphing,
   }: {
     className?: string
-    gridPattern?: boolean
-    flickeringGrid?: boolean
     typing?: boolean
+    morphing?: boolean
     text?: string
     enableLogo?: boolean
     noBackground?: boolean
     blurBackground?: boolean
     simple?: boolean
-    meteors?: boolean
+    noText?: boolean
   }) => {
     const theme = useAppState((state) => state.theme)
     const { t } = useTranslation('common')
@@ -46,14 +43,6 @@ export const DefaultLoader = memo(
         )
       }
 
-      if (gridPattern) {
-        return <AnimatedGridPattern className="absolute" />
-      }
-
-      if (flickeringGrid) {
-        return <FlickeringGrid className="absolute" gridGap={30} squareSize={2} />
-      }
-
       if (noBackground) {
         return null
       }
@@ -61,12 +50,32 @@ export const DefaultLoader = memo(
       return (
         <>
           <RetroGrid />
-          {meteors ? <Meteors number={25} /> : undefined}
         </>
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const defaultText = useMemo(() => text ?? t('loading'), [t])
+
+    const textComponent = useMemo(() => {
+      if (noText) {
+        return undefined
+      }
+      return morphing ? (
+        <MorphingText
+          texts={[defaultText, t('almost_there'), t('a_bit_more')]}
+          className="text-6xl font-bold text-black dark:text-white mt-4 w-screen mb-28"
+        />
+      ) : typing ? (
+        <TypingAnimation
+          className="text-4xl font-bold text-black dark:text-white mb-32"
+          text={defaultText}
+          repeat
+          repeatDelay={500}
+        />
+      ) : (
+        <div className="text-4xl font-bold text-black dark:text-white mb-32">{defaultText}</div>
+      )
+    }, [noText, defaultText])
 
     if (simple) {
       return (
@@ -87,18 +96,9 @@ export const DefaultLoader = memo(
         {renderLoaderBackground()}
         <div className="flex flex-col items-center gap-2 z-10">
           {enableLogo ? (
-            <Logo className={cn('w-52 h-52', theme === 'dark' ? 'fill-white' : 'fill-black')} />
+            <Icon className={cn('w-24 h-24', theme === 'dark' ? 'fill-white' : 'fill-black')} />
           ) : undefined}
-          {typing ? (
-            <TypingAnimation
-              className="text-4xl font-bold text-black dark:text-white mb-32"
-              text={defaultText}
-              repeat
-              repeatDelay={500}
-            />
-          ) : (
-            <div className="text-4xl font-bold text-black dark:text-white mb-32">{defaultText}</div>
-          )}
+          {textComponent}
         </div>
       </div>
     )

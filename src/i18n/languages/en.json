@@ -1,36 +1,20 @@
 {
   "common": {
+    "app_name": "Znhanh",
+    "almost_there": "Almost there...",
+    "a_bit_more": "Just a little more...",
     "loading": "Loading...",
     "something_went_wrong": "Something went wrong",
     "copied": "Copied",
     "deleted": "Deleted",
-    "whiteboard": "Whiteboard",
-    "apllication": "Application",
+    "sessions": "Sessions",
+    "new_session": "New Session",
     "errors": {
       "delete_failed": "Delete node failed.",
       "create_standalone_session_failed": "Failed to create standalone session."
     },
-    "standalone_session_created": "Standalone session created."
-  },
-  "errors": {
-    "speech_is_not_supported": "Speech is not supported in this browser.",
-    "invalid_passphrase": "Invalid passphrase."
-  },
-  "tooltips": {
-    "export": "Export current flow",
-    "theme": "Change theme",
-    "import": "Import flow"
-  },
-  "sidebar": {
-    "user": "User",
-    "contact": "Contact",
-    "sessions": "Sessions",
-    "new_session": "New Session",
-    "more_session": "More",
-    "applications": "Applications",
-    "application_types": {
-      "chat": "Chat"
-    }
+    "standalone_session_created": "Standalone session created.",
+    "theme": "Theme"
   },
   "documents": {
     "title": "Documents",
@@ -63,341 +47,19 @@
       "vslite": "VS Lite"
     }
   },
-  "create_new_message": {
-    "initial_ai_message": "I'm thinking...",
-    "errors": {
-      "ai_message_content_failed": "Failed to create message."
-    }
-  },
-  "flows": {
-    "supported_nodes": {
-      "add_llm": "LLM",
-      "add_prompt": "Prompt",
-      "add_tool_definition": "Tool",
-      "add_schema": "Schema",
-      "add_few_shot_example": "Few Shot Example",
-      "add_vector_database": "Vector Database",
-      "add_text_data": "Text Data",
-      "more": "...More"
-    },
-    "toolbar_node": {
-      "title": "Toolbar",
-      "add_node": ""
-    },
-    "llm_node": {
-      "create_thread_button": "Create Thread",
-      "load_model_button": "Load Model",
-      "download_model_button": "Download and Load Model",
-      "errors": {
-        "loading_model": "Failed to load model."
-      }
-    },
-    "thread_node": {
-      "title": "Thread",
-      "structured_output": "Structured Output",
-      "prompts": {
-        "human": "Human Prompt",
-        "ai": "AI Prompt",
-        "system": "System Prompt",
-        "tool": "Tool Prompt",
-        "few_shot_example": "Few Shot Example Prompt"
-      },
-      "errors": {
-        "llm_not_loaded_yet": "LLM not loaded yet."
-      },
-      "clone": "Clone",
-      "hide": "Hide",
-      "vector_database_retriever": "Vector Database Retriever"
-    },
-    "message_node": {
-      "message_roles": {
-        "ai": "AI",
-        "human": "Human",
-        "system": "System",
-        "assistant": "Assistant"
-      },
-      "errors": {
-        "llm_not_found": "LLM not found.",
-        "llm_not_loaded": "Model '{{name}}' not loaded yet.",
-        "llm_not_loaded_yet": "LLM not loaded yet.",
-        "create_message": "Failed to create message."
-      },
-      "tool_call": "{{name}} ({{args}})",
-      "new_thread": "Thread",
-      "hide_thread": "Hide"
-    },
-    "session_info_node": {
-      "entities": {
-        "nodes": "Nodes",
-        "edges": "Edges",
-        "threads": "Threads",
-        "llms": "LLMs",
-        "message": "Message",
-        "prompts": "Prompts",
-        "schemas": "Schemas",
-        "tools": "Tools",
-        "emmbeding": "Embedding",
-        "vector_databases": "Vector Databases",
-        "jsonl_data": "JSON Data",
-        "csv_data": "CSV Data"
-      },
-      "title": "Session",
-      "disk_size": "Disk Size",
-      "reload": "Reload",
-      "cached_llms": "Cached LLM",
-      "used_bytes": "Used {{used}} out of {{total}}.",
-      "count_info": {
-        "nodes": "Number of Nodes: {{count}}",
-        "threads": "Number of Threads: {{count}}",
-        "messages": "Number of Messages: {{count}}",
-        "llms": "Number of LLMs: {{count}}",
-        "edges": "Number of Edges: {{count}}",
-        "prompts": "Number of Prompts: {{count}}",
-        "title": "Current Session Count"
-      }
-    },
-    "schema_node": {
-      "typescript": "TypeScript",
-      "zod": "zod"
-    },
-    "vector_database_node": {
-      "k_select_placeholder": "Select a k value",
-      "similarity_search_placeholder": "Search similar ...",
-      "similarity_search_result": "Similarity Search Result",
-      "score": "Score",
-      "content": "Content",
-      "errors": {
-        "similarity_search_failed": "Failed to search similar text.",
-        "vector_database_not_found": "Vector database not found.",
-        "data_node_not_found": "Data node not found.",
-        "content_not_found": "Must provide content or documents."
-      },
-      "storage_type": "Storage Type",
-      "storage_types": {
-        "datanode": "DataNode",
-        "indexeddb": "IndexedDB",
-        "datbase": "Database"
-      },
-      "search": "Search",
-      "text": "Text",
-      "file": "File",
-      "view": "View",
-      "create_prompt": "Create Prompt",
-      "add_text": {
-        "id": "ID",
-        "id_placeholder":"Input ID here...",
-        "content": "Content",
-        "content_placeholder": "Input content here...",
-        "add": "Add"
-      },
-      "add_file": {
-        "index": "Index File",
-        "alert_file_size": "Noted: file size larger than 2MB will take a long time to index by using local embedding model (Setting Embedding Node to use OpenAI or Google Generative AI for large file)."
-      },
-      "to_retriever": "To Retriever"
-    },
-    "application_bar": {
-      "editor": "Plate Editor",
-      "square": "Add Square",
-      "circle": "Add Circle",
-      "triangle": "Add Triangle",
-      "errors": {
-        "add_node_failed": "Failed to add node."
-      },
-      "code_editor": "Code Container Editor",
-      "vslite": "VS Lite",
-      "mdx_editor": "MDX Editor"
-    },
-    "editor_node": {
-      "errors": {
-        "llm_not_found": "LLM not found.",
-        "llm_not_loaded_yet":"LLM not loaded yet.",
-        "stream_message_failed": "Failed to stream message."
-      }
-    },
-    "placeholder_node": {
-      "vector_database_retriever": "Vector Database Retriever"
-    },
-    "code_container_app": {
-    }
-  },
-  "components": {
-    "add_llm_card": {
-      "title": "LLM",
-      "button_add": "Create",
-      "button_download_and_add": "Create",
-      "model_name": "Model",
-      "select_model_placeholder": "Select a model",
-      "search_placeholder": "Search model...",
-      "hugging_face_repo_placeholder": "{username}/{repo}",
-      "wllama_description": "Max GGUF file size is 2GB. If your model is bigger than 2GB, please follow this guide to split it into smaller shards.",
-      "no_model": "No model found",
-      "hugging_face_repo": "Hugging Face Repo",
-      "providers": {
-        "webllm": "WebLLM",
-        "wllama": "Wllama",
-        "openai": "OpenAI",
-        "groq": "Groq",
-        "googlegenerativeai": "Google Generative AI"
-      },
-      "provider": "Provider",
-      "provider_select_placeholder": "Select a provider",
-      "has_model_cache": "Has Model Cache",
-      "model_lib_url": "Library URL:",
-      "low_resource_required": "Low resource required",
-      "model_url": "URL:",
-      "metadata": "Metadata: ",
-      "errors": {
-        "failed_to_create": "Failed to create LLM."
-      },
-      "alert": {
-        "session_passkey": "Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
-      },
-      "encrypted_fields": {
-        "api_key": "API key",
-        "credentials": "Credentials (JSON)",
-        "enabled_google_search_retreival": "Enabled Google Search"
-      }
-    },
-    "add_tool_card": {
-      "title":"Tool",
-      "tool_name": "Name",
-      "name_placeholder": "Input tool name...",
-      "button": "Create",
-      "tool_description": "Description",
-      "description_placeholder": "Input tool description...",
-      "tool_schema": "Schema",
-      "create": "Create"
-    },
-    "add_schema_card": {
-      "title": "Schema",
-      "no_data": "No fields.",
-      "add": "Create",
-      "field": {
-        "required": "Required",
-        "type": "Type",
-        "type_placeholder": "Select a filed data type",
-        "description": "Description",
-        "description_placeholder": "Input filed description",
-        "name": "Name",
-        "name_placeholder": "Input filed name",
-        "actions": "Actions",
-        "add_field": "Add Field",
-        "enum": "Enum"
-      },
-      "types": {
-        "string": "String",
-        "number": "Number",
-        "boolean": "Boolean",
-        "object": "Object",
-        "array": "Array"
-      },
-      "create": "Create",
-      "children": "Children"
-    },
-    "add_message_card": {
-      "title": "Send Message",
-      "button": "Send",
-      "placeholder": "Type your message here..."
-    },
-    "add_prompt_card": {
-      "prompt_content": "Content",
-      "prompt_prefix": "Prefix",
-      "prompt_type": "Type",
-      "prompt_role": "Role",
-      "type_select_placeholder":"Select prompt type",
-      "role_select_placeholder":"Select prompt role",
-      "prompt_types": {
-        "chat": "Chat",
-        "few_shot_example": "Few Shot Example"
-      },
-      "prompt_roles": {
-        "system": "System",
-        "human": "Human",
-        "ai": "AI",
-        "few_shot_example": "Few Shot Example"
-      },
-      "title": "Prompt",
-      "placeholder":"Type your prompt here...",
-      "button": "Create",
-      "few_shot_example_note": "Use {input} to represent the input in the prompt. And use {output} to represent the output. For example, Question: {input}\nAnswer: {output}"
-    },
-    "add_few_shot_example_card": {
-      "title": "Few Shot Example",
-      "input": "Input",
-      "input_placeholder": "Type example input here...",
-      "output": "Output",
-      "output_placeholder": "Type example output here...",
-      "add": "Add",
-      "create": "Create"
-    },
-    "create_vector_database_card": {
-      "title": "Vector Database",
-      "create": "Create",
-      "provider": "Provider",
-      "provider_select_placeholder": "Select a provider",
-      "providers": {
-        "memory": "Memory",
-        "voy": "Voy"
-      },
-      "text_splitter": "Text Splitter",
-      "text_splitter_select_placeholder": "Select a text splitter...",
-      "text_splitters": {
-        "tokentextsplitter": "Token Text Splitter",
-        "charactertextsplitter": "Character Text Splitter",
-        "recursivecharactertextsplitter": "Recursive Character Text Splitter"
-      },
-      "name": "Name",
-      "text_splitter_configuration": "Text Splitter Configuration",
-      "text_splitter_chunksize": "Chunk Size",
-      "text_splitter_chunksize_placeholder": "Input chunk size...",
-      "text_splitter_chunkoverlap": "Chunk Overlap",
-      "text_splitter_chunkoverlap_placeholder": "Input chunk overlap...",
-      "errors": {
-        "create_failed": "Failed to create vector database."
-      }
-    },
-    "add_text_data": {
-      "title": "Text Data",
-      "id": "ID",
-      "id_placeholder": "Input ID here...",
-      "text": "Content",
-      "text_placeholder": "Input text here...",
-      "add": "Add",
-      "create": "Create"
-    },
-    "add_source_base": {
-      "title": "Source Base",
-      "source_base_select_placeholder": "Select a source base",
-      "sourcebases": {
-        "vite-vue": "Base [Vite + Vue]",
-        "shadcn-react-vite": "Base [React + Vite + Shadcn]",
-        "todo-app-react-vite": "Todo App [Vue + Vite + Shadcn]",
-        "porfolio-nextjs": "Portfolio [Next.js + Shadcn]",
-        "empty-source": "Empty Source"
-      },
-      "update_source": "Update Source"
-    },
+  "applications": {
     "vslite": {
-      "load_app_container": "Load Container",
-      "loading_vm_container": "Initializing container...",
-      "context_menu": {
-        "new_file": "New File",
-        "new_folder": "New Folder",
-        "rename": "Rename",
-        "delete": "Delete"
-      }
+      "copilot": "Copilot"
     }
   },
   "dialogs": {
-    "create_session": {
-      "title": "Create Session",
-      "description": "Create a new session to start building your own AI flow.",
-      "name": "Name",
-      "name_placeholder": "Input session name...",
-      "create": "Create",
+    "delete_session": {
+      "title": "Are you sure to delete this session?",
+      "description": "Deleting this session will remove all the data in this session.",
+      "cancel": "Cancel",
+      "delete": "Delete",
       "errors": {
-        "create_failed": "Failed to create session."
+        "delete_failed": "Failed to delete session."
       }
     },
     "create_session_passkey": {
@@ -409,42 +71,6 @@
       "title": "Session Passkey",
       "description": "Input session passkey to unlock this session.",
       "confirm": "Confirm"
-    },
-    "create_standalone_application": {
-      "title": "Create Application",
-      "description": "Create a standalone application from current node.",
-      "name": "Name",
-      "name_placeholder": "Input application name...",
-      "create": "Create",
-      "errors": {
-        "create_failed": "Failed to create application."
-      }
-    },
-    "delete_session": {
-      "title": "Are you sure to delete this session?",
-      "description": "Deleting this session will remove all the data in this session.",
-      "cancel": "Cancel",
-      "delete": "Delete",
-      "errors": {
-        "delete_failed": "Failed to delete session."
-      }
-    },
-    "delete_chat_data_node": {
-      "title": "Are you sure to delete this chat?",
-      "description": "Deleting this chat will remove all the messages in this chat.",
-      "cancel": "Cancel",
-      "delete": "Delete",
-      "errors": {
-        "delete_failed": "Failed to delete chat."
-      }
-    },
-    "create_vector_database_prompt": {
-      "title": "Create prompt from search result",
-      "fill_content_note": "Use {content} as similarity result placeholder in the prompt.",
-      "errors": {
-        "fill_context": "prompt content is required and must contain '{context}' as placeholder.",
-        "create_failed": "Failed to create prompt."
-      }
     },
     "create_vector_database_retriever": {
       "title": "Create Vector Database Retriever",
@@ -461,18 +87,6 @@
     }
   },
   "atoms": {
-    "file_upload_input": {
-      "drop_file": "Drag and drop or click to upload",
-      "errors": {
-        "max_size": "File size must be less than {{maxSize}}MB. Your file {{fileSize}}MB.",
-        "accept": "File type must be {{accept}}"
-      }
-    },
-    "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "more_pages": "More pages"
-    },
     "llm_info": {
       "function_calling": "Function Calling",
       "low_resource_required": "Low resource required",
@@ -516,7 +130,65 @@
       }
     }
   },
-  "applications": {
+  "components": {
+    "mcp": {
+      "title": "MCP",
+      "description": {
+        "intro": "This one will help you to add MCP local to the application.\nIf you don't know how to start here is the example:",
+        "list": {
+          "1": "Start and Figma MCP in local `npx -y figma-developer-mcp --figma-api-key=figma-api-key`",
+          "2": "Start a proxy server `npx --yes local-cors-proxy --port 8010 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial \"\"` (This step are required because CORS issue)",
+          "3": "Input the proxy URL in the form"
+        }
+      },
+      "key": "Name",
+      "url": "URL",
+      "create_or_update": "Create or Update",
+      "list": "Current MCPs"
+    },
+    "add_llm_card": {
+      "title": "LLM",
+      "button_add": "Create",
+      "button_download_and_add": "Create",
+      "model_name": "Model",
+      "select_model_placeholder": "Select a model",
+      "search_placeholder": "Search model...",
+      "hugging_face_repo_placeholder": "{username}/{repo}",
+      "wllama_description": "Max GGUF file size is 2GB. If your model is bigger than 2GB, please follow this guide to split it into smaller shards.",
+      "no_model": "No model found",
+      "hugging_face_repo": "Hugging Face Repo",
+      "providers": {
+        "webllm": "WebLLM",
+        "wllama": "Wllama",
+        "openai": "OpenAI",
+        "groq": "Groq",
+        "googlegenerativeai": "Google Generative AI"
+      },
+      "provider": "Provider",
+      "provider_select_placeholder": "Select a provider",
+      "has_model_cache": "Has Model Cache",
+      "model_lib_url": "Library URL:",
+      "low_resource_required": "Low resource required",
+      "model_url": "URL:",
+      "metadata": "Metadata: ",
+      "errors": {
+        "failed_to_create": "Failed to create LLM."
+      },
+      "alert": {
+        "session_passkey": "Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
+      },
+      "encrypted_fields": {
+        "api_key": "API key",
+        "credentials": "Credentials (JSON)",
+        "enabled_google_search_retreival": "Enabled Google Search"
+      }
+    }
+  },
+  "molecules": {
+    "llm_card": {
+      "load_model_button": "Load Model",
+      "download_model_button": "Download Model"
+    },
     "chat": {
       "history": "History",
       "input_message_placeholder": "Type your message here...",
@@ -524,10 +196,148 @@
       "search": "Search",
       "text": "Text",
       "file": "File",
-      "view": "View"
+      "view": "View",
+      "alerts": {
+        "no_llm_model": "No model found. Please add a LLM node first."
+      }
     },
-    "vslite": {
-      "copilot": "Copilot"
+    "vector_database_node": {
+      "k_select_placeholder": "Select a k value",
+      "similarity_search_placeholder": "Search similar ...",
+      "similarity_search_result": "Similarity Search Result",
+      "score": "Score",
+      "content": "Content",
+      "errors": {
+        "similarity_search_failed": "Failed to search similar text.",
+        "vector_database_not_found": "Vector database not found.",
+        "data_node_not_found": "Data node not found.",
+        "content_not_found": "Must provide content or documents."
+      },
+      "storage_type": "Storage Type",
+      "storage_types": {
+        "datanode": "DataNode",
+        "indexeddb": "IndexedDB",
+        "datbase": "Database"
+      },
+      "search": "Search",
+      "text": "Text",
+      "file": "File",
+      "view": "View",
+      "create_prompt": "Create Prompt",
+      "add_text": {
+        "id": "ID",
+        "id_placeholder":"Input ID here...",
+        "content": "Content",
+        "content_placeholder": "Input content here...",
+        "add": "Add"
+      },
+      "add_file": {
+        "index": "Index File",
+        "alert_file_size": "Noted: file size larger than 2MB will take a long time to index by using local embedding model (Setting Embedding Node to use OpenAI or Google Generative AI for large file)."
+      },
+      "to_retriever": "To Retriever"
+    },
+    "add_prompt_card": {
+      "prompt_content": "Content",
+      "prompt_prefix": "Prefix",
+      "prompt_type": "Type",
+      "prompt_role": "Role",
+      "type_select_placeholder":"Select prompt type",
+      "role_select_placeholder":"Select prompt role",
+      "prompt_types": {
+        "chat": "Chat",
+        "few_shot_example": "Few Shot Example"
+      },
+      "prompt_roles": {
+        "system": "System",
+        "human": "Human",
+        "ai": "AI",
+        "few_shot_example": "Few Shot Example"
+      },
+      "title": "Prompt",
+      "placeholder":"Type your prompt here...",
+      "button": "Create",
+      "few_shot_example_note": "Use {input} to represent the input in the prompt. And use {output} to represent the output. For example, Question: {input}\nAnswer: {output}"
+    },
+    "copilot": {
+      "chat": "Chat",
+      "code": "Code",
+      "config": "Config",
+      "context": "Context"
+    }
+  },
+  "chat": {
+    "messages": {
+      "loading_llm": "Loading LLM...",
+      "llm_loaded": "LLM loaded."
+    },
+    "errors": {
+      "llm_not_found": "LLM not found.",
+      "llm_not_loaded_yet":"LLM not loaded yet.",
+      "stream_message_failed": "Failed to stream message."
+    }
+  },
+  "pages": {
+    "create_session": {
+      "title": "Create a workspace",
+      "description": "A workspace is a isolated environment for you to work on your projects.",
+      "name": "Name",
+      "name_placeholder": "Input name...",
+      "default_source": "Default Source",
+      "create": "Create",
+      "errors": {
+        "create_failed": "Failed to create.",
+        "name_not_found": "Name is required.",
+        "llm_not_found": "LLM info is required.",
+        "passphrase_not_found": "Passphrase is required to secure your information.",
+        "agent_not_found": "Agent is required."
+      },
+      "source_base": {
+        "title": "Source Base",
+        "source_base_select_placeholder": "Select a source base",
+        "sourcebases": {
+          "vite-vue": "Base [Vite + Vue]",
+          "shadcn-react-vite": "Base [React + Vite + Shadcn]",
+          "todo-app-react-vite": "Todo App [Vue + Vite + Shadcn]",
+          "porfolio-nextjs": "Portfolio [Next.js + Shadcn]",
+          "empty-source": "Empty Source"
+        },
+        "update_source": "Update Source"
+      },
+      "passphrase": {
+        "title": "Passphrase"
+      },
+      "config": {
+        "title": "Config",
+        "llm": {
+          "title": "LLM",
+          "save": "Save"
+        },
+        "embedding": {
+          "title": "Embedding"
+        }
+      },
+      "agent": {
+        "title": "Agent",
+        "agent_select_placeholder": "Select an agent",
+        "prompts": {
+          "agent_system": "Agent System Prompt"
+        },
+        "agents": {
+          "simple": "Simple"
+        },
+        "simple": {
+
+        }
+      }
+    }
+  },
+  "vslite": {
+    "context_menu": {
+      "new_file": "New File",
+      "new_folder": "New Folder",
+      "rename": "Rename",
+      "delete": "Delete"
     }
   }
 }

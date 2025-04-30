@@ -7,7 +7,7 @@ const DocumentViewer = lazy(() => import('src/components/pages/Document/Document
 const DocumentPage = () => {
   const { documentId } = useParams()
   return (
-    <Suspense fallback={<DefaultLoader flickeringGrid className="w-full h-full" />}>
+    <Suspense fallback={<DefaultLoader className="w-full h-full" morphing />}>
       <DocumentViewer name={documentId || ''} />
     </Suspense>
   )

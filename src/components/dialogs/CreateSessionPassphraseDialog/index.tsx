@@ -39,23 +39,21 @@ const CreateSessionPassphraseDialog = create<CreateSessionPassphraseDialogProps>
           return
         }
         await onConfirm?.(name)
-        setName('')
-        currentModal.resolve(true)
-        currentModal.hide()
+        handleHide(name)
       } catch (e) {
         currentModal.reject(e)
       }
     }
 
-    const handleHide = () => {
+    const handleHide = (input?: string) => {
       onCancel?.()
       setName('')
-      currentModal.resolve(false)
+      currentModal.resolve(input)
       currentModal.hide()
     }
 
     return (
-      <Dialog open={currentModal.visible} onOpenChange={handleHide}>
+      <Dialog open={currentModal.visible} onOpenChange={() => handleHide()}>
         <DialogContent className="w-[330px]">
           <DialogHeader>
             <DialogTitle>{t('create_session_passkey.title')}</DialogTitle>

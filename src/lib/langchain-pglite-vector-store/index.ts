@@ -1,0 +1,841 @@
+import { MaxMarginalRelevanceSearchOptions, VectorStore } from '@langchain/core/vectorstores'
+import type { EmbeddingsInterface } from '@langchain/core/embeddings'
+import { Document } from '@langchain/core/documents'
+import { getEnvironmentVariable } from '@langchain/core/utils/env'
+import { maximalMarginalRelevance } from '@langchain/core/utils/math'
+import { rawQuery } from 'src/services/database'
+
+type Metadata = Record<string, unknown>
+
+export type DistanceStrategy = 'cosine' | 'innerProduct' | 'euclidean'
+
+/**
+ * Interface that defines the arguments required to create a
+ * `PGVectorStore` instance. It includes Postgres connection options,
+ * table name, filter, and verbosity level.
+ */
+export interface PGVectorStoreArgs {
+  tableName: string
+  collectionName?: string
+  collectionMetadata?: Metadata | null
+  schemaName?: string | null
+  columns?: {
+    idColumnName?: string
+    vectorColumnName?: string
+    contentColumnName?: string
+    metadataColumnName?: string
+    collectionColumnName?: string
+  }
+  filter?: Metadata
+  verbose?: boolean
+  /**
+   * The amount of documents to chunk by when
+   * adding vectors.
+   * @default 500
+   */
+  chunkSize?: number
+  ids?: string[]
+  distanceStrategy?: DistanceStrategy
+}
+
+/**
+ * PGVector vector store integration.
+ *
+ * Setup:
+ * Install `@langchain/community` and `pg`.
+ *
+ * If you wish to generate ids, you should also install the `uuid` package.
+ *
+ * ```bash
+ * npm install @langchain/community pg uuid
+ * ```
+ *
+ * ## [Constructor args](https://api.js.langchain.com/classes/_langchain_community.vectorstores_pgvector.PGVectorStore.html#constructor)
+ *
+ * <details open>
+ * <summary><strong>Instantiate</strong></summary>
+ *
+ * ```typescript
+ * import {
+ *   PGVectorStore,
+ *   DistanceStrategy,
+ * } from "@langchain/community/vectorstores/pgvector";
+ *
+ * // Or other embeddings
+ * import { OpenAIEmbeddings } from "@langchain/openai";
+ * import { PoolConfig } from "pg";
+ *
+ * const embeddings = new OpenAIEmbeddings({
+ *   model: "text-embedding-3-small",
+ * });
+ *
+ * // Sample config
+ * const config = {
+ *   postgresConnectionOptions: {
+ *     type: "postgres",
+ *     host: "127.0.0.1",
+ *     port: 5433,
+ *     user: "myuser",
+ *     password: "ChangeMe",
+ *     database: "api",
+ *   } as PoolConfig,
+ *   tableName: "testlangchainjs",
+ *   columns: {
+ *     idColumnName: "id",
+ *     vectorColumnName: "vector",
+ *     contentColumnName: "content",
+ *     metadataColumnName: "metadata",
+ *   },
+ *   // supported distance strategies: cosine (default), innerProduct, or euclidean
+ *   distanceStrategy: "cosine" as DistanceStrategy,
+ * };
+ *
+ * const vectorStore = await PGVectorStore.initialize(embeddings, config);
+ * ```
+ * </details>
+ *
+ * <br />
+ *
+ * <details>
+ * <summary><strong>Add documents</strong></summary>
+ *
+ * ```typescript
+ * import type { Document } from '@langchain/core/documents';
+ *
+ * const document1 = { pageContent: "foo", metadata: { baz: "bar" } };
+ * const document2 = { pageContent: "thud", metadata: { bar: "baz" } };
+ * const document3 = { pageContent: "i will be deleted :(", metadata: {} };
+ *
+ * const documents: Document[] = [document1, document2, document3];
+ * const ids = ["1", "2", "3"];
+ * await vectorStore.addDocuments(documents, { ids });
+ * ```
+ * </details>
+ *
+ * <br />
+ *
+ * <details>
+ * <summary><strong>Delete documents</strong></summary>
+ *
+ * ```typescript
+ * await vectorStore.delete({ ids: ["3"] });
+ * ```
+ * </details>
+ *
+ * <br />
+ *
+ * <details>
+ * <summary><strong>Similarity search</strong></summary>
+ *
+ * ```typescript
+ * const results = await vectorStore.similaritySearch("thud", 1);
+ * for (const doc of results) {
+ *   console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+ * }
+ * // Output: * thud [{"baz":"bar"}]
+ * ```
+ * </details>
+ *
+ * <br />
+ *
+ *
+ * <details>
+ * <summary><strong>Similarity search with filter</strong></summary>
+ *
+ * ```typescript
+ * const resultsWithFilter = await vectorStore.similaritySearch("thud", 1, { baz: "bar" });
+ *
+ * for (const doc of resultsWithFilter) {
+ *   console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+ * }
+ * // Output: * foo [{"baz":"bar"}]
+ * ```
+ * </details>
+ *
+ * <br />
+ *
+ *
+ * <details>
+ * <summary><strong>Similarity search with score</strong></summary>
+ *
+ * ```typescript
+ * const resultsWithScore = await vectorStore.similaritySearchWithScore("qux", 1);
+ * for (const [doc, score] of resultsWithScore) {
+ *   console.log(`* [SIM=${score.toFixed(6)}] ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+ * }
+ * // Output: * [SIM=0.000000] qux [{"bar":"baz","baz":"bar"}]
+ * ```
+ * </details>
+ *
+ * <br />
+ *
+ * <details>
+ * <summary><strong>As a retriever</strong></summary>
+ *
+ * ```typescript
+ * const retriever = vectorStore.asRetriever({
+ *   searchType: "mmr", // Leave blank for standard similarity search
+ *   k: 1,
+ * });
+ * const resultAsRetriever = await retriever.invoke("thud");
+ * console.log(resultAsRetriever);
+ *
+ * // Output: [Document({ metadata: { "baz":"bar" }, pageContent: "thud" })]
+ * ```
+ * </details>
+ *
+ * <br />
+ */
+export class PGLiteVectorStore extends VectorStore {
+  declare FilterType: Metadata
+
+  tableName: string
+
+  collectionColumnName?: string
+
+  collectionName = 'langchain'
+
+  collectionMetadata: Metadata | null
+
+  schemaName: string | null
+
+  idColumnName: string
+
+  vectorColumnName: string
+
+  contentColumnName: string
+
+  metadataColumnName: string
+
+  filter?: Metadata
+
+  _verbose?: boolean
+
+  chunkSize = 500
+
+  distanceStrategy?: DistanceStrategy = 'cosine'
+
+  _vectorstoreType(): string {
+    return 'pgvector'
+  }
+
+  constructor(embeddings: EmbeddingsInterface, config: PGVectorStoreArgs) {
+    super(embeddings, config)
+    this.tableName = config.tableName
+    this.collectionName = config.collectionName ?? 'langchain'
+    this.collectionMetadata = config.collectionMetadata ?? null
+    this.schemaName = config.schemaName ?? null
+
+    this.filter = config.filter
+
+    this.vectorColumnName = config.columns?.vectorColumnName ?? 'embedding'
+    this.contentColumnName = config.columns?.contentColumnName ?? 'text'
+    this.idColumnName = config.columns?.idColumnName ?? 'id'
+    this.metadataColumnName = config.columns?.metadataColumnName ?? 'metadata'
+    this.collectionColumnName = config.columns?.collectionColumnName ?? 'collection_id'
+
+    this.chunkSize = config.chunkSize ?? 500
+    this.distanceStrategy = config.distanceStrategy ?? this.distanceStrategy
+
+    const langchainVerbose = getEnvironmentVariable('LANGCHAIN_VERBOSE')
+
+    if (langchainVerbose === 'true') {
+      this._verbose = true
+    } else if (langchainVerbose === 'false') {
+      this._verbose = false
+    } else {
+      this._verbose = config.verbose
+    }
+  }
+
+  get computedTableName() {
+    return this.schemaName == null
+      ? `${this.tableName}`
+      : `"${this.schemaName}"."${this.tableName}"`
+  }
+
+  get computedOperatorString() {
+    let operator: string
+    switch (this.distanceStrategy) {
+      case 'cosine':
+        operator = '<=>'
+        break
+      case 'innerProduct':
+        operator = '<#>'
+        break
+      case 'euclidean':
+        operator = '<->'
+        break
+      default:
+        throw new Error(`Unknown distance strategy: ${this.distanceStrategy}`)
+    }
+
+    return operator
+  }
+
+  /**
+   * Static method to create a new `PGVectorStore` instance from a
+   * connection. It creates a table if one does not exist, and calls
+   * `connect` to return a new instance of `PGVectorStore`.
+   *
+   * @param embeddings - Embeddings instance.
+   * @param fields - `PGVectorStoreArgs` instance
+   * @param fields.dimensions Number of dimensions in your vector data type. For example, use 1536 for OpenAI's `text-embedding-3-small`. If not set, indexes like HNSW might not be used during query time.
+   * @returns A new instance of `PGVectorStore`.
+   */
+  static async initialize(
+    embeddings: EmbeddingsInterface,
+    config: PGVectorStoreArgs & { dimensions?: number },
+  ): Promise<PGLiteVectorStore> {
+    const { dimensions, ...rest } = config
+    const postgresqlVectorStore = new PGLiteVectorStore(embeddings, rest)
+
+    await postgresqlVectorStore._initializeClient()
+    await postgresqlVectorStore.ensureTableInDatabase(dimensions)
+
+    return postgresqlVectorStore
+  }
+
+  protected async _initializeClient() {}
+
+  /**
+   * Method to add documents to the vector store. It converts the documents into
+   * vectors, and adds them to the store.
+   *
+   * @param documents - Array of `Document` instances.
+   * @param options - Optional arguments for adding documents
+   * @returns Promise that resolves when the documents have been added.
+   */
+  async addDocuments(documents: Document[], options?: { ids?: string[] }): Promise<void> {
+    const texts = documents.map(({ pageContent }) => pageContent)
+
+    return this.addVectors(await this.embeddings.embedDocuments(texts), documents, options)
+  }
+
+  /**
+   * Generates the SQL placeholders for a specific row at the provided index.
+   *
+   * @param index - The index of the row for which placeholders need to be generated.
+   * @param numOfColumns - The number of columns we are inserting data into.
+   * @returns The SQL placeholders for the row values.
+   */
+  private generatePlaceholderForRowAt(index: number, numOfColumns: number): string {
+    const placeholders = []
+    for (let i = 0; i < numOfColumns; i += 1) {
+      placeholders.push(`$${index * numOfColumns + i + 1}`)
+    }
+    return `(${placeholders.join(', ')})`
+  }
+
+  /**
+   * Constructs the SQL query for inserting rows into the specified table.
+   *
+   * @param rows - The rows of data to be inserted, consisting of values and records.
+   * @param chunkIndex - The starting index for generating query placeholders based on chunk positioning.
+   * @returns The complete SQL INSERT INTO query string.
+   */
+  private async buildInsertQuery(rows: (string | Record<string, unknown>)[][]) {
+    const columns = [
+      this.contentColumnName,
+      this.vectorColumnName,
+      this.metadataColumnName,
+      this.collectionColumnName,
+    ]
+
+    // Check if we have added ids to the rows.
+    if (rows.length !== 0 && columns.length === rows[0].length - 1) {
+      columns.push(this.idColumnName)
+    }
+
+    const valuesPlaceholders = rows
+      .map((_, j) => this.generatePlaceholderForRowAt(j, columns.length))
+      .join(', ')
+
+    const text = `
+      INSERT INTO ${this.computedTableName}(
+        ${columns.map((column) => `"${column}"`).join(', ')}
+      )
+      VALUES ${valuesPlaceholders}
+    `
+    return text
+  }
+
+  /**
+   * Method to add vectors to the vector store. It converts the vectors into
+   * rows and inserts them into the database.
+   *
+   * @param vectors - Array of vectors.
+   * @param documents - Array of `Document` instances.
+   * @param options - Optional arguments for adding documents
+   * @returns Promise that resolves when the vectors have been added.
+   */
+  async addVectors(
+    vectors: number[][],
+    documents: Document[],
+    options?: { ids?: string[] },
+  ): Promise<void> {
+    const ids = options?.ids
+
+    // Either all documents have ids or none of them do to avoid confusion.
+    if (ids !== undefined && ids.length !== vectors.length) {
+      throw new Error('The number of ids must match the number of vectors provided.')
+    }
+
+    const rows = []
+
+    for (let i = 0; i < vectors.length; i += 1) {
+      const values = []
+      const embedding = vectors[i]
+      const embeddingString = `[${embedding.join(',')}]`
+      values.push(
+        documents[i].pageContent.replace(/\0/g, ''),
+        embeddingString.replace(/\0/g, ''),
+        documents[i].metadata,
+        this.collectionName,
+      )
+      if (ids) {
+        values.push(ids[i])
+      }
+      rows.push(values)
+    }
+
+    for (let i = 0; i < rows.length; i += this.chunkSize) {
+      const chunk = rows.slice(i, i + this.chunkSize)
+      const insertQuery = await this.buildInsertQuery(chunk)
+      const flatValues = chunk.flat()
+      try {
+        await rawQuery(insertQuery, flatValues)
+      } catch (e) {
+        console.error(e)
+        throw new Error(`Error inserting: ${(e as Error).message}`)
+      }
+    }
+  }
+
+  /**
+   * Method to delete documents from the vector store. It deletes the
+   * documents that match the provided ids.
+   *
+   * @param ids - Array of document ids.
+   * @returns Promise that resolves when the documents have been deleted.
+   */
+  private async deleteById(ids: string[]) {
+    // Set parameters of dynamically generated query
+    const params = [ids, this.collectionName]
+
+    const queryString = `
+      DELETE FROM ${this.computedTableName}
+      WHERE ${this.idColumnName} = ANY($1::uuid[]) AND "${this.collectionColumnName}" = $2
+    `
+    return await rawQuery(queryString, params)
+  }
+
+  /**
+   * Method to delete documents from the vector store. It deletes the
+   * documents whose metadata contains the filter.
+   *
+   * @param filter - An object representing the Metadata filter.
+   * @returns Promise that resolves when the documents have been deleted.
+   */
+  private async deleteByFilter(filter: Metadata) {
+    // Set parameters of dynamically generated query
+    const params: unknown[] = [this.collectionName]
+    const whereClauses: string[] = []
+    Object.entries(filter).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        whereClauses.push(
+          `"${this.metadataColumnName}" ->> '${key}' = ANY($${params.length + 1}::text[])`,
+        )
+        params.push(value)
+      } else {
+        whereClauses.push(`"${this.metadataColumnName}" ->> '${key}' = $${params.length + 1}`)
+        params.push(value)
+      }
+    })
+
+    const queryString = `
+      DELETE FROM ${this.computedTableName}
+      WHERE "${this.collectionColumnName}" = $1 AND ${whereClauses.join(' AND ')}
+    `
+    return await rawQuery(queryString, params)
+  }
+
+  /**
+   * Method to delete documents from the vector store. It deletes the
+   * documents that match the provided ids or metadata filter. Matches ids
+   * exactly and metadata filter according to postgres jsonb containment. Ids and filter
+   * are mutually exclusive.
+   *
+   * @param params - Object containing either an array of ids or a metadata filter object.
+   * @returns Promise that resolves when the documents have been deleted.
+   * @throws Error if neither ids nor filter are provided, or if both are provided.
+   * @example <caption>Delete by ids</caption>
+   * await vectorStore.delete({ ids: ["id1", "id2"] });
+   * @example <caption>Delete by filter</caption>
+   * await vectorStore.delete({ filter: { a: 1, b: 2 } });
+   */
+  async delete(params: { ids?: string[]; filter?: Metadata }): Promise<void> {
+    const { ids, filter } = params
+
+    if (!(ids || filter)) {
+      throw new Error('You must specify either ids or a filter when deleting documents.')
+    }
+
+    if (ids && filter) {
+      throw new Error('You cannot specify both ids and a filter when deleting documents.')
+    }
+
+    if (ids) {
+      await this.deleteById(ids)
+      return
+    } else if (filter) {
+      await this.deleteByFilter(filter)
+      return
+    }
+    throw new Error('You must specify either ids or a filter when deleting documents.')
+  }
+
+  buildWhereClause({
+    filter,
+    parameters,
+    whereClauses,
+  }: {
+    parameters: unknown[]
+    filter: Metadata
+    whereClauses: string[]
+  }) {
+    let paramCount = parameters.length + 1
+    for (const [key, value] of Object.entries(filter)) {
+      const conditionPrefix = key.startsWith('_')
+        ? `${key.slice(1)}`
+        : `${this.metadataColumnName}->>'${key}'`
+      if (typeof value === 'object' && value !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const _value: Record<string, any> = value
+        const currentParamCount = paramCount
+        if (Array.isArray(_value.in)) {
+          const placeholders = _value.in
+            .map((_: unknown, index: number) => `$${currentParamCount + index + 1}`)
+            .join(',')
+          whereClauses.push(`${conditionPrefix} IN (${placeholders})`)
+          parameters.push(..._value.in)
+          paramCount += _value.in.length
+        }
+        if (Array.isArray(_value.arrayContains)) {
+          if (key.startsWith('_')) {
+            throw new Error('arrayContains cannot be used with _ prefix')
+          }
+          const placeholders = _value.arrayContains
+            .map((_: unknown, index: number) => `$${currentParamCount + index + 1}`)
+            .join(',')
+          whereClauses.push(`${this.metadataColumnName}->'${key}' ?| array[${placeholders}]`)
+          parameters.push(..._value.arrayContains)
+          paramCount += _value.arrayContains.length
+        }
+        if (_value.like) {
+          whereClauses.push(`${conditionPrefix} LIKE $${paramCount}`)
+          parameters.push(_value.like)
+          paramCount += 1
+        }
+      } else {
+        whereClauses.push(`${conditionPrefix} = $${paramCount}`)
+        parameters.push(value)
+        paramCount += 1
+      }
+    }
+    return {
+      whereClauses,
+      parameters,
+    }
+  }
+
+  async query(filter: this['FilterType'], k: number) {
+    const _filter: this['FilterType'] = filter || {}
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parameters: unknown[] = [this.collectionName, k]
+    const whereClauses: string[] = []
+
+    this.buildWhereClause({
+      filter: _filter,
+      parameters,
+      whereClauses,
+    })
+
+    const whereClause = whereClauses.length ? `AND ${whereClauses.join(' AND ')}` : ''
+
+    const queryString = `
+      SELECT *
+      FROM ${this.computedTableName}
+      WHERE ${this.collectionColumnName} = $1 ${whereClause}
+      LIMIT $2;
+      `
+
+    const documents = ((await rawQuery(queryString, parameters)) as { rows: unknown[] })
+      .rows as Record<string, unknown>[]
+    const results = [] as [Document, number][]
+    for (const doc of documents) {
+      if (doc._distance != null && doc[this.contentColumnName] != null) {
+        const document = new Document({
+          pageContent: doc[this.contentColumnName] as string,
+          metadata: doc[this.metadataColumnName] as Metadata,
+          id: doc[this.idColumnName] as string,
+        })
+        results.push([document, doc._distance as number])
+      }
+    }
+    return results
+  }
+
+  /**
+   * Method to perform a similarity search in the vector store. It returns the `k` most similar documents to the query text.
+   * @param query - Query vector.
+   * @param k - Number of most similar documents to return.
+   * @param filter - Optional filter to apply to the search.
+   * @param includeEmbedding Whether to include the embedding vectors in the results.
+   * @returns Promise that resolves with an array of tuples, each containing a `Document` and its similarity score.
+   */
+  async searchPostgres(
+    query: number[],
+    k: number,
+    filter?: this['FilterType'],
+    includeEmbedding?: boolean,
+  ): Promise<[Document, number][]> {
+    const embeddingString = query?.length ? `[${query.join(',')}]` : ``
+    const _filter: this['FilterType'] = filter ?? {}
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parameters: unknown[] = query?.length
+      ? [embeddingString, this.collectionName, k]
+      : [this.collectionName, k]
+    const whereClauses: string[] = []
+
+    this.buildWhereClause({
+      filter: _filter,
+      parameters,
+      whereClauses,
+    })
+
+    const whereClause = whereClauses.length ? `AND ${whereClauses.join(' AND ')}` : ''
+
+    const queryString = query?.length
+      ? `
+      SELECT *, "${this.vectorColumnName}" ${this.computedOperatorString} $1 as "_distance"
+      FROM ${this.computedTableName}
+      WHERE ${this.collectionColumnName} = $2 ${whereClause}
+      ORDER BY "_distance" ASC
+      LIMIT $3;
+      `
+      : `
+      SELECT *
+      FROM ${this.computedTableName}
+      WHERE ${this.collectionColumnName} = $1 ${whereClause}
+      ORDER BY id ASC
+      LIMIT $2;`
+
+    const documents = ((await rawQuery(queryString, parameters)) as { rows: unknown[] })
+      .rows as Record<string, unknown>[]
+
+    const results = [] as [Document, number][]
+    for (const doc of documents) {
+      if (doc[this.contentColumnName] != null) {
+        const document = new Document({
+          pageContent: doc[this.contentColumnName] as string,
+          metadata: doc[this.metadataColumnName] as Metadata,
+          id: doc[this.idColumnName] as string,
+        })
+        if (includeEmbedding) {
+          document.metadata[this.vectorColumnName] = doc[this.vectorColumnName]
+        }
+        results.push([
+          document,
+          typeof doc._distance !== 'number' || isNaN(+doc._distance)
+            ? -1
+            : (doc._distance as number),
+        ])
+      }
+    }
+    return results
+  }
+
+  /**
+   * Method to perform a similarity search in the vector store. It returns
+   * the `k` most similar documents to the query vector, along with their
+   * similarity scores.
+   * @param query - Query vector.
+   * @param k - Number of most similar documents to return.
+   * @param filter - Optional filter to apply to the search.
+   * @returns Promise that resolves with an array of tuples, each containing a `Document` and its similarity score.
+   */
+  async similaritySearchVectorWithScore(
+    query: number[],
+    k: number,
+    filter?: this['FilterType'],
+  ): Promise<[Document, number][]> {
+    return this.searchPostgres(query, k, filter, false)
+  }
+
+  /**
+   * Method to ensure the existence of the table in the database. It creates
+   * the table if it does not already exist.
+   * @param dimensions Number of dimensions in your vector data type. For example, use 1536 for OpenAI's `text-embedding-3-small`. If not set, indexes like HNSW might not be used during query time.
+   * @returns Promise that resolves when the table has been ensured.
+   */
+  async ensureTableInDatabase(dimensions?: number): Promise<void> {
+    const extensionName = 'vector'
+    const vectorColumnType = dimensions ? `${extensionName}(${dimensions})` : extensionName
+    const tableQuery = `
+      CREATE TABLE IF NOT EXISTS ${this.computedTableName} (
+        "${this.idColumnName}" uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+        "${this.contentColumnName}" text,
+        "${this.metadataColumnName}" jsonb,
+        "${this.vectorColumnName}" ${vectorColumnType},
+        "${this.collectionColumnName}" text
+      );
+    `
+    await rawQuery(tableQuery)
+  }
+
+  /**
+   * Static method to create a new `PGVectorStore` instance from an
+   * array of texts and their metadata. It converts the texts into
+   * `Document` instances and adds them to the store.
+   *
+   * @param texts - Array of texts.
+   * @param metadatas - Array of metadata objects or a single metadata object.
+   * @param embeddings - Embeddings instance.
+   * @param dbConfig - `PGVectorStoreArgs` instance.
+   * @returns Promise that resolves with a new instance of `PGVectorStore`.
+   */
+  static async fromTexts(
+    texts: string[],
+    metadatas: object[] | object,
+    embeddings: EmbeddingsInterface,
+    dbConfig: PGVectorStoreArgs & { dimensions?: number },
+  ): Promise<PGLiteVectorStore> {
+    const docs = []
+    for (let i = 0; i < texts.length; i += 1) {
+      const metadata = Array.isArray(metadatas) ? metadatas[i] : metadatas
+      const newDoc = new Document({
+        pageContent: texts[i],
+        metadata,
+      })
+      docs.push(newDoc)
+    }
+
+    return PGLiteVectorStore.fromDocuments(docs, embeddings, dbConfig)
+  }
+
+  /**
+   * Static method to create a new `PGVectorStore` instance from an
+   * array of `Document` instances. It adds the documents to the store.
+   *
+   * @param docs - Array of `Document` instances.
+   * @param embeddings - Embeddings instance.
+   * @param dbConfig - `PGVectorStoreArgs` instance.
+   * @returns Promise that resolves with a new instance of `PGVectorStore`.
+   */
+  static async fromDocuments(
+    docs: Document[],
+    embeddings: EmbeddingsInterface,
+    dbConfig: PGVectorStoreArgs & { dimensions?: number },
+  ): Promise<PGLiteVectorStore> {
+    const instance = await PGLiteVectorStore.initialize(embeddings, dbConfig)
+    await instance.addDocuments(docs, { ids: dbConfig.ids })
+
+    return instance
+  }
+
+  /**
+   * Closes all the clients in the pool and terminates the pool.
+   *
+   * @returns Promise that resolves when all clients are closed and the pool is terminated.
+   */
+  async end(): Promise<void> {}
+
+  /**
+   * Method to create the HNSW index on the vector column.
+   *
+   * @param dimensions - Defines the number of dimensions in your vector data type, up to 2000. For example, use 1536 for OpenAI's text-embedding-ada-002 and Amazon's amazon.titan-embed-text-v1 models.
+   * @param m - The max number of connections per layer (16 by default). Index build time improves with smaller values, while higher values can speed up search queries.
+   * @param efConstruction -  The size of the dynamic candidate list for constructing the graph (64 by default). A higher value can potentially improve the index quality at the cost of index build time.
+   * @param distanceFunction -  The distance function name you want to use, is automatically selected based on the distanceStrategy.
+   * @param namespace -  The namespace is used to create the index with a specific name. This is useful when you want to create multiple indexes on the same database schema (within the same schema in PostgreSQL, the index name must be unique across all tables).
+   * @returns Promise that resolves with the query response of creating the index.
+   */
+  async createHnswIndex(config: {
+    dimensions: number
+    m?: number
+    efConstruction?: number
+    distanceFunction?: string
+    namespace?: string
+  }): Promise<void> {
+    let idxDistanceFunction = config?.distanceFunction || 'vector_cosine_ops'
+    const prefix = config?.namespace ? `${config.namespace}_` : ''
+
+    switch (this.distanceStrategy) {
+      case 'cosine':
+        idxDistanceFunction = 'vector_cosine_ops'
+        break
+      case 'innerProduct':
+        idxDistanceFunction = 'vector_ip_ops'
+        break
+      case 'euclidean':
+        idxDistanceFunction = 'vector_l2_ops'
+        break
+      default:
+        throw new Error(`Unknown distance strategy: ${this.distanceStrategy}`)
+    }
+
+    const createIndexQuery = `CREATE INDEX IF NOT EXISTS ${prefix}${
+      this.vectorColumnName
+    }_embedding_hnsw_idx
+        ON ${this.computedTableName} USING hnsw ((${
+          this.vectorColumnName
+        }::vector(${config.dimensions})) ${idxDistanceFunction})
+        WITH (
+            m=${config?.m || 16},
+            ef_construction=${config?.efConstruction || 64}
+        );`
+
+    try {
+      await rawQuery(createIndexQuery)
+    } catch (e) {
+      console.error(`Failed to create HNSW index on table ${this.computedTableName}, error: ${e}`)
+    }
+  }
+
+  /**
+   * Return documents selected using the maximal marginal relevance.
+   * Maximal marginal relevance optimizes for similarity to the query AND
+   * diversity among selected documents.
+   * @param query Text to look up documents similar to.
+   * @param options.k=4 Number of documents to return.
+   * @param options.fetchK=20 Number of documents to fetch before passing to
+   *     the MMR algorithm.
+   * @param options.lambda=0.5 Number between 0 and 1 that determines the
+   *     degree of diversity among the results, where 0 corresponds to maximum
+   *     diversity and 1 to minimum diversity.
+   * @returns List of documents selected by maximal marginal relevance.
+   */
+  async maxMarginalRelevanceSearch(
+    query: string,
+    options: MaxMarginalRelevanceSearchOptions<this['FilterType']>,
+  ): Promise<Document[]> {
+    const { k = 4, fetchK = 20, lambda = 0.5, filter } = options
+    const queryEmbedding = await this.embeddings.embedQuery(query)
+
+    const docs = await this.searchPostgres(queryEmbedding, fetchK, filter, true)
+
+    const embeddingList = docs.map((doc) => JSON.parse(doc[0].metadata[this.vectorColumnName]))
+
+    const mmrIndexes = maximalMarginalRelevance(queryEmbedding, embeddingList, lambda, k)
+
+    const mmrDocs = mmrIndexes.map((index) => {
+      const doc = docs[index][0]
+      delete doc.metadata[this.vectorColumnName]
+      return docs[index][0]
+    })
+    return mmrDocs
+  }
+}

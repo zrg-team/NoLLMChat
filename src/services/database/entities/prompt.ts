@@ -8,13 +8,16 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm'
-import { Message, PromptVariable, Session } from './index'
+import { PromptVariable, Session } from './index'
 import { MessageRoleEnum, TABLE_NAMES, type PromptStatusEnum, type PromptTypeEnum } from '../types'
 
 @Entity({ name: TABLE_NAMES.Prompt })
 export class Prompt {
   @PrimaryGeneratedColumn('uuid')
   id: string
+
+  @Column({ type: 'text', nullable: true, default: 'uuid_generate_v4()' })
+  key?: string
 
   @Column({ type: 'text', nullable: true })
   prefix?: string
@@ -42,9 +45,6 @@ export class Prompt {
 
   @UpdateDateColumn()
   updated_at?: Date
-
-  @OneToMany(() => Message, (message: Message) => message.prompt)
-  messages?: Message[]
 
   @OneToMany(() => PromptVariable, (variable: PromptVariable) => variable.prompt, {
     onDelete: 'CASCADE',

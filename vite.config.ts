@@ -40,7 +40,7 @@ export default defineConfig({
   worker: {
     format: 'es',
   },
-  base: process.env.VITE_BASE_URL || '/NoLLMChat/',
+  base: process.env.VITE_BASE_URL || '/Nhanh/',
   server: {
     headers: {
       'Cross-Origin-Embedder-Policy': 'require-corp',

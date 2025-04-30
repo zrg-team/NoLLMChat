@@ -1,11 +1,10 @@
 import { create, useModal } from '@ebay/nice-modal-react'
-import { Node } from '@xyflow/react'
 import type { Document } from '@langchain/core/documents'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from 'src/lib/shadcn/ui/dialog'
 import LazyIcon from 'src/components/atoms/LazyIcon'
-import { useCreatePrompt } from 'src/hooks/flows/mutations/use-create-prompt'
-import { Prompt } from 'src/services/database/types'
+import { useCreatePrompt } from 'src/hooks/mutations/use-create-prompt'
+import { MessageRoleEnum, Prompt } from 'src/services/database/types'
 import PromptForm from 'src/components/molecules/CreatePromptCard/PromptForm'
 import { useToast } from 'src/lib/hooks/use-toast'
 
@@ -18,12 +17,11 @@ Use three sentences maximum and keep the answer as concise as possible.
 
 type CreateVectorDatabasePromptProps = {
   className: string
-  source: Node
   documents: Document[]
 }
 
 const CreateVectorDatabasePromptDialog = create<CreateVectorDatabasePromptProps>((props) => {
-  const { source, documents } = props
+  const { documents } = props
   const currentModal = useModal()
   const { toast } = useToast()
   const { t } = useTranslation('dialogs')
@@ -43,9 +41,11 @@ const CreateVectorDatabasePromptDialog = create<CreateVectorDatabasePromptProps>
         '{context}',
         documents.map((doc) => `<document>${doc.pageContent}</document>`).join('\n'),
       )
-      await createPrompt(source, {
-        ...data,
+      await createPrompt({
+        role: MessageRoleEnum.Assistant,
         content,
+        key: 'vector-database-retreiver',
+        type: 'chat',
       })
       currentModal.hide()
       return true

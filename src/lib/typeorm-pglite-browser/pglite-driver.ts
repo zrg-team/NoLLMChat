@@ -1,10 +1,12 @@
-import { PGliteOptions } from '@electric-sql/pglite'
-import { PGlitePool } from './pglite-pool'
+import { PGlite, PGliteOptions } from '@electric-sql/pglite'
+import { PGlitePool } from 'src/lib/pglite-pool'
 import { PGliteInstance } from './pglite-instance'
 
 export class PGliteDriver {
-  constructor(options?: PGliteOptions) {
-    if (options) {
+  constructor(options?: PGliteOptions, pgLiteInstance?: PGlite) {
+    if (pgLiteInstance) {
+      PGliteInstance.setPGLite(pgLiteInstance)
+    } else if (options) {
       PGliteInstance.setOptions(options)
     }
   }

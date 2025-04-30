@@ -6,12 +6,11 @@ export enum VectorDatabaseTypeEnum {
 export enum VectorDatabaseProviderEnum {
   Voy = 'voy',
   Memory = 'memory',
+  PGVector = 'pgvector',
 }
 
 export enum VectorDatabaseStorageEnum {
-  DataNode = 'DataNode',
   DatabaseNode = 'DatabaseNode',
+  Database = 'Database',
   IndexedDB = 'IndexedDB',
 }
-
-export type VectorDatabaseNodeDataSource = 'CSVData' | 'JSONData' | 'JSONLData'

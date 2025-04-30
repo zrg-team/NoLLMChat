@@ -5,24 +5,17 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
-  OneToOne,
-  JoinColumn,
 } from 'typeorm'
 import {
-  FlowEdge,
-  FlowNode,
   LLM,
   Prompt,
   Schema,
-  Thread,
-  CSVData,
   VectorDatabase,
-  JSONData,
-  JSONLData,
-  ToolDefinition,
   SchemaItem,
   Message,
   PromptVariable,
+  Embedding,
+  Mcp,
 } from './index'
 import { AppEntityNames, SessionTypeEnum, TABLE_NAMES, type SessionStatusEnum } from '../types'
 
@@ -41,7 +34,7 @@ export class Session {
   type: `${SessionTypeEnum}`
 
   @Column({ type: 'text', nullable: true })
-  metadata?: string
+  data?: string
 
   @Column({ type: 'text', nullable: true })
   main_source_id?: string
@@ -58,14 +51,6 @@ export class Session {
   @UpdateDateColumn()
   updated_at?: Date
 
-  @Column({ type: 'uuid', nullable: true })
-  main_node_id?: string
-  @OneToOne(() => FlowNode, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: 'main_node_id' })
-  main_node?: FlowNode
-
   @OneToMany(() => Prompt, (entity: Prompt) => entity.session, { onDelete: 'CASCADE' })
   prompts?: Prompt[]
 
@@ -73,9 +58,6 @@ export class Session {
     onDelete: 'CASCADE',
   })
   prompt_variables?: PromptVariable[]
-
-  @OneToMany(() => Thread, (entity: Thread) => entity.session, { onDelete: 'CASCADE' })
-  threads?: Thread[]
 
   @OneToMany(() => Message, (entity: Message) => entity.session, {
     onDelete: 'CASCADE',
@@ -85,12 +67,6 @@ export class Session {
   @OneToMany(() => LLM, (entity: LLM) => entity.session, { onDelete: 'CASCADE' })
   llms?: LLM[]
 
-  @OneToMany(() => FlowNode, (entity: FlowNode) => entity.session, { onDelete: 'CASCADE' })
-  flow_nodes?: FlowNode[]
-
-  @OneToMany(() => FlowEdge, (entity: FlowEdge) => entity.session, { onDelete: 'CASCADE' })
-  flow_edges?: FlowEdge[]
-
   @OneToMany(() => Schema, (entity: Schema) => entity.session, { onDelete: 'CASCADE' })
   schemas?: Schema[]
 
@@ -99,22 +75,18 @@ export class Session {
   })
   schema_items?: SchemaItem[]
 
-  @OneToMany(() => CSVData, (entity: CSVData) => entity.session, { onDelete: 'CASCADE' })
-  csv_datas?: CSVData[]
-
   @OneToMany(() => VectorDatabase, (entity: VectorDatabase) => entity.session, {
     onDelete: 'CASCADE',
   })
   vector_databases?: VectorDatabase[]
 
-  @OneToMany(() => JSONData, (entity: JSONData) => entity.session, { onDelete: 'CASCADE' })
-  json_datas?: JSONData[]
-
-  @OneToMany(() => JSONLData, (entity: JSONLData) => entity.session, { onDelete: 'CASCADE' })
-  jsonl_datas?: JSONLData[]
-
-  @OneToMany(() => ToolDefinition, (entity: ToolDefinition) => entity.session, {
+  @OneToMany(() => Embedding, (entity: Embedding) => entity.session, {
     onDelete: 'CASCADE',
   })
-  tool_definitions?: ToolDefinition[]
+  embeddings?: Embedding[]
+
+  @OneToMany(() => Session, (entity: Mcp) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  mcps?: Mcp[]
 }

@@ -3,22 +3,22 @@ import { SessionPassphraseDialogProps } from 'src/components/dialogs/SessionPass
 import secureSession from 'src/utils/secure-session'
 import { decryptSymmetric, encryptSymmetric } from 'src/utils/aes'
 
-export const encryptData = async (encryptedInfo: Record<string, string>, passphrase: string) => {
+export const encryptData = async (encryptedInfo: Record<string, unknown>, passphrase: string) => {
   const result: Record<string, string> = {}
   await Promise.all(
     Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
-      const encrypted = await encryptSymmetric(value, passphrase)
+      const encrypted = await encryptSymmetric(`${value}`, passphrase)
       result[key] = encrypted
     }),
   )
   return result
 }
 
-export const decryptData = async (encryptedInfo: Record<string, string>, passphrase: string) => {
+export const decryptData = async (encryptedInfo: Record<string, unknown>, passphrase: string) => {
   const result: Record<string, string> = {}
   await Promise.all(
     Object.entries(encryptedInfo || {}).map(async ([key, value]) => {
-      const decrypted = await decryptSymmetric(value, passphrase)
+      const decrypted = await decryptSymmetric(`${value}`, passphrase)
       result[key] = decrypted
     }),
   )

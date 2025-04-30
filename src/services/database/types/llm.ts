@@ -14,8 +14,8 @@ export enum LLMModelTypeEnum {
 
 export enum LLMProviderEnum {
   WebLLM = 'WebLLM',
-  Wllama = 'Wllama',
   OpenAI = 'OpenAI',
   Groq = 'Groq',
+  Wllama = 'Wllama',
   GoogleGenerativeAI = 'GoogleGenerativeAI',
 }

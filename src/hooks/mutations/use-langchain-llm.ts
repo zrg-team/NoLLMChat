@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
-import { BaseChatModel } from '@langchain/core/language_models/chat_models'
+import { BaseChatModel, BaseChatModelParams } from '@langchain/core/language_models/chat_models'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatGroq } from '@langchain/groq'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
@@ -53,6 +53,65 @@ const llmInvoke = async (
 export const useLangchainLLM = () => {
   const { confirmPassphrase } = useConfirmPassphrase()
 
+  const getLLM = useCallback(
+    async (provider?: `${LLMProviderEnum}`, llm?: LLM, config?: BaseChatModelParams) => {
+      await confirmPassphrase()
+      const encrypted = llm?.encrypted
+      const options = llm?.options || ({} as Record<string, unknown>)
+      if (!encrypted?.key || typeof encrypted.key !== 'string') {
+        throw new Error('API Key is not found')
+      }
+      const passphrase = await secureSession.get('passphrase')
+      if (!passphrase) {
+        throw new Error('Passphrase is not found')
+      }
+      const apiKey = await decryptSymmetric(encrypted.key, passphrase!)
+      if (!apiKey) {
+        throw new Error('API Key is not found')
+      }
+      switch (provider) {
+        case LLMProviderEnum.GoogleGenerativeAI:
+          return new ChatGoogleGenerativeAI({
+            apiKey,
+            model: llm?.name,
+            temperature: llm?.options?.temperature ? +llm.options.temperature : undefined,
+            topK: llm?.options?.topK ? +llm.options.topK : undefined,
+            topP: llm?.options?.topP ? +llm.options.topP : undefined,
+            stopSequences: llm?.options?.stop ? (llm.options.stop as string[]) : undefined,
+            maxOutputTokens: llm?.options?.maxTokens ? +llm.options.maxTokens : undefined,
+            streaming: true,
+            ...config,
+          })
+        case LLMProviderEnum.Groq: {
+          return new ChatGroq({
+            apiKey,
+            model: llm?.name,
+            temperature: options?.temperature ? +options.temperature : undefined,
+            stopSequences: options?.stop ? (options.stop as string[]) : undefined,
+            maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
+            streaming: true,
+            ...config,
+          })
+        }
+        case LLMProviderEnum.OpenAI: {
+          return new ChatOpenAI({
+            apiKey,
+            model: llm?.name,
+            temperature: options?.temperature ? +options.temperature : undefined,
+            topP: options?.topP ? +options.topP : undefined,
+            stopSequences: options?.stop ? (options.stop as string[]) : undefined,
+            maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
+            streaming: true,
+            ...config,
+          })
+        }
+        default:
+          throw new Error('Provider is not supported')
+      }
+    },
+    [],
+  )
+
   const stream = useCallback(
     async (
       messages: BaseMessage[],
@@ -69,95 +128,17 @@ export const useLangchainLLM = () => {
         llm?: LLM
       },
     ) => {
-      const { schemas, onMessageUpdate, onMessageFinish } = info || {}
-      await confirmPassphrase()
-      const encrypted = info?.llm?.encrypted
-      const options = info?.llm?.options || ({} as Record<string, unknown>)
-      if (!encrypted?.key || typeof encrypted.key !== 'string') {
-        throw new Error('API Key is not found')
-      }
-      const passphrase = await secureSession.get('passphrase')
-      if (!passphrase) {
-        throw new Error('Passphrase is not found')
-      }
-      const apiKey = await decryptSymmetric(encrypted.key, passphrase!)
-      if (!apiKey) {
-        throw new Error('API Key is not found')
-      }
+      const model = await getLLM(info?.provider, info?.llm)
 
       let content = ''
-      let lastChunk: BaseMessageChunk | undefined
 
-      switch (info?.provider) {
-        case LLMProviderEnum.GoogleGenerativeAI:
-          {
-            const model = new ChatGoogleGenerativeAI({
-              apiKey,
-              model: info?.llm?.name,
-              temperature: options?.temperature ? +options.temperature : undefined,
-              topK: options?.topK ? +options.topK : undefined,
-              topP: options?.topP ? +options.topP : undefined,
-              stopSequences: options?.stop ? (options.stop as string[]) : undefined,
-              maxOutputTokens: options?.maxTokens ? +options.maxTokens : undefined,
-            })
-            if (encrypted?.enabled_google_search_retrieval) {
-              const searchRetrievalTool = {
-                googleSearchRetrieval: {
-                  dynamicRetrievalConfig: {
-                    mode: 'MODE_DYNAMIC', // Use Dynamic Retrieval
-                    dynamicThreshold: 0.7, // Default for Dynamic Retrieval threshold
-                  },
-                },
-              }
-              model.bindTools([searchRetrievalTool])
-            }
-            const result = await llmInvoke(model, messages, {
-              schemas,
-              onMessageUpdate,
-            })
-            content = result.content
-            lastChunk = result.lastChunk
-          }
-          break
-        case LLMProviderEnum.Groq:
-          {
-            const model = new ChatGroq({
-              apiKey,
-              model: info?.llm?.name,
-              temperature: options?.temperature ? +options.temperature : undefined,
-              stopSequences: options?.stop ? (options.stop as string[]) : undefined,
-              maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
-            })
-            const result = await llmInvoke(model, messages, {
-              schemas,
-              onMessageUpdate,
-            })
-            content = result.content
-            lastChunk = result.lastChunk
-          }
-          break
-        case LLMProviderEnum.OpenAI:
-          {
-            const model = new ChatOpenAI({
-              apiKey,
-              model: info?.llm?.name,
-              temperature: options?.temperature ? +options.temperature : undefined,
-              topP: options?.topP ? +options.topP : undefined,
-              stopSequences: options?.stop ? (options.stop as string[]) : undefined,
-              maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
-            })
-            const result = await llmInvoke(model, messages, {
-              schemas,
-              onMessageUpdate,
-            })
-            content = result.content
-            lastChunk = result.lastChunk
-          }
-          break
-        default:
-          throw new Error('Provider is not supported')
-      }
-      onMessageFinish?.({
+      const result = await llmInvoke(model, messages, {
+        schemas: info?.schemas,
+        onMessageUpdate: info?.onMessageUpdate,
+      })
+      content = result.content
+      const lastChunk = result.lastChunk
+      info?.onMessageFinish?.({
         content,
         lastChunk,
       })
@@ -170,6 +151,7 @@ export const useLangchainLLM = () => {
   )
 
   return {
+    getLLM,
     stream,
   }
 }

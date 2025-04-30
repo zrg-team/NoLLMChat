@@ -12,32 +12,38 @@ export const useConfirmOrCreatePassphrase = () => {
   const { updateSessionPassphrase } = useUpdateSessionPassphrase()
   const { confirmPassphrase } = useConfirmPassphrase()
 
-  const confirmOrCreatePassphrase = useCallback(async () => {
-    if (!currentSession?.passphrase) {
-      let passkey = ''
-      await createSessionPassphraseDialogRef.current.show({
-        onConfirm: async (input: string) => {
-          passkey = input
-        },
-      })
-      if (!passkey) {
-        throw new Error('Passphrase is required')
+  const confirmOrCreatePassphrase = useCallback(
+    async (options?: { ignoreCreate: boolean }) => {
+      if (!currentSession?.passphrase) {
+        if (options?.ignoreCreate) {
+          return ''
+        }
+        let passkey = ''
+        await createSessionPassphraseDialogRef.current.show({
+          onConfirm: async (input: string) => {
+            passkey = input
+          },
+        })
+        if (!passkey) {
+          throw new Error('Passphrase is required')
+        }
+        const keyInfo = await updateSessionPassphrase(passkey)
+        if (!keyInfo) {
+          throw new Error('Failed to update session passphrase')
+        }
+        await secureSession.set('passphrase', keyInfo.passphrase)
+      } else {
+        await confirmPassphrase()
       }
-      const keyInfo = await updateSessionPassphrase(passkey)
-      if (!keyInfo) {
-        throw new Error('Failed to update session passphrase')
-      }
-      await secureSession.set('passphrase', keyInfo.passphrase)
-    } else {
-      await confirmPassphrase()
-    }
-    return secureSession.get('passphrase')
-  }, [
-    confirmPassphrase,
-    createSessionPassphraseDialogRef,
-    currentSession?.passphrase,
-    updateSessionPassphrase,
-  ])
+      return secureSession.get('passphrase')
+    },
+    [
+      confirmPassphrase,
+      createSessionPassphraseDialogRef,
+      currentSession?.passphrase,
+      updateSessionPassphrase,
+    ],
+  )
 
   return {
     confirmOrCreatePassphrase,

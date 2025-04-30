@@ -42,7 +42,7 @@ const PromptForm = memo(
     )
     const [promptPrefix, setPromptPrefix] = useState('')
 
-    const { t } = useTranslation('components')
+    const { t } = useTranslation('molecules')
 
     const handleOnchange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInput(e.target.value)

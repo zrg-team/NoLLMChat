@@ -23,6 +23,8 @@ import { JSON_MODE, MessagePayload } from './type'
 let model: ChatWebLLM | undefined
 let engine: MLCEngine | undefined
 
+export const SERVICE_NAME = 'LOCAL_LLM_WORKER'
+
 export async function handleWebLLM(data: MessagePayload) {
   switch (data.type) {
     case 'unload': {
@@ -40,7 +42,7 @@ export async function handleWebLLM(data: MessagePayload) {
           // @ts-expect-error engine is protected in the model
           engine = model.engine as MLCEngine
         }
-        sendToMainThread(data.messageId, 'inprogress', progress)
+        sendToMainThread(SERVICE_NAME, data.messageId, 'inprogress', progress)
       })
       return
     }
@@ -66,7 +68,7 @@ export async function handleWebLLM(data: MessagePayload) {
       for await (const chunk of stream) {
         if (chunk) {
           content += `${chunk.content}`
-          sendToMainThread(data.messageId, 'inprogress', chunk)
+          sendToMainThread(SERVICE_NAME, data.messageId, 'inprogress', chunk)
         }
       }
       return content
@@ -137,7 +139,12 @@ export async function handleWebLLM(data: MessagePayload) {
           const chunkContent = chunk.choices[0]?.delta?.content || ''
           content += chunkContent
           if (chunkContent) {
-            sendToMainThread(data.messageId, 'inprogress', new AIMessage(chunkContent))
+            sendToMainThread(
+              SERVICE_NAME,
+              data.messageId,
+              'inprogress',
+              new AIMessage(chunkContent),
+            )
           }
         }
         const functionCalls = safeParseJSON(content)
@@ -164,7 +171,7 @@ export async function handleWebLLM(data: MessagePayload) {
           tools,
           stream: true,
           onChunk: (chunk: BaseMessage) => {
-            sendToMainThread(data.messageId, 'inprogress', chunk)
+            sendToMainThread(SERVICE_NAME, data.messageId, 'inprogress', chunk)
           },
         })
         return content
@@ -195,7 +202,12 @@ export async function handleWebLLM(data: MessagePayload) {
           const chunkContent = chunk.choices[0]?.delta?.content || ''
           content += chunkContent
           if (chunkContent) {
-            sendToMainThread(data.messageId, 'inprogress', new AIMessage(chunkContent))
+            sendToMainThread(
+              SERVICE_NAME,
+              data.messageId,
+              'inprogress',
+              new AIMessage(chunkContent),
+            )
           }
           // engine.interruptGenerate();  // works with interrupt as well
         }
@@ -207,7 +219,7 @@ export async function handleWebLLM(data: MessagePayload) {
           format: convertToJSON(json),
           stream: true,
           onChunk: (chunk: BaseMessage) => {
-            sendToMainThread(data.messageId, 'inprogress', chunk)
+            sendToMainThread(SERVICE_NAME, data.messageId, 'inprogress', chunk)
           },
         })
         return content

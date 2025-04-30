@@ -6,12 +6,14 @@ export interface SessionState {
   applications: Session[]
   ready: boolean
   error?: string
+  loadingCurrentSession: boolean
 }
 
 export const defaultSessionState: SessionState = {
   currentSession: undefined,
-  ready: false,
+  ready: true,
   error: undefined,
   sessions: [],
   applications: [],
+  loadingCurrentSession: false,
 }

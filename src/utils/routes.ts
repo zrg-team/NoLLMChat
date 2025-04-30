@@ -1,8 +1,9 @@
 import { ROUTE_MODE } from 'src/constants/route'
 
 export const APP_ROUTES = {
-  application: '/application/:applicationId?',
-  whiteboard: '/whiteboard/:sessionId?',
+  sessions: '/sessions',
+  createSession: '/new-session',
+  session: '/session/:id',
   document: '/document/:documentId?',
 } as const
 export const getRouteURL = (route: keyof typeof APP_ROUTES, params?: Record<string, string>) => {
