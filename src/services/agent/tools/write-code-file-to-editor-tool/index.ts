@@ -18,6 +18,10 @@ export const getWriteCodeFileToEditorTool = ({ container }: { container?: WebCon
       try {
         if (code && filePath) {
           const changes: FileSystemTreeChange[] = []
+          const dir = formatPath(filePath).split('/').slice(0, -1).join('/')
+          await container?.fs.mkdir(dir).catch((e) => {
+            logError('[WriteCodeFileTool] Error when create directory', e)
+          })
           await container?.fs.writeFile(formatPath(filePath), code.trimStart()).catch((e) => {
             logError('[WriteCodeFileTool] Error when write file', e)
           })

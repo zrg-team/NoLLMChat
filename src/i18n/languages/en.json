@@ -149,19 +149,19 @@
       },
       "filesystem": {
         "title": "Filesystem",
-        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-filesystem ./my-folder\"     --port 8881 --baseUrl http://localhost:8881     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8891 --proxyUrl http://localhost:8881 --proxyPartial \"\"```\nThen add name: filesystem, url: http://localhost:8891 to MCPs.\n"
+        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-filesystem ./my-folder\"     --port 8881 --baseUrl http://localhost:8881     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8891 --proxyUrl http://localhost:8881 --proxyPartial \"\"\n\n```\nThen add\n* name: filesystem\n* url: http://localhost:8891 to MCPs.\n"
       },
       "playwright": {
         "title": "Playwright",
-        "detail": "```bash\nnpx @playwright/mcp@latest --port 8883\nnpx --yes local-cors-proxy --port 8893 --proxyUrl http://localhost:8883 --proxyPartial \"\"\n```\nThen add name: playwright, url: http://localhost:8893 to MCPs.\n"
+        "detail": "```bash\nnpx @playwright/mcp@latest --port 8883\nnpx --yes local-cors-proxy --port 8893 --proxyUrl http://localhost:8883 --proxyPartial \"\"\n```\nThen add\n* name: playwright\n* url: http://localhost:8893 to MCPs.\n"
       },
       "figma": {
         "title": "Figma",
-        "detail": "```bash\nnpx -y figma-developer-mcp --figma-api-key={figma-api-key}\n# Proxy for CORS\nnpx --yes local-cors-proxy --port 8892 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial \"\"\n\n```\nThen add name: figma, url: http://localhost:8892 to MCPs.\n"
+        "detail": "```bash\nnpx -y figma-developer-mcp --figma-api-key={figma-api-key}\n# Proxy for CORS\nnpx --yes local-cors-proxy --port 8892 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial \"\"\n\n```\nThen add\n* name: figma\n* url: http://localhost:8892 to MCPs.\n"
       },
       "memory": {
         "title": "Graph Memory",
-        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-memory\"     --port 8884 --baseUrl http://localhost:8884     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8894 --proxyUrl http://localhost:8884 --proxyPartial \"\"\n\n```\nThen add name: graph-memory, url: http://localhost:8894 to MCPs.\n"
+        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-memory\"     --port 8884 --baseUrl http://localhost:8884     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8894 --proxyUrl http://localhost:8884 --proxyPartial \"\"\n\n```\nThen add\n* name: graph-memory\n* url: http://localhost:8894 to MCPs.\n"
       }
     },
     "add_llm_card": {
