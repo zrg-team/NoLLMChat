@@ -29,6 +29,7 @@ export const useWorkspace = () => {
   const currentLLM = useWorkspaceState(useShallow((state) => state.llm))
   const resetWorkspace = useWorkspaceState((state) => state.reset)
   const resetChatState = useWorkspaceState((state) => state.reset)
+
   const setMainLLMInfo = useWorkspaceState((state) => state.setMainLLMInfo)
   const setLLMInfo = useWorkspaceState((state) => state.setLLMInfo)
   const updateLLMStatus = useWorkspaceState((state) => state.updateLLMStatus)
@@ -45,6 +46,7 @@ export const useWorkspace = () => {
   const currentSession = useSessionState(useShallow((state) => state.currentSession))
   const setPrompts = useWorkspaceState((state) => state.setPrompts)
   const setMCP = useWorkspaceState((state) => state.setMCP)
+  const setGraph = useWorkspaceState((state) => state.setGraph)
 
   const currentSessionRef = useRef(currentSession)
   const currentLLMRef = useRef(currentLLM)
@@ -179,6 +181,15 @@ export const useWorkspace = () => {
           .then((mcps) => {
             setMCP(mcps || [])
           }),
+        getRepository('Graph')
+          .findOne({
+            where: {
+              session_id: sessionId,
+            },
+          })
+          .then((graph) => {
+            setGraph(graph)
+          }),
       ])
       if (embedingEntity && codeVectorDatabaseEntity) {
         const codeVectorStore = await getVectorDatabase(embedingEntity, {
@@ -202,7 +213,20 @@ export const useWorkspace = () => {
     } finally {
       setLoading(false)
     }
-  }, [loadModel])
+  }, [
+    getVectorDatabase,
+    sessionPassphraseDialogRef,
+    setCodeVectorDatabase,
+    setCodeVectorDatabaseInstance,
+    setContextVectorDatabase,
+    setContextVectorDatabaseInstance,
+    setEmbedding,
+    setGraph,
+    setLoading,
+    setMCP,
+    setMainLLMInfo,
+    setPrompts,
+  ])
 
   const loadCurrentModel = useCallback(
     async (inputLLM?: LLM, onLoad?: (data: InitProgressReport) => void) => {
@@ -227,25 +251,28 @@ export const useWorkspace = () => {
         setLoading(false)
       }
     },
-    [loadModel, currentLLM, updateLLMProgress],
+    [setLoading, currentLLM, updateLLMStatus, loadModel, updateLLMProgress],
   )
 
-  const createOrUpdateLLM = useCallback(async (llm?: LLM) => {
-    try {
-      setLoading(true)
-      const sessionId = currentSessionRef.current?.id
-      if (!sessionId) {
-        return
+  const createOrUpdateLLM = useCallback(
+    async (llm?: LLM) => {
+      try {
+        setLoading(true)
+        const sessionId = currentSessionRef.current?.id
+        if (!sessionId) {
+          return
+        }
+        if (llm) {
+          setLLMInfo(llm)
+        }
+      } catch (error) {
+        logError('Failed to create or update LLM', error)
+      } finally {
+        setLoading(false)
       }
-      if (llm) {
-        setLLMInfo(llm)
-      }
-    } catch (error) {
-      logError('Failed to create or update LLM', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    },
+    [currentSessionRef, setLLMInfo, setLoading],
+  )
 
   return {
     loadCurrentModel,

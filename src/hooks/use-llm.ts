@@ -14,7 +14,7 @@ export const useLLM = () => {
         case LLMProviderEnum.WebLLM:
         case LLMProviderEnum.Wllama:
           // No instance use RAG
-          return undefined
+          return getLocalLLM(provider, llm)
         case LLMProviderEnum.GoogleGenerativeAI:
         case LLMProviderEnum.Groq:
         case LLMProviderEnum.OpenAI:

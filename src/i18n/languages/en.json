@@ -134,17 +134,35 @@
     "mcp": {
       "title": "MCP",
       "description": {
-        "intro": "This one will help you to add MCP local to the application.\nIf you don't know how to start here is the example:",
-        "list": {
-          "1": "Start and Figma MCP in local `npx -y figma-developer-mcp --figma-api-key=figma-api-key`",
-          "2": "Start a proxy server `npx --yes local-cors-proxy --port 8010 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial \"\"` (This step are required because CORS issue)",
-          "3": "Input the proxy URL in the form"
-        }
+        "intro": "You can add your local MCP to the application. To further details, please refer the below documentation."
       },
+      "create_or_update_title": "Create or Update",
+      "list_empty": "No MCPs found",
       "key": "Name",
       "url": "URL",
       "create_or_update": "Create or Update",
-      "list": "Current MCPs"
+      "list": "List",
+      "faq": "FAQ",
+      "note": {
+        "title": "Note",
+        "detail": "\n * 1. Some MCP servers may not support sse protocol, use supergateway to wrap it.\n * 2. Using local-cors-proxy to wrap MCP server for CORS."
+      },
+      "filesystem": {
+        "title": "Filesystem",
+        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-filesystem ./my-folder\"     --port 8881 --baseUrl http://localhost:8881     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8891 --proxyUrl http://localhost:8881 --proxyPartial \"\"```\nThen add name: filesystem, url: http://localhost:8891 to MCPs.\n"
+      },
+      "playwright": {
+        "title": "Playwright",
+        "detail": "```bash\nnpx @playwright/mcp@latest --port 8883\nnpx --yes local-cors-proxy --port 8893 --proxyUrl http://localhost:8883 --proxyPartial \"\"\n```\nThen add name: playwright, url: http://localhost:8893 to MCPs.\n"
+      },
+      "figma": {
+        "title": "Figma",
+        "detail": "```bash\nnpx -y figma-developer-mcp --figma-api-key={figma-api-key}\n# Proxy for CORS\nnpx --yes local-cors-proxy --port 8892 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial \"\"\n\n```\nThen add name: figma, url: http://localhost:8892 to MCPs.\n"
+      },
+      "memory": {
+        "title": "Graph Memory",
+        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-memory\"     --port 8884 --baseUrl http://localhost:8884     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8894 --proxyUrl http://localhost:8884 --proxyPartial \"\"\n\n```\nThen add name: graph-memory, url: http://localhost:8894 to MCPs.\n"
+      }
     },
     "add_llm_card": {
       "title": "LLM",
@@ -263,6 +281,7 @@
       "chat": "Chat",
       "code": "Code",
       "config": "Config",
+      "mcp": "MCP",
       "context": "Context"
     }
   },
@@ -300,7 +319,9 @@
           "shadcn-react-vite": "Base [React + Vite + Shadcn]",
           "todo-app-react-vite": "Todo App [Vue + Vite + Shadcn]",
           "porfolio-nextjs": "Portfolio [Next.js + Shadcn]",
-          "empty-source": "Empty Source"
+          "empty-source": "Empty Source",
+          "simple-html": "Simple HTML",
+          "mcp-source": "MCP Source"
         },
         "update_source": "Update Source"
       },
@@ -324,9 +345,13 @@
           "agent_system": "Agent System Prompt"
         },
         "agents": {
-          "simple": "Simple"
+          "simple": "Simple",
+          "mcp": "MPC"
         },
         "simple": {
+
+        },
+        "mcp": {
 
         }
       }

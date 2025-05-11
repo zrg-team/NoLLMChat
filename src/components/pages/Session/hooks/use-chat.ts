@@ -4,7 +4,6 @@ import { useToast } from 'src/lib/hooks/use-toast'
 import { LLMStatusEnum, Message } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
 import { useSessionState } from 'src/states/session'
-import { useLLMStream } from 'src/hooks/mutations/use-llm-stream'
 import { useWorkspaceState } from 'src/components/pages/Session/state/workspace'
 import { useChatState } from 'src/components/pages/Session/state/chat'
 import { logError } from 'src/utils/logger'
@@ -18,6 +17,7 @@ import { useWorkspace } from './use-workspace'
 import { useFileSystemTree } from './use-file-system-tree'
 import { SendMessage } from '../types/message'
 import { useVSLiteApplicationState } from '../state/vslite'
+import { createMCPAgent } from 'src/services/agent/agents/mcp'
 
 export const useChat = ({
   loadCurrentModel,
@@ -28,7 +28,6 @@ export const useChat = ({
 }) => {
   const { t } = useTranslation('chat')
   const { toast } = useToast()
-  const { stream } = useLLMStream()
   const { getLLM } = useLLM()
   const { sendMessageIframe } = usePreview()
   // SESSION
@@ -40,20 +39,17 @@ export const useChat = ({
   const contextVectorStore = useWorkspaceState((state) => state.contextVectorDatabaseInstance)
   const prompts = useWorkspaceState(useShallow((state) => state.prompts))
   const mcps = useWorkspaceState(useShallow((state) => state.mcps))
+  const graph = useWorkspaceState(useShallow((state) => state.graph))
   // VSL
-  const ready = useVSLiteApplicationState(useShallow((state) => state.ready))
   const container = useVSLiteApplicationState(useShallow((state) => state.container))
   const terminal = useVSLiteApplicationState(useShallow((state) => state.terminal))
   const terminalProcessWriter = useVSLiteApplicationState(
     useShallow((state) => state.terminalProcessWriter),
   )
-  const previewElementRef = useVSLiteApplicationState(
-    useShallow((state) => state.previewElementRef),
-  )
   const terminalProcess = useVSLiteApplicationState(useShallow((state) => state.terminalProcess))
   // CHAT
   const messages = useChatState(useShallow((state) => state.messages))
-  const graph = useChatState(useShallow((state) => state.graph))
+  const graphInstance = useChatState(useShallow((state) => state.graph))
   const setGraph = useChatState((state) => state.setGraph)
   const appendMessages = useChatState((state) => state.appendMessages)
   const setMessages = useChatState((state) => state.setMessages)
@@ -63,7 +59,7 @@ export const useChat = ({
   const messagesRef = useRef(messages)
   const llmRef = useRef(currentLLM)
   const llmStatusRef = useRef(currentLLMStatus)
-  const graphRef = useRef(graph)
+  const graphInstanceRef = useRef(graphInstance)
   const codeVectorStoreRef = useRef(codeVectorStore)
   const contextVectorStoreRef = useRef(contextVectorStore)
   const updateCodeContainerFileRef = useRef(updateCodeContainerFile)
@@ -74,6 +70,7 @@ export const useChat = ({
   const promptsRef = useRef(prompts)
   const mcpsRef = useRef(mcps)
   const sendMessageIframeRef = useRef(sendMessageIframe)
+  const graphRef = useRef(graph)
   // ASSIGN REFS
   codeVectorStoreRef.current = codeVectorStore
   contextVectorStoreRef.current = contextVectorStore
@@ -87,12 +84,14 @@ export const useChat = ({
   terminalProcessWriterRef.current = terminalProcessWriter
   promptsRef.current = prompts
   mcpsRef.current = mcps
-  graphRef.current = graph
+  graphInstanceRef.current = graphInstance
   sendMessageIframeRef.current = sendMessageIframe
+  graphRef.current = graph
 
   const getAgentGraph = useCallback(async () => {
-    if (graphRef.current) {
-      return graphRef.current
+    console.log('graphRef.current', graphRef.current)
+    if (graphInstanceRef.current) {
+      return graphInstanceRef.current
     }
     const llm = llmRef.current
     if (!llm) {
@@ -105,23 +104,45 @@ export const useChat = ({
     if (!chatLLM) {
       return
     }
-    const currentGraph = await createSimpleAgent({
-      chatLLM: chatLLM,
-      codeVectorStore: codeVectorStoreRef.current,
-      contextVectorStore: contextVectorStoreRef.current,
-      container: containerRef.current,
-      terminal: terminalRef.current,
-      terminalProcess: terminalProcessRef.current,
-      terminalProcessWriter: terminalProcessWriterRef.current,
-      prompts: promptsRef.current,
-      mpcs: mcpsRef.current,
-      preview: {
-        sendMessage: sendMessageIframeRef.current,
-      },
-    })
-    setGraph(currentGraph)
-    return currentGraph
-  }, [ready, previewElementRef, setGraph])
+    switch (graphRef.current?.name) {
+      case 'mcp': {
+        const currentGraph = await createMCPAgent({
+          chatLLM: chatLLM,
+          codeVectorStore: codeVectorStoreRef.current,
+          contextVectorStore: contextVectorStoreRef.current,
+          container: containerRef.current,
+          terminal: terminalRef.current,
+          terminalProcess: terminalProcessRef.current,
+          terminalProcessWriter: terminalProcessWriterRef.current,
+          prompts: promptsRef.current,
+          mpcs: mcpsRef.current,
+          preview: {
+            sendMessage: sendMessageIframeRef.current,
+          },
+        })
+        setGraph(currentGraph)
+        return currentGraph
+      }
+      default: {
+        const currentGraph = await createSimpleAgent({
+          chatLLM: chatLLM,
+          codeVectorStore: codeVectorStoreRef.current,
+          contextVectorStore: contextVectorStoreRef.current,
+          container: containerRef.current,
+          terminal: terminalRef.current,
+          terminalProcess: terminalProcessRef.current,
+          terminalProcessWriter: terminalProcessWriterRef.current,
+          prompts: promptsRef.current,
+          mpcs: mcpsRef.current,
+          preview: {
+            sendMessage: sendMessageIframeRef.current,
+          },
+        })
+        setGraph(currentGraph)
+        return currentGraph
+      }
+    }
+  }, [getLLM, setGraph])
 
   const createMessage = useCallback(
     async (
@@ -337,13 +358,13 @@ export const useChat = ({
       }
     },
     [
+      currentSessionId,
       toast,
       t,
-      appendMessages,
-      loadCurrentModel,
-      stream,
       setInProgressMessage,
+      appendMessages,
       getAgentGraph,
+      loadCurrentModel,
       setInProgressMessageMetadata,
     ],
   )

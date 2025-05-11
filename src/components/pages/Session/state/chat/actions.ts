@@ -8,8 +8,7 @@ export interface ChatActions {
   setMessages: (messages: Message[]) => void
   setInProgressMessage: (message: ChatState['inProgressMessage']) => void
   setInProgressMessageMetadata: (content: Record<string, unknown>) => void
-  setGraph: (graph: ChatState['graph']) => void
-  clearGraph: () => void
+  setGraph: (graph?: ChatState['graph']) => void
   reset: () => void
 }
 
@@ -44,9 +43,6 @@ export const getChatActions = (
     },
     setGraph: (graph) => {
       set({ graph })
-    },
-    clearGraph: () => {
-      set({ graph: undefined })
     },
     reset: () => {
       set(JSON.parse(JSON.stringify(defaultChatState)))

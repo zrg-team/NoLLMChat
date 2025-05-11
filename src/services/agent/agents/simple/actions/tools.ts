@@ -65,7 +65,9 @@ export const getTools = async ({
   }
   if (mpcs?.length) {
     const mcpTools = await getMCPClientTools(mpcs)
-    logInfo(`[Tools] Found ${mcpTools.length} MCP tools`)
+    logInfo(
+      `[Tools] Found ${mcpTools.length} MCP tools. Tools: ${mcpTools.map((item) => item.name).join(', ')}.`,
+    )
     tools.push(...mcpTools)
   }
 

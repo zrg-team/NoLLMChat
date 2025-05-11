@@ -3,12 +3,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/lib/shadcn/ui/tabs
 
 import ChatMainPanel from './Chat/ChatMainPanel'
 import GeneralInfo from './GeneralInfo'
+import MCPInfo from './MCPInfo'
 
 import { ContextVectorDatabase } from './ContextVectorDatabase'
 import { CodeVectorDatabase } from './CodeVectorDatabase/CodeVectorDatabase'
 import { useTranslation } from 'react-i18next'
 import { useChat } from '../hooks/use-chat'
 import { useWorkspace } from '../hooks/use-workspace'
+import { useWorkspaceState } from '../state/workspace'
+import { useShallow } from 'zustand/react/shallow'
 
 interface CopilotProps {
   sendMessage: ReturnType<typeof useChat>['createMessage']
@@ -18,6 +21,7 @@ interface CopilotProps {
 
 const Copilot = memo((props: CopilotProps) => {
   const { t } = useTranslation('molecules')
+  const graph = useWorkspaceState(useShallow((state) => state.graph))
   const { sendMessage, loadCurrentModel, createOrUpdateLLM } = props
   const [mode, setMode] = useState('chat')
   const generalComponent = useMemo(() => {
@@ -26,14 +30,21 @@ const Copilot = memo((props: CopilotProps) => {
 
   const chatComponent = useMemo(() => {
     return <ChatMainPanel sendMessage={sendMessage} />
-  }, [])
+  }, [sendMessage])
 
   const codeComponent = useMemo(() => {
-    return <CodeVectorDatabase />
-  }, [])
+    if (graph && graph?.name !== 'mcp') {
+      return <CodeVectorDatabase />
+    }
+    return undefined
+  }, [graph])
 
   const contextComponent = useMemo(() => {
     return <ContextVectorDatabase />
+  }, [])
+
+  const mcpComponent = useMemo(() => {
+    return <MCPInfo />
   }, [])
 
   return (
@@ -51,15 +62,23 @@ const Copilot = memo((props: CopilotProps) => {
               <div className="absolute bottom-[-3px] h-[2px] w-full bg-current" />
             ) : undefined}
           </TabsTrigger>
-          <TabsTrigger value="code" className="flex items-center justify-center relative">
-            {t('copilot.code')}
-            {mode === 'code' ? (
-              <div className="absolute bottom-[-3px] h-[2px] w-full bg-current" />
-            ) : undefined}
-          </TabsTrigger>
+          {graph && graph?.name !== 'mcp' ? (
+            <TabsTrigger value="code" className="flex items-center justify-center relative">
+              {t('copilot.code')}
+              {mode === 'code' ? (
+                <div className="absolute bottom-[-3px] h-[2px] w-full bg-current" />
+              ) : undefined}
+            </TabsTrigger>
+          ) : undefined}
           <TabsTrigger value="context" className="flex items-center justify-center relative">
             {t('copilot.context')}
             {mode === 'context' ? (
+              <div className="absolute bottom-[-3px] h-[2px] w-full bg-current" />
+            ) : undefined}
+          </TabsTrigger>
+          <TabsTrigger value="mcp" className="flex items-center justify-center relative">
+            {t('copilot.mcp')}
+            {mode === 'mcp' ? (
               <div className="absolute bottom-[-3px] h-[2px] w-full bg-current" />
             ) : undefined}
           </TabsTrigger>
@@ -81,6 +100,9 @@ const Copilot = memo((props: CopilotProps) => {
         </TabsContent>
         <TabsContent className="mt-0 h-full overflow-auto" value="config">
           {generalComponent}
+        </TabsContent>
+        <TabsContent className="mt-0 h-full overflow-auto" value="mcp">
+          {mcpComponent}
         </TabsContent>
       </Tabs>
     </div>

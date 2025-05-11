@@ -43,6 +43,9 @@ export const useCreateSession = () => {
           options?: Record<string, unknown>
           encrypted?: Record<string, unknown>
         }
+        graph?: {
+          name?: string
+        }
         prompts?: Record<string, string>
       },
     ) => {
@@ -175,12 +178,18 @@ export const useCreateSession = () => {
             }),
           )
         }
+        if (info.graph?.name) {
+          await getRepository('Graph').save({
+            name: info.graph.name,
+            session_id: session.id,
+          })
+        }
         return session
       } finally {
         setLoading(false)
       }
     },
-    [createSessionFuncion],
+    [createSessionFuncion, getVectorDatabase, indexVectorDB],
   )
 
   return {

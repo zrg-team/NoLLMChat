@@ -2,6 +2,7 @@ import type { FileSystemTree } from '@webcontainer/api'
 import { PGLiteVectorStore } from 'src/lib/langchain-pglite-vector-store'
 import type {
   Embedding,
+  Graph,
   LLM,
   LLMStatusEnum,
   Mcp,
@@ -23,6 +24,7 @@ export interface WorkspaceState {
   contextVectorDatabaseInstance?: PGLiteVectorStore
   prompts: Record<string, Prompt>
   mcps: Mcp[]
+  graph?: Graph
 }
 
 export const defaultWorkspaceState: WorkspaceState = {
@@ -39,4 +41,5 @@ export const defaultWorkspaceState: WorkspaceState = {
   codeVectorDatabaseInstance: undefined,
   contextVectorDatabaseInstance: undefined,
   mcps: [],
+  graph: undefined,
 }

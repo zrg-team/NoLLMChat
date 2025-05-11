@@ -8,6 +8,7 @@ import { SchemaItem } from './schema-item'
 import { VectorDatabase } from './vector-database'
 import { Embedding } from './embedding'
 import { Mcp } from './mcp'
+import { Graph } from './graph'
 
 export {
   Message,
@@ -20,6 +21,7 @@ export {
   VectorDatabase,
   Embedding,
   Mcp,
+  Graph,
 }
 
 export type AppEntites =
@@ -33,6 +35,7 @@ export type AppEntites =
   | typeof VectorDatabase
   | typeof Embedding
   | typeof Mcp
+  | typeof Graph
 
 export const entitiesMap: Record<string, AppEntites> = {
   LLM,
@@ -45,6 +48,7 @@ export const entitiesMap: Record<string, AppEntites> = {
   VectorDatabase,
   Embedding,
   Mcp,
+  Graph,
 }
 
 // This file should not be use in main codebase. ONLY WORKER should use this file.

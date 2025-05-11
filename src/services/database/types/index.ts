@@ -8,6 +8,7 @@ import type { SchemaItem } from '../entities/schema-item'
 import type { VectorDatabase } from '../entities/vector-database'
 import type { Embedding } from '../entities/embedding'
 import type { Mcp } from '../entities/mcp'
+import type { Graph } from '../entities/graph'
 
 export type EntityTypesMap = {
   Message: Message
@@ -20,6 +21,7 @@ export type EntityTypesMap = {
   VectorDatabase: VectorDatabase
   Embedding: Embedding
   Mcp: Mcp
+  Graph: Graph
 }
 
 export type EntityArrayTypes = {
@@ -43,6 +45,7 @@ export type {
   VectorDatabase,
   Embedding,
   Mcp,
+  Graph,
 }
 
 export const TABLE_NAMES = {
@@ -57,6 +60,7 @@ export const TABLE_NAMES = {
   Embedding: 'embeddings',
   VectorDatabaseData: 'vector_database_data',
   MCP: 'mcps',
+  Graph: 'graphs',
 }
 
 export * from './llm'

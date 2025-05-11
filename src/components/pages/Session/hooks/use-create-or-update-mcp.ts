@@ -19,7 +19,7 @@ export const useCreateOrUpdateMCP = () => {
   const currentSessionId = useSessionState(useShallow((state) => state.currentSession?.id))
 
   const createOrUpdate = useWorkspaceState((state) => state.createOrUpdateMCP)
-  const clearGraph = useChatState((state) => state.clearGraph)
+  const setGraph = useChatState((state) => state.setGraph)
   const mcps = useWorkspaceState(useShallow((state) => state.mcps))
 
   const createOrUpdateMCP = useCallback(
@@ -41,7 +41,7 @@ export const useCreateOrUpdateMCP = () => {
               key: '',
               url: '',
             })
-            clearGraph()
+            setGraph()
           }
         } else {
           const result = await getRepository('Mcp').save({
@@ -54,14 +54,14 @@ export const useCreateOrUpdateMCP = () => {
               key: '',
               url: '',
             })
-            clearGraph()
+            setGraph()
           }
         }
       } finally {
         setLoading(false)
       }
     },
-    [currentSessionId, mcps, setParam],
+    [currentSessionId, mcps, createOrUpdate, setGraph],
   )
 
   return {

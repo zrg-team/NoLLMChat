@@ -1,5 +1,6 @@
 import type {
   Embedding,
+  Graph,
   LLM,
   LLMStatusEnum,
   Mcp,
@@ -35,6 +36,7 @@ export interface WorkspaceActions {
   setMCP: (mcps: Mcp[]) => void
   createOrUpdateMCP: (mcp: Mcp) => void
   reset: () => void
+  setGraph: (input?: Graph) => void
 }
 
 export const getWorkspaceActions = (
@@ -95,6 +97,9 @@ export const getWorkspaceActions = (
     },
     setMCP: (mcps) => {
       set({ mcps })
+    },
+    setGraph: (graph) => {
+      set({ graph })
     },
     createOrUpdateMCP: (mcp) => {
       const currentMcps = get().mcps

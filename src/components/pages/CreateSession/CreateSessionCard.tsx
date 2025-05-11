@@ -115,6 +115,9 @@ const CreateSessionCard = () => {
           llm,
           embedding,
           prompts,
+          graph: {
+            name: agent,
+          },
         },
       )
       hanldeHide()
@@ -133,6 +136,8 @@ const CreateSessionCard = () => {
     setEmbedding(undefined)
     setLLM(undefined)
     setSourcebase(undefined)
+    setAgent(undefined)
+    setPrompts({})
   }
 
   const handleSetEmbeddingOptions = async (data: {
