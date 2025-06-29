@@ -100,6 +100,7 @@ export class TransformersEmbeddings extends Embeddings implements TransformersEm
   }
 
   private async runEmbedding(texts: string[]) {
+    // @ts-expect-error type is too complex for TS to infer
     const pipe = await (this.pipelinePromise ??= (
       await import('@huggingface/transformers')
     ).pipeline('feature-extraction', this.model, this.pretrainedOptions))
