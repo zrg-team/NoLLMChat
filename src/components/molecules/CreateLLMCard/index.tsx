@@ -93,6 +93,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const modelList = useMemo(() => {
     if (!llmsInfo?.functionCallingModelIds || !llmsInfo?.modelList) return []
 
+    console.log('llmsInfo?.modelList', llmsInfo?.modelList)
     const data = !search
       ? llmsInfo?.modelList
       : llmsInfo?.modelList.filter((model) =>
