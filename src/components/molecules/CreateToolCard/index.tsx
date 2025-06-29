@@ -9,6 +9,8 @@ import { useToast } from 'src/lib/hooks/use-toast'
 import { useCreateTool } from 'src/hooks/flows/mutations/use-create-tool'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { logWarn } from 'src/utils/logger'
+import FieldList from '../CreateSchemaCard/Field/FieldList'
+import { SchemaItemType } from '../CreateSchemaCard/Field/type'
 
 const CreateToolCard = memo((props: NodeProps) => {
   const { t } = useTranslation('components')
@@ -17,6 +19,7 @@ const CreateToolCard = memo((props: NodeProps) => {
   const node = useInternalNode(id)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [data, setData] = useState<SchemaItemType[]>([])
 
   const { createTool, loading } = useCreateTool()
 
@@ -64,6 +67,9 @@ const CreateToolCard = memo((props: NodeProps) => {
             onChange={handleChangeDescription}
             placeholder={t('add_tool_card.description_placeholder')}
           />
+        </div>
+        <div>
+          <FieldList data={data} setData={setData}  />
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
