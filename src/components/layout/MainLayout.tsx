@@ -14,8 +14,6 @@ import { MainHeader } from './MainHeader'
 export function MainLayout() {
   const location = useLocation()
   const locationRef = useRef(location)
-  const sessions = useSessionState((state) => state.sessions)
-  const applications = useSessionState((state) => state.applications)
   const { error, ready } = useSessionState(
     useShallow((state: SessionState & SessionStateActions) => ({
       error: state.error,
@@ -31,7 +29,7 @@ export function MainLayout() {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <AppSidebar sessions={sessions} applications={applications} />
+      <AppSidebar />
       <SidebarInset className="max-h-screen overflow-hidden">
         <MainHeader />
         <Separator className="shrink-0" />
