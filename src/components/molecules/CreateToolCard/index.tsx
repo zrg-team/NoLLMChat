@@ -69,7 +69,7 @@ const CreateToolCard = memo((props: NodeProps) => {
           />
         </div>
         <div>
-          <FieldList data={data} setData={setData}  />
+          <FieldList data={data} setData={setData} />
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">

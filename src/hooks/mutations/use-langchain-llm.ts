@@ -93,7 +93,7 @@ export const useLangchainLLM = () => {
           {
             const model = new ChatGoogleGenerativeAI({
               apiKey,
-              model: info?.llm?.name,
+              model: info?.llm?.name || 'gemini-1.5-flash',
               temperature: options?.temperature ? +options.temperature : undefined,
               topK: options?.topK ? +options.topK : undefined,
               topP: options?.topP ? +options.topP : undefined,
@@ -123,7 +123,7 @@ export const useLangchainLLM = () => {
           {
             const model = new ChatGroq({
               apiKey,
-              model: info?.llm?.name,
+              model: info?.llm?.name || '',
               temperature: options?.temperature ? +options.temperature : undefined,
               stopSequences: options?.stop ? (options.stop as string[]) : undefined,
               maxTokens: options?.maxTokens ? +options.maxTokens : undefined,
