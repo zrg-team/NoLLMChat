@@ -107,7 +107,7 @@
     "@uiw/react-markdown-preview": "^5.1.3",
     "@uploadthing/react": "7.1.0",
     "@webcontainer/api": "^1.6.1",
-    "@wllama/wllama": "^2.3.2",
+    "@wllama/wllama": "^2.3.3",
     "@xyflow/react": "^12.3.5",
     "@zenfs/core": "^1.11.2",
     "@zenfs/dom": "^1.1.5",

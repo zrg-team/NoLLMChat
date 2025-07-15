@@ -3559,10 +3559,10 @@
   resolved "https://registry.yarnpkg.com/@webcontainer/api/-/api-1.6.1.tgz#8f4034b858279595b3b6aa2652b38af713924dfc"
   integrity sha512-2RS2KiIw32BY1Icf6M1DvqSmcon9XICZCDgS29QJb2NmF12ZY2V5Ia+949hMKB3Wno+P/Y8W+sPP59PZeXSELg==
 
-"@wllama/wllama@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@wllama/wllama/-/wllama-2.3.2.tgz#360125e15229d41c8240d58ab9ae5c09a65ab371"
-  integrity sha512-iQd5diWQghQKJgRxZXx6MMIYHzHbJ66uRSv6QJRFCDkWUuC4RrrQkUnuV3JT4cHpFnisEYy7Jc80g1+/bcA93w==
+"@wllama/wllama@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@wllama/wllama/-/wllama-2.3.3.tgz#d6c3ca05f9ae059c7ada6c41518d2ea5627aef7e"
+  integrity sha512-MSe/IjyqLZIUPNs7faxREizQXzWWN33bYKi9iI9aSMmZQHqCn+jJF1DkRLWLiJ//QawjHQQ+T7YkVHTKUO0Z4w==
 
 "@xobotyi/scrollbar-width@^1.9.5":
   version "1.9.5"
