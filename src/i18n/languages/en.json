@@ -229,8 +229,9 @@
       "model_name": "Model",
       "select_model_placeholder": "Select a model",
       "search_placeholder": "Search model...",
+      "hugging_face_recommendation": "Recommended Hugging Face repo (Ignore it if you provide specific username/repo):",
       "hugging_face_repo_placeholder": "{username}/{repo}",
-      "wllama_description": "Max GGUF file size is 2GB. If your model is bigger than 2GB, please follow this guide to split it into smaller shards.",
+      "wllama_description": "Max GGUF file size is 2GB. If your model is bigger than 2GB, please split it into smaller shards. Follow this guide: https://github.com/ngxson/wllama?tab=readme-ov-file#split-model",
       "no_model": "No model found",
       "hugging_face_repo": "Hugging Face Repo",
       "providers": {

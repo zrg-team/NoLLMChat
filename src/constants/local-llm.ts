@@ -6,3 +6,17 @@ export const RECOMMENDATION_LOCAL_LLMS = [
   'Llama-3.2-3B-Instruct-q4f32_1-MLC',
   'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC',
 ]
+
+export const RECOMMENDATION_WALLAMA_LLMS = [
+  'LiquidAI/LFM2-1.2B-GGUF',
+  'ggml-org/SmolLM3-3B-GGUF',
+  'LiquidAI/LFM2-700M-GGUF',
+  'ggml-org/Qwen3-1.7B-GGUF',
+  'unsloth/gemma-3-1b-it-GGUF',
+  'unsloth/DeepSeek-R1-Distill-Qwen-1.5B-GGUF',
+  'bartowski/Llama-3.2-1B-Instruct-GGUF',
+  'unsloth/Qwen3-1.7B-GGUF',
+  'unsloth/Qwen3-0.6B-GGUF',
+  'unsloth/Qwen3-4B-GGUF',
+  'unsloth/Phi-4-mini-reasoning-GGUF',
+]
