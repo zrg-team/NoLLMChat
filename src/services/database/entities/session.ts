@@ -23,6 +23,7 @@ import {
   SchemaItem,
   Message,
   PromptVariable,
+  Mcp,
 } from './index'
 import { AppEntityNames, SessionTypeEnum, TABLE_NAMES, type SessionStatusEnum } from '../types'
 
@@ -117,4 +118,9 @@ export class Session {
     onDelete: 'CASCADE',
   })
   tool_definitions?: ToolDefinition[]
+
+  @OneToMany(() => Mcp, (entity: Mcp) => entity.session, {
+    onDelete: 'CASCADE',
+  })
+  mcps?: Mcp[]
 }

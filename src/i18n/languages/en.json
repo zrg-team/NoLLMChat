@@ -78,6 +78,7 @@
       "add_few_shot_example": "Few Shot Example",
       "add_vector_database": "Vector Database",
       "add_text_data": "Text Data",
+      "add_mcp": "MCP",
       "more": "...More"
     },
     "toolbar_node": {
@@ -219,6 +220,12 @@
       "vector_database_retriever": "Vector Database Retriever"
     },
     "code_container_app": {
+    },
+    "mcp_node": {
+      "view_all": "View all tools",
+      "view_less": "View less",
+      "no_tools": "No tools available",
+      "loading_tools": "Loading tools..."
     }
   },
   "components": {
@@ -300,6 +307,36 @@
       "title": "Send Message",
       "button": "Send",
       "placeholder": "Type your message here..."
+    },
+    "add_mcp_card": {
+      "title": "MCP",
+      "url": "URL",
+      "key": "Key",
+      "button": "Create",
+      "errors": {
+        "create_failed": "Failed to create MCP."
+      },
+      "faq": "FAQ",
+      "note": {
+        "title": "Note",
+        "detail": "\n * 1. Some MCP servers may not support sse protocol, use supergateway to wrap it.\n * 2. Using local-cors-proxy to wrap MCP server for CORS."
+      },
+      "filesystem": {
+        "title": "Filesystem",
+        "detail": "Start MCP:\n```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-filesystem ./my-folder\"     --port 8881 --baseUrl http://localhost:8881     --ssePath /sse --messagePath /message\n```\nSetup cors proxy:\n```bash\nnpx --yes local-cors-proxy --port 8891 --proxyUrl http://localhost:8881 --proxyPartial /\"/\"\n```\nThen add\n* name: filesystem\n* url: http://localhost:8891"
+      },
+      "playwright": {
+        "title": "Playwright",
+        "detail": "Start MCP:\n```bash\nnpx @playwright/mcp@latest --port 8883\n```\nSetup proxy\n```bash\nnpx --yes local-cors-proxy --port 8893 --proxyUrl http://localhost:8883 --proxyPartial /\"/\"\n```\nThen add\n* name: playwright\n* url: http://localhost:8893"
+      },
+      "figma": {
+        "title": "Figma",
+        "detail": "Start MCP:\n```bash\nnpx -y figma-developer-mcp --figma-api-key={figma-api-key}\n```\nSetup proxy\n```bash\nnpx --yes local-cors-proxy --port 8892 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial /\"/\"\n```\nThen add\n* name: figma\n* url: http://localhost:8892"
+      },
+      "memory": {
+        "title": "Graph Memory",
+        "detail": "Start MCP:\n```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-memory\"     --port 8884 --baseUrl http://localhost:8884     --ssePath /sse --messagePath /message\n```\nSetup cors proxy:\n```bash\nnpx --yes local-cors-proxy --port 8894 --proxyUrl http://localhost:8884 --proxyPartial /\"/\"\n```\nThen add\n* name: graph-memory\n* url: http://localhost:8894"
+      }
     },
     "add_prompt_card": {
       "prompt_content": "Content",

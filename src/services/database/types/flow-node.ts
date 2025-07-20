@@ -22,4 +22,5 @@ export enum FlowNodeTypeEnum {
   PlaceHolder = 'PLACEHOLDER',
   VSLiteApp = 'VSLITE_APP',
   JSONData = 'JSON_DATA',
+  MCP = 'MCP',
 }

@@ -23,6 +23,7 @@ import { cn } from 'src/lib/utils'
 import { SUPPORTED_MODES, SupportedAddNodeEnum } from './constants'
 import { CoolMode } from 'src/lib/shadcn/ui/cool-mode'
 import { Button } from 'src/lib/shadcn/ui/button'
+import CreateMCPCard from 'src/components/molecules/CreateMCPCard'
 
 export const ToolbarNode = memo((props: NodeProps) => {
   const { t } = useTranslation('flows')
@@ -90,6 +91,8 @@ export const ToolbarNode = memo((props: NodeProps) => {
         return <CreateVectorDatabaseCard {...props} />
       case SupportedAddNodeEnum.ADD_TEXT_DATA:
         return <CreateTextDataCard {...props} />
+      case SupportedAddNodeEnum.ADD_MCP:
+        return <CreateMCPCard {...props} />
     }
   }, [props, mode])
   return (

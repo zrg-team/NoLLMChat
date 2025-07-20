@@ -19,6 +19,7 @@ import { TriangleNode } from './TriangleNode'
 import { EditorAppNode } from './EditorAppNode'
 import { PlaceholderNode } from './PlaceholderNode'
 import { VSLiteAppNode } from './VSLiteAppNode'
+import { McpNode } from './MCPNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -40,4 +41,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.EditorApp]: EditorAppNode,
   [FlowNodeTypeEnum.PlaceHolder]: PlaceholderNode,
   [FlowNodeTypeEnum.VSLiteApp]: VSLiteAppNode,
+  [FlowNodeTypeEnum.MCP]: McpNode,
 }

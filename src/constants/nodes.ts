@@ -13,6 +13,16 @@ export const SESSION_INFO_SIZE = {
   height: 650,
 }
 
+export const APPLICATION_BAR_SIZE = {
+  width: 400,
+  height: 70,
+}
+
+export const EMBEDDING_MODEL_SIZE = {
+  width: 400,
+  height: 130,
+}
+
 export const SYSTEM_NODE_IDS = {
   [FlowNodeTypeEnum.Toolbox]: 'toolbox',
   [FlowNodeTypeEnum.SessionInfo]: 'session-info',
@@ -20,10 +30,26 @@ export const SYSTEM_NODE_IDS = {
   [FlowNodeTypeEnum.ApplicationBar]: 'application-bar',
 }
 
+export const APPLICATION_BAR_MODEL: Node = {
+  id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.ApplicationBar],
+  type: FlowNodeTypeEnum.ApplicationBar,
+  position: { x: 10, y: 10 },
+  data: {},
+}
+
+export const EMBEDDING_MODEL: Node = {
+  id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.DefaultEmbeddingModel],
+  type: FlowNodeTypeEnum.DefaultEmbeddingModel,
+  position: { x: 10, y: 10 + APPLICATION_BAR_SIZE.height + 5 },
+  data: {
+    model: DEFAULT_EMBEDDING_MODEL,
+  },
+}
+
 export const TOOLBOX_NODE: Node = {
   id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.Toolbox],
   type: FlowNodeTypeEnum.Toolbox,
-  position: { x: 10 + SESSION_INFO_SIZE.width + 20, y: 10 },
+  position: { x: 10 + SESSION_INFO_SIZE.width + 10, y: 10 },
   measured: TOOLBOX_NODE_SIZE,
   data: {},
 }
@@ -31,24 +57,8 @@ export const TOOLBOX_NODE: Node = {
 export const SESSION_INFO_NODE: Node = {
   id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.SessionInfo],
   type: FlowNodeTypeEnum.SessionInfo,
-  position: { x: 10, y: 10 },
+  position: { x: 10, y: 10 + APPLICATION_BAR_SIZE.height + EMBEDDING_MODEL_SIZE.height },
   measured: SESSION_INFO_SIZE,
-  data: {},
-}
-
-export const EMBEDDING_MODEL: Node = {
-  id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.DefaultEmbeddingModel],
-  type: FlowNodeTypeEnum.DefaultEmbeddingModel,
-  position: { x: 10 + SESSION_INFO_SIZE.width + TOOLBOX_NODE_SIZE.width + 40, y: 80 },
-  data: {
-    model: DEFAULT_EMBEDDING_MODEL,
-  },
-}
-
-export const APPLICATION_BAR_MODEL: Node = {
-  id: SYSTEM_NODE_IDS[FlowNodeTypeEnum.ApplicationBar],
-  type: FlowNodeTypeEnum.ApplicationBar,
-  position: { x: 10 + SESSION_INFO_SIZE.width + TOOLBOX_NODE_SIZE.width + 40, y: 10 },
   data: {},
 }
 
