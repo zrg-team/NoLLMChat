@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'src/lib/shadcn/ui/select'
-import { RECOMMENDATION_LOCAL_LLMS } from 'src/constants/local-llm'
+import { RECOMMENDATION_LOCAL_LLMS, RECOMMENDATION_WALLAMA_LLMS } from 'src/constants/local-llm'
 import { LLMInfo } from 'src/components/atoms/LLMInfo'
 import LoadingButton from 'src/components/atoms/LoadingButton'
 import { Alert } from 'src/lib/shadcn/ui/alert'
@@ -93,7 +93,6 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
   const modelList = useMemo(() => {
     if (!llmsInfo?.functionCallingModelIds || !llmsInfo?.modelList) return []
 
-    console.log('llmsInfo?.modelList', llmsInfo?.modelList)
     const data = !search
       ? llmsInfo?.modelList
       : llmsInfo?.modelList.filter((model) =>
@@ -266,6 +265,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           }
           const res = await fetch(`https://huggingface.co/api/models/${repoInfo}`)
           const data: { siblings?: { rfilename: string }[] } = await res.json()
+
           if (data.siblings) {
             setLLMsInfo({
               input: repoInfo,
@@ -415,6 +415,46 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
           <Alert variant="default" className="mb-4">
             {t('add_llm_card.wllama_description')}
           </Alert>
+          <Label>{t('add_llm_card.hugging_face_recommendation')}</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                className="w-full justify-between max-w-full overflow-hidden"
+              >
+                {username && repo
+                  ? `${username}/${repo}`
+                  : t('add_llm_card.select_model_placeholder')}
+                <LazyIcon name="chevrons-up-down" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput placeholder={t('add_llm_card.search_placeholder')} />
+                <CommandList>
+                  <CommandEmpty>{t('add_llm_card.no_model')}</CommandEmpty>
+                  <CommandGroup>
+                    {RECOMMENDATION_WALLAMA_LLMS.map((model) => (
+                      <CommandItem key={model} value={model} onSelect={handleOnchange}>
+                        {modelId === model ? (
+                          <LazyIcon name="check" className={'h-4 w-4'} />
+                        ) : (
+                          <div className="w-4" />
+                        )}
+                        <span className="max-w-md">
+                          <div className="flex gap-3">
+                            <LLMIcon name={model} />
+                            {model}
+                          </div>
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           <Label>{t('add_llm_card.hugging_face_repo')}</Label>
           {username && repo ? (
             <div className="relative">
@@ -498,7 +538,7 @@ function CreateLLMCard(props: NodeProps & { setDialog?: (value: boolean) => void
         </Popover>
       </>
     )
-  }, [modelId, provider, modelItems, open, setOpen, handleSearchChange])
+  }, [provider, t, open, modelId, selectedModel, handleSearchChange, modelItems, handleOnchange])
 
   const encryptedFields = useMemo(() => {
     if (!isRequiredSessionPasskey) return undefined
