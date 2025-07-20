@@ -1,4 +1,4 @@
-## Local LLM (WebLLM)
+## I. WebLLM
 
 The application supports WebLLM by default, a web-based interface for the LLM model.
 WebLLM running locally in the browser provides a user-friendly interface for interacting with the LLM model. You can input text prompts, select model configurations, and generate text output in real-time.
@@ -90,12 +90,72 @@ Boost your coding prowess with the efficiency of Stable Code, and venture beyond
 
 **More models, enjoy your exploration!**
 
-## II. OpenAI
+## II. Wllama
 
-**Comming Soon**
+Wllama enables running GUFF models directly in your browser using Hugging Face integration.
+
+**Key Points:**
+- Supports running GUFF models from Hugging Face.
+- Designed for efficient local inference in the browser.
+- Ideal for lightweight and experimental deployments.
+
+**Notice:**
+Only works with models smaller than 2GB. Models larger than 2GB require splitting and are not supported directly.
+WebGPU is not yet supported; only CPU inference is available.
+
+## III. OpenAI
+
+### How to Get Your OpenAI API Key
+
+To use OpenAI models, you need an API key from OpenAI. Follow these steps:
+
+1. Go to [OpenAI Platform](https://platform.openai.com/).
+2. Sign in or create an account.
+3. Navigate to 'API Keys' in your account settings.
+4. Click 'Create new secret key' and copy the generated key.
+
+**Security Notice:**
+Your OpenAI API key is stored locally and encrypted with your personal encryption key. This ensures your API key remains private and secure on your device.
+
+Never share your API key publicly or commit it to version control.
+
+## IV. Google Generative AI
+
+Google Generative AI provides access to advanced models like Gemini Pro and Gemini Ultra for text, code, and multimodal tasks.
+
+**Key Features:**
+- Multimodal capabilities (text, image, code)
+- High performance for reasoning and creative tasks
+- Available via Google AI Studio and API
+
+**How to Get Started:**
+1. Visit [Google AI Studio](https://ai.google.com/).
+2. Sign in with your Google account.
+3. Create a new API key in the developer console.
+4. Use the key in your application to access Gemini models.
+
+**Security Notice:**
+Your Google Generative AI API key is stored locally and encrypted with your personal encryption key for privacy and security.
+
+## V. Groq AI
+
+Groq provides ultra-fast access to leading language models such as Llama-3, Mixtral, and Gemma via its API, optimized for low latency and high throughput.
+
+**Key Features:**
+- Extremely low latency responses
+- Supports top open-source models (Llama-3, Mixtral, Gemma, etc.)
+- Scalable and reliable API for production use
+
+**How to Get Started:**
+1. Visit [Groq Cloud Console](https://console.groq.com/).
+2. Sign in or create a Groq account.
+3. Go to 'API Keys' and generate a new key.
+4. Use the key in your application to access Groq-hosted models.
+
+**Security Notice:**
+Your Groq API key is stored locally and encrypted with your personal encryption key for privacy and security.
 
 ## Additional Resources
-
 - [Embedding](./#/document/embedding "<_self>")
 - [Get started Example](./#/document/get-started "<_self>")
 
