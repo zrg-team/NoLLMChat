@@ -18,13 +18,9 @@ The project aims to revolutionize AI interaction by creating a platform that enh
 
 **Built-in Chat Application**
 
-![Intro Image Chat Application](./public/docs/chat-application.png)
-
 ![Demo Chat Application](./public/docs/chat-application.gif)
 
 **Built-in Document Editor**
-
-![Intro Image Document Editor](./public/docs/editor-application.png)
 
 ![Demo Document Editor](./public/docs/editor-application.gif)
 
