@@ -32,6 +32,7 @@ export default defineConfig({
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
+      'node:stream': 'stream-browserify',
     },
   },
   optimizeDeps: {
