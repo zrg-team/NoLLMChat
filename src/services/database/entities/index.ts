@@ -15,6 +15,7 @@ import { VectorDatabase } from './vector-database'
 import { JSONLData } from './jsonl-data'
 import { FlowNodeData } from './flow-node-data'
 import { FlowNodePlaceholder } from './flow-node-placeholder'
+import { Mcp } from './mcp'
 
 export {
   Thread,
@@ -34,6 +35,7 @@ export {
   JSONLData,
   FlowNodeData,
   FlowNodePlaceholder,
+  Mcp,
 }
 
 export type AppEntites =
@@ -54,6 +56,7 @@ export type AppEntites =
   | typeof JSONLData
   | typeof FlowNodeData
   | typeof FlowNodePlaceholder
+  | typeof Mcp
 
 export const entitiesMap: Record<string, AppEntites> = {
   LLM,
@@ -73,5 +76,6 @@ export const entitiesMap: Record<string, AppEntites> = {
   JSONLData,
   FlowNodeData,
   FlowNodePlaceholder,
+  Mcp,
 }
 // This file should not be use in main codebase. ONLY WORKER should use this file.

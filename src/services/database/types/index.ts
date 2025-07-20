@@ -1,4 +1,4 @@
-import { Thread } from '../entities/thread'
+import type { Thread } from '../entities/thread'
 import type { Message } from '../entities/message'
 import type { LLM } from '../entities/llm'
 import type { FlowNode } from '../entities/flow-node'
@@ -15,6 +15,8 @@ import type { VectorDatabase } from '../entities/vector-database'
 import type { JSONLData } from '../entities/jsonl-data'
 import type { FlowNodeData } from '../entities/flow-node-data'
 import type { FlowNodePlaceholder } from '../entities/flow-node-placeholder'
+import type { Mcp } from '../entities/mcp'
+
 import { FlowNodeTypeEnum } from './flow-node'
 
 export type EntityTypesMap = {
@@ -35,6 +37,7 @@ export type EntityTypesMap = {
   JSONLData: JSONLData
   FlowNodeData: FlowNodeData
   FlowNodePlaceholder: FlowNodePlaceholder
+  Mcp: Mcp
 }
 
 export type EntityArrayTypes = {
@@ -65,6 +68,7 @@ export type {
   JSONLData,
   FlowNodeData,
   FlowNodePlaceholder,
+  Mcp,
 }
 
 export const TABLE_NAMES = {
@@ -85,6 +89,7 @@ export const TABLE_NAMES = {
   JSONLData: 'jsonl_data',
   FlowNodeData: 'flow_node_data',
   FlowNodePlaceholder: 'flow_node_placeholders',
+  MCP: 'mcps',
 }
 
 export * from './flow-node'
@@ -123,4 +128,5 @@ export const flowNodeTypeToEntity: Record<FlowNodeTypeEnum, AppEntityNames | und
   [FlowNodeTypeEnum.VectorDatabase]: 'VectorDatabase',
   [FlowNodeTypeEnum.JSONLData]: 'JSONLData',
   [FlowNodeTypeEnum.PlaceHolder]: 'FlowNodePlaceholder',
+  [FlowNodeTypeEnum.MCP]: 'Mcp',
 }

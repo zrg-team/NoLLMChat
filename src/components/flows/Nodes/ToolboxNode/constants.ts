@@ -6,12 +6,14 @@ export enum SupportedAddNodeEnum {
   ADD_FEW_SHOT_EXAMPLE = 'ADD_FEW_SHOT_EXAMPLE',
   ADD_VECTOR_DATABASE = 'ADD_VECTOR_DATABASE',
   ADD_TEXT_DATA = 'ADD_TEXT_DATA',
+  ADD_MCP = 'ADD_MCP',
 }
 export const SUPPORTED_MODES = [
   SupportedAddNodeEnum.ADD_LLM,
   SupportedAddNodeEnum.ADD_PROMPT,
   SupportedAddNodeEnum.ADD_SCHEMA,
   SupportedAddNodeEnum.ADD_VECTOR_DATABASE,
+  SupportedAddNodeEnum.ADD_MCP,
   {
     key: 'more',
     label: 'more',
