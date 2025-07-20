@@ -1,0 +1,2 @@
+import{u as o,a as n,C as i}from"./database.worker-Dzf_vQEW.js";o();var d=class extends n{constructor(t){super(t),this.rootDir=(void 0)(t),(void 0)((void 0)(this.rootDir))||(void 0)(this.rootDir)}async init(t,s){return this.pg=t,{emscriptenOpts:{...s,preRun:[...s.preRun||[],e=>{let r=e.FS.filesystems.NODEFS;e.FS.mkdir(i),e.FS.mount(r,{root:this.rootDir},i)}]}}}async closeFs(){this.pg.Module.FS.quit()}};export{d as NodeFS};
+//# sourceMappingURL=nodefs-BCmYJ7Zw.js.map
