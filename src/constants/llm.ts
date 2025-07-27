@@ -1,4 +1,11 @@
-export const OPEN_AI_MODELS = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo']
+export const OPEN_AI_MODELS = [
+  'gpt-4.1',
+  'gpt-4o',
+  'gpt-4o-mini',
+  'gpt-4-turbo',
+  'gpt-4',
+  'gpt-3.5-turbo',
+]
 export const GROQ_MODELS = [
   'deepseek-r1-distill-llama-70b',
   'llama-3.2-90b-vision-preview',

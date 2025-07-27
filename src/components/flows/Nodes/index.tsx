@@ -1,25 +1,30 @@
 import { FlowNodeTypeEnum } from 'src/services/database/types'
 
-import { ToolbarNode } from './ToolboxNode'
+import { ToolbarNode } from './system/ToolboxNode'
+import { ApplicationBarNode } from './system/ApplicationBarNode'
+import { EmbeddingNode } from './system/EmbeddingNode'
+import { SessionInfoNode } from './system/SessionInfoNode'
+
+import { ThreadNode } from './chat/ThreadNode'
+import { MessageNode } from './chat/MessageNode'
+
 import { LLMNode } from './LLMNode/LLMNode'
-import { ThreadNode } from './ThreadNode'
-import { MessageNode } from './MessageNode'
 import { PromptNode } from './PromptNode'
-import { SessionInfoNode } from './SessionInfoNode'
 import { SchemaNode } from './SchemaNode'
 import { CSVDataNode } from './CSVDataNode'
 import { ToolNode } from './ToolNode'
-import { EmbeddingNode } from './EmbeddingNode'
 import { VectorDatabaseNode } from './VectorDatabaseNode'
 import { JSONLDataNode } from './JSONLDataNode'
-import { ApplicationBarNode } from './ApplicationBarNode'
-import { ShapeNode } from './ShapeNode'
-import { CircleNode } from './CircleNode'
-import { TriangleNode } from './TriangleNode'
-import { EditorAppNode } from './EditorAppNode'
 import { PlaceholderNode } from './PlaceholderNode'
-import { VSLiteAppNode } from './VSLiteAppNode'
 import { McpNode } from './MCPNode'
+import { BasicAgentNode } from './BasicAgentNode'
+
+import { EditorAppNode } from './apps/EditorAppNode'
+import { VSLiteAppNode } from './apps/VSLiteAppNode'
+
+import { ShapeNode } from './shapes/ShapeNode'
+import { CircleNode } from './shapes/CircleNode'
+import { TriangleNode } from './shapes/TriangleNode'
 
 export const nodeTypes = {
   [FlowNodeTypeEnum.LLM]: LLMNode,
@@ -42,4 +47,5 @@ export const nodeTypes = {
   [FlowNodeTypeEnum.PlaceHolder]: PlaceholderNode,
   [FlowNodeTypeEnum.VSLiteApp]: VSLiteAppNode,
   [FlowNodeTypeEnum.MCP]: McpNode,
+  [FlowNodeTypeEnum.BasicAgent]: BasicAgentNode,
 }

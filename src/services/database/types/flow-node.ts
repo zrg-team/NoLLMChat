@@ -23,4 +23,5 @@ export enum FlowNodeTypeEnum {
   VSLiteApp = 'VSLITE_APP',
   JSONData = 'JSON_DATA',
   MCP = 'MCP',
+  BasicAgent = 'BASIC_AGENT',
 }

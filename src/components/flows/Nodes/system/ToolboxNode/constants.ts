@@ -7,17 +7,22 @@ export enum SupportedAddNodeEnum {
   ADD_VECTOR_DATABASE = 'ADD_VECTOR_DATABASE',
   ADD_TEXT_DATA = 'ADD_TEXT_DATA',
   ADD_MCP = 'ADD_MCP',
+  ADD_BASIC_AGENT = 'ADD_BASIC_AGENT',
 }
 export const SUPPORTED_MODES = [
   SupportedAddNodeEnum.ADD_LLM,
   SupportedAddNodeEnum.ADD_PROMPT,
   SupportedAddNodeEnum.ADD_SCHEMA,
   SupportedAddNodeEnum.ADD_VECTOR_DATABASE,
-  SupportedAddNodeEnum.ADD_MCP,
+  SupportedAddNodeEnum.ADD_BASIC_AGENT,
   {
     key: 'more',
     label: 'more',
     icon: 'ellipsis' as const,
-    children: [SupportedAddNodeEnum.ADD_TOOL_DEFINITION, SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE],
+    children: [
+      SupportedAddNodeEnum.ADD_TOOL_DEFINITION,
+      SupportedAddNodeEnum.ADD_MCP,
+      SupportedAddNodeEnum.ADD_FEW_SHOT_EXAMPLE,
+    ],
   },
 ]

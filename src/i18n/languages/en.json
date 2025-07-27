@@ -79,6 +79,7 @@
       "add_vector_database": "Vector Database",
       "add_text_data": "Text Data",
       "add_mcp": "MCP",
+      "add_basic_agent": "Basic Agent",
       "more": "...More"
     },
     "toolbar_node": {
@@ -92,6 +93,9 @@
       "errors": {
         "loading_model": "Failed to load model."
       }
+    },
+    "basic_agent_node": {
+      "create_thread_button": "Create Thread"
     },
     "thread_node": {
       "title": "Thread",
@@ -337,6 +341,18 @@
         "title": "Graph Memory",
         "detail": "Start MCP:\n```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-memory\"     --port 8884 --baseUrl http://localhost:8884     --ssePath /sse --messagePath /message\n```\nSetup cors proxy:\n```bash\nnpx --yes local-cors-proxy --port 8894 --proxyUrl http://localhost:8884 --proxyPartial /\"/\"\n```\nThen add\n* name: graph-memory\n* url: http://localhost:8894"
       }
+    },
+    "add_basic_agent_card": {
+      "title": "Basic Agent",
+      "button": "Create",
+      "name": "Name",
+      "name_placeholder": "Input agent name...",
+      "description": "Description",
+      "description_placeholder": "Input agent description...",
+      "system_prompt": "System Prompt",
+      "system_prompt_placeholder": "Input system prompt...",
+      "max_iterations": "Max Iterations",
+      "max_iterations_placeholder": "Max iterations for the agent"
     },
     "add_prompt_card": {
       "prompt_content": "Content",
