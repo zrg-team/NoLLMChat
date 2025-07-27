@@ -16,6 +16,7 @@ import type { JSONLData } from '../entities/jsonl-data'
 import type { FlowNodeData } from '../entities/flow-node-data'
 import type { FlowNodePlaceholder } from '../entities/flow-node-placeholder'
 import type { Mcp } from '../entities/mcp'
+import type { BasicAgent } from '../entities/basic-agent'
 
 import { FlowNodeTypeEnum } from './flow-node'
 
@@ -38,6 +39,7 @@ export type EntityTypesMap = {
   FlowNodeData: FlowNodeData
   FlowNodePlaceholder: FlowNodePlaceholder
   Mcp: Mcp
+  BasicAgent: BasicAgent
 }
 
 export type EntityArrayTypes = {
@@ -69,6 +71,7 @@ export type {
   FlowNodeData,
   FlowNodePlaceholder,
   Mcp,
+  BasicAgent,
 }
 
 export const TABLE_NAMES = {
@@ -90,6 +93,7 @@ export const TABLE_NAMES = {
   FlowNodeData: 'flow_node_data',
   FlowNodePlaceholder: 'flow_node_placeholders',
   MCP: 'mcps',
+  BasicAgent: 'basic_agents',
 }
 
 export * from './flow-node'
@@ -129,4 +133,5 @@ export const flowNodeTypeToEntity: Record<FlowNodeTypeEnum, AppEntityNames | und
   [FlowNodeTypeEnum.JSONLData]: 'JSONLData',
   [FlowNodeTypeEnum.PlaceHolder]: 'FlowNodePlaceholder',
   [FlowNodeTypeEnum.MCP]: 'Mcp',
+  [FlowNodeTypeEnum.BasicAgent]: 'BasicAgent',
 }

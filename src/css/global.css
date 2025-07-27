@@ -90,12 +90,8 @@
     --chart-5: 340 75% 55%;
   }
 
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+  /* Remove global border-border application, only apply where needed */
+  /* Remove @apply for custom color utilities. Use className="bg-background text-foreground" in JSX instead. */
   [data-registry="plate"].dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
