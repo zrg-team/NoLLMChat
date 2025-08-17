@@ -8,6 +8,8 @@ export const RECOMMENDATION_LOCAL_LLMS = [
 ]
 
 export const RECOMMENDATION_WALLAMA_LLMS = [
+  'gabriellarson/LFM2-VL-1.6B-GGUF',
+  'unsloth/gemma-3-1b-it-GGUF',
   'LiquidAI/LFM2-1.2B-GGUF',
   'ggml-org/SmolLM3-3B-GGUF',
   'LiquidAI/LFM2-700M-GGUF',
@@ -19,4 +21,5 @@ export const RECOMMENDATION_WALLAMA_LLMS = [
   'unsloth/Qwen3-0.6B-GGUF',
   'unsloth/Qwen3-4B-GGUF',
   'unsloth/Phi-4-mini-reasoning-GGUF',
+  'unsloth/gemma-3-270m-it-GGUF',
 ]
