@@ -25,6 +25,12 @@ export class ToolDefinition {
   type?: `${ToolDefinitionTypeEnum}`
 
   @Column({ type: 'text', nullable: true })
+  handler?: string
+
+  @Column({ type: 'jsonb', nullable: true })
+  schema?: Record<string, unknown>[]
+
+  @Column({ type: 'text', nullable: true })
   metadata?: string
 
   @CreateDateColumn()
