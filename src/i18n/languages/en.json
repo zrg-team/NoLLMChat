@@ -278,7 +278,9 @@
       "button": "Create",
       "tool_description": "Description",
       "description_placeholder": "Input tool description...",
+      "predefine_tool_placeholder": "Select a predefined tool...",
       "tool_schema": "Schema",
+      "handler": "Handler",
       "create": "Create"
     },
     "add_schema_card": {

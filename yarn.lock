@@ -6900,7 +6900,7 @@ jotai-optics@0.4.0:
   resolved "https://registry.yarnpkg.com/jotai-optics/-/jotai-optics-0.4.0.tgz#aad207090a06390e61cc85324b623b2692e2e272"
   integrity sha512-osbEt9AgS55hC4YTZDew2urXKZkaiLmLqkTS/wfW5/l0ib8bmmQ7kBXSFaosV6jDDWSp00IipITcJARFHdp42g==
 
-jotai-x@1.2.4, jotai-x@^1.2.4:
+jotai-x@1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/jotai-x/-/jotai-x-1.2.4.tgz#8dfc8fc40c9a026eca7b532d8fd0ef4f497ae74e"
   integrity sha512-FyLrAR/ZDtmaWgif4cNRuJvMam/RSFv+B11/p4T427ws/T+8WhZzwmULwNogG6ZbZq+v1XpH6f9aN1lYqY5dLg==
