@@ -3,15 +3,16 @@ import { Position } from '@xyflow/react'
 import { Alert, AlertDescription, AlertTitle } from 'src/lib/shadcn/ui/alert'
 import LazyIcon from 'src/components/atoms/LazyIcon'
 import { DefaultHandle } from 'src/components/flows/DefaultHandle'
+import { NodeHeader } from 'src/components/flows/NodeHeader'
 
-import { ToolNodeProps } from './type'
 import { useConnectionToHandler } from './hooks/use-connection-to-handler'
-import { NodeHeader } from '../../NodeHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/lib/shadcn/ui/tabs'
 import { Card } from 'src/lib/shadcn/ui/card'
 import FieldList from 'src/components/molecules/CreateSchemaCard/Field/FieldList'
 import { SchemaItemType } from 'src/components/molecules/CreateSchemaCard/Field/type'
 import { useTranslation } from 'react-i18next'
+
+import { ToolNodeProps } from './type'
 
 const CodeEditor = lazy(() => import('src/components/atoms/CodeEditor'))
 

@@ -15,7 +15,7 @@ export const useConfirmPassphrase = () => {
 
   const confirmPassphrase = useCallback(async () => {
     if (!currentSession?.passphrase) {
-      throw new Error('Session is not found')
+      return
     }
     const passphraseExisted = await secureSession.exists('passphrase')
     if (!passphraseExisted) {

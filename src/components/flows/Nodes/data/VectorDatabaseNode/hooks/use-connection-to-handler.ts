@@ -5,13 +5,14 @@ import { useFlowState } from 'src/states/flow'
 import { CSVData, FlowNodeTypeEnum, VectorDatabase } from 'src/services/database/types'
 import { decodeCSVData } from 'src/utils/string-data'
 import { Document } from '@langchain/core/documents'
-import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { embeddingHandler } from 'src/handlers/embedding-handler'
 import { useFlowEmbeddingNode } from 'src/hooks/flows/use-flow-embedding-node'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 
 export const useConnectionToHandler = (id: string) => {
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
   const { getFlowEmbeddingEntity } = useFlowEmbeddingNode()
-  const { index: indexFunction } = useEmbedding()
+  const { confirmPassphrase } = useConfirmPassphrase()
 
   const connectionHandler = useCallback(
     async ({ edgeId, target, source }: { edgeId: string; source: Node; target: Node }) => {
@@ -34,7 +35,8 @@ export const useConnectionToHandler = (id: string) => {
                 pageContent: `${row.text}`,
               }),
           )
-          await indexFunction(
+          await confirmPassphrase()
+          await embeddingHandler.index(
             getFlowEmbeddingEntity(),
             {
               database: {
@@ -60,7 +62,7 @@ export const useConnectionToHandler = (id: string) => {
         }
       }
     },
-    [createOrUpdateFlowEdge, getFlowEmbeddingEntity, indexFunction],
+    [createOrUpdateFlowEdge, getFlowEmbeddingEntity, confirmPassphrase],
   )
 
   useBaseConnectionToHandler(id, connectionHandler)

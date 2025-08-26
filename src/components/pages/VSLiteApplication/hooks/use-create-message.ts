@@ -7,7 +7,8 @@ import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { Message } from 'ai/react'
-import { useLLM } from 'src/hooks/mutations/use-llm'
+import { llmHandler } from 'src/handlers'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 import { passphraseConfirm } from 'src/utils/passphrase'
 import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
@@ -24,7 +25,7 @@ export const useCreateMessage = () => {
   const { t } = useTranslation('flows')
   const { toast } = useToast()
   const { loadModel } = useLoadModel()
-  const { stream } = useLLM()
+  const { confirmPassphrase } = useConfirmPassphrase()
   const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
   const createMessage = useCallback(
@@ -57,7 +58,8 @@ export const useCreateMessage = () => {
             }
             return new HumanMessage(message.content)
           })
-          const response = await stream(
+          await confirmPassphrase()
+          const response = await llmHandler.stream(
             mainLLMInfo.llm.provider,
             [...history, new HumanMessage(input)],
             {
@@ -83,15 +85,7 @@ export const useCreateMessage = () => {
         }
       }
     },
-    [
-      currentSession?.main_node_id,
-      mainLLMInfo?.llm,
-      mainLLMInfo?.status,
-      toast,
-      t,
-      loadModel,
-      stream,
-    ],
+    [currentSession?.main_node_id, mainLLMInfo?.llm, mainLLMInfo?.status, toast, t, loadModel],
   )
 
   const init = useCallback(async () => {

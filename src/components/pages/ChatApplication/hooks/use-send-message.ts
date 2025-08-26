@@ -1,12 +1,13 @@
 import { useCallback, useState } from 'react'
 import { PromptTemplate } from '@langchain/core/prompts'
-import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
+import { MessageNodeProps } from 'src/components/flows/Nodes/chat/MessageNode/type'
 import { FlowNodePlaceholderTypeEnum, LLMStatusEnum, Schema } from 'src/services/database/types'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
-import { useLLM } from 'src/hooks/mutations/use-llm'
+import { llmHandler } from 'src/handlers'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import { useChatApplicationData } from './use-chat-application-data'
-import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { embeddingHandler } from 'src/handlers/embedding-handler'
 
 type CreateMessageOption = {
   schema?: Schema
@@ -16,8 +17,7 @@ type CreateMessageOption = {
 }
 export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApplicationData>) => {
   const [loading] = useState(false)
-  const { similaritySearchWithScore } = useEmbedding()
-  const { stream } = useLLM()
+  const { confirmPassphrase } = useConfirmPassphrase()
 
   const handlePlaceholders = useCallback(
     async (
@@ -51,7 +51,8 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
               if (minimalScore && minimalScore > 1) {
                 minimalScore = minimalScore / 100
               }
-              const documents = await similaritySearchWithScore(
+              await confirmPassphrase()
+              const documents = await embeddingHandler.similaritySearchWithScore(
                 chatApplicationData?.mainEmbeddingInfo?.embedding,
                 {
                   database: {
@@ -86,7 +87,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
       )
       return injectedMessages
     },
-    [similaritySearchWithScore, chatApplicationData?.mainEmbeddingInfo?.embedding],
+    [chatApplicationData?.mainEmbeddingInfo?.embedding, confirmPassphrase],
   )
 
   const sendMessage = useCallback(
@@ -126,11 +127,13 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
 
       onResponseMessageCreate?.()
 
-      const response = await stream(
+      await confirmPassphrase()
+      const response = await llmHandler.stream(
         chatApplicationData.mainLLMInfo.llm.provider,
         [...injectedMessages, ...formatedMessages],
         {
           schemas: schema ? [schema] : undefined,
+          llm: chatApplicationData.mainLLMInfo.llm,
           onMessageUpdate: ({ content }) => {
             onMessageUpdate?.({
               nodeData: {
@@ -139,7 +142,6 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
               },
             })
           },
-          llm: chatApplicationData.mainLLMInfo.llm,
         },
       )
 
@@ -150,7 +152,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
       })
       return response?.content
     },
-    [handlePlaceholders, stream, chatApplicationData.mainLLMInfo],
+    [handlePlaceholders, confirmPassphrase, chatApplicationData.mainLLMInfo],
   )
 
   return {
