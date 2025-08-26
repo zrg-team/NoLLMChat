@@ -137,54 +137,6 @@ sequenceDiagram
     FlowMachine-->>Client: FlowRunState
 ```
 
-### 🌐 Node Dependency Graph
-
-```mermaid
-graph TD
-    subgraph "📊 Data Nodes"
-        CSV[CSV Data Node]
-        VECTOR[Vector DB Node]
-        JSON[JSONL Data Node]
-    end
-    
-    subgraph "🤖 LLM Nodes"
-        PROMPT[Prompt Node]
-        LLM[LLM Node]
-        AGENT[Basic Agent Node]
-    end
-    
-    subgraph "💬 Chat Nodes"
-        THREAD[Thread Node]
-        MSG[Message Node]
-    end
-    
-    subgraph "🔧 Utility Nodes"
-        SCHEMA[Schema Node]
-        TOOL[Tool Node]
-        PLACEHOLDER[Placeholder Node]
-    end
-    
-    CSV --> PROMPT
-    VECTOR --> PROMPT
-    JSON --> PROMPT
-    PROMPT --> LLM
-    LLM --> MSG
-    MSG --> THREAD
-    SCHEMA --> LLM
-    TOOL --> AGENT
-    AGENT --> MSG
-    
-    classDef dataNode fill:#e1f5fe
-    classDef llmNode fill:#f3e5f5
-    classDef chatNode fill:#e8f5e8
-    classDef utilNode fill:#fff3e0
-    
-    class CSV,VECTOR,JSON dataNode
-    class PROMPT,LLM,AGENT llmNode  
-    class THREAD,MSG chatNode
-    class SCHEMA,TOOL,PLACEHOLDER utilNode
-```
-
 ### 🔄 State Flow Diagram
 
 ```mermaid
