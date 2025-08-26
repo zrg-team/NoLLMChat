@@ -31,9 +31,10 @@ import { getStorageDataSource } from 'src/utils/vector-storage'
 import { DefaultNodeData } from 'src/utils/flow-node'
 import { toLocalLLMToolCallingInput } from 'src/utils/flow-to-local-llm'
 import { useSessionState } from 'src/states/session'
-import { useLLM } from 'src/hooks/mutations/use-llm'
+import { llmHandler } from 'src/handlers'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import { logError } from 'src/utils/logger'
-import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { embeddingHandler } from 'src/handlers/embedding-handler'
 import { useFlowEmbeddingNode } from 'src/hooks/flows/use-flow-embedding-node'
 
 type CreateMessageOption = {
@@ -52,10 +53,9 @@ export const useCreateMessage = ({
   const currenSession = useSessionState((state) => state.currentSession)
   const createOrUpdateFlowNode = useFlowState((state) => state.createOrUpdateFlowNode)
   const createOrUpdateFlowEdge = useFlowState((state) => state.createOrUpdateFlowEdge)
-  const { similaritySearchWithScore: similaritySearchWithScoreFunction } = useEmbedding()
   const { getFlowEmbeddingEntity } = useFlowEmbeddingNode()
 
-  const { stream } = useLLM()
+  const { confirmPassphrase } = useConfirmPassphrase()
 
   const insertMessages = useCallback(
     async ({
@@ -176,7 +176,9 @@ export const useCreateMessage = ({
                 minimalScore = minimalScore / 100
               }
 
-              const documents: Awaited<ReturnType<typeof similaritySearchWithScoreFunction>> = []
+              const documents: Awaited<
+                ReturnType<typeof embeddingHandler.similaritySearchWithScore>
+              > = []
 
               if (vector.storage === VectorDatabaseStorageEnum.DataNode) {
                 const connections = getHandleConnections({
@@ -196,8 +198,9 @@ export const useCreateMessage = ({
                 if (!dataSource) {
                   return
                 }
+                await confirmPassphrase()
                 documents.push(
-                  ...((await similaritySearchWithScoreFunction(
+                  ...((await embeddingHandler.similaritySearchWithScore(
                     getFlowEmbeddingEntity(),
                     {
                       database: {
@@ -211,8 +214,9 @@ export const useCreateMessage = ({
                   )) || []),
                 )
               } else {
+                await confirmPassphrase()
                 documents.push(
-                  ...((await similaritySearchWithScoreFunction(
+                  ...((await embeddingHandler.similaritySearchWithScore(
                     getFlowEmbeddingEntity(),
                     {
                       database: {
@@ -250,7 +254,7 @@ export const useCreateMessage = ({
       )
       return injectedMessages
     },
-    [getFlowEmbeddingEntity, getHandleConnections, getNode, similaritySearchWithScoreFunction],
+    [getFlowEmbeddingEntity, getHandleConnections, getNode],
   )
 
   const invokeMessage = useCallback(
@@ -288,7 +292,8 @@ export const useCreateMessage = ({
       const schemaEntities = schemas
         .map((schemaNode) => schemaNode.node.data?.entity as Schema)
         .filter(Boolean) as Schema[]
-      const response = await stream(llmEntity.provider, messages, {
+      await confirmPassphrase()
+      const response = await llmHandler.stream(llmEntity.provider, messages, {
         tools: toLocalLLMToolCallingInput(tools),
         schemas: schemaEntities,
         llm: llmEntity,
@@ -325,7 +330,7 @@ export const useCreateMessage = ({
       }
       return response?.content
     },
-    [handlePlaceholders, stream],
+    [handlePlaceholders, confirmPassphrase],
   )
 
   const createMessage = useCallback(

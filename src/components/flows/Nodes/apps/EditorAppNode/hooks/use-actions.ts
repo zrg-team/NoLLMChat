@@ -6,7 +6,8 @@ import { useToast } from 'src/lib/hooks/use-toast'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
 import { DefaultNode } from 'src/utils/flow-node'
-import { useLLM } from 'src/hooks/mutations/use-llm'
+import { llmHandler } from 'src/handlers'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 
 export const useActions = (id: string) => {
   const node = useInternalNode(id)
@@ -14,7 +15,7 @@ export const useActions = (id: string) => {
   const refDebounce = useRef<number | null>(null)
   const { toast } = useToast()
   const { getNode, getHandleConnections } = useReactFlow()
-  const { stream } = useLLM()
+  const { confirmPassphrase } = useConfirmPassphrase()
 
   const updateEditorContent = useCallback(
     async (value: unknown[]) => {
@@ -54,7 +55,8 @@ export const useActions = (id: string) => {
           })
         }
         try {
-          const streamResponse = await stream(
+          await confirmPassphrase()
+          const streamResponse = await llmHandler.stream(
             llm.provider,
             typeof input === 'string' ? [new HumanMessage(input)] : input,
             {
@@ -78,7 +80,7 @@ export const useActions = (id: string) => {
         }
       }
     },
-    [node, getHandleConnections, id, getNode, toast, t, stream],
+    [node, getHandleConnections, id, getNode, toast, t],
   )
 
   const getLinkedConnections = useCallback(

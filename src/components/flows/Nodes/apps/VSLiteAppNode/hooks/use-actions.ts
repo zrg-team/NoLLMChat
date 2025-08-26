@@ -8,7 +8,8 @@ import { FlowNodeTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
 import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
-import { useLLM } from 'src/hooks/mutations/use-llm'
+import { llmHandler } from 'src/handlers'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 
 type CreateMessageOption = {
   onMessageUpdate?: (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => void
@@ -16,7 +17,7 @@ type CreateMessageOption = {
 }
 export const useActions = () => {
   const { getNode, getHandleConnections } = useReactFlow()
-  const { stream } = useLLM()
+  const { confirmPassphrase } = useConfirmPassphrase()
 
   const updateCodeContainerData = useCallback(async (id: string, data: FileSystemTree) => {
     await getRepository('FlowNode').update(id, {
@@ -72,7 +73,8 @@ export const useActions = () => {
 
       onResponseMessageCreate?.()
 
-      const response = await stream(
+      await confirmPassphrase()
+      const response = await llmHandler.stream(
         LLMProviderEnum.WebLLM,
         [...formatedMessages, new HumanMessage(message)],
         {

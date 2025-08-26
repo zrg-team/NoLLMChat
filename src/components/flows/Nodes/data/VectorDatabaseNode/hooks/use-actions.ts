@@ -15,8 +15,9 @@ import {
 } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 import { getStorageDataSource } from 'src/utils/vector-storage'
-import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { embeddingHandler } from 'src/handlers/embedding-handler'
 import { useFlowEmbeddingNode } from 'src/hooks/flows/use-flow-embedding-node'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 
 export const useActions = (id: string) => {
   const [loading, setLoading] = useState(false)
@@ -26,8 +27,7 @@ export const useActions = (id: string) => {
   const { getNode, getHandleConnections } = useReactFlow()
   const updateNodes = useFlowState((state) => state.updateNodes)
   const { getFlowEmbeddingEntity } = useFlowEmbeddingNode()
-  const { index: indexFunction, similaritySearchWithScore: similaritySearchWithScoreFunction } =
-    useEmbedding()
+  const { confirmPassphrase } = useConfirmPassphrase()
   const similaritySearchWithScore = useCallback(
     async (input: string, options?: { k?: number }) => {
       try {
@@ -67,7 +67,8 @@ export const useActions = (id: string) => {
             return
           }
           setLoading(true)
-          const result = await similaritySearchWithScoreFunction(
+          await confirmPassphrase()
+          const result = await embeddingHandler.similaritySearchWithScore(
             embbedingEntity,
             {
               database: {
@@ -82,7 +83,8 @@ export const useActions = (id: string) => {
           return result
         } else {
           setLoading(true)
-          const result = await similaritySearchWithScoreFunction(
+          await confirmPassphrase()
+          const result = await embeddingHandler.similaritySearchWithScore(
             embbedingEntity,
             {
               database: {
@@ -103,15 +105,7 @@ export const useActions = (id: string) => {
         setLoading(false)
       }
     },
-    [
-      getNode,
-      id,
-      getFlowEmbeddingEntity,
-      toast,
-      t,
-      getHandleConnections,
-      similaritySearchWithScoreFunction,
-    ],
+    [getNode, id, getFlowEmbeddingEntity, toast, t, getHandleConnections, confirmPassphrase],
   )
 
   const indexData = useCallback(
@@ -192,7 +186,8 @@ export const useActions = (id: string) => {
               handled: handledCount,
               total: documents.length,
             })
-            await indexFunction(
+            await confirmPassphrase()
+            await embeddingHandler.index(
               embbedingEntity,
               {
                 database: {
@@ -234,7 +229,8 @@ export const useActions = (id: string) => {
               handled: handledCount,
               total: documents.length,
             })
-            await indexFunction(
+            await confirmPassphrase()
+            await embeddingHandler.index(
               embbedingEntity,
               {
                 database: {
@@ -278,8 +274,8 @@ export const useActions = (id: string) => {
       toast,
       t,
       getHandleConnections,
-      indexFunction,
       updateNodes,
+      confirmPassphrase,
     ],
   )
 

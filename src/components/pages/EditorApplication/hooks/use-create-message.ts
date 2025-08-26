@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { getRepository } from 'src/services/database'
 import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
-import { useLLM } from 'src/hooks/mutations/use-llm'
+import { llmHandler } from 'src/handlers'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import { useLoadModel } from 'src/hooks/mutations/use-load-model'
 import { passphraseConfirm } from 'src/utils/passphrase'
 import SessionPassphraseDialog from 'src/components/dialogs/SessionPassphraseDialog'
@@ -21,7 +22,7 @@ export const useCreateMessage = () => {
   const currentSession = useSessionState((state) => state.currentSession)
   const { t } = useTranslation('flows')
   const { toast } = useToast()
-  const { stream } = useLLM()
+  const { confirmPassphrase } = useConfirmPassphrase()
   const { loadModel } = useLoadModel()
   const { modalRef: sessionPassphraseDialogRef } = useModalRef(SessionPassphraseDialog)
 
@@ -45,7 +46,7 @@ export const useCreateMessage = () => {
           setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
         }
         try {
-          const streamResponse = await stream(
+          const streamResponse = await llmHandler.stream(
             mainLLMInfo?.llm.provider,
             typeof input === 'string' ? [new HumanMessage(input)] : input,
             {
@@ -53,6 +54,7 @@ export const useCreateMessage = () => {
                 onMessageUpdate?.(data.content)
               },
               llm: mainLLMInfo?.llm,
+              confirmPassphrase,
             },
           )
           return streamResponse?.content

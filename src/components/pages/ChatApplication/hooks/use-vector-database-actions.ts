@@ -2,8 +2,9 @@ import { Document } from '@langchain/core/documents'
 import chunk from 'lodash/chunk'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useEmbedding } from 'src/hooks/mutations/use-embedding'
+import { embeddingHandler } from 'src/handlers/embedding-handler'
 import { useToast } from 'src/lib/hooks/use-toast'
+import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import type { VectorDatabase } from 'src/services/database/types'
 import { VectorDatabaseStorageEnum } from 'src/services/database/types'
 import { useChatApplicationData } from './use-chat-application-data'
@@ -14,9 +15,8 @@ export const useVectorDatabaseActions = (
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation('flows')
   const { toast } = useToast()
+  const { confirmPassphrase } = useConfirmPassphrase()
 
-  const { index: indexFunction, similaritySearchWithScore: similaritySearchWithScoreFunction } =
-    useEmbedding()
   const similaritySearchWithScore = useCallback(
     async (input: string, options?: { k?: number; vectorDatabase: VectorDatabase }) => {
       try {
@@ -31,7 +31,8 @@ export const useVectorDatabaseActions = (
           throw new Error('DataNode storage is not supported for similarity search')
         } else {
           setLoading(true)
-          const result = await similaritySearchWithScoreFunction(
+          await confirmPassphrase()
+          const result = await embeddingHandler.similaritySearchWithScore(
             mainEmbeddingInfo?.embedding,
             {
               database: {
@@ -52,7 +53,7 @@ export const useVectorDatabaseActions = (
         setLoading(false)
       }
     },
-    [toast, t, similaritySearchWithScoreFunction, mainEmbeddingInfo?.embedding],
+    [toast, t, mainEmbeddingInfo?.embedding, confirmPassphrase],
   )
 
   const indexData = useCallback(
@@ -106,7 +107,8 @@ export const useVectorDatabaseActions = (
               handled: handledCount,
               total: documents.length,
             })
-            await indexFunction(
+            await confirmPassphrase()
+            await embeddingHandler.index(
               mainEmbeddingInfo?.embedding,
               {
                 database: {
@@ -127,7 +129,7 @@ export const useVectorDatabaseActions = (
         setLoading(false)
       }
     },
-    [toast, t, indexFunction, mainEmbeddingInfo?.embedding],
+    [toast, t, mainEmbeddingInfo?.embedding, confirmPassphrase],
   )
 
   return {

@@ -2,74 +2,36 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
-import { Node, Connection, useInternalNode, useReactFlow } from '@xyflow/react'
-import { useCreateMessage } from 'src/hooks/flows/mutations/use-create-message'
+import { Connection, Node, useInternalNode, useReactFlow } from '@xyflow/react'
+import { useFlowChat } from 'src/hooks/flows/mutations/use-flow-chat'
 import { toast } from 'src/lib/hooks/use-toast'
 import { useFlowState } from 'src/states/flow'
-import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
-import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
+import type { MessageNodeProps } from 'src/components/flows/Nodes/chat/MessageNode/type'
 import { DefaultNodeData } from 'src/utils/flow-node'
 
 import { ThreadNodeProps } from '../type'
+import { logError } from 'src/utils/logger'
+import { prepareThreadConnections } from 'src/utils/thread-conversation-traveling'
 
+/**
+ * FlowMachine-based actions for ThreadNode
+ *
+ * This is a NEW implementation that provides the same interface as the original use-actions.ts
+ * but uses FlowMachine for execution instead of manual thread conversation traveling
+ *
+ * To test: Replace the import in ThreadNode component:
+ * - FROM: import { useActions } from './hooks/use-actions'
+ * - TO: import { useActions } from './hooks/use-actions-flowmachine'
+ */
 export const useActions = (id: string, data: ThreadNodeProps['data']) => {
   const node = useInternalNode(id)
   const { t } = useTranslation('flows')
-  const { getNode, getHandleConnections } = useReactFlow<Node<DefaultNodeData>>()
+  const reactFlowInstance = useReactFlow<Node<DefaultNodeData>>()
   const updateNodes = useFlowState((state) => state.updateNodes)
-  const { createMessage: createMessageFunction, loading } = useCreateMessage({
-    getNode,
-    getHandleConnections,
-  })
 
-  const onMessageUpdate = useCallback(
-    (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => {
-      if (!info.id) {
-        return
-      }
-      const item = getNode(info.id)
-      if (!item || !info.nodeData) {
-        return
-      }
-      updateNodes([
-        {
-          id: item.id,
-          type: 'replace',
-          item: {
-            ...item,
-            data: {
-              ...item.data,
-              ...omitBy(info.nodeData, isUndefined),
-            },
-          },
-        },
-      ])
-    },
-    [getNode, updateNodes],
-  )
-  const createMessage = useCallback(
-    async (input: string) => {
-      if (node && data.entity) {
-        try {
-          await createMessageFunction(node, input, {
-            onMessageUpdate,
-          })
-        } catch (error) {
-          if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
-            return toast({
-              variant: 'destructive',
-              title: t('thread_node.errors.llm_not_loaded_yet'),
-            })
-          }
-          toast({
-            variant: 'destructive',
-            title: `${error}`,
-          })
-        }
-      }
-    },
-    [node, data.entity, createMessageFunction, onMessageUpdate, t],
-  )
+  // Use FlowMachine-based message creation
+  const { createMessage: createMessageFunction, loading } = useFlowChat(reactFlowInstance)
+  const { getNode, getHandleConnections } = reactFlowInstance
 
   const getLinkedConnections = useCallback(
     (id: string) => {
@@ -137,5 +99,61 @@ export const useActions = (id: string, data: ThreadNodeProps['data']) => {
     [getHandleConnections, getNode],
   )
 
-  return { loading, createMessage, getLinkedConnections }
+  const onMessageUpdate = useCallback(
+    (info: { id?: string; nodeData: Partial<MessageNodeProps['data']> }) => {
+      if (!info.id) {
+        return
+      }
+      const item = getNode(info.id)
+      if (!item || !info.nodeData) {
+        return
+      }
+      updateNodes([
+        {
+          id: item.id,
+          type: 'replace',
+          item: {
+            ...item,
+            data: {
+              ...item.data,
+              ...omitBy(info.nodeData, isUndefined),
+            },
+          },
+        },
+      ])
+    },
+    [getNode, updateNodes],
+  )
+
+  const createMessage = useCallback(
+    async (input: string) => {
+      if (node && data.entity) {
+        try {
+          await createMessageFunction(node as unknown as Node<DefaultNodeData>, input, {
+            onMessageUpdate,
+          })
+        } catch (error) {
+          logError('FlowMachine execution error:', error)
+
+          if (error instanceof Error && error.message.includes('LLM_NOT_LOADED_YET')) {
+            return toast({
+              variant: 'destructive',
+              title: t('thread_node.errors.llm_not_loaded_yet'),
+            })
+          }
+          toast({
+            variant: 'destructive',
+            title: `FlowMachine Error: ${error}`,
+          })
+        }
+      }
+    },
+    [node, data.entity, createMessageFunction, onMessageUpdate, t],
+  )
+
+  return {
+    loading,
+    getLinkedConnections,
+    createMessage,
+  }
 }
