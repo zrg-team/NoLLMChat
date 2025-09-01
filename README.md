@@ -277,7 +277,7 @@ For detailed technical documentation about the Flow Machine architecture, includ
 - **Execution Context**: Session state management
 - **Advanced Examples**: Complex workflow patterns
 
-👉 **[Read the Complete Flow Machine Documentation](./FlowMachine-Architecture.md)**
+👉 **[Read the Complete Flow Machine Documentation](./docs/FlowMachine-Architecture.md)**
 
 ---
 
@@ -348,6 +348,18 @@ Get up and running with NoLLM Chat in just a few steps:
 
 4. **Open in Browser**
    Visit `http://localhost:PORT` to start exploring AI workflows!
+
+### 🤖 **Local LLM Support**
+
+NoLLM Chat provides native browser-based language model inference without requiring external APIs:
+
+- **🌐 WebLLM**: High-performance inference using WebGPU/WebAssembly with MLC models
+- **⚡ Wllama**: Lightweight WASM-based inference with HuggingFace models  
+- **🔗 OpenAI-Compatible API**: Unified interface for both providers
+- **🎯 Structured Output**: JSON schema support and function calling (WebLLM)
+- **💻 Privacy-First**: All processing happens locally in your browser
+
+👉 **[Complete Local LLM Documentation](./docs/Local-LLM.md)**
 
 ### 🎯 **Quick Start Guide**
 1. **Explore the Demo**: Try the [live demo](https://nollm.netlify.app/NoLLMChat) first

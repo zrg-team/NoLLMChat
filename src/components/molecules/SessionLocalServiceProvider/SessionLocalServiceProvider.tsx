@@ -1,7 +1,7 @@
 import { FC, memo, PropsWithChildren, useEffect } from 'react'
 import { useLocalEmbeddingState } from 'src/services/local-embedding'
 import { useLocalLLMState } from 'src/services/local-llm'
-import { unload } from 'src/services/local-llm/wllama'
+import { unload } from 'src/services/wllama/wllama'
 
 export const SessionLocalServiceProvider: FC<PropsWithChildren> = memo(({ children }) => {
   const destroyLocalLLMState = useLocalLLMState((state) => state.destroy)
@@ -16,7 +16,7 @@ export const SessionLocalServiceProvider: FC<PropsWithChildren> = memo(({ childr
       destroyLocalLLMState()
       destroyLocalEmbeddingState()
       unload().catch(() => {
-        // eslint-disable-next-line no-console
+        // Cleanup failed, but we can continue
       })
     }
   }, [destroyLocalLLMState, destroyLocalEmbeddingState, initLocalLLM, initLocalEmbedding])

@@ -1,9 +1,16 @@
-import { AIMessage, BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
+import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import type { LLM, Schema, SchemaItem } from 'src/services/database/types'
 import { logWarn } from 'src/utils/logger'
-import { handleStream } from '../services/local-llm/utils/stream'
-import { useLocalLLMState } from '../services/local-llm/state'
-import { stream as wllamaStreamInner } from '../services/local-llm/wllama'
+import { webLLM, wllama, type ChatCompletionOptions } from '../services/local-llm'
+import { convertToZodSchema } from 'src/utils/schema-format'
+import { zodToJsonSchema } from 'zod-to-json-schema'
+
+/**
+ * Type guard to check if an object is async iterable
+ */
+function isAsyncIterable(obj: unknown): obj is AsyncIterable<unknown> {
+  return obj != null && typeof obj === 'object' && Symbol.asyncIterator in obj
+}
 
 type StreamType = {
   schemas?: Schema[]
@@ -21,10 +28,11 @@ type StreamType = {
  * Get current model info for a provider
  */
 const getCurrentModelInfo = async (provider: string) => {
-  const state = useLocalLLMState.getState()
   switch (provider) {
     case 'WebLLM':
-      return state.getCurrentModelInfo()
+      return await webLLM.getCurrentModel()
+    case 'Wllama':
+      return wllama.getCurrentModel()
     default:
       return undefined
   }
@@ -34,23 +42,22 @@ const getCurrentModelInfo = async (provider: string) => {
  * Unload model for a provider
  */
 const unLoadModel = async (provider: string) => {
-  const state = useLocalLLMState.getState()
   switch (provider) {
     case 'WebLLM':
-      return state.unLoadModel()
+      return await webLLM.unloadModel()
+    case 'Wllama':
+      return await wllama.unloadModel()
     default:
       return undefined
   }
 }
 
 /**
- * WebLLM stream handler
+ * WebLLM chat completion handler
  */
-const webLLMStream = async (messages: BaseMessage[], info?: StreamType) => {
+const webLLMChatCompletion = async (messages: BaseMessage[], info?: StreamType) => {
   const { tools, schemas, onMessageUpdate, onMessageFinish } = info || {}
-  const state = useLocalLLMState.getState()
 
-  let streamResponse: ReturnType<typeof state.stream> | ReturnType<typeof state.structuredStream>
   if (!info?.llm) {
     throw new Error('LLM is not found')
   }
@@ -60,32 +67,73 @@ const webLLMStream = async (messages: BaseMessage[], info?: StreamType) => {
     throw new Error('Model is not found')
   }
 
+  // Build OpenAI-compatible options
+  const options: ChatCompletionOptions = {
+    stream: true,
+  }
+
+  // Add response_format for structured output
   if (schemas?.length) {
     if (schemas && schemas?.length > 1) {
-      // Not supported
       logWarn('Multiple schemas are not supported. Only the first schema will be used.')
     }
-    streamResponse = state.structuredStream(schemas?.[0]?.schema_items || [], messages, {
-      provider: info?.llm?.provider,
-    })
-  } else if (tools?.length) {
-    streamResponse = state.toolsCallingStream(tools, messages, {
-      provider: info?.llm?.provider,
-    })
-  } else {
-    streamResponse = state.stream(messages, {
-      provider: info?.llm?.provider,
+    const schemaItems = schemas?.[0]?.schema_items || []
+    const zodSchema = convertToZodSchema(schemaItems)
+    const jsonSchema = zodToJsonSchema(zodSchema, 'my').definitions?.my || {}
+    options.response_format = {
+      type: 'json_object',
+      schema: jsonSchema,
+    }
+  }
+
+  // Add tools for function calling
+  if (tools?.length) {
+    options.tools = tools.map((tool) => {
+      const zodSchema = convertToZodSchema(tool.schemaItems)
+      const jsonSchema = zodToJsonSchema(zodSchema, 'my').definitions?.my || {}
+      return {
+        type: 'function',
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: jsonSchema,
+        },
+      }
     })
   }
+
+  const streamResponse = await webLLM.chatCompletion(messages, options)
 
   if (!streamResponse) {
-    throw new Error('Stream is not supported')
+    throw new Error('Chat completion is not supported')
   }
 
-  const { lastChunk, content } = await handleStream(streamResponse, onMessageUpdate)
+  // Handle streaming response
+  let content = ''
+  let lastChunk: BaseMessageChunk | BaseMessage | unknown
+
+  if (streamResponse && isAsyncIterable(streamResponse)) {
+    for await (const chunk of streamResponse as AsyncIterable<{
+      content?: string
+      chunk?: unknown
+    }>) {
+      content += chunk.content || ''
+      lastChunk = chunk.chunk || chunk
+      onMessageUpdate?.({
+        content,
+        chunk: lastChunk as BaseMessageChunk | BaseMessage,
+      })
+    }
+  } else {
+    // Non-streaming response
+    const response = streamResponse as { content?: string }
+    content = response.content || ''
+    lastChunk = response
+  }
+
   onMessageFinish?.({
     content,
-    lastChunk,
+    lastChunk: lastChunk as BaseMessageChunk | BaseMessage,
   })
   return {
     lastChunk,
@@ -94,12 +142,11 @@ const webLLMStream = async (messages: BaseMessage[], info?: StreamType) => {
 }
 
 /**
- * Wllama stream handler
+ * Wllama chat completion handler
  */
-const wllamaStream = async (messages: BaseMessage[], info?: StreamType) => {
-  let content = ''
-  let lastChunk: BaseMessage | undefined
+const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) => {
   const { tools, schemas, onMessageUpdate, onMessageFinish } = info || {}
+
   if (!info?.llm) {
     throw new Error('LLM is not found')
   }
@@ -109,30 +156,55 @@ const wllamaStream = async (messages: BaseMessage[], info?: StreamType) => {
     await unLoadModel(info?.llm?.provider)
   }
 
+  // Build OpenAI-compatible options
+  const options: ChatCompletionOptions = {
+    stream: true,
+  }
+
+  // Check for unsupported features
   if (schemas?.length) {
     if (schemas && schemas?.length > 1) {
-      // Not supported
       logWarn('Multiple schemas are not supported. Only the first schema will be used.')
     }
-    throw new Error('Structured stream is not supported')
-  } else if (tools?.length) {
-    throw new Error('Tools calling stream is not supported')
+    throw new Error('Structured output is not supported in Wllama yet')
+  }
+
+  if (tools?.length) {
+    throw new Error('Function calling is not supported in Wllama yet')
+  }
+
+  const streamResponse = await wllama.chatCompletion(messages, options)
+
+  if (!streamResponse) {
+    throw new Error('Chat completion is not supported')
+  }
+
+  // Handle streaming response
+  let content = ''
+  let lastChunk: BaseMessageChunk | BaseMessage | unknown
+
+  if (streamResponse && isAsyncIterable(streamResponse)) {
+    for await (const chunk of streamResponse as AsyncIterable<{
+      content?: string
+      chunk?: unknown
+    }>) {
+      content += chunk.content || ''
+      lastChunk = chunk.chunk || chunk
+      onMessageUpdate?.({
+        content,
+        chunk: lastChunk as BaseMessageChunk | BaseMessage,
+      })
+    }
   } else {
-    const response = await wllamaStreamInner(messages, {
-      onNewToken: (_token, _piece, newToken) => {
-        content += newToken
-        onMessageUpdate?.({
-          content: content,
-          chunk: new AIMessage(newToken),
-        })
-      },
-    })
-    content = `${response.content}`
+    // Non-streaming response
+    const response = streamResponse as { content?: string }
+    content = response.content || ''
     lastChunk = response
   }
+
   onMessageFinish?.({
     content,
-    lastChunk,
+    lastChunk: lastChunk as BaseMessageChunk | BaseMessage,
   })
   return {
     lastChunk,
@@ -144,14 +216,19 @@ const wllamaStream = async (messages: BaseMessage[], info?: StreamType) => {
  * Non-hook version of local LLM handler that can be called anywhere
  */
 export const localLLMHandler = {
-  async stream(messages: BaseMessage[], info?: StreamType) {
+  async chatCompletion(messages: BaseMessage[], info?: StreamType) {
     switch (info?.llm?.provider) {
       case 'WebLLM':
-        return webLLMStream(messages, info)
+        return webLLMChatCompletion(messages, info)
       case 'Wllama':
-        return wllamaStream(messages, info)
+        return wllamaChatCompletion(messages, info)
       default:
         throw new Error('Local LLM provider is not supported')
     }
+  },
+
+  // Legacy stream method for backward compatibility
+  async stream(messages: BaseMessage[], info?: StreamType) {
+    return this.chatCompletion(messages, info)
   },
 }
