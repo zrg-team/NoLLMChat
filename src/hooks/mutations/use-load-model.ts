@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { LLMProviderEnum } from 'src/services/database/types'
 import { useLocalLLMState } from 'src/services/local-llm'
-import { loadModelFromHF } from 'src/services/local-llm/wllama'
+import { loadModelFromHF } from 'src/services/wllama/wllama'
 
 export const useLoadModel = () => {
   const loadModel = useLocalLLMState((state) => state.loadModel)

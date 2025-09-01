@@ -4,20 +4,20 @@ import { sendToWorker, workerMessagesHandler } from 'src/utils/worker-base'
 import { ChatWebLLM } from '@langchain/community/chat_models/webllm'
 import type { InitProgressReport } from '@mlc-ai/web-llm'
 import { nanoid } from 'nanoid'
-import { parseLLMInputToBridgeJSON } from 'src/services/local-llm'
-import { LLMProviderEnum, SchemaItem } from 'src/services/database/types'
-import { fakeStreaming } from 'src/services/local-llm/utils/fake-streaming'
+import { parseLLMInputToBridgeJSON } from '../utils/serialize'
+import { LLMProviderEnum } from 'src/services/database/types'
+import { fakeStreaming } from '../utils/fake-streaming'
 import { getEmptyPromise } from 'src/utils/promise'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { logWarn } from 'src/utils/logger'
 
-import { LocalLLMState } from './state'
-import { getLocalLLMWorker } from '../worker'
+import { WebLLMState } from './state'
+import { getWebLLMWorker } from '../worker'
 
-export interface LocalLLMStateActions {
+export interface WebLLMStateActions {
   init: () => void
   destroy: () => void
-  setInitializing: (initializing: Partial<LocalLLMState['initializing']>) => void
+  setInitializing: (initializing: Partial<WebLLMState['initializing']>) => void
   setSelectedModel: (selectedModel: string) => void
   setInitProgressCallback: (callback: (initProgress: InitProgressReport) => void) => () => void
   loadModel: (
@@ -28,28 +28,27 @@ export interface LocalLLMStateActions {
     },
   ) => Promise<void>
   unLoadModel: () => void
-  invoke: (
-    input: Parameters<ChatWebLLM['invoke']>[0],
-    options: Parameters<ChatWebLLM['invoke']>[1] & { provider: `${LLMProviderEnum}` },
-  ) => ReturnType<ChatWebLLM['invoke']>
-  stream: (
-    input: Parameters<ChatWebLLM['stream']>[0],
-    options: Parameters<ChatWebLLM['stream']>[1] & { provider: `${LLMProviderEnum}` },
-  ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
-  structuredStream: (
-    schemaItems: SchemaItem[],
-    input: Parameters<ChatWebLLM['stream']>[0],
-    options: Parameters<ChatWebLLM['stream']>[1] & { provider: `${LLMProviderEnum}` },
-  ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
-  toolsCallingStream: (
-    tools: {
-      name: string
-      description: string
-      schemaItems: SchemaItem[]
-    }[],
-    input: Parameters<ChatWebLLM['stream']>[0],
-    options: Parameters<ChatWebLLM['stream']>[1] & { provider: `${LLMProviderEnum}` },
-  ) => AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
+  chatCompletion: (
+    messages: Parameters<ChatWebLLM['stream']>[0],
+    options: Parameters<ChatWebLLM['stream']>[1] & {
+      provider: `${LLMProviderEnum}`
+      stream?: boolean
+      response_format?: {
+        type: 'json_object'
+        schema: Record<string, unknown>
+      }
+      tools?: {
+        type: 'function'
+        function: {
+          name: string
+          description: string
+          parameters: Record<string, unknown>
+        }
+      }[]
+    },
+  ) =>
+    | AsyncGenerator<Awaited<ReturnType<BaseChatModel['stream']>>>
+    | ReturnType<ChatWebLLM['invoke']>
   getCurrentModelInfo: () => Promise<{
     model: string
     chatOptions: ChatWebLLM['chatOptions']
@@ -58,11 +57,11 @@ export interface LocalLLMStateActions {
   syncCachedLLMURLs: () => Promise<string[]>
 }
 
-const getHandleMessages = (get: GetState<LocalLLMState>, set: SetState<LocalLLMState>) => {
+const getHandleMessages = (get: GetState<WebLLMState>, set: SetState<WebLLMState>) => {
   return (event: MessageEvent<{ messageId: string; type: string; payload: unknown }>) => {
     workerMessagesHandler<
       { messageId: string; type: string; payload: unknown },
-      LocalLLMState['refProcesses']
+      WebLLMState['refProcesses']
     >(event, get().refProcesses, {
       onWorkerInit: () => set({ ready: true }),
     })
@@ -73,7 +72,7 @@ async function load(
   options: {
     messageId: string
     worker?: Worker
-    refProcesses: LocalLLMState['refProcesses']
+    refProcesses: WebLLMState['refProcesses']
   },
   ...args: ConstructorParameters<typeof ChatWebLLM>
 ) {
@@ -103,10 +102,10 @@ async function load(
   )
 }
 
-export const getLocalLLMStateActions = (
-  set: SetState<LocalLLMState>,
-  get: GetState<LocalLLMState>,
-): LocalLLMStateActions => {
+export const getWebLLMStateActions = (
+  set: SetState<WebLLMState>,
+  get: GetState<WebLLMState>,
+): WebLLMStateActions => {
   return {
     setInitializing: (initializing) => {
       const currentInitializing = get().initializing
@@ -141,7 +140,7 @@ export const getLocalLLMStateActions = (
           }
           worker.terminate()
         }
-        const newWorker = getLocalLLMWorker()
+        const newWorker = getWebLLMWorker()
         const handler = getHandleMessages(get, set)
         newWorker.addEventListener('message', handler)
         set({ handler, worker: newWorker })
@@ -235,61 +234,43 @@ export const getLocalLLMStateActions = (
         })
       }
     },
-    invoke: (...args) => {
+    chatCompletion: (messages, options) => {
       const refProcesses = get().refProcesses
       const worker = get().worker
       if (!worker) {
         throw new Error('Worker not initialized')
       }
       const messageId = nanoid()
-      const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'invoke', messageId, args)
-      })
-      refProcesses.set(messageId, {
-        promise: promiseInfo.promise,
-        resolve: promiseInfo.resolve,
-        reject: promiseInfo.reject,
-        processInfo: { type: 'invoke', data: [], lastIndex: 0 },
-      })
-      return promiseInfo.promise as ReturnType<ChatWebLLM['invoke']>
-    },
-    stream: (...args) => {
-      const refProcesses = get().refProcesses
-      const worker = get().worker
-      if (!worker) {
-        throw new Error('Worker not initialized')
+      const { provider, stream = true, response_format, tools, ...rest } = options
+
+      // Determine operation type based on parameters
+      let operationType: string
+      let payload: unknown[]
+
+      if (response_format?.type === 'json_object') {
+        operationType = 'structured-stream'
+        payload = [
+          response_format.schema,
+          parseLLMInputToBridgeJSON(messages),
+          { provider, ...rest },
+        ]
+      } else if (tools?.length) {
+        operationType = 'tools-calling-stream'
+        const processedTools = tools.map((tool) => ({
+          name: tool.function.name,
+          description: tool.function.description,
+          schema: tool.function.parameters,
+        }))
+        payload = [processedTools, parseLLMInputToBridgeJSON(messages), { provider, ...rest }]
+      } else {
+        operationType = stream ? 'stream' : 'invoke'
+        payload = stream
+          ? [parseLLMInputToBridgeJSON(messages), { provider, ...rest }]
+          : [parseLLMInputToBridgeJSON(messages), { provider, ...rest }]
       }
-      const messageId = nanoid()
-      const [input, ...rest] = args
 
       const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'stream', messageId, [parseLLMInputToBridgeJSON(input), ...rest])
-      })
-      refProcesses.set(messageId, {
-        promise: promiseInfo.promise,
-        resolve: promiseInfo.resolve,
-        reject: promiseInfo.reject,
-        processInfo: { type: 'invoke', data: [], lastIndex: 0 },
-      })
-      const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
-
-      return fakeStreaming(promise, messageId, refProcesses)
-    },
-    structuredStream: (schemaItems, ...args) => {
-      const refProcesses = get().refProcesses
-      const worker = get().worker
-      if (!worker) {
-        throw new Error('Worker not initialized')
-      }
-      const messageId = nanoid()
-      const [input, ...rest] = args
-
-      const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'structured-stream', messageId, [
-          schemaItems,
-          parseLLMInputToBridgeJSON(input),
-          ...rest,
-        ])
+        sendToWorker(worker, operationType, messageId, payload)
       })
       refProcesses.set(messageId, {
         promise: promiseInfo.promise,
@@ -298,36 +279,12 @@ export const getLocalLLMStateActions = (
         processInfo: { type: 'invoke', data: [], lastIndex: 0 },
       })
 
-      const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
-
-      return fakeStreaming(promise, messageId, refProcesses)
-    },
-    toolsCallingStream: (tools, ...args) => {
-      const refProcesses = get().refProcesses
-      const worker = get().worker
-      if (!worker) {
-        throw new Error('Worker not initialized')
+      if (stream) {
+        const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
+        return fakeStreaming(promise, messageId, refProcesses)
+      } else {
+        return promiseInfo.promise as ReturnType<ChatWebLLM['invoke']>
       }
-      const messageId = nanoid()
-      const [input, ...rest] = args
-
-      const promiseInfo = getEmptyPromise(() => {
-        sendToWorker(worker, 'tools-calling-stream', messageId, [
-          tools,
-          parseLLMInputToBridgeJSON(input),
-          ...rest,
-        ])
-      })
-      refProcesses.set(messageId, {
-        promise: promiseInfo.promise,
-        resolve: promiseInfo.resolve,
-        reject: promiseInfo.reject,
-        processInfo: { type: 'invoke', data: [], lastIndex: 0 },
-      })
-
-      const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
-
-      return fakeStreaming(promise, messageId, refProcesses)
     },
     getCurrentModelInfo: async () => {
       const refProcesses = get().refProcesses

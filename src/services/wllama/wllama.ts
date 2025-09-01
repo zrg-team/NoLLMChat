@@ -6,8 +6,8 @@ import wllamaSingle from '@wllama/wllama/src/single-thread/wllama.wasm?url'
 import wllamaMulti from '@wllama/wllama/src/multi-thread/wllama.wasm?url'
 import { logDebug, logError, logInfo, logWarn } from 'src/utils/logger'
 
-import { parseBridgeJSONToLLMInput } from './utils/wllama-serialize'
-import type { LLMProviderEnum } from '../database/types'
+import { parseBridgeJSONToLLMInput } from './wllama-serialize'
+import type { LLMProviderEnum } from 'src/services/database/types'
 
 export const WLLAMA_CONFIG_PATHS = {
   'single-thread/wllama.wasm': wllamaSingle,

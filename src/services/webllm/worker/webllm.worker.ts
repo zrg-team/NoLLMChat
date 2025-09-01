@@ -9,13 +9,9 @@ import {
 } from '@mlc-ai/web-llm'
 import { sendToMainThread } from 'src/utils/worker-base'
 import { AIMessage, BaseMessage } from '@langchain/core/messages'
-import { convertToJSON, convertToZodSchema } from 'src/utils/schema-format'
 import { safeParseJSON } from 'src/utils/json'
 
-import {
-  convertToChatCompletionTool,
-  manualFunctionCalling,
-} from '../utils/manual-function-calling'
+import { manualFunctionCalling } from '../utils/manual-function-calling'
 import { parseBridgeJSONToLLMInput, parseBridgeJSONToWebLLMInput } from '../utils/serialize'
 import { manualStructuredResponse } from '../utils/manual-structured-response'
 import { JSON_MODE, MessagePayload } from './type'
@@ -92,14 +88,12 @@ export async function handleWebLLM(data: MessagePayload) {
           zodToJsonSchema(toolcallSchema, 'my').definitions?.my,
         )
         const tools: Array<ChatCompletionTool> = toolJSON.map((item) => {
-          const zodSchema = convertToZodSchema(item.schemaItems)
-          const schema = zodToJsonSchema(zodSchema, 'my').definitions?.my
           return {
             type: 'function',
             function: {
               name: item.name,
               description: item.description,
-              parameters: schema,
+              parameters: item.schema,
             },
           }
         })
@@ -153,7 +147,14 @@ export async function handleWebLLM(data: MessagePayload) {
         })
       } else {
         const tools: Array<ChatCompletionTool> = toolJSON.map((item) => {
-          return convertToChatCompletionTool(item.name, item.description, item.schemaItems)
+          return {
+            type: 'function',
+            function: {
+              name: item.name,
+              description: item.description,
+              parameters: item.schema,
+            },
+          }
         })
 
         const messages = parseBridgeJSONToWebLLMInput(input)
@@ -175,17 +176,15 @@ export async function handleWebLLM(data: MessagePayload) {
         throw new Error('Model is not available')
       }
       // Lanchain not yet supported structured response for WebLLM
-      const [json, input] = data.payload
+      const [jsonSchema, input] = data.payload
       if (JSON_MODE.STRUCTURED_STREAM) {
         let content = ''
-        const zodSchema = convertToZodSchema(json)
-        const schema = zodToJsonSchema(zodSchema, 'my').definitions?.my
         const request: ChatCompletionRequest = {
           stream: true,
           messages: parseBridgeJSONToWebLLMInput(input),
           response_format: {
             type: 'json_object',
-            schema: JSON.stringify(schema),
+            schema: JSON.stringify(jsonSchema),
           } as ResponseFormat,
         }
 
@@ -204,7 +203,7 @@ export async function handleWebLLM(data: MessagePayload) {
         const content = await manualStructuredResponse({
           engine,
           messages: parseBridgeJSONToWebLLMInput(input),
-          format: convertToJSON(json),
+          format: JSON.stringify(jsonSchema),
           stream: true,
           onChunk: (chunk: BaseMessage) => {
             sendToMainThread(data.messageId, 'inprogress', chunk)

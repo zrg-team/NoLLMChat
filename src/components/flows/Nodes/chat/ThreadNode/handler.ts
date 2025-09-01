@@ -73,12 +73,8 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
       messageChain.push(new HumanMessage(userInput))
     }
 
-    console.log('messageChain', messageChain)
-
     // Reorder messages all system message must be merged and on top
     const reorderedMessages = this.reorderMessages(messageChain)
-
-    console.log('reorderedMessages', reorderedMessages)
 
     // Execute LLM chat with collected state
     const response = await this.executeLLMChat(llmInfo, reorderedMessages, schemas, context)

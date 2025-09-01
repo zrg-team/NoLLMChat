@@ -6,7 +6,7 @@ type ProcessResolveType =
   | ((value: BaseMessageChunk | PromiseLike<BaseMessageChunk>) => void)
   | ((value: Awaited<ReturnType<ChatWebLLM['stream']>>) => void)
 
-export interface LocalLLMState {
+export interface WebLLMState {
   ready: boolean
   initializing: { worker: boolean; init: boolean; loading: boolean }
   cachedLLMURLs: string[]
@@ -32,7 +32,7 @@ export interface LocalLLMState {
   worker?: Worker
 }
 
-export const defaultLocalLLMState: LocalLLMState = {
+export const defaultWebLLMState: WebLLMState = {
   cachedLLMURLs: [],
   ready: false,
   initializing: { worker: true, init: true, loading: false },

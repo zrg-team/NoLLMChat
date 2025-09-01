@@ -1,5 +1,4 @@
 import type { ChatWebLLM } from '@langchain/community/chat_models/webllm'
-import type { SchemaItem } from 'src/services/database/types'
 import type { BaseMessagePayload } from 'src/utils/worker-base'
 
 export const JSON_MODE = {
@@ -30,12 +29,12 @@ export type MessagePayload = (
     }
   | {
       type: 'structured-stream'
-      payload: [SchemaItem[], ...Parameters<ChatWebLLM['stream']>]
+      payload: [Record<string, unknown>, ...Parameters<ChatWebLLM['stream']>]
     }
   | {
       type: 'tools-calling-stream'
       payload: [
-        { name: string; description: string; schemaItems: SchemaItem[] }[],
+        { name: string; description: string; schema: Record<string, unknown> }[],
         ...Parameters<ChatWebLLM['stream']>,
       ]
     }
