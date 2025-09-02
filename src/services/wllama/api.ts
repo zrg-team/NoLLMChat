@@ -72,21 +72,51 @@ class WllamaAPIImpl implements WllamaAPI {
   private async *streamResponse(
     messages: BaseMessage[],
   ): AsyncGenerator<ChatCompletionStreamChunk> {
-    let content = ''
+    let fullContent = ''
+    const newChunks: { content: string; chunk: AIMessage }[] = []
+    let resolve: (() => void) | null = null
 
-    await wllamaStreamInner(messages, {
-      onNewToken: async (_token, _piece, newToken) => {
-        content += newToken
-        // Note: This is a simplified implementation
-        // In a real streaming scenario, we'd need to properly handle the async nature
+    // Stream tokens in real-time
+    const promise = wllamaStreamInner(messages, {
+      onNewToken: (_token, _piece, newToken) => {
+        fullContent += newToken
+        newChunks.push({
+          content: fullContent,
+          chunk: new AIMessage(newToken), // Send only the new token as chunk
+        })
+        // Trigger the next chunk to be yielded
+        if (resolve) {
+          resolve()
+          resolve = null
+        }
       },
     })
 
-    // For now, yield the accumulated content
-    // TODO: Implement proper streaming with real-time token emission
-    yield {
-      content,
-      chunk: new AIMessage(content),
+    let chunkIndex = 0
+
+    // Yield chunks as they become available
+    while (true) {
+      if (chunkIndex < newChunks.length) {
+        yield newChunks[chunkIndex]
+        chunkIndex++
+      } else {
+        // Wait for more chunks or completion
+        const isComplete = await Promise.race([
+          promise.then(() => true),
+          new Promise<boolean>((res) => {
+            resolve = () => res(false)
+          }),
+        ])
+
+        if (isComplete) {
+          // Yield any remaining chunks
+          while (chunkIndex < newChunks.length) {
+            yield newChunks[chunkIndex]
+            chunkIndex++
+          }
+          break
+        }
+      }
     }
   }
 }

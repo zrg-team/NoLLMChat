@@ -1,13 +1,19 @@
 import { useCallback, useState } from 'react'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { MessageNodeProps } from 'src/components/flows/Nodes/chat/MessageNode/type'
-import { FlowNodePlaceholderTypeEnum, LLMStatusEnum, Schema } from 'src/services/database/types'
+import {
+  FlowNodePlaceholderTypeEnum,
+  LLMStatusEnum,
+  Schema,
+  SchemaItem,
+} from 'src/services/database/types'
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
 import { llmHandler } from 'src/handlers'
 import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 import { useChatApplicationData } from './use-chat-application-data'
 import { embeddingHandler } from 'src/handlers/embedding-handler'
+import { OpenAISchema, OpenAISchemaProperty } from 'src/types/openai'
 
 type CreateMessageOption = {
   schema?: Schema
@@ -15,6 +21,82 @@ type CreateMessageOption = {
   onResponseMessageCreate: (message?: string) => void
   onInjectedMessages: (messages: BaseMessage[]) => void
 }
+// Convert database Schema to OpenAI format
+const convertSchemaToOpenAI = (schema: Schema): OpenAISchema => {
+  const properties: Record<string, OpenAISchemaProperty> = {}
+  const required: string[] = []
+
+  // Parse schema items into properties
+  if (schema.schema_items && schema.schema_items.length > 0) {
+    schema.schema_items.forEach((item) => {
+      if (item.name) {
+        const property = convertSchemaItemToProperty(item)
+        properties[item.name] = property
+
+        if (item.required) {
+          required.push(item.name)
+        }
+      }
+    })
+  }
+
+  return {
+    name: schema.name,
+    schema: {
+      type: 'object',
+      properties,
+      ...(required.length > 0 && { required }),
+      additionalProperties: false,
+    },
+  }
+}
+
+// Convert individual SchemaItem to OpenAI property format
+const convertSchemaItemToProperty = (item: SchemaItem): OpenAISchemaProperty => {
+  const property: OpenAISchemaProperty = {
+    type: item.type.toLowerCase(),
+  }
+
+  if (item.description) {
+    property.description = item.description
+  }
+
+  if (item.enum) {
+    try {
+      property.enum = JSON.parse(item.enum)
+    } catch {
+      // If enum is not valid JSON, treat as comma-separated values
+      property.enum = item.enum.split(',').map((v) => v.trim())
+    }
+  }
+
+  // Handle nested objects and arrays
+  if (item.type === 'object' && item.schemas && item.schemas.length > 0) {
+    property.properties = {}
+    const nestedRequired: string[] = []
+
+    item.schemas.forEach((nestedItem) => {
+      if (nestedItem.name && property.properties) {
+        property.properties[nestedItem.name] = convertSchemaItemToProperty(nestedItem)
+        if (nestedItem.required) {
+          nestedRequired.push(nestedItem.name)
+        }
+      }
+    })
+
+    if (nestedRequired.length > 0) {
+      property.required = nestedRequired
+    }
+  }
+
+  if (item.type === 'array' && item.schemas && item.schemas.length > 0) {
+    // For arrays, use the first schema item as the items definition
+    property.items = convertSchemaItemToProperty(item.schemas[0])
+  }
+
+  return property
+}
+
 export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApplicationData>) => {
   const [loading] = useState(false)
   const { confirmPassphrase } = useConfirmPassphrase()
@@ -132,7 +214,7 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
         chatApplicationData.mainLLMInfo.llm.provider,
         [...injectedMessages, ...formatedMessages],
         {
-          schemas: schema ? [schema] : undefined,
+          schemas: schema ? [convertSchemaToOpenAI(schema)] : undefined,
           llm: chatApplicationData.mainLLMInfo.llm,
           onMessageUpdate: ({ content }) => {
             onMessageUpdate?.({
@@ -147,10 +229,10 @@ export const useSendMessage = (chatApplicationData: ReturnType<typeof useChatApp
 
       onMessageUpdate?.({
         nodeData: {
-          content: response?.content,
+          content: typeof response === 'string' ? response : response?.content,
         },
       })
-      return response?.content
+      return typeof response === 'string' ? response : response?.content
     },
     [handlePlaceholders, confirmPassphrase, chatApplicationData.mainLLMInfo],
   )

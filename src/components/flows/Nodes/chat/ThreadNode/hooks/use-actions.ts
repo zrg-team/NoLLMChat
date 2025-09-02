@@ -19,9 +19,6 @@ import { prepareThreadConnections } from 'src/utils/thread-conversation-travelin
  * This is a NEW implementation that provides the same interface as the original use-actions.ts
  * but uses FlowMachine for execution instead of manual thread conversation traveling
  *
- * To test: Replace the import in ThreadNode component:
- * - FROM: import { useActions } from './hooks/use-actions'
- * - TO: import { useActions } from './hooks/use-actions-flowmachine'
  */
 export const useActions = (id: string, data: ThreadNodeProps['data']) => {
   const node = useInternalNode(id)

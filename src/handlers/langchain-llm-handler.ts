@@ -3,10 +3,10 @@ import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatGroq } from '@langchain/groq'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
-import { LLM, LLMProviderEnum, Schema, SchemaItem } from 'src/services/database/types'
+import { LLM, LLMProviderEnum } from 'src/services/database/types'
 import secureSession from 'src/utils/secure-session'
 import { decryptSymmetric } from 'src/utils/aes'
-import { convertToZodSchema } from 'src/utils/schema-format'
+import { OpenAISchema, OpenAPITool } from 'src/types/openai'
 
 const llmInvoke = async (
   model: BaseChatModel,
@@ -15,17 +15,16 @@ const llmInvoke = async (
     schemas,
     onMessageUpdate,
   }: {
-    schemas?: Schema[]
+    schemas?: OpenAISchema[]
     onMessageUpdate?: (data: { content: string; chunk?: BaseMessageChunk }) => void
   },
 ) => {
   let content = ''
   let lastChunk: BaseMessageChunk | undefined
   if (schemas?.length) {
-    const schemaItems = schemas
-      .filter((item) => item.schema_items?.length)
-      .flatMap((schema) => schema.schema_items) as SchemaItem[]
-    const structuredLLM = model.withStructuredOutput(convertToZodSchema(schemaItems))
+    // Convert OpenAI schema format to Langchain's expected format
+    const schema = schemas[0] // Use first schema for now
+    const structuredLLM = model.withStructuredOutput(schema.schema)
 
     const streamResponse = await structuredLLM.stream(messages)
 
@@ -55,12 +54,8 @@ export const langchainLLMHandler = {
   async stream(
     messages: BaseMessage[],
     info?: {
-      schemas?: Schema[]
-      tools?: {
-        name: string
-        description: string
-        schemaItems: SchemaItem[]
-      }[]
+      schemas?: OpenAISchema[]
+      tools?: OpenAPITool[]
       onMessageUpdate?: (data: { content: string; chunk?: BaseMessageChunk }) => void
       onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk }) => void
       provider?: `${LLMProviderEnum}`

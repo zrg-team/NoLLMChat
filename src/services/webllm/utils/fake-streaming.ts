@@ -20,20 +20,28 @@ export async function* fakeStreaming<
         'lastIndex' in processInfo &&
         Array.isArray(processInfo.data)
       ) {
-        const newData = options?.lastChunkOnly
-          ? processInfo.data[processInfo.data.length - 1]
-          : processInfo.data.slice(+`${processInfo.lastIndex}`)
-
-        if (newData && (!Array.isArray(newData) || newData?.length)) {
-          processInfo.lastIndex = options?.lastChunkOnly
-            ? processInfo.data.length - 1
-            : processInfo.data.length > 0
-              ? processInfo.data.length
-              : 0
-          yield newData
+        if (options?.lastChunkOnly) {
+          // Yield only the last chunk
+          const lastChunk = processInfo.data[processInfo.data.length - 1]
+          const currentIndex = +`${processInfo.lastIndex}`
+          if (lastChunk && currentIndex < processInfo.data.length - 1) {
+            processInfo.lastIndex = processInfo.data.length - 1
+            yield lastChunk
+          }
+        } else {
+          // Yield each new individual chunk
+          const currentIndex = +`${processInfo.lastIndex}`
+          const newChunks = processInfo.data.slice(currentIndex)
+          if (newChunks?.length) {
+            processInfo.lastIndex = processInfo.data.length
+            // Yield each chunk individually instead of as an array
+            for (const chunk of newChunks) {
+              yield chunk
+            }
+          }
         }
       }
-      await new Promise((resolve) => setTimeout(resolve, options?.interval || 150)) // Polling interval
+      await new Promise((resolve) => setTimeout(resolve, options?.interval || 50)) // Faster polling for real-time streaming
     } else {
       break
     }

@@ -176,7 +176,7 @@ export const getWebLLMStateActions = (
       }
       currentLoadModelMessageId = nanoid()
       set({
-        currentLoadModelMessageId: nanoid(),
+        currentLoadModelMessageId,
         selectedModel: modelName,
         initializing: { ...initializing, loading: true },
       })
@@ -281,7 +281,7 @@ export const getWebLLMStateActions = (
 
       if (stream) {
         const promise = promiseInfo.promise as ReturnType<ChatWebLLM['stream']>
-        return fakeStreaming(promise, messageId, refProcesses)
+        return fakeStreaming(promise, messageId, refProcesses, { interval: 50 })
       } else {
         return promiseInfo.promise as ReturnType<ChatWebLLM['invoke']>
       }

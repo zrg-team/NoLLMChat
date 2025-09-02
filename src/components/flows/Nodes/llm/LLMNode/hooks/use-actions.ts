@@ -8,7 +8,7 @@ import { In } from 'src/services/database/typeorm-wrapper'
 import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { logError } from 'src/utils/logger'
-import { useLoadModel } from 'src/hooks/mutations/use-load-model'
+import { llmHandler } from 'src/handlers/llm-handler'
 
 import { LLMNodeProps } from '../type'
 
@@ -18,7 +18,6 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
   const [loadingModel, setLoadingModel] = useState(false)
   const [queringThreads, setQueringThreads] = useState(false)
   const node = useInternalNode(id) as Node<LLMNodeProps['data']>
-  const { loadModel } = useLoadModel()
   const { createThread, loading: creatingThread } = useCreateThread()
 
   const updateNodes = useFlowState((state) => state.updateNodes)
@@ -51,7 +50,7 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
     try {
       setLoadingModel(true)
       if (data.entity && node) {
-        await loadModel?.(data.entity.provider, `${data.entity.name}`, {
+        await llmHandler.loadModel(data.entity.provider, `${data.entity.name}`, {
           provider: data.entity.provider,
           callback: (initProgress) => {
             node.data.status =
@@ -93,7 +92,7 @@ export const useActions = (id: string, data: LLMNodeProps['data']) => {
     } finally {
       setLoadingModel(false)
     }
-  }, [data.entity, getNodes, id, loadModel, node, queryThreadsFromModel, t, toast, updateNodes])
+  }, [data.entity, getNodes, id, node, queryThreadsFromModel, t, toast, updateNodes])
 
   const handleCreateThread = useCallback(async () => {
     if (data.entity && node) {

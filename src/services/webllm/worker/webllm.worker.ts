@@ -7,9 +7,10 @@ import {
   MLCEngine,
   ResponseFormat,
 } from '@mlc-ai/web-llm'
-import { sendToMainThread } from 'src/utils/worker-base'
+import { init, listenForMessages, sendToMainThread } from 'src/utils/worker-base'
 import { AIMessage, BaseMessage } from '@langchain/core/messages'
 import { safeParseJSON } from 'src/utils/json'
+import { logInfo } from 'src/utils/logger'
 
 import { manualFunctionCalling } from '../utils/manual-function-calling'
 import { parseBridgeJSONToLLMInput, parseBridgeJSONToWebLLMInput } from '../utils/serialize'
@@ -61,7 +62,7 @@ export async function handleWebLLM(data: MessagePayload) {
 
       for await (const chunk of stream) {
         if (chunk) {
-          content += `${chunk.content}`
+          content += `${chunk.content || ''}`
           sendToMainThread(data.messageId, 'inprogress', chunk)
         }
       }
@@ -216,3 +217,12 @@ export async function handleWebLLM(data: MessagePayload) {
       throw new Error('Invalid operation')
   }
 }
+
+// Listen for messages from the main thread
+listenForMessages<MessagePayload>(handleWebLLM)
+
+logInfo('WebLLM worker init')
+
+init(async () => {
+  logInfo('WebLLM worker initialized')
+})

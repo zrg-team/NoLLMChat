@@ -2,8 +2,9 @@ import { FlowNode } from 'src/services/database/types'
 import { FlowNodeTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { BaseNodeHandler, FlowExecutionContext } from 'src/services/flow-machine/types'
 import { BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
-import type { LLM, Schema } from 'src/services/database/types'
+import type { LLM } from 'src/services/database/types'
 import { llmHandler } from 'src/handlers'
+import { OpenAISchema, OpenAPITool } from 'src/types/openai'
 
 interface LLMInfo {
   isLoaded: boolean
@@ -24,9 +25,6 @@ interface ThreadNodeData {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ThreadExecutionState {}
 
-/**
- * ThreadNode handler result - contains final state for LLM execution
- */
 interface ThreadNodeResult {
   finalState: ThreadExecutionState
   readyForExecution: boolean
@@ -63,7 +61,8 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
     const promptResults = (context.getState('prompts') as BaseMessage[]) || []
     const injectedMessages = (context.getState('injectedMessages') as BaseMessage[]) || []
     const userInput = context.getState('userInput') as string | undefined
-    const schemas = (context.getState('schemas') as Schema[]) || []
+    const schemas = (context.getState('schemas') as OpenAISchema[]) || []
+    const tools = (context.getState('tools') as OpenAPITool[]) || []
 
     // Build the message chain including injected messages from PlaceholderNode
     const messageChain = [...messages, ...promptResults, ...injectedMessages]
@@ -77,8 +76,8 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
     const reorderedMessages = this.reorderMessages(messageChain)
 
     // Execute LLM chat with collected state
-    const response = await this.executeLLMChat(llmInfo, reorderedMessages, schemas, context)
-    context.setState('final_response', response)
+    const response = await this.executeLLMChat(llmInfo, reorderedMessages, schemas, tools, context)
+    context.setState('finalResponse', response)
     return response
   }
 
@@ -88,7 +87,8 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
   private async executeLLMChat(
     llmInfo: LLMInfo,
     messages: BaseMessage[],
-    schemas: Schema[],
+    schemas: OpenAISchema[],
+    tools: OpenAPITool[],
     context: FlowExecutionContext,
   ): Promise<string> {
     // Get streaming callback from context if available
@@ -99,7 +99,7 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
     let fullResponse = ''
 
     // Execute LLM streaming with proper callbacks
-    await this.streamLLM(llmInfo.llm.provider as string, messages, llmInfo.llm, schemas, {
+    await this.streamLLM(llmInfo.llm.provider as string, messages, llmInfo.llm, schemas, tools, {
       onMessageUpdate: (data: { content: string }) => {
         fullResponse = data.content
         if (onMessageUpdate) {
@@ -133,7 +133,8 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
     provider: string,
     messages: BaseMessage[],
     llm: LLM,
-    schemas: Schema[],
+    schemas: OpenAISchema[],
+    tools: OpenAPITool[],
     callbacks: {
       onMessageUpdate: (data: { content: string }) => void
       onMessageFinish: (data: { content: string }) => void
@@ -142,8 +143,13 @@ export class ThreadNodeHandler extends BaseNodeHandler<ThreadNodeResult, string>
     await llmHandler.stream(provider as LLMProviderEnum, messages, {
       llm,
       schemas,
-      onMessageUpdate: (data: { content: string }) => callbacks.onMessageUpdate(data),
-      onMessageFinish: (data: { content: string }) => callbacks.onMessageFinish(data),
+      tools,
+      onMessageUpdate: (data: { content: string }) => {
+        callbacks.onMessageUpdate(data)
+      },
+      onMessageFinish: (data: { content: string }) => {
+        callbacks.onMessageFinish(data)
+      },
     })
   }
 

@@ -87,7 +87,6 @@ export const useActions = (id: string) => {
 
         // Get collected messages from the flow machine state
         const messages = (flowMachine.getSessionState('messages') as BaseMessage[]) || []
-        console.log('messages>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', messages)
 
         return messages
       } catch (error) {

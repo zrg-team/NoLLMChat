@@ -33,9 +33,7 @@ export function AIMessageComponent({
 
   const isError = data.entity.status === MessageStatusEnum.Failed
 
-  const content = useMemo(() => {
-    return <MarkdownViewer source={`${data.content || data.entity?.content || ''}`} />
-  }, [data.content, data.entity?.content])
+  const content = <MarkdownViewer source={`${data.content || data.entity?.content || ''}`} />
 
   return (
     <Alert

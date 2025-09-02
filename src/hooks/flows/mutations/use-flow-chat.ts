@@ -197,6 +197,7 @@ export const useFlowChat = (reactFlowInstance?: ReactFlowInstance<Node<DefaultNo
             options.onMessageUpdate({
               id: messagesInfo!.aiMessageNode.id,
               nodeData: {
+                content: data.nodeData.content,
                 entity: {
                   ...messagesInfo!.aiMessage,
                   content: data.nodeData.content,
@@ -214,7 +215,7 @@ export const useFlowChat = (reactFlowInstance?: ReactFlowInstance<Node<DefaultNo
 
         // Update AI message in database with final content
         const finalContent =
-          (finalRunState.sessionState.get('final_response') as string) || 'No response generated'
+          (finalRunState.sessionState.get('finalResponse') as string) || 'No response generated'
         await getRepository('Message').update(`${messagesInfo.aiMessage.id}`, {
           status: MessageStatusEnum.Success,
           content: finalContent,

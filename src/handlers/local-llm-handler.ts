@@ -1,9 +1,9 @@
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
-import type { LLM, Schema, SchemaItem } from 'src/services/database/types'
+import type { LLM } from 'src/services/database/types'
 import { logWarn } from 'src/utils/logger'
 import { webLLM, wllama, type ChatCompletionOptions } from '../services/local-llm'
-import { convertToZodSchema } from 'src/utils/schema-format'
-import { zodToJsonSchema } from 'zod-to-json-schema'
+import { OpenAISchema, OpenAPITool } from 'src/types/openai'
+import { manualStructuredResponse } from '../services/wllama/utils/manual-structured-response'
 
 /**
  * Type guard to check if an object is async iterable
@@ -13,12 +13,8 @@ function isAsyncIterable(obj: unknown): obj is AsyncIterable<unknown> {
 }
 
 type StreamType = {
-  schemas?: Schema[]
-  tools?: {
-    name: string
-    description: string
-    schemaItems: SchemaItem[]
-  }[]
+  schemas?: OpenAISchema[]
+  tools?: OpenAPITool[]
   onMessageUpdate?: (data: { content: string; chunk: BaseMessageChunk | BaseMessage }) => void
   onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk | BaseMessage }) => void
   llm?: LLM
@@ -77,29 +73,17 @@ const webLLMChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
     if (schemas && schemas?.length > 1) {
       logWarn('Multiple schemas are not supported. Only the first schema will be used.')
     }
-    const schemaItems = schemas?.[0]?.schema_items || []
-    const zodSchema = convertToZodSchema(schemaItems)
-    const jsonSchema = zodToJsonSchema(zodSchema, 'my').definitions?.my || {}
+    // Schema is already in OpenAI format, use it directly
+    const openAISchema = schemas[0].schema
     options.response_format = {
       type: 'json_object',
-      schema: jsonSchema,
+      schema: openAISchema,
     }
   }
 
-  // Add tools for function calling
+  // Add tools for function calling (already in OpenAPI format)
   if (tools?.length) {
-    options.tools = tools.map((tool) => {
-      const zodSchema = convertToZodSchema(tool.schemaItems)
-      const jsonSchema = zodToJsonSchema(zodSchema, 'my').definitions?.my || {}
-      return {
-        type: 'function',
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: jsonSchema,
-        },
-      }
-    })
+    options.tools = tools
   }
 
   const streamResponse = await webLLM.chatCompletion(messages, options)
@@ -113,16 +97,20 @@ const webLLMChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
   let lastChunk: BaseMessageChunk | BaseMessage | unknown
 
   if (streamResponse && isAsyncIterable(streamResponse)) {
-    for await (const chunk of streamResponse as AsyncIterable<{
-      content?: string
-      chunk?: unknown
-    }>) {
-      content += chunk.content || ''
-      lastChunk = chunk.chunk || chunk
-      onMessageUpdate?.({
-        content,
-        chunk: lastChunk as BaseMessageChunk | BaseMessage,
-      })
+    for await (const chunk of streamResponse) {
+      // Now fakeStreaming yields individual AIMessageChunk objects directly
+      if (chunk && typeof chunk === 'object' && 'content' in chunk) {
+        const chunkContent = chunk.content || ''
+
+        if (chunkContent) {
+          content += chunkContent // Accumulate individual chunk content
+          lastChunk = chunk
+          onMessageUpdate?.({
+            content,
+            chunk: lastChunk as BaseMessageChunk | BaseMessage,
+          })
+        }
+      }
     }
   } else {
     // Non-streaming response
@@ -161,12 +149,33 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
     stream: true,
   }
 
-  // Check for unsupported features
+  // Handle schemas using manual structured response
   if (schemas?.length) {
     if (schemas && schemas?.length > 1) {
       logWarn('Multiple schemas are not supported. Only the first schema will be used.')
     }
-    throw new Error('Structured output is not supported in Wllama yet')
+
+    // Use manual structured response for wllama
+    const schema = schemas[0]
+    const result = await manualStructuredResponse({
+      messages,
+      format: schema.schema,
+      stream: true,
+      onChunk: ({ content, chunk }) => {
+        onMessageUpdate?.({
+          content,
+          chunk: chunk as BaseMessageChunk | BaseMessage,
+        })
+      },
+    })
+
+    // Call onMessageFinish when structured response is complete
+    onMessageFinish?.({
+      content: result.content,
+      lastChunk: undefined,
+    })
+
+    return result.content
   }
 
   if (tools?.length) {
@@ -184,16 +193,20 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
   let lastChunk: BaseMessageChunk | BaseMessage | unknown
 
   if (streamResponse && isAsyncIterable(streamResponse)) {
-    for await (const chunk of streamResponse as AsyncIterable<{
-      content?: string
-      chunk?: unknown
-    }>) {
-      content += chunk.content || ''
-      lastChunk = chunk.chunk || chunk
-      onMessageUpdate?.({
-        content,
-        chunk: lastChunk as BaseMessageChunk | BaseMessage,
-      })
+    for await (const chunk of streamResponse) {
+      // Now fakeStreaming yields individual AIMessageChunk objects directly
+      if (chunk && typeof chunk === 'object' && 'content' in chunk) {
+        const chunkContent = chunk.content || ''
+
+        if (chunkContent) {
+          content += chunkContent // Accumulate individual chunk content
+          lastChunk = chunk
+          onMessageUpdate?.({
+            content,
+            chunk: lastChunk as BaseMessageChunk | BaseMessage,
+          })
+        }
+      }
     }
   } else {
     // Non-streaming response
