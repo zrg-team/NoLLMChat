@@ -72,17 +72,16 @@ class WllamaAPIImpl implements WllamaAPI {
   private async *streamResponse(
     messages: BaseMessage[],
   ): AsyncGenerator<ChatCompletionStreamChunk> {
-    let fullContent = ''
-    const newChunks: { content: string; chunk: AIMessage }[] = []
     let resolve: (() => void) | null = null
+    const chunks: ChatCompletionStreamChunk[] = []
 
     // Stream tokens in real-time
     const promise = wllamaStreamInner(messages, {
       onNewToken: (_token, _piece, newToken) => {
-        fullContent += newToken
-        newChunks.push({
-          content: fullContent,
-          chunk: new AIMessage(newToken), // Send only the new token as chunk
+        // Create consistent chunk format with accumulated content and individual token
+        chunks.push({
+          content: newToken, // Individual token content (same as WebLLM AIMessageChunk.content)
+          chunk: new AIMessage(newToken),
         })
         // Trigger the next chunk to be yielded
         if (resolve) {
@@ -96,8 +95,8 @@ class WllamaAPIImpl implements WllamaAPI {
 
     // Yield chunks as they become available
     while (true) {
-      if (chunkIndex < newChunks.length) {
-        yield newChunks[chunkIndex]
+      if (chunkIndex < chunks.length) {
+        yield chunks[chunkIndex]
         chunkIndex++
       } else {
         // Wait for more chunks or completion
@@ -110,8 +109,8 @@ class WllamaAPIImpl implements WllamaAPI {
 
         if (isComplete) {
           // Yield any remaining chunks
-          while (chunkIndex < newChunks.length) {
-            yield newChunks[chunkIndex]
+          while (chunkIndex < chunks.length) {
+            yield chunks[chunkIndex]
             chunkIndex++
           }
           break

@@ -1,9 +1,14 @@
 import { BaseMessage, BaseMessageChunk } from '@langchain/core/messages'
 import type { LLM } from 'src/services/database/types'
 import { logWarn } from 'src/utils/logger'
-import { webLLM, wllama, type ChatCompletionOptions } from '../services/local-llm'
-import { OpenAISchema, OpenAPITool } from 'src/types/openai'
-import { manualStructuredResponse } from '../services/wllama/utils/manual-structured-response'
+import type { OpenAISchema, OpenAPITool } from 'src/types/openai'
+import { manualStructuredResponse } from 'src/services/wllama/utils/manual-structured-response'
+import { manualFunctionCalling } from 'src/services/wllama/utils/manual-function-calling'
+import { webLLM, wllama, type ChatCompletionOptions } from 'src/services/local-llm'
+import type {
+  ChatCompletionStreamChunk,
+  ChatCompletionResponse,
+} from 'src/services/local-llm/types/openai-compatible'
 
 /**
  * Type guard to check if an object is async iterable
@@ -45,6 +50,54 @@ const unLoadModel = async (provider: string) => {
       return await wllama.unloadModel()
     default:
       return undefined
+  }
+}
+
+/**
+ * Shared streaming handler for both WebLLM and Wllama
+ * Both now return LangChain-compatible chunks with .content property
+ */
+const handleStreamingResponse = async (
+  streamResponse: AsyncIterable<ChatCompletionStreamChunk> | ChatCompletionResponse,
+  onMessageUpdate?: (data: { content: string; chunk: BaseMessageChunk | BaseMessage }) => void,
+  onMessageFinish?: (data: { content: string; lastChunk?: BaseMessageChunk | BaseMessage }) => void,
+) => {
+  let content = ''
+  let lastChunk: BaseMessageChunk | BaseMessage | unknown
+
+  if (streamResponse && isAsyncIterable(streamResponse)) {
+    for await (const chunk of streamResponse) {
+      // Process LangChain chunks (consistent format for both WebLLM and Wllama)
+      if (chunk && typeof chunk === 'object' && 'content' in chunk) {
+        const chunkContent = typeof chunk.content === 'string' ? chunk.content : ''
+
+        if (chunkContent) {
+          content += chunkContent // Accumulate individual chunk content
+          // Extract the actual chunk object, fallback to the chunk itself
+          lastChunk = ('chunk' in chunk ? chunk.chunk : chunk) || chunk
+
+          onMessageUpdate?.({
+            content,
+            chunk: lastChunk as BaseMessageChunk | BaseMessage,
+          })
+        }
+      }
+    }
+  } else {
+    // Non-streaming response
+    const response = streamResponse as { content?: string }
+    content = response.content || ''
+    lastChunk = response
+  }
+
+  onMessageFinish?.({
+    content,
+    lastChunk: lastChunk as BaseMessageChunk | BaseMessage,
+  })
+
+  return {
+    lastChunk,
+    content,
   }
 }
 
@@ -92,41 +145,8 @@ const webLLMChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
     throw new Error('Chat completion is not supported')
   }
 
-  // Handle streaming response
-  let content = ''
-  let lastChunk: BaseMessageChunk | BaseMessage | unknown
-
-  if (streamResponse && isAsyncIterable(streamResponse)) {
-    for await (const chunk of streamResponse) {
-      // Now fakeStreaming yields individual AIMessageChunk objects directly
-      if (chunk && typeof chunk === 'object' && 'content' in chunk) {
-        const chunkContent = chunk.content || ''
-
-        if (chunkContent) {
-          content += chunkContent // Accumulate individual chunk content
-          lastChunk = chunk
-          onMessageUpdate?.({
-            content,
-            chunk: lastChunk as BaseMessageChunk | BaseMessage,
-          })
-        }
-      }
-    }
-  } else {
-    // Non-streaming response
-    const response = streamResponse as { content?: string }
-    content = response.content || ''
-    lastChunk = response
-  }
-
-  onMessageFinish?.({
-    content,
-    lastChunk: lastChunk as BaseMessageChunk | BaseMessage,
-  })
-  return {
-    lastChunk,
-    content,
-  }
+  // Use shared streaming handler
+  return await handleStreamingResponse(streamResponse, onMessageUpdate, onMessageFinish)
 }
 
 /**
@@ -157,13 +177,15 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
 
     // Use manual structured response for wllama
     const schema = schemas[0]
+    let accumulatedContent = ''
     const result = await manualStructuredResponse({
       messages,
       format: schema.schema,
       stream: true,
       onChunk: ({ content, chunk }) => {
+        accumulatedContent += content // Accumulate chunk content
         onMessageUpdate?.({
-          content,
+          content: accumulatedContent, // Send accumulated content for display
           chunk: chunk as BaseMessageChunk | BaseMessage,
         })
       },
@@ -179,7 +201,31 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
   }
 
   if (tools?.length) {
-    throw new Error('Function calling is not supported in Wllama yet')
+    // Use manual function calling for wllama
+    let accumulatedContent = ''
+    const result = await manualFunctionCalling({
+      messages,
+      tools,
+      stream: true,
+      onChunk: (chunk) => {
+        const chunkContent = chunk.content || ''
+        accumulatedContent += chunkContent
+        onMessageUpdate?.({
+          content: accumulatedContent,
+          chunk: chunk as BaseMessageChunk | BaseMessage,
+        })
+      },
+    })
+
+    // Call onMessageFinish when function calling is complete
+    const contentString =
+      typeof result.content === 'string' ? result.content : JSON.stringify(result.content)
+    onMessageFinish?.({
+      content: contentString,
+      lastChunk: result,
+    })
+
+    return result
   }
 
   const streamResponse = await wllama.chatCompletion(messages, options)
@@ -188,41 +234,8 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
     throw new Error('Chat completion is not supported')
   }
 
-  // Handle streaming response
-  let content = ''
-  let lastChunk: BaseMessageChunk | BaseMessage | unknown
-
-  if (streamResponse && isAsyncIterable(streamResponse)) {
-    for await (const chunk of streamResponse) {
-      // Now fakeStreaming yields individual AIMessageChunk objects directly
-      if (chunk && typeof chunk === 'object' && 'content' in chunk) {
-        const chunkContent = chunk.content || ''
-
-        if (chunkContent) {
-          content += chunkContent // Accumulate individual chunk content
-          lastChunk = chunk
-          onMessageUpdate?.({
-            content,
-            chunk: lastChunk as BaseMessageChunk | BaseMessage,
-          })
-        }
-      }
-    }
-  } else {
-    // Non-streaming response
-    const response = streamResponse as { content?: string }
-    content = response.content || ''
-    lastChunk = response
-  }
-
-  onMessageFinish?.({
-    content,
-    lastChunk: lastChunk as BaseMessageChunk | BaseMessage,
-  })
-  return {
-    lastChunk,
-    content,
-  }
+  // Use shared streaming handler
+  return await handleStreamingResponse(streamResponse, onMessageUpdate, onMessageFinish)
 }
 
 /**
