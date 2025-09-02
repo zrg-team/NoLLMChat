@@ -132,12 +132,10 @@ export class PlaceholderNodeHandler extends BaseNodeHandler<PlaceholderResult, v
           const embeddingEntity = context.getState('embeddingEntity') as
             | FlowNodePlaceholder
             | undefined
-          const confirmPassphrase = context.getState('confirmPassphrase') as
-            | (() => Promise<void>)
-            | undefined
 
           try {
             // Use embedding handler for similarity search
+
             const searchResults = await embeddingHandler.similaritySearchWithScore(
               embeddingEntity,
               {
@@ -149,7 +147,6 @@ export class PlaceholderNodeHandler extends BaseNodeHandler<PlaceholderResult, v
               },
               humanMessageContent,
               k,
-              confirmPassphrase,
             )
 
             if (searchResults) {
@@ -163,9 +160,9 @@ export class PlaceholderNodeHandler extends BaseNodeHandler<PlaceholderResult, v
           const embeddingEntity = context.getState('embeddingEntity') as
             | FlowNodePlaceholder
             | undefined
-          const confirmPassphrase = context.getState('confirmPassphrase') as
-            | (() => Promise<void>)
-            | undefined
+          // const confirmPassphrase = context.getState('confirmPassphrase') as
+          //   | (() => Promise<void>)
+          //   | undefined
 
           try {
             // Use embedding handler for similarity search
@@ -178,7 +175,6 @@ export class PlaceholderNodeHandler extends BaseNodeHandler<PlaceholderResult, v
               },
               humanMessageContent,
               k,
-              confirmPassphrase,
             )
 
             if (searchResults) {

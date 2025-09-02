@@ -46,6 +46,7 @@ export const useCreateMessage = () => {
           setLLMInfo((pre) => (pre ? { ...pre, status: LLMStatusEnum.Loaded, progress: '' } : pre))
         }
         try {
+          await confirmPassphrase()
           const streamResponse = await llmHandler.stream(
             mainLLMInfo?.llm.provider,
             typeof input === 'string' ? [new HumanMessage(input)] : input,
@@ -54,7 +55,6 @@ export const useCreateMessage = () => {
                 onMessageUpdate?.(data.content)
               },
               llm: mainLLMInfo?.llm,
-              confirmPassphrase,
             },
           )
           return streamResponse?.content
@@ -71,15 +71,7 @@ export const useCreateMessage = () => {
         }
       }
     },
-    [
-      currentSession?.main_node_id,
-      mainLLMInfo?.llm,
-      mainLLMInfo?.status,
-      toast,
-      t,
-      loadModel,
-      stream,
-    ],
+    [currentSession?.main_node_id, mainLLMInfo?.llm, mainLLMInfo?.status, toast, t, loadModel],
   )
 
   const init = useCallback(async () => {

@@ -3,7 +3,7 @@ import omitBy from 'lodash/omitBy'
 import isUndefined from 'lodash/isUndefined'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'src/lib/hooks/use-toast'
-import { Node, useInternalNode, useReactFlow, ReactFlowInstance } from '@xyflow/react'
+import { Node, useInternalNode, useReactFlow, ReactFlowInstance, Edge } from '@xyflow/react'
 import { useFlowChat } from 'src/hooks/flows/mutations/use-flow-chat'
 import { useFlowState } from 'src/states/flow'
 import { FlowMachine } from 'src/services/flow-machine/flow-machine'
@@ -22,7 +22,9 @@ export const useActions = (id: string) => {
 
   const updateNodes = useFlowState((state) => state.updateNodes)
   const reactFlowInstance = useReactFlow<Node<MessageNodeProps['data']>>()
-  const { createMessage: createMessageFunction, loading } = useFlowChat(reactFlowInstance)
+  const { createMessage: createMessageFunction, loading } = useFlowChat(
+    reactFlowInstance as unknown as ReactFlowInstance<Node<DefaultNodeData>, Edge>,
+  )
   const { getNode, getNodes, getHandleConnections } = reactFlowInstance
 
   /**

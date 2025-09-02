@@ -7,7 +7,7 @@ import { DefaultNode } from 'src/utils/flow-node'
 import { FlowNodeTypeEnum, LLMProviderEnum } from 'src/services/database/types'
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { Message } from 'ai/react'
-import { MessageNodeProps } from 'src/components/flows/Nodes/MessageNode/type'
+import { MessageNodeProps } from 'src/components/flows/Nodes/chat/MessageNode/type'
 import { llmHandler } from 'src/handlers'
 import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
 
@@ -98,7 +98,7 @@ export const useActions = () => {
       })
       return response?.content
     },
-    [stream],
+    [],
   )
 
   return {
