@@ -1,6 +1,0 @@
-import{c as t}from"./createLucideIcon-BEhd4ns2.js";import"./index-RiB-44Db.js";/**
-* @license lucide-react v0.525.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/const e=[["path",{d:"M12 21v-6",key:"lihzve"}],["path",{d:"M12 9V3",key:"da5inc"}],["path",{d:"M3 15h18",key:"5xshup"}],["path",{d:"M3 9h18",key:"1pudct"}],["rect",{width:"18",height:"18",x:"3",y:"3",rx:"2",key:"afitv7"}]],h=t("table-cells-merge",e);export{e as __iconNode,h as default};

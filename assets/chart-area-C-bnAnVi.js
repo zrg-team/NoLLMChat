@@ -1,6 +1,0 @@
-import{c as t}from"./createLucideIcon-BEhd4ns2.js";import"./index-RiB-44Db.js";/**
-* @license lucide-react v0.525.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/const a=[["path",{d:"M3 3v16a2 2 0 0 0 2 2h16",key:"c24i48"}],["path",{d:"M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z",key:"q0gr47"}]],o=t("chart-area",a);export{a as __iconNode,o as default};
