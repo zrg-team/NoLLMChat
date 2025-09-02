@@ -1,0 +1,6 @@
+import{c as o}from"./createLucideIcon-BEhd4ns2.js";import"./index-RiB-44Db.js";/**
+* @license lucide-react v0.525.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/const c=[["path",{d:"M12 6v6l-4 2",key:"imc3wl"}],["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}]],l=o("clock-8",c);export{c as __iconNode,l as default};
