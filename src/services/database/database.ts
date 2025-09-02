@@ -12,7 +12,7 @@ import { getEmptyPromise } from 'src/utils/promise'
 import { logWarn } from 'src/utils/logger'
 
 import type { AppEntityNames, EntityTypesMap } from './types'
-import { QueryOptions } from './utils/serialize.base'
+import type { QueryOptions } from './utils/serialize.base'
 import { transformQueryObjectToBridgeJSON } from './utils/serialize.main'
 import { WorkerExecutionType } from './utils/bridge.base'
 import { worker } from './worker'

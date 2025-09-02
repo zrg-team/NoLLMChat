@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { LLM } from 'src/services/database/types'
 
 export const useUpdateLLMOptions = () => {

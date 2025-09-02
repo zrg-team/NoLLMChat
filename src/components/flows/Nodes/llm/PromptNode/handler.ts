@@ -1,6 +1,11 @@
-import { FlowNode } from 'src/services/database/entities'
 import { HumanMessage, SystemMessage, AIMessage, BaseMessage } from '@langchain/core/messages'
-import { FlowNodeTypeEnum, Prompt, PromptTypeEnum, CSVData } from 'src/services/database/types'
+import {
+  FlowNode,
+  FlowNodeTypeEnum,
+  Prompt,
+  PromptTypeEnum,
+  CSVData,
+} from 'src/services/database/types'
 import { BaseNodeHandler, FlowExecutionContext } from 'src/services/flow-machine/types'
 import { decodeCSVData } from 'src/utils/string-data'
 

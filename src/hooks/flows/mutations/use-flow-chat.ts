@@ -14,7 +14,7 @@ import type { MessageNodeProps } from 'src/components/flows/Nodes/chat/MessageNo
 import type { Edge, Node, ReactFlowInstance } from '@xyflow/react'
 import { SchemaNodeHandler } from 'src/components/flows/Nodes/llm/SchemaNode/handler'
 import { useConfirmPassphrase } from 'src/hooks/mutations/use-confirm-passphrase'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import {
   FlowNodeTypeEnum,
   MessageRoleEnum,

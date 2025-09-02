@@ -1,6 +1,6 @@
 import type { FileSystemTree } from '@webcontainer/api'
 import { useCallback, useEffect, useState } from 'react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import {
   FileSystemTreeChange,
   parseFileSystemTreeToJSONL,

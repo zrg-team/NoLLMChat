@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef } from 'react'
 import { Position, useInternalNode } from '@xyflow/react'
 import { useTranslation } from 'react-i18next'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useFlowState } from 'src/states/flow'
 import { convertToTypeScriptInterface, convertToZodSchemaString } from 'src/utils/schema-format'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/lib/shadcn/ui/tabs'

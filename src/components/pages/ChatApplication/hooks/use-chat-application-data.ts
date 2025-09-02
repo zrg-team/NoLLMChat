@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useSessionState } from 'src/states/session'
 import { findFlowNodesWithSource } from 'src/states/flow/actions'
 import {

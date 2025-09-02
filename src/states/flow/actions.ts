@@ -21,7 +21,7 @@ import {
 } from 'src/services/database/types'
 import { In, type FindManyOptions } from 'src/services/database/typeorm-wrapper'
 import type { GetState, SetState } from 'src/utils/zustand'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import {
   flowEdgesToEdgeChanges,
   flowEdgeToEdge,

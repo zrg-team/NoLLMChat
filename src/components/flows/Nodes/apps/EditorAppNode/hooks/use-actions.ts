@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { HumanMessage, type BaseMessage } from '@langchain/core/messages'
 import { Connection, useInternalNode, useReactFlow } from '@xyflow/react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useToast } from 'src/lib/hooks/use-toast'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'

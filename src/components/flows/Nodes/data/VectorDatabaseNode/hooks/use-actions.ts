@@ -4,7 +4,7 @@ import { useReactFlow } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useToast } from 'src/lib/hooks/use-toast'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import type { VectorDatabase } from 'src/services/database/types'
 import {
   FlowNodeTypeEnum,

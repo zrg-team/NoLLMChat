@@ -1,6 +1,6 @@
 import { useReactFlow } from '@xyflow/react'
 import type { Node, Edge } from '@xyflow/react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { type FindManyOptions } from 'src/services/database/typeorm-wrapper'
 import { FlowNodeTypeEnum, AppEntityNames } from 'src/services/database/types'
 import type { FlowNode, FlowEdge } from 'src/services/database/types'

@@ -18,7 +18,7 @@ import {
 //   ChartTooltip,
 //   ChartTooltipContent,
 // } from 'src/lib/shadcn/ui/chart'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useSessionState } from 'src/states/session'
 import { formatBytes } from 'src/utils/bytes-format'
 import { Button } from 'src/lib/shadcn/ui/button'

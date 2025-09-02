@@ -1,5 +1,5 @@
 import { BaseNodeHandler, FlowExecutionContext } from 'src/services/flow-machine/types'
-import { FlowNode } from 'src/services/database/entities'
+import type { FlowNode } from 'src/services/database/types'
 import {
   FlowNodePlaceholder,
   FlowNodeTypeEnum,

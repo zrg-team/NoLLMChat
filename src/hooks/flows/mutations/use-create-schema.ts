@@ -1,7 +1,7 @@
 import { Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
 import { SchemaItemType } from 'src/components/molecules/CreateSchemaCard/Field/type'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { FlowNodeTypeEnum, SchemaItem } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
 import { useSessionState } from 'src/states/session'

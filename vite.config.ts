@@ -7,6 +7,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vite'
 import mdx from '@mdx-js/rollup'
 import remarkGfm from 'remark-gfm'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   plugins: [
@@ -24,7 +25,16 @@ export default defineConfig({
         global: true,
       },
     }),
-  ],
+    // Bundle analyzer - only in build mode
+    process.env.NODE_ENV !== 'development' &&
+      visualizer({
+        filename: './dist/bundle-analysis.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+        template: 'treemap', // 'treemap', 'sunburst', 'network'
+      }),
+  ].filter(Boolean),
   build: {
     sourcemap: true,
     minify: 'esbuild',

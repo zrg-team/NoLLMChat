@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { METADATA_KEY } from 'src/constants/import-export'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { AppEntityNames, Session, SessionTypeEnum, TABLE_NAMES } from 'src/services/database/types'
 import { getRouteURL } from 'src/utils/routes'
 import { generateUUID } from 'src/utils/uuid'

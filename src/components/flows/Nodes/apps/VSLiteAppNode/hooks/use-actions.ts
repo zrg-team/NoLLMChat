@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Connection, useReactFlow } from '@xyflow/react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import type { FileSystemTree } from '@webcontainer/api'
 import { parseFileSystemTreeToJSONL } from 'src/services/web-container/utils/file-tree'
 import { DefaultNode } from 'src/utils/flow-node'

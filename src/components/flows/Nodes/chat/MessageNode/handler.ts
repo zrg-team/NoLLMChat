@@ -1,6 +1,5 @@
 import { BaseNodeHandler, FlowExecutionContext } from 'src/services/flow-machine/types'
-import { FlowNode } from 'src/services/database/entities'
-import { Message, FlowNodeTypeEnum } from 'src/services/database/types'
+import { FlowNode, Message, FlowNodeTypeEnum } from 'src/services/database/types'
 import { BaseMessage, HumanMessage, AIMessage } from '@langchain/core/messages'
 
 interface MessageNodeData {

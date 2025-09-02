@@ -14,7 +14,7 @@ import {
   getVectorDatabaseStorage,
   storeVectorDatabaseStorage,
 } from 'src/utils/vector-storage'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import {
   VectorDatabase,
   VectorDatabaseNodeDataSource,

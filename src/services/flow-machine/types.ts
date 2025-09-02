@@ -1,4 +1,4 @@
-import { FlowNode, FlowEdge } from '../database/entities'
+import type { FlowNode, FlowEdge } from '../database/types'
 import { FlowNodeTypeEnum } from '../database/types'
 
 export enum FlowRunStatus {

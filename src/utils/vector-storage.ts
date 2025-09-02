@@ -17,7 +17,7 @@ import {
   encodeLine,
   encodeSplitter,
 } from './string-data'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 
 export type VectorData = {
   id?: string

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { AppEntityNames, EntityArrayTypes, TABLE_NAMES } from 'src/services/database/types'
 import { useSessionState } from 'src/states/session'
 import { METADATA_KEY } from 'src/constants/import-export'

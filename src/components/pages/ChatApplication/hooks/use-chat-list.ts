@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSessionState } from 'src/states/session'
 import { FlowNode, JSONData } from 'src/services/database/types'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { findFlowNodesWithSource } from 'src/states/flow/actions'
 

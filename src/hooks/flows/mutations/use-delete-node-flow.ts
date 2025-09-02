@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useFlowState } from 'src/states/flow'
 
 export const useDeleteNodeFlow = () => {

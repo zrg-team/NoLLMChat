@@ -3,7 +3,7 @@ import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages
 import { useToast } from 'src/lib/hooks/use-toast'
 import { FlowNodeTypeEnum, LLM, LLMStatusEnum } from 'src/services/database/types'
 import { useTranslation } from 'react-i18next'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useSessionState } from 'src/states/session'
 import { In } from 'src/services/database/typeorm-wrapper'
 import { Message } from 'ai/react'

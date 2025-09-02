@@ -1,6 +1,6 @@
 import { Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import {
   FlowNodePlaceholderTypeEnum,
   FlowNodeTypeEnum,

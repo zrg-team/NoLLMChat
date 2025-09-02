@@ -1,6 +1,6 @@
 import { Session, SessionStatusEnum, SessionTypeEnum } from 'src/services/database/types'
 import { SetState, GetState } from 'src/utils/zustand'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useAppState } from 'src/states/app'
 import secureSession from 'src/utils/secure-session'
 import type { FindManyOptions } from 'src/services/database/typeorm-wrapper'

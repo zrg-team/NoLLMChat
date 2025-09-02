@@ -1,5 +1,4 @@
-import { FlowNode } from 'src/services/database/entities'
-import { FlowNodeTypeEnum, Schema } from 'src/services/database/types'
+import { FlowNode, FlowNodeTypeEnum, Schema } from 'src/services/database/types'
 import { BaseNodeHandler, FlowExecutionContext } from 'src/services/flow-machine/types'
 
 interface SchemaNodeData {

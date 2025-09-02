@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { useInternalNode } from '@xyflow/react'
 import { FlowNodeTypeEnum } from 'src/services/database/types'
 import { useFlowState } from 'src/states/flow'
-import { getRepository } from 'src/services/database'
+import { getRepository } from 'src/services/database/database'
 import { useSessionState } from 'src/states/session'
 
 import { DEFAULT_NODE_SIZE } from '../constants'
