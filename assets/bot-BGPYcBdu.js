@@ -1,0 +1,6 @@
+import{c as e}from"./createLucideIcon-D9I8Id43.js";import"./index-CMO0DEG8.js";/**
+* @license lucide-react v0.525.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/const t=[["path",{d:"M12 8V4H8",key:"hb8ula"}],["rect",{width:"16",height:"12",x:"4",y:"8",rx:"2",key:"enze0r"}],["path",{d:"M2 14h2",key:"vft8re"}],["path",{d:"M20 14h2",key:"4cs60a"}],["path",{d:"M15 13v2",key:"1xurst"}],["path",{d:"M9 13v2",key:"rq6x2g"}]],a=e("bot",t);export{t as __iconNode,a as default};
