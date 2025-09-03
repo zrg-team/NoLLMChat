@@ -17,6 +17,7 @@
     "postinstall": "npx patch-package",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d dist",
+    "typecheck": "tsc --noEmit",
     "production-serve": "cp -R ./dist ./dist/NoLLMChat  && npx serve ./serve"
   },
   "dependencies": {

@@ -25,6 +25,11 @@ type StreamType = {
   llm?: LLM
 }
 
+type LocalLLMResponse = {
+  lastChunk: BaseMessageChunk | BaseMessage | unknown
+  content: string
+}
+
 /**
  * Get current model info for a provider
  */
@@ -104,7 +109,10 @@ const handleStreamingResponse = async (
 /**
  * WebLLM chat completion handler
  */
-const webLLMChatCompletion = async (messages: BaseMessage[], info?: StreamType) => {
+const webLLMChatCompletion = async (
+  messages: BaseMessage[],
+  info?: StreamType,
+): Promise<LocalLLMResponse> => {
   const { tools, schemas, onMessageUpdate, onMessageFinish } = info || {}
 
   if (!info?.llm) {
@@ -152,7 +160,10 @@ const webLLMChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
 /**
  * Wllama chat completion handler
  */
-const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) => {
+const wllamaChatCompletion = async (
+  messages: BaseMessage[],
+  info?: StreamType,
+): Promise<LocalLLMResponse> => {
   const { tools, schemas, onMessageUpdate, onMessageFinish } = info || {}
 
   if (!info?.llm) {
@@ -197,7 +208,10 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
       lastChunk: undefined,
     })
 
-    return result.content
+    return {
+      lastChunk: undefined,
+      content: result.content,
+    }
   }
 
   if (tools?.length) {
@@ -225,7 +239,10 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
       lastChunk: result,
     })
 
-    return result
+    return {
+      lastChunk: result,
+      content: contentString,
+    }
   }
 
   const streamResponse = await wllama.chatCompletion(messages, options)
@@ -242,7 +259,7 @@ const wllamaChatCompletion = async (messages: BaseMessage[], info?: StreamType) 
  * Non-hook version of local LLM handler that can be called anywhere
  */
 export const localLLMHandler = {
-  async chatCompletion(messages: BaseMessage[], info?: StreamType) {
+  async chatCompletion(messages: BaseMessage[], info?: StreamType): Promise<LocalLLMResponse> {
     switch (info?.llm?.provider) {
       case 'WebLLM':
         return webLLMChatCompletion(messages, info)
@@ -254,7 +271,7 @@ export const localLLMHandler = {
   },
 
   // Legacy stream method for backward compatibility
-  async stream(messages: BaseMessage[], info?: StreamType) {
+  async stream(messages: BaseMessage[], info?: StreamType): Promise<LocalLLMResponse> {
     return this.chatCompletion(messages, info)
   },
 }
